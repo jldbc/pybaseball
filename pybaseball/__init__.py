@@ -1,1 +1,1 @@
-from .statcast import statcast
+from .statcast import get_statcast
