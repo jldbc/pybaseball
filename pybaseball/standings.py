@@ -1,11 +1,12 @@
 from bs4 import BeautifulSoup
 import requests
 import datetime
+import pandas as pd 
 
-def get_soup(date):
-	#year, month, day = [today.strftime("%Y"), today.strftime("%m"), today.strftime("%d")]
-	#url = "http://www.baseball-reference.com/boxes?year={}&month={}&day={}".format(year, month, day)
-	year = date.strftime("%Y")
+def get_soup(year):
+	# get most recent standings if date not specified
+	if(year is None):
+		year = datetime.datetime.today().strftime("%Y")
 	url = 'http://www.baseball-reference.com/leagues/MLB/{}-standings.shtml'.format(year)
 	s=requests.get(url).content
 	return BeautifulSoup(s)
@@ -20,21 +21,19 @@ def get_tables(soup):
 		table_body = table.find('tbody')
 		rows = table_body.find_all('tr')
 		for row in rows:
-			#data.append(row.find_all('a')[0]['title'])  # team name
 		    cols = row.find_all('td')
 		    cols = [ele.text.strip() for ele in cols]
-		    cols.insert(0,row.find_all('a')[0]['title'])
+		    cols.insert(0,row.find_all('a')[0]['title']) # team name
 		    data.append([ele for ele in cols if ele])
 		datasets.append(data)
 	return datasets
 
-
-def standings(date=None):
-	# get most recent standings if date not specified
-	if(date is None):
-		date = datetime.datetime.today()
+def standings(year=None):
 	# retrieve html from baseball reference
-	soup = get_soup(date)
+	soup = get_soup(year)
 	tables = get_tables(soup)
+	tables = [pd.DataFrame(table) for table in tables]
+	for idx in range(len(tables)):
+		tables[idx] = tables[idx].rename(columns=tables[idx].iloc[0])
+		tables[idx] = tables[idx].reindex(tables[idx].index.drop(0))
 	return tables
-
