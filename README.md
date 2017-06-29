@@ -1,7 +1,7 @@
 # pybaseball
 **(First release: 06/28/17)**
 
-'pybaseball' is a Python package for baseball data analysis. This package scrapes baseball-reference.com and baseballsavant.com so you don't have to. So far, the package performs four main tasks. 
+'pybaseball' is a Python package for baseball data analysis. This package scrapes baseball-reference.com and baseballsavant.com so you don't have to. So far, the package performs four main tasks: retrieving statcast data, pitching stats, batting stats, and division standings/team records.
 
 ## Statcast: Pull advanced metrics from Major League Baseball's Statcast system
 
