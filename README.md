@@ -1,11 +1,11 @@
 # pybaseball
 **(First release: 06/28/17)**
 
-'pybaseball' is a Python package for baseball data analysis. This package scrapes baseball-reference.com and baseballsavant.com so you don't have to. So far, the package performs four main tasks: retrieving statcast data, pitching stats, batting stats, and division standings/team records.
+`pybaseball` is a Python package for baseball data analysis. This package scrapes baseball-reference.com and baseballsavant.com so you don't have to. So far, the package performs four main tasks: retrieving statcast data, pitching stats, batting stats, and division standings/team records.
 
 ## Statcast: Pull advanced metrics from Major League Baseball's Statcast system
 
-Statcast data include features such as Perceived Velocity (PV), Spin Rate (SR), Exit Velocity (EV), pitch X, Y, and Z coordinates, and more. The function 'get_statcast()' pulls this data from baseballsavant.com. 
+Statcast data include features such as Perceived Velocity (PV), Spin Rate (SR), Exit Velocity (EV), pitch X, Y, and Z coordinates, and more. The function `get_statcast(start_dt, end_dt)` pulls this data from baseballsavant.com. 
 
 ~~~~
 >>> pybaseball.get_statcast(start_dt='2017-06-15', end_dt='2017-06-28').head(2)
@@ -31,11 +31,11 @@ Statcast data include features such as Perceived Velocity (PV), Spin Rate (SR), 
 1      null               null           110            1
 ~~~~
 
-If 'start_dt' and 'end_dt' are supplied, it will return all statcast data between those two dates. If not, it will return yesterday's data. The argument 'team' may also be supplied with a team's city abbreviation (i.e. BOS) to obtain only observations for games containing that team. 
+If `start_dt` and `end_dt` are supplied, it will return all statcast data between those two dates. If not, it will return yesterday's data. The argument `team` may also be supplied with a team's city abbreviation (i.e. BOS) to obtain only observations for games containing that team. 
 
 ## Pitching Stats: pitching stats for players within seasons or during a specified time period
 
-This library contains two functions for obtaining pitching data. The first, 'pitching_stats(season)', will return all pitcher stats for a given regular season. The present season will return stats for season-to-date. The second, 'pitching_stats_range(start_dt, end_dt)', will return pitcher stats from a given time period. Note that all dates should be in 'YYYY-MM-DD' format. 
+This library contains two functions for obtaining pitching data. The first, `pitching_stats(season)`, will return all pitcher stats for a given regular season. The present season will return stats for season-to-date. The second, `pitching_stats_range(start_dt, end_dt)`, will return pitcher stats from a given time period. Note that all dates should be in `YYYY-MM-DD` format. 
 
 ~~~~
 >>> pybaseball.pitching_stats(2015).head(2)
@@ -52,7 +52,7 @@ This library contains two functions for obtaining pitching data. The first, 'pit
 
 ## Batting Stats: hitting stats for players within seasons or during a specified time period
 
-Batting stats are obtained similar to pitching stats. The function call for getting an entire season worth of stats is 'batting_stats(season)', and for a particular time range it is 'batting_stats_range(start_dt, end_dt)'. 
+Batting stats are obtained similar to pitching stats. The function call for getting an entire season worth of stats is `batting_stats(season)`, and for a particular time range it is `batting_stats_range(start_dt, end_dt)`. 
 
 ~~~~
 >>> pybaseball.batting_stats_range('2017-05-01', '2017-05-08').head(2)
@@ -68,7 +68,7 @@ Batting stats are obtained similar to pitching stats. The function call for gett
 
 ## Standings: up to date or historical division standings, W/L records
 
-The 'standings(season)' function gives division standings for a given season. If the current season is chosen, it will give the most current set of standings. Otherwise, it will give the end-of-season standings for each division for the chosen season. 
+The `standings(season)` function gives division standings for a given season. If the current season is chosen, it will give the most current set of standings. Otherwise, it will give the end-of-season standings for each division for the chosen season. 
 
 This function returns a list of dataframes. Each dataframe is the standings for one of MLB's six divisions. 
 
