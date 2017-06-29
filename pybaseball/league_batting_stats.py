@@ -56,4 +56,3 @@ def batting_stats(season=None):
 	start_dt = season + '-03-01' #opening day is always late march or early april
 	end_dt = season + '-11-01' #season is definitely over by November 
 	return(batting_stats_range(start_dt, end_dt))
-
