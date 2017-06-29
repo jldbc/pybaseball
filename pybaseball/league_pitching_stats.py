@@ -1,5 +1,6 @@
 import requests
 import pandas as pd
+import numpy as np
 from bs4 import BeautifulSoup
 import datetime
 
@@ -36,6 +37,19 @@ def pitching_stats_range(start_dt=None, end_dt=None):
 	# retrieve html from baseball reference
 	soup = get_soup(start_dt, end_dt)
 	table = get_table(soup)
+	table = table.dropna(how='all') # drop if all columns are NA
+	#fix some strange formatting for percentage columns
+	table = table.replace('---%', np.nan)
+	#make sure these are all numeric
+	for column in ['Age', '#days', 'G', 'GS', 'W', 'L', 'SV', 'IP', 'H',
+					'R', 'ER', 'BB', 'SO', 'HR', 'HBP', 'ERA', 'AB', '2B',
+					'3B', 'IBB', 'GDP', 'SF', 'SB', 'CS', 'PO', 'BF', 'Pit',
+					'WHIP', 'BAbip', 'SO9', 'SO/W']:
+		table[column] = pd.to_numeric(table[column])
+	#convert str(xx%) values to float(0.XX) decimal values
+	for column in ['Str', 'StL', 'StS', 'GB/FB', 'LD', 'PU']:
+		table[column] = table[column].replace('%','',regex=True).astype('float')/100
+
 	return table
 
 def pitching_stats(season=None):
@@ -45,6 +59,7 @@ def pitching_stats(season=None):
 	"""
 	if season == None:
 		season = datetime.datetime.today().strftime("%Y")
+	season = str(season)
 	start_dt = season + '-03-01' #opening day is always late march or early april
 	end_dt = season + '-11-01' #season is definitely over by November 
 	return(pitching_stats_range(start_dt, end_dt))
