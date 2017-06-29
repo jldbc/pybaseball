@@ -57,9 +57,9 @@ Batting stats are obtained similar to pitching stats. The function call for gett
 ~~~~
 >>> pybaseball.batting_stats_range('2017-05-01', '2017-05-08').head(2)
 
-         Name      Age  #days     Lev       Tm  G  PA  AB  R  ...     SH  \
-1  Jose Abreu  gl   30     51  MLB-AL  Chicago  7  31  30  5  ...      0   0
-2  Lane Adams  gl   27     51  MLB-NL  Atlanta  6   6   6  0  ...      0   0
+         Name      Age  #days     Lev       Tm  G  PA  AB  R  ... 
+1  Jose Abreu  gl   30     51  MLB-AL  Chicago  7  31  30  5  ... 
+2  Lane Adams  gl   27     51  MLB-NL  Atlanta  6   6   6  0  ... 
 
    HB  SH  PSF  GDP  SB  CS     BA    OBP    SLG    OPS
 1   0   0   0    1   0   0   0.300  0.323  0.667  0.989
@@ -90,6 +90,7 @@ This pacakge was inspired by Bill Petti's excellent R package [baseballr](https:
 ## Work in Progress:
 Moving forward, I intend to:
 
+* Make this pip-installable
 * Pull data from additional sources (i.e. fangraphs.com, other pages on baseball-reference.com)
 * Improve error handling to clarify which queries will and will not work (i.e. date ranges for which data is available, acceptable values for function arguments)
 * Implement custom metrics such as historical Elo ratings
