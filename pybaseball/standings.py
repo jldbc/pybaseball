@@ -9,7 +9,7 @@ def get_soup(year):
 		year = datetime.datetime.today().strftime("%Y")
 	url = 'http://www.baseball-reference.com/leagues/MLB/{}-standings.shtml'.format(year)
 	s=requests.get(url).content
-	return BeautifulSoup(s)
+	return BeautifulSoup(s, "html.parser")
 
 def get_tables(soup):
 	tables = soup.find_all('table')
@@ -26,7 +26,10 @@ def get_tables(soup):
 		    cols.insert(0,row.find_all('a')[0]['title']) # team name
 		    data.append([ele for ele in cols if ele])
 		datasets.append(data)
-	return datasets
+	#convert list-of-lists to dataframes
+	for idx in range(len(datasets)):
+		datasets[idx] = pd.DataFrame(datasets[idx])
+	return datasets #returns a list of dataframes
 
 def standings(year=None):
 	# retrieve html from baseball reference
