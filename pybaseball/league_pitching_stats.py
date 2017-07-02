@@ -4,6 +4,39 @@ import numpy as np
 from bs4 import BeautifulSoup
 import datetime
 
+def validate_datestring(date_text):
+    try:
+        datetime.datetime.strptime(date_text, '%Y-%m-%d')
+    except ValueError:
+        raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+
+def sanitize_input(start_dt, end_dt):
+	# if no dates are supplied, assume they want yesterday's data
+	# send a warning in case they wanted to specify
+	if start_dt is None and end_dt is None:
+		today = datetime.datetime.today()
+		start_dt = (today - datetime.timedelta(1)).strftime("%Y-%m-%d")
+		end_dt = today.strftime("%Y-%m-%d")
+		print("Warning: no date range supplied. Returning yesterday's data. For a different date range, try pitching_stats_range(start_dt, end_dt) or pitching_stats(season).")
+
+	#if only one date is supplied, assume they only want that day's stats
+	#query in this case is from date 1 to date 1
+	if start_dt is None:
+		start_dt = end_dt
+	if end_dt is None:
+		end_dt = start_dt
+
+	#if end date occurs before start date, swap them 
+	if end_dt < start_dt:
+		temp = start_dt
+		start_dt = end_dt
+		end_dt = temp
+		
+	# now that both dates are not None, make sure they are valid date strings
+	validate_datestring(start_dt)
+	validate_datestring(end_dt)
+	return start_dt, end_dt
+
 def get_soup(start_dt, end_dt):
 	# get most recent standings if date not specified
 	if((start_dt is None) or (end_dt is None)):
@@ -34,6 +67,8 @@ def pitching_stats_range(start_dt=None, end_dt=None):
 	Get all pitching stats for a set time range. This can be the past week, the month of 
 	August, anything. Just supply the start and end date in YYYY-MM-DD format. 
 	"""
+	# ensure valid date strings, perform necessary processing for query
+	start_dt, end_dt = sanitize_input(start_dt, end_dt)
 	# retrieve html from baseball reference
 	soup = get_soup(start_dt, end_dt)
 	table = get_table(soup)
