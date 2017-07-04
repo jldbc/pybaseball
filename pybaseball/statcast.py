@@ -32,7 +32,7 @@ def sanitize_input(start_dt, end_dt):
 	validate_datestring(end_dt)
 	return start_dt, end_dt
 
-def get_statcast(start_dt=None, end_dt=None, team=None):
+def statcast(start_dt=None, end_dt=None, team=None):
 	""" 
 	Pulls statcast data from Baseball Savant.
 	"""
