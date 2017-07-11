@@ -34,6 +34,7 @@ def playerid_lookup(last, first=None):
 	else:
 		results = table.loc[(table['name_last']==last) & (table['name_first']==first)]
 	#results[['key_mlbam', 'key_fangraphs', 'mlb_played_first', 'mlb_played_last']] = results[['key_mlbam', 'key_fangraphs', 'mlb_played_first', 'mlb_played_last']].astype(int) # originally returned as floats which is wrong
+	results = results.reset_index().drop('index', 1)
 	return results
 
 # data = playerid_lookup('bonilla')

@@ -31,9 +31,9 @@ def get_tables(soup):
 		datasets[idx] = pd.DataFrame(datasets[idx])
 	return datasets #returns a list of dataframes
 
-def standings(year=None):
+def standings(season=None):
 	# retrieve html from baseball reference
-	soup = get_soup(year)
+	soup = get_soup(season)
 	tables = get_tables(soup)
 	tables = [pd.DataFrame(table) for table in tables]
 	for idx in range(len(tables)):

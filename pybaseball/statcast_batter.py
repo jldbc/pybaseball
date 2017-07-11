@@ -35,15 +35,15 @@ def sanitize_input(start_dt, end_dt, batter_id):
 	validate_datestring(end_dt)
 	return start_dt, end_dt, batter_id
 
-def statcast_batter(start_dt=None, end_dt=None, batter_id=None):
+def statcast_batter(start_dt=None, end_dt=None, player_id=None):
 	""" 
 	Pulls statcast data from Baseball Savant.
 	"""
-	start_dt, end_dt, batter_id = sanitize_input(start_dt, end_dt, batter_id)
+	start_dt, end_dt, player_id = sanitize_input(start_dt, end_dt, player_id)
 
 	# inputs are valid if either both or zero dates are supplied. Not valid of only one given.
 	if start_dt and end_dt:
-		url = 'https://baseballsavant.mlb.com/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=batter&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={}&game_date_lt={}&player_lookup%5B%5D={}&team=&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&'.format(start_dt,end_dt,batter_id)
+		url = 'https://baseballsavant.mlb.com/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=batter&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={}&game_date_lt={}&player_lookup%5B%5D={}&team=&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&'.format(start_dt,end_dt,player_id)
 		s=requests.get(url).content
 		df = pd.read_csv(io.StringIO(s.decode('utf-8')))
 		return df

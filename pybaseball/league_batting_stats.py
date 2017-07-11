@@ -4,6 +4,8 @@ import warnings
 import datetime
 from bs4 import BeautifulSoup
 
+# TODO: throw error if requesting data before 2008 season 
+
 def validate_datestring(date_text):
     try:
         datetime.datetime.strptime(date_text, '%Y-%m-%d')
@@ -72,13 +74,13 @@ def batting_stats_range(start_dt=None, end_dt=None):
 	soup = get_soup(start_dt, end_dt)
 	table = get_table(soup)
 	table = table.dropna(how='all') # drop if all columns are NA
-	# scraped data is initially in string format. convert the necessary columns to numeric.
+	#scraped data is initially in string format. convert the necessary columns to numeric.
 	for column in ['Age', '#days', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B',
 					'HR', 'RBI', 'BB', 'IBB', 'SO', 'HBP', 'SH', 'SF', 'GDP',
 					'SB', 'CS', 'BA', 'OBP', 'SLG', 'OPS']:
 		#table[column] = table[column].astype('float')
 		table[column] = pd.to_numeric(table[column])
-
+		#table['column'] = table['column'].convert_objects(convert_numeric=True)
 	return table
 
 def batting_stats(season=None):
@@ -92,3 +94,10 @@ def batting_stats(season=None):
 	start_dt = season + '-03-01' #opening day is always late march or early april
 	end_dt = season + '-11-01' #season is definitely over by November 
 	return(batting_stats_range(start_dt, end_dt))
+
+
+#import league_batting_stats
+#data = league_batting_stats.batting_stats()
+
+
+#['Age', '#days', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B','HR', 'RBI', 'BB', 'IBB', 'SO', 'HBP', 'SH', 'SF', 'GDP','SB', 'CS', 'BA', 'OBP', 'SLG', 'OPS']
