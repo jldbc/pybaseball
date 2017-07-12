@@ -8,3 +8,5 @@ from .league_pitching_stats import pitching_stats
 from .league_pitching_stats import pitching_stats_range
 from .standings import standings
 from .team_results import schedule_and_record
+from .pitching_leaders import pitching_leaders
+from .batting_leaders import batting_leaders

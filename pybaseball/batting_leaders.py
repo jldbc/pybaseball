@@ -28,7 +28,7 @@ def get_table(soup):
 	return data
 
 
-def get_batting_leaders(season, league='all', qual='y', ind=0):
+def batting_leaders(season, league='all', qual='y', ind=0):
 	soup = get_soup(start_season=season, end_season=season, league=league, qual=qual, ind=ind)
 	table = get_table(soup)
 	return table
