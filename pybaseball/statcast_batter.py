@@ -11,6 +11,9 @@ def validate_datestring(date_text):
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
 def sanitize_input(start_dt, end_dt, batter_id):
+	#error if no player ID provided 
+	if batter_id is None:
+		raise ValueError("Player ID is required. If you need to find a player's id, try pybaseball.playerid_lookup(last_name, first_name) and use their key_mlbam. If you want statcast data for all players, try the statcast() function.")
 	# this id should be a string to place inside a url
 	batter_id = str(batter_id)
 
@@ -37,7 +40,12 @@ def sanitize_input(start_dt, end_dt, batter_id):
 
 def statcast_batter(start_dt=None, end_dt=None, player_id=None):
 	""" 
-	Pulls statcast data from Baseball Savant.
+	Pulls statcast pitch-level data from Baseball Savant for a given batter.
+
+	ARGUMENTS
+	start_dt : YYYY-MM-DD : the first date for which you want a player's statcast data
+	end_dt : YYYY-MM-DD : the final date for which you want data 
+	player_id : INT : the player's MLBAM ID. Find this by calling pybaseball.playerid_lookup(last_name, first_name), finding the correct player, and selecting their key_mlbam. 
 	"""
 	start_dt, end_dt, player_id = sanitize_input(start_dt, end_dt, player_id)
 

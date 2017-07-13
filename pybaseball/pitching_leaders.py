@@ -32,7 +32,3 @@ def pitching_leaders(season, league='all', qual='y', ind=0):
 	soup = get_soup(start_season=season, end_season=season, league=league, qual=qual, ind=ind)
 	table = get_table(soup)
 	return table
-
-
-#def get_batting_leaders_range(start_season, end_season, league='all', qual='y', ind=0):
-#	pass

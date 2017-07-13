@@ -31,10 +31,16 @@ def sanitize_input(start_dt, end_dt):
 
 def statcast(start_dt=None, end_dt=None, team=None):
 	""" 
-	Pulls statcast data from Baseball Savant.
+	Pulls statcast play-level data from Baseball Savant for a given date range.
+
+	INPUTS: 
+	start_dt: YYYY-MM-DD : the first date for which you want statcast data
+	end_dt: YYYY-MM-DD : the last date for which you want statcast data 
+	team: optional (defaults to None) : city abbreviation of the team you want data for (e.g. SEA or BOS)
+
+	If no arguments are provided, this will return yesterday's statcast data. If one date is provided, it will return that date's statcast data. 
 	"""
 	start_dt, end_dt = sanitize_input(start_dt, end_dt)
-
 
 	# inputs are valid if either both or zero dates are supplied. Not valid of only one given.
 	if start_dt and end_dt:
