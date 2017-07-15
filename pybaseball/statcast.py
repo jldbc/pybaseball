@@ -1,3 +1,4 @@
+import numpy as np
 import pandas as pd
 import requests
 import datetime
@@ -72,11 +73,32 @@ def large_request(start_dt,end_dt,d1,d2):
 
 	# concatenate all dataframes into final result set 
 	final_data = pd.concat(dataframe_list, axis=0)
-
-	#last, convert date col to datetime data type and sort so that this returns in an order that makes sense
-	final_data['game_date'] = pd.to_datetime(final_data['game_date'], format='%Y-%m-%d')
-	final_data = final_data.sort_values(['game_date'], ascending=False)
 	return final_data
+
+def postprocessing(data, team):
+	#replace empty entries and 'null' strings with np.NaN
+	data.replace(r'^\s*$', np.nan, regex=True, inplace = True)
+	data.replace(r'^null$', np.nan, regex=True, inplace = True)
+
+	# convert columns to numeric
+	not_numeric = ['sv_id', 'umpire', 'zone', 'type', 'inning_topbot', 'bb_type', 'away_team', 'home_team', 'p_throws', 'stand', 'game_type', 'des', 'description', 'events', 'player_name', 'game_date', 'pitch_type']
+	numeric_cols = [col for col in data.columns if col not in not_numeric]
+	data[numeric_cols] = data[numeric_cols].astype(float)
+
+	# convert date col to datetime data type and sort so that this returns in an order that makes sense (by date and game)
+	data['game_date'] = pd.to_datetime(data['game_date'], format='%Y-%m-%d')
+	data = data.sort_values(['game_date', 'game_pk', 'at_bat_number', 'pitch_number'], ascending=False)
+
+	#select only pitches from a particular team
+	valid_teams = ['MIN', 'PHI', 'BAL', 'NYY', 'LAD', 'OAK', 'SEA', 'TB', 'MIL', 'MIA',
+       'KC', 'TEX', 'CHC', 'ATL', 'COL', 'HOU', 'CIN', 'LAA', 'DET', 'TOR',
+       'PIT', 'NYM', 'CLE', 'CWS', 'STL', 'WSH', 'SF', 'SD', 'BOS'] #get a list
+	if(team in valid_teams):
+		data = data.loc[(df['home_team']==team)|(data['away_team']==team)]
+	elif(team != None):
+		raise ValueError('Error: invalid team abbreviation. Valid team names are: {}'.format(valid_teams))
+
+	return data
 
 def statcast(start_dt=None, end_dt=None, team=None):
 	""" 
@@ -103,13 +125,6 @@ def statcast(start_dt=None, end_dt=None, team=None):
 			data = small_request(start_dt,end_dt)
 		else:
 			data = large_request(start_dt,end_dt,d1,d2)
-
-		#select only pitches from a particular team
-		valid_teams = ['MIN', 'PHI', 'BAL', 'NYY', 'LAD', 'OAK', 'SEA', 'TB', 'MIL', 'MIA',
-	       'KC', 'TEX', 'CHC', 'ATL', 'COL', 'HOU', 'CIN', 'LAA', 'DET', 'TOR',
-	       'PIT', 'NYM', 'CLE', 'CWS', 'STL', 'WSH', 'SF', 'SD', 'BOS'] #get a list
-		if(team in valid_teams):
-			data = data.loc[(df['home_team']==team)|(data['away_team']==team)]
-		elif(team != None):
-			raise ValueError('Error: invalid team abbreviation. Valid team names are: {}'.format(valid_teams))
+		# clean up data types, 'null' to np.NaN, subset to team if requested
+		data = postprocessing(data, team)
 		return data
