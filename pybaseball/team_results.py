@@ -53,10 +53,22 @@ def get_table(soup):
 	data = pd.DataFrame(data)
 	data = data.rename(columns=data.iloc[0])
 	data = data.reindex(data.index.drop(0))
+	data = data.drop('',1) #not a useful column
+	return data
+
+def process_win_streak(data):
+	"""
+	Convert "+++"/"---" formatted win/loss streak column into a +/- integer column
+	"""
+	data['Streak2'] = data['Streak'].str.len()
+	data.loc[data['Streak'].str[0]=='-','Streak2'] = -data['Streak2']
+	data['Streak'] = data['Streak2']
+	data = data.drop('Streak2',1)
 	return data
 
 def schedule_and_record(season=None, team=None):
 	# retrieve html from baseball reference
 	soup = get_soup(season, team)
 	table = get_table(soup)
+	table = process_win_streak(table)
 	return table
