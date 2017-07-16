@@ -32,6 +32,8 @@ def get_tables(soup):
 	return datasets #returns a list of dataframes
 
 def standings(season=None):
+	if season<1969:
+		raise ValueError("This query currently only returns division standings, which did not exist until the 1969 season. Try looking at years from 1969 to present.")
 	# retrieve html from baseball reference
 	soup = get_soup(season)
 	tables = get_tables(soup)
