@@ -85,6 +85,7 @@ def pitching_stats_range(start_dt=None, end_dt=None):
 	for column in ['Str', 'StL', 'StS', 'GB/FB', 'LD', 'PU']:
 		table[column] = table[column].replace('%','',regex=True).astype('float')/100
 
+	table = table.drop('',1)
 	return table
 
 def pitching_stats(season=None):
