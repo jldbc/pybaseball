@@ -10,3 +10,5 @@ from .standings import standings
 from .team_results import schedule_and_record
 from .pitching_leaders import pitching_leaders
 from .batting_leaders import batting_leaders
+from .team_pitching import team_pitching
+from .team_batting import team_batting
