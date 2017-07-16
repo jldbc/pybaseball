@@ -75,15 +75,15 @@ Gathering player lookup table. This may take a moment.
 
 ## Pitching Stats: pitching stats for players across multiple seasons, single seasons, or during a specified time period
 
-This library contains two main functions for obtaining pitching data. For league-wide season-level pitching data, use the function `pitcihng_leaders(start_season, end_season)`. This will return one row per player per season, and provide all metrics made available by FanGraphs. 
+This library contains two main functions for obtaining pitching data. For league-wide season-level pitching data, use the function `pitching_stats(start_season, end_season)`. This will return one row per player per season, and provide all metrics made available by FanGraphs. 
 
 The second is `pitching_stats_range(start_dt, end_dt)`. This allows you to obtain pitching data over a specific time interval, allowing you to get more granular than the FanGraphs function (for example, to see which pitcher had the strongest month of May). This query pulls data from Baseball Reference. Note that all dates should be in `YYYY-MM-DD` format.
 
-If you prefer Baseball Reference to FanGraphs, there is actually a third option called `pitching_stats_bref(season)`. This works the same as `pitching_leaders`, but retrieves its data from Baseball Reference instead. This is typically not recommended, however, because the Baseball Reference query currently can only retrieve one season's worth of data per request.
+If you prefer Baseball Reference to FanGraphs, there is actually a third option called `pitching_stats_bref(season)`. This works the same as `pitching_stats`, but retrieves its data from Baseball Reference instead. This is typically not recommended, however, because the Baseball Reference query currently can only retrieve one season's worth of data per request.
 
 ~~~~
->>> from pybaseball import pitching_leaders
->>> data = pitching_leaders(2012, 2016)
+>>> from pybaseball import pitching_stats
+>>> data = pitching_stats(2012, 2016)
 >>> data.head()
      Season             Name     Team   Age     W    L   ERA  WAR     G    GS  
 336  2015.0  Clayton Kershaw  Dodgers  27.0  16.0  7.0  2.13  8.6  33.0  33.0
@@ -119,7 +119,7 @@ If you prefer Baseball Reference to FanGraphs, there is actually a third option 
 
 ## Batting Stats: hitting stats for players within seasons or during a specified time period
 
-Batting stats are obtained similar to pitching stats. The function call for getting a season-level stats is `batting_leaders(start_season, end_season)`, and for a particular time range it is `batting_stats_range(start_dt, end_dt)`. The Baseball Reference equivalent for season-level data is `batting_stats_bref(season)`. 
+Batting stats are obtained similar to pitching stats. The function call for getting a season-level stats is `batting_stats(start_season, end_season)`, and for a particular time range it is `batting_stats_range(start_dt, end_dt)`. The Baseball Reference equivalent for season-level data is `batting_stats_bref(season)`. 
 
 ~~~~
 >>> from pybaseball import batting_stats_range
