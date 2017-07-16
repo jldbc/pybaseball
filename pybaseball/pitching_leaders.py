@@ -54,9 +54,13 @@ def get_table(soup, ind):
 
 	#sort by WAR and wins so best players float to the top
 	data = data.sort_values(['WAR', 'W'], ascending=False)
+	#put WAR at the end because it looks better
+	cols = data.columns.tolist()
+	cols.insert(7, cols.pop(cols.index('WAR')))
+	data = data.reindex(columns= cols)
 	return data
 
-def pitching_leaders(start_season, end_season=None, league='all', qual=1, ind=1):
+def pitching_stats(start_season, end_season=None, league='all', qual=1, ind=1):
 	"""
 	Get season-level pitching data from FanGraphs. 
 

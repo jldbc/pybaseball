@@ -57,7 +57,7 @@ def get_table(soup, ind):
 	data = data.sort_values(['WAR', 'OPS'], ascending=False)
 	return data
 
-def batting_leaders(start_season, end_season=None, league='all', qual='y', ind=1):
+def batting_stats(start_season, end_season=None, league='all', qual='y', ind=1):
 	if start_season is None:
 		raise ValueError("You need to provide at least one season to collect data for. Try pitching_leaders(season) or pitching_leaders(start_season, end_season).")
 	if end_season is None:

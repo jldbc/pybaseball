@@ -84,7 +84,7 @@ def batting_stats_range(start_dt=None, end_dt=None):
 	table = table.drop('',1)
 	return table
 
-def batting_stats(season=None):
+def batting_stats_bref(season=None):
 	"""
 	Get all batting stats for a set season. If no argument is supplied, gives stats for 
 	current season to date. 

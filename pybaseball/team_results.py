@@ -4,11 +4,8 @@ import requests
 from bs4 import BeautifulSoup
 
 # TODO: raise error if year > current year or < first year of a team's existence
-# TODO: team validation. return error if team does not exist. 
 # TODO: sanitize team inputs (force to all caps)
-# TODO: translate streak to a number (+++ / --- format is not very useful)
-# TODO: convert some cols to numeric. this include dropping commas in attendance numbers.
-# TODO: all teams? a full season's worth of results
+# TODO: retrieve data for all teams? a full season's worth of results
 
 def get_soup(season, team):
 	# get most recent year's schedule if year not specified

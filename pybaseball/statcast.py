@@ -38,7 +38,7 @@ def small_request(start_dt,end_dt):
 	data = pd.read_csv(io.StringIO(s.decode('utf-8')))
 	return data
 
-def large_request(start_dt,end_dt,d1,d2):
+def large_request(start_dt,end_dt,d1,d2,step):
 	"""
 	break start and end date into smaller increments, collecting all data in small chunks and appending all results to a common dataframe
 	end_dt is the date strings for the final day of the query
@@ -47,7 +47,7 @@ def large_request(start_dt,end_dt,d1,d2):
 	"""
 	print("This is a large query, it may take a moment to complete")
 	dataframe_list = []
-	step = 3 # number of days per mini-query (test this later to see how large I can make this without losing data)
+	#step = 3 # number of days per mini-query (test this later to see how large I can make this without losing data)
 	d = d1 + datetime.timedelta(days=step)
 	while d <= d2: #while intermediate query end_dt <= global query end_dt, keep looping
 		start_dt = d1.strftime('%Y-%m-%d')
@@ -94,10 +94,10 @@ def postprocessing(data, team):
        'KC', 'TEX', 'CHC', 'ATL', 'COL', 'HOU', 'CIN', 'LAA', 'DET', 'TOR',
        'PIT', 'NYM', 'CLE', 'CWS', 'STL', 'WSH', 'SF', 'SD', 'BOS'] #get a list
 	if(team in valid_teams):
-		data = data.loc[(df['home_team']==team)|(data['away_team']==team)]
+		data = data.loc[(data['home_team']==team)|(data['away_team']==team)]
 	elif(team != None):
 		raise ValueError('Error: invalid team abbreviation. Valid team names are: {}'.format(valid_teams))
-
+	data = data.reset_index()
 	return data
 
 def statcast(start_dt=None, end_dt=None, team=None):
@@ -113,7 +113,7 @@ def statcast(start_dt=None, end_dt=None, team=None):
 	"""
 	start_dt, end_dt = sanitize_input(start_dt, end_dt)
 	# 3 days or less -> a quick one-shot request. Greater than 3 days -> break it into multiple smaller queries
-	small_query_threshold = 3
+	small_query_threshold = 5
 	# inputs are valid if either both or zero dates are supplied. Not valid of only one given.
 	if start_dt and end_dt:
 		# how many days worth of data are needed?
@@ -124,7 +124,7 @@ def statcast(start_dt=None, end_dt=None, team=None):
 		if days_in_query <= small_query_threshold:
 			data = small_request(start_dt,end_dt)
 		else:
-			data = large_request(start_dt,end_dt,d1,d2)
+			data = large_request(start_dt,end_dt,d1,d2,step=small_query_threshold)
 		# clean up data types, 'null' to np.NaN, subset to team if requested
 		data = postprocessing(data, team)
 		return data

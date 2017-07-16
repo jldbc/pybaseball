@@ -88,7 +88,7 @@ def pitching_stats_range(start_dt=None, end_dt=None):
 	table = table.drop('',1)
 	return table
 
-def pitching_stats(season=None):
+def pitching_stats_bref(season=None):
 	"""
 	Get all pitching stats for a set season. If no argument is supplied, gives stats for 
 	current season to date. 

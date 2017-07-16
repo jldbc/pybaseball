@@ -12,7 +12,7 @@ def validate_datestring(date_text):
 
 def sanitize_input(start_dt, end_dt, pitcher_id):
 	#error if no player ID provided 
-	if pitcher is None:
+	if pitcher_id is None:
 		raise ValueError("Player ID is required. If you need to find a player's id, try pybaseball.playerid_lookup(last_name, first_name) and use their key_mlbam. If you want statcast data for all players, try the statcast() function.")
 	#this should be a string to place within a url string
 	pitcher_id = str(pitcher_id)
