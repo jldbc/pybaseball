@@ -51,7 +51,7 @@ def postprocessing(data):
 			pass
 
 	# convert columns to numeric
-	not_numeric = ['Season','Team']
+	not_numeric = ['Team']
 	numeric_cols = [col for col in data.columns if col not in not_numeric]
 	data[numeric_cols] = data[numeric_cols].astype(float)
 	return data
