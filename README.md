@@ -1,5 +1,5 @@
 # pybaseball
-**(First release: 06/28/17)**
+**(First release: 07/16/17)**
 
 `pybaseball` is a Python package for baseball data analysis. This package scrapes baseball-reference.com and baseballsavant.com so you don't have to. So far, the package performs four main tasks: retrieving statcast data, pitching stats, batting stats, and division standings/team records.
 
@@ -198,7 +198,13 @@ This pacakge was inspired by Bill Petti's excellent R package [baseballr](https:
 
 ## Installation
 
-To install pybaseball, run the following steps in your terminal:
+To install pybaseball, simply run 
+
+~~~~
+pip install pybaseball
+~~~~
+
+or, for the version currently on the repo (which may at times be more up to date):
 
 ~~~~
 git clone https://github.com/jldbc/pybaseball
