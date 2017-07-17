@@ -55,7 +55,7 @@ def large_request(start_dt,end_dt,d1,d2,step):
 		data = small_request(start_dt,intermediate_end_dt)
 		# append to list of dataframes
 		dataframe_list.append(data)
-		print("Completed sub-query from {} to {}").format(start_dt,intermediate_end_dt)
+		print("Completed sub-query from {} to {}".format(start_dt,intermediate_end_dt))
 		# increment dates
 		d1 = d1 + datetime.timedelta(days=step+1)
 		d = d + datetime.timedelta(days=step+1)
