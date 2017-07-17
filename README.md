@@ -212,8 +212,6 @@ cd pybaseball
 python setup.py install
 ~~~~
 
-After cleaning up a few more things I will deploy to PyPi and installation will be possible via pip. 
-
 ## Work in Progress:
 Moving forward, I intend to:
 
