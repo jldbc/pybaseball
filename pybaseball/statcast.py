@@ -69,7 +69,7 @@ def large_request(start_dt,end_dt,d1,d2,step):
 		start_dt = d1.strftime('%Y-%m-%d')
 		data = small_request(start_dt,end_dt)
 		dataframe_list.append(data)
-		print("Completed sub-query from {} to {}").format(start_dt,end_dt)
+		print("Completed sub-query from {} to {}".format(start_dt,end_dt))
 
 	# concatenate all dataframes into final result set 
 	final_data = pd.concat(dataframe_list, axis=0)
