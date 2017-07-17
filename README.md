@@ -186,11 +186,11 @@ This function returns a list of dataframes. Each dataframe is the standings for 
 
 # Complete Documentation
 
-So far this has provided a basic overview of what this package can do and how you can use it. For full documentation on available functions and their arguments, see the folder [Docs](http://github.com/jldbc/pybaseball/Docs). 
+So far this has provided a basic overview of what this package can do and how you can use it. For full documentation on available functions and their arguments, see the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) folder. 
 
 # So what can I do with this? 
 
-Still in search of inspiration? See some examples of classic baseball studies replicated using this package [here](http://github.com/jldbc/pybaseball/EXAMPLES)
+Need some inspiration? See some examples of classic baseball studies replicated using this package [here](https://github.com/jldbc/pybaseball/tree/master/EXAMPLES).
 
 ------
 
@@ -220,6 +220,7 @@ Moving forward, I intend to:
 * Make this pip-installable
 * Implement custom metrics such as Statcast edge percentages, historical Elo ratings, wOBA, etc.
 * Identify edge cases where these queries fail (please open up an issue if you find one!)
+* Add examples
 
 #### Dependencies
 
