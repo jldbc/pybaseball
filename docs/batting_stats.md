@@ -2,7 +2,7 @@
 
 __batting_stats(start_season, end_season=None, league='all', qual=1, ind=1)__
 
-The pitching_stats function returns season-level pitching data from FanGraphs.
+The batting_stats function returns season-level batting data from FanGraphs.
 
 ## Arguments
 __start_season:__ Integer. The first season you want to retrieve data from. 
@@ -28,7 +28,7 @@ from pybaseball import batting_stats
 # get all of this season's batting data so far
 data = batting_stats(2017)
 
-# retrieve data on only players who have pitched 50+ innings this year
+# retrieve data on only players who have 50+ plate appearances this year
 data = batting_stats(2017, qual=50)
 
 # retrieve one row per player per season since 2000 (i.e.: who had the single most dominant season over this period?)
