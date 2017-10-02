@@ -3,6 +3,7 @@ import pandas as pd
 import requests
 import datetime
 import warnings
+#import csv
 import io
 
 #TODO: does query work if end_dt befre start_dt? if not, detect this and swap them
@@ -35,7 +36,7 @@ def sanitize_input(start_dt, end_dt):
 def small_request(start_dt,end_dt):
     url = "https://baseballsavant.mlb.com/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={}&game_date_lt={}&team=&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&".format(start_dt, end_dt)
     s=requests.get(url, timeout=None).content
-    data = pd.read_csv(io.StringIO(s.decode('utf-8')))
+    data = pd.read_csv(io.StringIO(s.decode('utf-8')))#, error_bad_lines=False) # skips 'bad lines' breaking scrapes. still testing this.
     return data
 
 def large_request(start_dt,end_dt,d1,d2,step):
@@ -50,14 +51,28 @@ def large_request(start_dt,end_dt,d1,d2,step):
     #step = 3 # number of days per mini-query (test this later to see how large I can make this without losing data)
     d = d1 + datetime.timedelta(days=step)
     while d <= d2: #while intermediate query end_dt <= global query end_dt, keep looping
+        # dates before 3/15 and after 11/15 will always be offseason
+        # if these dates are detected, check if the next season is within the user's query
+        # if yes, fast-forward to the next season to avoid empty requests
+        # if no, break the loop. all useful data has been pulled.
+        if ((d.month < 4 and d.day < 15) or (d1.month > 10 and d1.day > 14)):
+            if d2.year > d.year:
+                print('Skipping offseason dates')
+                d1 = d1.replace(month=3,day=15,year=d1.year+1)
+                d = d1 + datetime.timedelta(days=step+1)
+            else:
+                break
+
         start_dt = d1.strftime('%Y-%m-%d')
         intermediate_end_dt = d.strftime('%Y-%m-%d')
         data = small_request(start_dt,intermediate_end_dt)
-        # append to list of dataframes
-        dataframe_list.append(data)
+        # append to list of dataframes if not empty
+        if data.shape[0] > 0:
+            dataframe_list.append(data)
+
         print("Completed sub-query from {} to {}".format(start_dt,intermediate_end_dt))
         # increment dates
-        d1 = d1 + datetime.timedelta(days=step+1)
+        d1 = d + datetime.timedelta(days=1)
         d = d + datetime.timedelta(days=step+1)
 
     # if start date > end date after being incremented, the loop captured each date's data
