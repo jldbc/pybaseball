@@ -39,7 +39,7 @@ def small_request(start_dt,end_dt):
     data = pd.read_csv(io.StringIO(s.decode('utf-8')))#, error_bad_lines=False) # skips 'bad lines' breaking scrapes. still testing this.
     return data
 
-def large_request(start_dt,end_dt,d1,d2,step):
+def large_request(start_dt,end_dt,d1,d2,step,verbose):
     """
     break start and end date into smaller increments, collecting all data in small chunks and appending all results to a common dataframe
     end_dt is the date strings for the final day of the query
@@ -69,8 +69,8 @@ def large_request(start_dt,end_dt,d1,d2,step):
         # append to list of dataframes if not empty
         if data.shape[0] > 0:
             dataframe_list.append(data)
-
-        print("Completed sub-query from {} to {}".format(start_dt,intermediate_end_dt))
+        if verbose:
+            print("Completed sub-query from {} to {}".format(start_dt,intermediate_end_dt))
         # increment dates
         d1 = d + datetime.timedelta(days=1)
         d = d + datetime.timedelta(days=step+1)
@@ -84,7 +84,8 @@ def large_request(start_dt,end_dt,d1,d2,step):
         start_dt = d1.strftime('%Y-%m-%d')
         data = small_request(start_dt,end_dt)
         dataframe_list.append(data)
-        print("Completed sub-query from {} to {}".format(start_dt,end_dt))
+        if verbose:
+            print("Completed sub-query from {} to {}".format(start_dt,end_dt))
 
     # concatenate all dataframes into final result set 
     final_data = pd.concat(dataframe_list, axis=0)
@@ -115,7 +116,7 @@ def postprocessing(data, team):
     data = data.reset_index()
     return data
 
-def statcast(start_dt=None, end_dt=None, team=None):
+def statcast(start_dt=None, end_dt=None, team=None, verbose=True):
     """ 
     Pulls statcast play-level data from Baseball Savant for a given date range.
 
@@ -139,7 +140,7 @@ def statcast(start_dt=None, end_dt=None, team=None):
         if days_in_query <= small_query_threshold:
             data = small_request(start_dt,end_dt)
         else:
-            data = large_request(start_dt,end_dt,d1,d2,step=small_query_threshold)
+            data = large_request(start_dt,end_dt,d1,d2,step=small_query_threshold,verbose=verbose)
         # clean up data types, 'null' to np.NaN, subset to team if requested
         data = postprocessing(data, team)
         return data
