@@ -3,10 +3,7 @@ import pandas as pd
 import requests
 import datetime
 import warnings
-#import csv
 import io
-
-#TODO: does query work if end_dt befre start_dt? if not, detect this and swap them
 
 def validate_datestring(date_text):
     try:
@@ -46,6 +43,8 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
     d1 and d2 are datetime objects for first and last day of query, for doing date math
     a third datetime object (d) will be used to increment over time for the several intermediate queries
     """
+    error_counter = 0 # count failed requests. If > X, break
+    no_success_msg_flag = False # a flag for passing over the success message of requests are failing
     print("This is a large query, it may take a moment to complete")
     dataframe_list = []
     #step = 3 # number of days per mini-query (test this later to see how large I can make this without losing data)
@@ -66,11 +65,31 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
         start_dt = d1.strftime('%Y-%m-%d')
         intermediate_end_dt = d.strftime('%Y-%m-%d')
         data = small_request(start_dt,intermediate_end_dt)
-        # append to list of dataframes if not empty
-        if data.shape[0] > 0:
+        # append to list of dataframes if not empty or failed (failed requests have one row saying "Error: Query Timeout")
+        if data.shape[0] > 1:
             dataframe_list.append(data)
+        # if it failed, retry up to three times
+        else:
+            success = 0
+            while success == 0:
+                data = small_request(start_dt,intermediate_end_dt)
+                if data.shape[0] > 1:
+                    dataframe_list.append(data)
+                    success = 1
+                else:
+                    error_counter += 1
+                if error_counter > 2:
+                    print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(start_dt,intermediate_end_dt))
+                    no_success_msg_flag = True # flag for passing over the success message since this request failed
+                    error_counter = 0 # reset counter
+                    break
+
+
         if verbose:
-            print("Completed sub-query from {} to {}".format(start_dt,intermediate_end_dt))
+            if no_success_msg_flag is False:
+                print("Completed sub-query from {} to {}".format(start_dt,intermediate_end_dt))
+            else:
+                no_success_msg_flag = False # if failed, reset this flag so message will send again next iteration
         # increment dates
         d1 = d + datetime.timedelta(days=1)
         d = d + datetime.timedelta(days=step+1)
@@ -108,7 +127,7 @@ def postprocessing(data, team):
     #select only pitches from a particular team
     valid_teams = ['MIN', 'PHI', 'BAL', 'NYY', 'LAD', 'OAK', 'SEA', 'TB', 'MIL', 'MIA',
        'KC', 'TEX', 'CHC', 'ATL', 'COL', 'HOU', 'CIN', 'LAA', 'DET', 'TOR',
-       'PIT', 'NYM', 'CLE', 'CWS', 'STL', 'WSH', 'SF', 'SD', 'BOS'] #get a list
+       'PIT', 'NYM', 'CLE', 'CWS', 'STL', 'WSH', 'SF', 'SD', 'BOS']
     if(team in valid_teams):
         data = data.loc[(data['home_team']==team)|(data['away_team']==team)]
     elif(team != None):
