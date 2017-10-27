@@ -76,6 +76,7 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
                 if data.shape[0] > 1:
                     dataframe_list.append(data)
                     success = 1
+                    error_counter = 0 # reset counter
                 else:
                     error_counter += 1
                 if error_counter > 2:
