@@ -1,7 +1,7 @@
 # pybaseball
 **(First release: 07/16/17)**
 
-`pybaseball` is a Python package for baseball data analysis. This package scrapes baseball-reference.com and baseballsavant.com so you don't have to. So far, the package performs four main tasks: retrieving statcast data, pitching stats, batting stats, and division standings/team records.
+`pybaseball` is a Python package for baseball data analysis. This package scrapes baseball-reference.com and baseballsavant.com so you don't have to. So far, the package performs four main tasks: retrieving statcast data, pitching stats, batting stats, and division standings/team records. Data is available at the individual pitch level, as well as aggregated at the season level and over custom time periods. 
 
 ## Statcast: Pull advanced metrics from Major League Baseball's Statcast system
 
@@ -30,12 +30,12 @@ Statcast data include pitch-level features such as Perceived Velocity (PV), Spin
 [2 rows x 79 columns]
 ~~~~
 
-If `start_dt` and `end_dt` are supplied, it will return all statcast data between those two dates. If not, it will return yesterday's data. The argument `team` may also be supplied with a team's city abbreviation (i.e. BOS) to obtain only observations for games containing that team. 
+If `start_dt` and `end_dt` are supplied, it will return all statcast data between those two dates. If not, it will return yesterday's data. The argument `team` may also be supplied with a team's city abbreviation (i.e. BOS) to obtain only observations for games containing that team. The optional argument `verbose` will control whether the library updates you on its progress while it pulls the data.
 
 For a player-specific statcast query, pull pitching or batting data using the `statcast_pitcher` and `statcast_batter` functions. These take the same `start_dt` and `end_dt` arguments as the statcast function, as well as a `player_id` argument. This ID comes from MLB Advanced Media, and can be obtained using the function `playerid_lookup`. A complete example: 
 
 ~~~~
-# Find Clayton Kershaw's player id
+>>> # Find Clayton Kershaw's player id
 >>> from pybaseball import playerid_lookup
 >>> from pybaseball import statcast_pitcher
 >>> playerid_lookup('kershaw', 'clayton')
@@ -47,7 +47,7 @@ Gathering player lookup table. This may take a moment.
    mlb_played_first  mlb_played_last
 0            2008.0           2017.0
 
-# His MLBAM ID is 477132, so we feed that as the player_id argument to the following function 
+>>> # His MLBAM ID is 477132, so we feed that as the player_id argument to the following function 
 >>> kershaw_stats = statcast_pitcher('2017-06-01', '2017-07-01', 477132)
 >>> kershaw_stats.head(2)
   pitch_type   game_date release_speed release_pos_x release_pos_z  
@@ -215,10 +215,11 @@ python setup.py install
 ## Work in Progress:
 Moving forward, I intend to:
 
-* Make this pip-installable
 * Implement custom metrics such as Statcast edge percentages, historical Elo ratings, wOBA, etc.
 * Identify edge cases where these queries fail (please open up an issue if you find one!)
-* Add examples
+* Add more examples
+
+Interested in contributing? I've left some ideas in [contributing.md](https://github.com/jldbc/pybaseball/tree/master/contributing.md). 
 
 #### Dependencies
 

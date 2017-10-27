@@ -10,6 +10,8 @@ __end_dt:__ last day for which you want to retrieve data. Defaults to None. If y
 
 __team:__ optional. If you only want statcast data for one team, supply that team's abbreviation here (i.e. BOS, SEA, NYY, etc).
 
+__verbose:__ Boolean, default=True. If set to True this will provide updates on query progress, if set to False it will not. 
+
 ### A note on data availability 
 The earliest available statcast data comes from the 2008 season when the system was first introduced to Major League Baseball. Queries before this year will not work. Further, some features were introduced after the 2008 season. Launch speed angle, for example, is only available from the 2015 season forward. 
 
