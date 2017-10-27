@@ -3,10 +3,7 @@ import pandas as pd
 import requests
 import datetime
 import warnings
-#import csv
 import io
-
-#TODO: does query work if end_dt befre start_dt? if not, detect this and swap them
 
 def validate_datestring(date_text):
     try:
@@ -75,7 +72,6 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
         else:
             success = 0
             while success == 0:
-                print('ping') # ONLY FOR TESTING - REMOVE BEFORE PUSHING TO MASTER  
                 data = small_request(start_dt,intermediate_end_dt)
                 if data.shape[0] > 1:
                     dataframe_list.append(data)
@@ -83,7 +79,7 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
                 else:
                     error_counter += 1
                 if error_counter > 2:
-                    print("FAILED: request timeout for query from {} to {}. Skipping these dates.".format(start_dt,intermediate_end_dt))
+                    print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(start_dt,intermediate_end_dt))
                     no_success_msg_flag = True # flag for passing over the success message since this request failed
                     error_counter = 0 # reset counter
                     break
@@ -131,7 +127,7 @@ def postprocessing(data, team):
     #select only pitches from a particular team
     valid_teams = ['MIN', 'PHI', 'BAL', 'NYY', 'LAD', 'OAK', 'SEA', 'TB', 'MIL', 'MIA',
        'KC', 'TEX', 'CHC', 'ATL', 'COL', 'HOU', 'CIN', 'LAA', 'DET', 'TOR',
-       'PIT', 'NYM', 'CLE', 'CWS', 'STL', 'WSH', 'SF', 'SD', 'BOS'] #get a list
+       'PIT', 'NYM', 'CLE', 'CWS', 'STL', 'WSH', 'SF', 'SD', 'BOS']
     if(team in valid_teams):
         data = data.loc[(data['home_team']==team)|(data['away_team']==team)]
     elif(team != None):
