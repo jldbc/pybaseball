@@ -79,7 +79,23 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
                 else:
                     error_counter += 1
                 if error_counter > 2:
-                    print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(start_dt,intermediate_end_dt))
+                    # this request is probably too large. Cut a day off of this request and make that its own separate request. 
+                    # For each, append to dataframe list if successful, skip and print error message if failed
+                    tmp_end = d - datetime.timedelta(days=1)
+                    tmp_end = tmp_end.strftime('%Y-%m-%d')
+                    smaller_data_1 = small_request(start_dt, tmp_end)
+                    smaller_data_2 = small_request(intermediate_end_dt,intermediate_end_dt)
+                    if smaller_data_1.shape[0] > 1:
+                        dataframe_list.append(smaller_data_1)
+                        print("Completed sub-query from {} to {}".format(start_dt,tmp_end))
+                    else:
+                        print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(start_dt,tmp_end))
+                    if smaller_data_2.shape[0] > 1:
+                        dataframe_list.append(smaller_data_2)
+                        print("Completed sub-query from {} to {}".format(intermediate_end_dt,intermediate_end_dt))
+                    else:
+                        print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(intermediate_end_dt,intermediate_end_dt))
+
                     no_success_msg_flag = True # flag for passing over the success message since this request failed
                     error_counter = 0 # reset counter
                     break
@@ -127,7 +143,7 @@ def postprocessing(data, team):
     #select only pitches from a particular team
     valid_teams = ['MIN', 'PHI', 'BAL', 'NYY', 'LAD', 'OAK', 'SEA', 'TB', 'MIL', 'MIA',
        'KC', 'TEX', 'CHC', 'ATL', 'COL', 'HOU', 'CIN', 'LAA', 'DET', 'TOR',
-       'PIT', 'NYM', 'CLE', 'CWS', 'STL', 'WSH', 'SF', 'SD', 'BOS']
+       'PIT', 'NYM', 'CLE', 'CWS', 'STL', 'WSH', 'SF', 'SD', 'BOS','ARI','ANA','WAS']
     if(team in valid_teams):
         data = data.loc[(data['home_team']==team)|(data['away_team']==team)]
     elif(team != None):
