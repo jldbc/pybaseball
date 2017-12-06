@@ -1,11 +1,3 @@
-################################################
-# WORK IN PROGRESS: ADD LAHMAN DB TO PYBASEBALL
-# TODO: Make a callable function that retrieves the Lahman db
-# Considerations: users should have a way to pull just the parts they want 
-# within their code without having to write / save permanently. They should
-# also have the option to write and save permanently if desired.  
-################################################
-
 import requests
 import zipfile
 import pandas as pd
@@ -27,13 +19,168 @@ def download_lahman():
 	z = get_lahman_zip()
 	z.extractall()
 
-def lahman_parks():
+def parks():
 	# do this for every table in the lahman db so they can exist as separate functions
 	z = get_lahman_zip()
 	f = base_string + "Parks.csv"
 	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
 	return data
 
+def all_star_full():
+	z = get_lahman_zip()
+	f = base_string + "AllstarFull.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def appearances():
+	z = get_lahman_zip()
+	f = base_string + "Appearances.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def awards_managers():
+	z = get_lahman_zip()
+	f = base_string + "AwardsManagers.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def awards_players():
+	z = get_lahman_zip()
+	f = base_string + "AwardsPlayers.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def awards_share_managers():
+	z = get_lahman_zip()
+	f = base_string + "AwardsShareManagers.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def awards_share_players():
+	z = get_lahman_zip()
+	f = base_string + "AwardsSharePlayers.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def batting():
+	z = get_lahman_zip()
+	f = base_string + "Batting.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def batting_post():
+	z = get_lahman_zip()
+	f = base_string + "BattingPost.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def college_playing():
+	z = get_lahman_zip()
+	f = base_string + "CollegePlaying.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def fielding():
+	z = get_lahman_zip()
+	f = base_string + "Fielding.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def fielding_of():
+	z = get_lahman_zip()
+	f = base_string + "FieldingOF.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def fielding_of_split():
+	z = get_lahman_zip()
+	f = base_string + "FieldingOFsplit.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def fielding_post():
+	z = get_lahman_zip()
+	f = base_string + "FieldingPost.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def hall_of_fame():
+	z = get_lahman_zip()
+	f = base_string + "HallOfFame.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def home_games():
+	z = get_lahman_zip()
+	f = base_string + "HomeGames.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def managers():
+	z = get_lahman_zip()
+	f = base_string + "Managers.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def managers_half():
+	z = get_lahman_zip()
+	f = base_string + "ManagersHalf.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def master():
+	z = get_lahman_zip()
+	f = base_string + "Master.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def pitching():
+	z = get_lahman_zip()
+	f = base_string + "Pitching.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def pitching_post():
+	z = get_lahman_zip()
+	f = base_string + "PitchingPost.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def salaries():
+	z = get_lahman_zip()
+	f = base_string + "Salaries.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def schools():
+	z = get_lahman_zip()
+	f = base_string + "Schools.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar='"') # different here bc of doublequotes used in some school names
+	return data
+
+def series_post():
+	z = get_lahman_zip()
+	f = base_string + "SeriesPost.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data 
+
+def teams():
+	z = get_lahman_zip()
+	f = base_string + "Teams.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def teams_franchises():
+	z = get_lahman_zip()
+	f = base_string + "TeamsFranchises.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
+
+def teams_half():
+	z = get_lahman_zip()
+	f = base_string + "TeamsHalf.csv"
+	data = pd.read_csv(z.open(f), header=0, sep=',', quotechar="'")
+	return data
 
 #df = lahman_parks()
 #print(df.head())
