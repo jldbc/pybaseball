@@ -11,7 +11,7 @@ def get_lookup_table():
     print('Gathering player lookup table. This may take a moment.')
     url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
     s=requests.get(url).content
-    table = pd.read_csv(io.StringIO(s.decode('utf-8')))
+    table = pd.read_csv(io.StringIO(s.decode('utf-8')), dtype={'key_sr_nfl': object, 'key_sr_nba': object, 'key_sr_nhl': object})
     #subset columns
     cols_to_keep = ['name_last','name_first','key_mlbam', 'key_retro', 'key_bbref', 'key_fangraphs', 'mlb_played_first','mlb_played_last']
     table = table[cols_to_keep]
