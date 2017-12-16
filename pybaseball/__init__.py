@@ -5,8 +5,10 @@ from .statcast_pitcher import statcast_pitcher
 from .statcast_batter import statcast_batter
 from .league_batting_stats import batting_stats_bref
 from .league_batting_stats import batting_stats_range
+from .league_batting_stats import bwar_bat
 from .league_pitching_stats import pitching_stats_bref
 from .league_pitching_stats import pitching_stats_range
+from .league_pitching_stats import bwar_pitch
 from .standings import standings
 from .team_results import schedule_and_record
 from .pitching_leaders import pitching_stats

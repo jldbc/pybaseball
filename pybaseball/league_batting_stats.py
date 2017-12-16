@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import datetime
+import io
 from bs4 import BeautifulSoup
 
 
@@ -102,6 +103,19 @@ def batting_stats_bref(season=None):
     start_dt = season + '-03-01' #opening day is always late march or early april
     end_dt = season + '-11-01' #season is definitely over by November
     return(batting_stats_range(start_dt, end_dt))
+
+
+def bwar_bat(return_all=False):
+    url = "http://www.baseball-reference.com/data/war_daily_bat.txt"
+    s = requests.get(url).content
+    c=pd.read_csv(io.StringIO(s.decode('utf-8')))
+    if return_all:
+        return c
+    else:
+        cols_to_keep = ['name_common', 'mlb_ID', 'player_ID', 'year_ID', 'team_ID', 'stint_ID', 'lg_ID',
+                        'pitcher','G', 'PA', 'salary', 'runs_above_avg', 'runs_above_avg_off','runs_above_avg_def',
+                        'WAR_rep','WAA','WAR']
+        return c[cols_to_keep]
 
 
 #import league_batting_stats

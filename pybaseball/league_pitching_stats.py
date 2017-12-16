@@ -1,6 +1,7 @@
 import requests
 import pandas as pd
 import numpy as np
+import io
 from bs4 import BeautifulSoup
 import datetime
 
@@ -106,5 +107,17 @@ def pitching_stats_bref(season=None):
     end_dt = season + '-11-01' #season is definitely over by November 
     return(pitching_stats_range(start_dt, end_dt))
 
+
+def bwar_pitch(return_all=False):
+    url = "http://www.baseball-reference.com/data/war_daily_pitch.txt"
+    s = requests.get(url).content
+    c=pd.read_csv(io.StringIO(s.decode('utf-8')))
+    if return_all:
+        return c
+    else:
+        cols_to_keep = ['name_common', 'mlb_ID', 'player_ID', 'year_ID', 'team_ID', 'stint_ID', 'lg_ID',
+                        'G', 'GS', 'RA','xRA', 'BIP', 'BIP_perc','salary', 'ERA_plus', 'WAR_rep', 'WAA',
+                        'WAA_adj','WAR']
+        return c[cols_to_keep]
 
 
