@@ -109,6 +109,10 @@ def pitching_stats_bref(season=None):
 
 
 def bwar_pitch(return_all=False):
+    """
+    Get data from war_daily_pitch table. Returns WAR, its components, and a few other useful stats. 
+    To get all fields from this table, supply argument return_all=True.  
+    """
     url = "http://www.baseball-reference.com/data/war_daily_pitch.txt"
     s = requests.get(url).content
     c=pd.read_csv(io.StringIO(s.decode('utf-8')))
@@ -119,5 +123,3 @@ def bwar_pitch(return_all=False):
                         'G', 'GS', 'RA','xRA', 'BIP', 'BIP_perc','salary', 'ERA_plus', 'WAR_rep', 'WAA',
                         'WAA_adj','WAR']
         return c[cols_to_keep]
-
-

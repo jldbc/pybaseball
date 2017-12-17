@@ -106,6 +106,10 @@ def batting_stats_bref(season=None):
 
 
 def bwar_bat(return_all=False):
+    """
+    Get data from war_daily_bat table. Returns WAR, its components, and a few other useful stats. 
+    To get all fields from this table, supply argument return_all=True.  
+    """
     url = "http://www.baseball-reference.com/data/war_daily_bat.txt"
     s = requests.get(url).content
     c=pd.read_csv(io.StringIO(s.decode('utf-8')))
@@ -116,10 +120,3 @@ def bwar_bat(return_all=False):
                         'pitcher','G', 'PA', 'salary', 'runs_above_avg', 'runs_above_avg_off','runs_above_avg_def',
                         'WAR_rep','WAA','WAR']
         return c[cols_to_keep]
-
-
-#import league_batting_stats
-#data = league_batting_stats.batting_stats()
-
-
-#['Age', '#days', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B','HR', 'RBI', 'BB', 'IBB', 'SO', 'HBP', 'SH', 'SF', 'GDP','SB', 'CS', 'BA', 'OBP', 'SLG', 'OPS']
