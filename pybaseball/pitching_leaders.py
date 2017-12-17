@@ -12,7 +12,7 @@ def get_soup(start_season, end_season, league, qual, ind):
 
 def get_table(soup, ind):
     tables = soup.find_all('table')
-    table = tables[10]
+    table = tables[11]
     data = []
     # couldn't find these in the table, hardcoding for now
     if ind == 0:
