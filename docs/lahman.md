@@ -1,10 +1,10 @@
 # Lahman Data Acquisition Functions
 
-Pull data from Sean Lahman's database using the following functions:
+Pull data from [Sean Lahman's database](http://www.seanlahman.com/baseball-archive/statistics/) using the following functions:
 
 ~~~~
 from pybaseball.lahman import *
-download_lahmen() #download the entire lahman database to your current working directory
+download_lahman() #download the entire lahman database to your current working directory
 
 # a table of all player biographical info and ids
 master = master()
