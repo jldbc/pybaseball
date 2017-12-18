@@ -2,7 +2,7 @@
 
 __team_batting(start_season, end_season=None, league='all', ind=1)__
 
-The team_batting function returns a dataframe of team-level batting stats. This can be for either a single season or multiple. If multiple seasons are involved, this function can provide either single-season stats (e.g. one row per team per season) or aggregate stats over all seasons (e.g. each team's total HR, RBI, etc. over all seasons queried). 
+The team_pitching function returns a dataframe of team-level pitching stats. This can be for either a single season or multiple. If multiple seasons are involved, this function can provide either single-season stats (e.g. one row per team per season) or aggregate stats over all seasons (e.g. each team's total HR, RBI, etc. over all seasons queried). 
 
 ## Arguments
 __start_season:__ Integer. The first season for which you want the league's team-level batting data.
