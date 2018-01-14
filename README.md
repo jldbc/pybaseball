@@ -1,12 +1,32 @@
 # pybaseball
-**1.0.2 Release: 28 October 2017**
-`pybaseball` is a Python package for baseball data analysis. This package scrapes baseball-reference.com and baseballsavant.com so you don't have to. So far, the package performs four main tasks: retrieving statcast data, pitching stats, batting stats, and division standings/team records. Data is available at the individual pitch level, as well as aggregated at the season level and over custom time periods. 
+
+**1.0.3 Release: 18 December 2017**
+
+**Recent Updates**: Added Lahman database, Added bWAR acquisition function,  bug fixes ([release notes and documentation](https://github.com/jldbc/pybaseball/releases/tag/1.0.3))
+
+`pybaseball` is a Python package for baseball data analysis. This package scrapes Baseball Reference, Baseball Savant, and FanGraphs so you don't have to. The package retrieves statcast data, pitching stats, batting stats, division standings/team records, awards data, and more. Data is available at the individual pitch level, as well as aggregated at the season level and over custom time periods. See the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) for a comprehensive list of data acquisition functions. 
+
+## Installation
+
+Pybaseball can be installed via pip:
+
+```python
+pip install pybaseball
+```
+
+or from the repo (which may at times be more up to date):
+
+```python
+git clone https://github.com/jldbc/pybaseball
+cd pybaseball
+python setup.py install
+```
 
 ## Statcast: Pull advanced metrics from Major League Baseball's Statcast system
 
 Statcast data include pitch-level features such as Perceived Velocity (PV), Spin Rate (SR), Exit Velocity (EV), pitch X, Y, and Z coordinates, and more. The function `statcast(start_dt, end_dt)` pulls this data from baseballsavant.com. 
 
-~~~~
+```python
 >>> from pybaseball import statcast
 >>> data = statcast(start_dt='2017-06-24', end_dt='2017-06-27')
 >>> data.head(2)
@@ -27,13 +47,13 @@ Statcast data include pitch-level features such as Perceived Velocity (PV), Spin
 0         1.0         0.0       0.0                3.0          64.0          1.0
 1         1.0         0.0       0.0                3.0          63.0          3.0  
 [2 rows x 79 columns]
-~~~~
+```
 
-If `start_dt` and `end_dt` are supplied, it will return all statcast data between those two dates. If not, it will return yesterday's data. The argument `team` may also be supplied with a team's city abbreviation (i.e. BOS) to obtain only observations for games containing that team. The optional argument `verbose` will control whether the library updates you on its progress while it pulls the data.
+If `start_dt` and `end_dt` are supplied, it will return all statcast data between those two dates. If not, it will return yesterday's data. The optional argument `verbose` will control whether the library updates you on its progress while it pulls the data.
 
 For a player-specific statcast query, pull pitching or batting data using the `statcast_pitcher` and `statcast_batter` functions. These take the same `start_dt` and `end_dt` arguments as the statcast function, as well as a `player_id` argument. This ID comes from MLB Advanced Media, and can be obtained using the function `playerid_lookup`. A complete example: 
 
-~~~~
+```python
 >>> # Find Clayton Kershaw's player id
 >>> from pybaseball import playerid_lookup
 >>> from pybaseball import statcast_pitcher
@@ -70,7 +90,7 @@ Gathering player lookup table. This may take a moment.
 1      null               null            57            5
 
 [2 rows x 78 columns]
-~~~~
+```
 
 ## Pitching Stats: pitching stats for players across multiple seasons, single seasons, or during a specified time period
 
@@ -78,9 +98,9 @@ This library contains two main functions for obtaining pitching data. For league
 
 The second is `pitching_stats_range(start_dt, end_dt)`. This allows you to obtain pitching data over a specific time interval, allowing you to get more granular than the FanGraphs function (for example, to see which pitcher had the strongest month of May). This query pulls data from Baseball Reference. Note that all dates should be in `YYYY-MM-DD` format.
 
-If you prefer Baseball Reference to FanGraphs, there is actually a third option called `pitching_stats_bref(season)`. This works the same as `pitching_stats`, but retrieves its data from Baseball Reference instead. This is typically not recommended, however, because the Baseball Reference query currently can only retrieve one season's worth of data per request.
+If you prefer Baseball Reference to FanGraphs, there is a third option called `pitching_stats_bref(season)`. This works the same as `pitching_stats`, but retrieves its data from Baseball Reference instead. This is typically not recommended, however, because the Baseball Reference query currently can only retrieve one season's worth of data per request.
 
-~~~~
+```python
 >>> from pybaseball import pitching_stats
 >>> data = pitching_stats(2012, 2016)
 >>> data.head()
@@ -113,14 +133,14 @@ If you prefer Baseball Reference to FanGraphs, there is actually a third option 
 256       23.4
 
 [5 rows x 299 columns]
-~~~~
+```
 
 
 ## Batting Stats: hitting stats for players within seasons or during a specified time period
 
 Batting stats are obtained similar to pitching stats. The function call for getting a season-level stats is `batting_stats(start_season, end_season)`, and for a particular time range it is `batting_stats_range(start_dt, end_dt)`. The Baseball Reference equivalent for season-level data is `batting_stats_bref(season)`. 
 
-~~~~
+```python
 >>> from pybaseball import batting_stats_range
 >>> data = batting_stats_range('2017-05-01', '2017-05-08')
 >>> data.head()
@@ -139,12 +159,12 @@ Batting stats are obtained similar to pitching stats. The function call for gett
 5   0   0    0   0   0  0.000  0.000  0.000  0.000
 
 [5 rows x 27 columns]
-~~~~
+```
 
 ## Game-by-Game Results and Schedule 
 The `schedule_and_record` function returns a team's game-by-game results for a given season, including game date, home and away teams, end result (W/L/Tie), score, winning/losing/saving pitchers, attendance, and division standing at that date. The function's only two arguments are `season` and `team`, where team is the team's abbreviation (i.e. NYY for New York Yankees, SEA for Seattle Mariners). If the season argument is set to the current season, the query returns results for past games and the schedule for those that have not occurred yet. 
 
-~~~~
+```python
 # Example: Let's take a look at the individual-game results of the 1927 Yankees
 >>> from pybaseball import schedule_and_record
 >>> data = schedule_and_record(1927, 'NYY')
@@ -162,7 +182,7 @@ The `schedule_and_record` function returns a team's game-by-game results for a g
 3    Tied     None     None  None  2:50   D      9000.0       2
 4    Tied  Pennock    Ehmke  None  2:27   D     16000.0       3
 5  up 1.0  Shocker  Ruffing  None  2:05   D     25000.0       4
-~~~~
+```
 
 
 ## Standings: up to date or historical division standings, W/L records
@@ -171,7 +191,7 @@ The `standings(season)` function gives division standings for a given season. If
 
 This function returns a list of dataframes. Each dataframe is the standings for one of MLB's six divisions. 
 
-~~~~
+```python
 >>> from pybaseball import standings
 >>> data = standings(2016)[4]
 >>> print(data)
@@ -181,7 +201,7 @@ This function returns a list of dataframes. Each dataframe is the standings for 
 3   Pittsburgh Pirates   78  83  .484  25.0
 4    Milwaukee Brewers   73  89  .451  30.5
 5      Cincinnati Reds   68  94  .420  35.5
-~~~~
+```
 
 # Complete Documentation
 
@@ -193,33 +213,20 @@ Need some inspiration? See some examples of classic baseball studies replicated 
 
 ------
 
-This pacakge was inspired by Bill Petti's excellent R package [baseballr](https://github.com/billpetti/baseballr), which to date has no Python equivalent. My hope is to fill that void with this library. 
+## Credit 
 
-## Installation
+This pacakge was inspired by Bill Petti's excellent R package [baseballr](https://github.com/billpetti/baseballr), which at the time of this package's development had no Python equivalent. My hope is to fill that void with this package. 
 
-To install pybaseball, simply run 
+The Lahman data comes from [Sean Lahman's baseball database](http://www.seanlahman.com/baseball-archive/statistics/).
 
-~~~~
-pip install pybaseball
-~~~~
-
-or, for the version currently on the repo (which may at times be more up to date):
-
-~~~~
-git clone https://github.com/jldbc/pybaseball
-cd pybaseball
-python setup.py install
-~~~~
+All other data comes from FanGraphs, Baseball Reference, and Baseball Savant.
 
 ## Work in Progress:
 Moving forward, I intend to:
 
 * Implement custom metrics such as Statcast edge percentages, historical Elo ratings, wOBA, etc.
+* Retrieve data from other useful sources
 * Identify edge cases where these queries fail (please open up an issue if you find one!)
 * Add more examples
 
 Interested in contributing? I've left some ideas in [contributing.md](https://github.com/jldbc/pybaseball/tree/master/contributing.md). 
-
-#### Dependencies
-
-This library depends on: Pandas, NumPy, bs4 (beautiful soup), and Requests. 
