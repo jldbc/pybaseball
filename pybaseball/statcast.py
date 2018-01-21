@@ -200,4 +200,6 @@ def statcast_single_game(game_pk, team=None):
     INPUTS:
     game_pk : 6-digit integer MLB game ID to retrieve
     """
-    return single_game_request(game_pk)
+    data = single_game_request(game_pk)
+    data = postprocessing(data, team)
+    return data
