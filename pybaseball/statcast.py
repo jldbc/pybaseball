@@ -30,6 +30,13 @@ def sanitize_input(start_dt, end_dt):
     validate_datestring(end_dt)
     return start_dt, end_dt
 
+def single_game_request(game_pk):
+
+    url = "https://baseballsavant.mlb.com/statcast_search/csv?all=true&type=details&game_pk={game_pk}".format(game_pk=game_pk)
+    s=requests.get(url, timeout=None).content
+    data = pd.read_csv(io.StringIO(s.decode('utf-8')))#, error_bad_lines=False) # skips 'bad lines' breaking scrapes. still testing this.
+    return data
+
 def small_request(start_dt,end_dt):
     url = "https://baseballsavant.mlb.com/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={}&game_date_lt={}&team=&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&".format(start_dt, end_dt)
     s=requests.get(url, timeout=None).content
@@ -79,7 +86,7 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
                 else:
                     error_counter += 1
                 if error_counter > 2:
-                    # this request is probably too large. Cut a day off of this request and make that its own separate request. 
+                    # this request is probably too large. Cut a day off of this request and make that its own separate request.
                     # For each, append to dataframe list if successful, skip and print error message if failed
                     tmp_end = d - datetime.timedelta(days=1)
                     tmp_end = tmp_end.strftime('%Y-%m-%d')
@@ -95,7 +102,7 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
                         print("Completed sub-query from {} to {}".format(intermediate_end_dt,intermediate_end_dt))
                     else:
                         print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(intermediate_end_dt,intermediate_end_dt))
-                    
+
                     no_success_msg_flag = True # flag for passing over the success message since this request failed
                     error_counter = 0 # reset counter
                     break
@@ -122,7 +129,7 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
         if verbose:
             print("Completed sub-query from {} to {}".format(start_dt,end_dt))
 
-    # concatenate all dataframes into final result set 
+    # concatenate all dataframes into final result set
     final_data = pd.concat(dataframe_list, axis=0)
     return final_data
 
@@ -153,20 +160,24 @@ def postprocessing(data, team):
     return data
 
 def statcast(start_dt=None, end_dt=None, team=None, verbose=True):
-    """ 
+    """
     Pulls statcast play-level data from Baseball Savant for a given date range.
 
-    INPUTS: 
+    INPUTS:
     start_dt: YYYY-MM-DD : the first date for which you want statcast data
-    end_dt: YYYY-MM-DD : the last date for which you want statcast data 
+    end_dt: YYYY-MM-DD : the last date for which you want statcast data
     team: optional (defaults to None) : city abbreviation of the team you want data for (e.g. SEA or BOS)
 
-    If no arguments are provided, this will return yesterday's statcast data. If one date is provided, it will return that date's statcast data. 
+    If no arguments are provided, this will return yesterday's statcast data. If one date is provided, it will return that date's statcast data.
     """
+
+
     start_dt, end_dt = sanitize_input(start_dt, end_dt)
     # 3 days or less -> a quick one-shot request. Greater than 3 days -> break it into multiple smaller queries
     small_query_threshold = 5
     # inputs are valid if either both or zero dates are supplied. Not valid of only one given.
+
+
     if start_dt and end_dt:
         # how many days worth of data are needed?
         date_format = "%Y-%m-%d"
@@ -180,3 +191,13 @@ def statcast(start_dt=None, end_dt=None, team=None, verbose=True):
         # clean up data types, 'null' to np.NaN, subset to team if requested
         data = postprocessing(data, team)
         return data
+
+def statcast_single_game(game_pk, team=None):
+    """
+    Pulls statcast play-level data from Baseball Savant for a single game,
+    identified by its MLB game ID (game_pk in statcast data)
+
+    INPUTS:
+    game_pk : 6-digit integer MLB game ID to retrieve
+    """
+    return single_game_request(game_pk)
