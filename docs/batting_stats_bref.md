@@ -1,14 +1,14 @@
 # Batting Stats Bref
 
-__batting_stats_bref(season)__
+`batting_stats_bref(season)`
 
 Get batting stats from Baseball Reference for a given season. 
 
 ## Arguments
-__season:__ Integer. The season to get data for. If no value is provided, pulls data for the season of the current calendar year. 
+`season:` Integer. The season to get data for. If no value is provided, pulls data for the season of the current calendar year. 
 
 ## Data Availability
-This table only has data from 2008 to present. The batting_stats() function is a better resource for historical data. 
+This table only has data from 2008 to present. The `batting_stats()` function is a better resource for historical data. 
 
 ## Examples of valid queries
 

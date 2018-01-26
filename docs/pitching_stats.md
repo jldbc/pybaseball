@@ -1,19 +1,19 @@
 # Pitching Stats
 
-__pitching_stats(start_season, end_season=None, league='all', qual=1, ind=1)__
+`pitching_stats(start_season, end_season=None, league='all', qual=1, ind=1)`
 
-The pitching_stats function returns season-level pitching data from FanGraphs.
+The `pitching_stats` function returns season-level pitching data from FanGraphs.
 
 ## Arguments
-__start_season:__ Integer. The first season you want to retrieve data from. 
+`start_season:` Integer. The first season you want to retrieve data from. 
 
-__end_season:__ Integer. The final season you want to retrieve data from. If omitted, the funciton will return only data from the start_season.
+`end_season:` Integer. The final season you want to retrieve data from. If omitted, the funciton will return only data from the start_season.
 
-__league:__ String. "all" for both leagues, "al" for the American League, or "nl" for the National League. Defaults to "all".
+`league:` String. "all" for both leagues, "al" for the American League, or "nl" for the National League. Defaults to "all".
 
-__qual:__ Integer. Minimum number of innings pitched to be included in the results. Defaults to 1. 
+`qual:` Integer. Minimum number of innings pitched to be included in the results. Defaults to 1. 
 
-__ind:__ 1 or 0. Equals 1 if you want data returned at the individual season level. Equals 0 if you want aggregate data over the seasons included in the query. With ind=1 and a query spanning the 2010 through 2015 seasons, for example, you will get each player's stats for 2010, 2011, 2012, 2013, 2014, and 2015 in a separate observation. With ind=0, this same query returns one row per player with their statistics aggregated over this period (either summed or averaged depending on what's appropriate).
+`ind:` 1 or 0. Equals 1 if you want data returned at the individual season level. Equals 0 if you want aggregate data over the seasons included in the query. With `ind=1` and a query spanning the 2010 through 2015 seasons, for example, you will get each player's stats for 2010, 2011, 2012, 2013, 2014, and 2015 in a separate observation. With `ind=0`, this same query returns one row per player with their statistics aggregated over this period (either summed or averaged depending on what's appropriate).
 
 Note that larger date ranges will take longer to process.
 
