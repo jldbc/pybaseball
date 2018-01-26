@@ -1,11 +1,11 @@
 # Standings
 
-__standings(season)__
+`standings(season)`
 
 Get division standings for a given season. Data exists from 1969 season to present, since this is when divisions were introduced. 
 
 ## Arguments
-__season:__ Integer. Defaults to the current calendar year if no value is provided. 
+`season:` Integer. Defaults to the current calendar year if no value is provided. 
 
 ## Examples of valid queries
 
