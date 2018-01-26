@@ -1,6 +1,6 @@
 # Batting Stats
 
-__batting_stats(start_season, end_season=None, league='all', qual=1, ind=1)__
+`__batting_stats(start_season, end_season=None, league='all', qual=1, ind=1)__`
 
 The `batting_stats` function returns season-level batting data from FanGraphs.
 
