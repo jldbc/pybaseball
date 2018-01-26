@@ -5,9 +5,9 @@ __batting_stats(start_season, end_season=None, league='all', qual=1, ind=1)__
 The `batting_stats` function returns season-level batting data from FanGraphs.
 
 ## Arguments
-__start_season:__ Integer. The first season you want to retrieve data from. 
+__`start_season:`__ Integer. The first season you want to retrieve data from. 
 
-__end_season:__ Integer. The final season you want to retrieve data from. If omitted, the funciton will return only data from the start_season.
+__`end_season:`__ Integer. The final season you want to retrieve data from. If omitted, the funciton will return only data from the start_season.
 
 __league:__ String. "all" for both leagues, "al" for the American League, or "nl" for the National League. Defaults to "all".
 
