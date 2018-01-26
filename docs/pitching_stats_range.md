@@ -1,4 +1,4 @@
-# pitching_stats_range
+# Pitching Stats Range
 
 `pitching_stats_range(start_dt, end_dt=None)`
 
