@@ -1,4 +1,4 @@
-# batting_stats_range
+# Batting Stats Range
 
 `batting_stats_range(start_dt, end_dt=None)`
 
