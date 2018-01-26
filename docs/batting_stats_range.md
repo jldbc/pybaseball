@@ -1,13 +1,13 @@
 # batting_stats_range
 
-__batting_stats_range(start_dt, end_dt=None)__
+`batting_stats_range(start_dt, end_dt=None)`
 
-The batting_stats_range function returns batting stats from Baseball Reference, aggregated over a user-defined time range.
+The `batting_stats_range` function returns batting stats from Baseball Reference, aggregated over a user-defined time range.
 
 ## Arguments
-__start_dt:__ String. The beginning of the date range you want batting stats for. Format: "YYYY-MM-DD". 
+`start_dt:` String. The beginning of the date range you want batting stats for. Format: "YYYY-MM-DD". 
 
-__end_dt:__ String. The end of the date range you want batting stats for. If omitted, the funciton will return only data from the start_dt. Format: "YYYY-MM-DD".
+`end_dt:` String. The end of the date range you want batting stats for. If omitted, the funciton will return only data from the `start_dt`. Format: "YYYY-MM-DD".
 
 ## Examples of valid queries
 
