@@ -1,11 +1,11 @@
 # Bwar Pitching
 
-__bwar_pitch(return_all=False)__
+`bwar_pitch(return_all=False)`
 
-Get Baseball Reference's WAR stats from its war_daily_pitch table, along with some other data that's not included in the pitching_stats_bref() function. 
+Get Baseball Reference's WAR stats from its `war_daily_pitch` table, along with some other data that's not included in the `pitching_stats_bref()` function. 
 
 ## Arguments
-__return_all__ Bool. Returns all fields from war_daily_pitch table if True, returns only a subset of columns if False. Defaults to False because most fields aren't needed for standard use cases. 
+`return_all` Bool. Returns all fields from `war_daily_pitch` table if True, returns only a subset of columns if False. Defaults to False because most fields aren't needed for standard use cases. 
 
 ## Examples of valid queries
 
