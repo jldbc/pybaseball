@@ -61,6 +61,7 @@ def standings(season=None):
         raise ValueError("This query currently only returns standings until the 1903 season. Try looking at years from 1903 to present.")
     # retrieve html from baseball reference
     soup = get_soup(season)
+    table = None
     if season>=1969:
         tables = get_tables(soup, season)
     elif season>=1903:
