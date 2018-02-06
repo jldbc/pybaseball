@@ -27,7 +27,7 @@ def get_tables(soup, season):
             datasets.append(data)
     else:
         data = []
-        tables = soup.find('table')
+        table = soup.find('table')
         headings = [th.get_text() for th in table.find("tr").find_all("th")]
         headings[0] = "Name"
         if(season>=1930):
