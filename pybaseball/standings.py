@@ -67,7 +67,7 @@ def standings(season=None):
     soup = get_soup(season)
     if season>=1969:
         tables = get_tables(soup, season)
-    elif season>=1903:
+    else:
         t = soup.find_all(string=lambda text:isinstance(text,Comment))
         for i, c in enumerate(t):
             if i==16 and season<1903: code = BeautifulSoup(c, "html.parser")
