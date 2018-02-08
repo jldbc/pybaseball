@@ -32,8 +32,10 @@ def get_tables(soup, season):
         headings[0] = "Name"
         if(season>=1930):
             for i in range(15): headings.pop()
-        else:
+        elif(season>=1876): 
             for i in range(14): headings.pop()
+        else:
+            for i in range(16): headings.pop()
         data.append(headings)
         table_body = table.find('tbody')
         rows = table_body.find_all('tr')
@@ -42,8 +44,10 @@ def get_tables(soup, season):
             cols = row.find_all('td')
             if(season>=1930):
                 for i in range(15): cols.pop()
-            else:
+            elif(season>=1876): 
                 for i in range(14): cols.pop()
+            else:
+                for i in range(16): cols.pop()
             cols = [ele.text.strip() for ele in cols]
             cols.insert(0,row.find_all('a')[0]['title']) # team name
             data.append([ele for ele in cols if ele])
@@ -57,18 +61,17 @@ def standings(season=None):
     # get most recent standings if date not specified
     if(season is None):
         season = int(datetime.datetime.today().strftime("%Y"))
-    if season<1903:
-        raise ValueError("This query currently only returns standings until the 1903 season. Try looking at years from 1903 to present.")
+    if season<1871:
+        raise ValueError("This query currently only returns standings until the 1871 season. Try looking at years from 1871 to present.")
     # retrieve html from baseball reference
     soup = get_soup(season)
-    table = None
     if season>=1969:
         tables = get_tables(soup, season)
     elif season>=1903:
         t = soup.find_all(string=lambda text:isinstance(text,Comment))
-        code = None
         for i, c in enumerate(t):
-            if i==17: code = BeautifulSoup(c, "html.parser")
+            if i==16 and season<1903: code = BeautifulSoup(c, "html.parser")
+            elif i==17 and season>=1903: code = BeautifulSoup(c, "html.parser")
         tables = get_tables(code, season)
     tables = [pd.DataFrame(table) for table in tables]
     for idx in range(len(tables)):
