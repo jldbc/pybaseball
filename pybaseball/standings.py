@@ -69,9 +69,10 @@ def standings(season=None):
         tables = get_tables(soup, season)
     else:
         t = soup.find_all(string=lambda text:isinstance(text,Comment))
-        for i, c in enumerate(t):
-            if i==16 and season<1903: code = BeautifulSoup(c, "html.parser")
-            elif i==17 and season>=1903: code = BeautifulSoup(c, "html.parser")
+        # list of seasons whose table placement breaks the site's usual pattern
+        exceptions = [1884, 1885, 1886, 1887, 1888, 1889, 1890, 1892, 1903]
+        if (season>1904 or season in exceptions): code = BeautifulSoup(t[17], "html.parser")
+        elif season<=1904: code = BeautifulSoup(t[16], "html.parser")
         tables = get_tables(code, season)
     tables = [pd.DataFrame(table) for table in tables]
     for idx in range(len(tables)):
