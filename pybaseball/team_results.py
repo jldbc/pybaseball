@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import requests
+import datetime
 from bs4 import BeautifulSoup
 
 # TODO: raise error if year > current year or < first year of a team's existence
@@ -10,7 +11,14 @@ from bs4 import BeautifulSoup
 def get_soup(season, team):
     # get most recent year's schedule if year not specified
     if(season is None):
+        print("Reconfiguring to most recent season")
         season = datetime.datetime.today().strftime("%Y")
+        
+    # season hasn't started so webpage isn't up yet
+    if 4 > int(datetime.datetime.today().strftime("%m")):
+        season = int(datetime.datetime.today().strftime("%Y"))-1
+        season = str(season)
+
     url = "http://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml".format(team, season)
     s=requests.get(url).content
     return BeautifulSoup(s, "html.parser")
