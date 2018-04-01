@@ -2,7 +2,7 @@
 
 **1.0.4 Release: 31 March 2018**
 
-**Recent Updates**: Added (statcast_single_game)[https://github.com/jldbc/pybaseball/blob/master/docs/statcast_single_game.md] function, (Lahman database)[https://github.com/jldbc/pybaseball/blob/master/docs/lahman.md], and bWAR acquisition functions for batting (batting)[https://github.com/jldbc/pybaseball/blob/master/docs/bwar_bat.md] and (pitching)[https://github.com/jldbc/pybaseball/blob/master/docs/bwar_pitch.md]. [Release notes: (1.0.4)[https://github.com/jldbc/pybaseball/releases/tag/1.0.4], (1.0.3)[https://github.com/jldbc/pybaseball/releases/tag/1.0.4]].
+**Recent Updates**: Added [Statcast Single Game](https://github.com/jldbc/pybaseball/blob/master/docs/statcast_single_game.md) function, [Lahman database](https://github.com/jldbc/pybaseball/blob/master/docs/lahman.md), and bWAR acquisition functions for [batting](https://github.com/jldbc/pybaseball/blob/master/docs/bwar_bat.md) and [pitching](https://github.com/jldbc/pybaseball/blob/master/docs/bwar_pitch.md). [Release notes: [1.0.4](https://github.com/jldbc/pybaseball/releases/tag/1.0.4), [1.0.3](https://github.com/jldbc/pybaseball/releases/tag/1.0.3)].
 
 `pybaseball` is a Python package for baseball data analysis. This package scrapes Baseball Reference, Baseball Savant, and FanGraphs so you don't have to. The package retrieves statcast data, pitching stats, batting stats, division standings/team records, awards data, and more. Data is available at the individual pitch level, as well as aggregated at the season level and over custom time periods. See the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) for a comprehensive list of data acquisition functions. 
 
