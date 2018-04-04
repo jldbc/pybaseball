@@ -139,7 +139,7 @@ def postprocessing(data, team):
     data.replace(r'^null$', np.nan, regex=True, inplace = True)
 
     # convert columns to numeric
-    not_numeric = ['sv_id', 'umpire', 'zone', 'type', 'inning_topbot', 'bb_type', 'away_team', 'home_team', 'p_throws', 'stand', 'game_type', 'des', 'description', 'events', 'player_name', 'game_date', 'pitch_type']
+    not_numeric = ['sv_id', 'umpire', 'zone', 'type', 'inning_topbot', 'bb_type', 'away_team', 'home_team', 'p_throws', 'stand', 'game_type', 'des', 'description', 'events', 'player_name', 'game_date', 'pitch_type', 'pitch_name']
     numeric_cols = [col for col in data.columns if col not in not_numeric]
     data[numeric_cols] = data[numeric_cols].astype(float)
 
