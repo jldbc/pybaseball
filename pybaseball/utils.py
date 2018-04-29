@@ -48,13 +48,15 @@ def split_request(start_dt, end_dt, player_id, url):
     # break query into multiple requests
     while current_dt < end_dt:
         remaining = end_dt - current_dt
-        # add at most 60 days
+        # increment date ranges by at most 60 days
         delta = min(remaining, datetime.timedelta(days=60))
         next_dt = current_dt + delta
         start_str = current_dt.strftime('%Y-%m-%d')
         end_str = next_dt.strftime('%Y-%m-%d')
+        # retrieve data
         data = requests.get(url.format(start_str, end_str, player_id))
         df = pd.read_csv(io.StringIO(data.text))
+        # add data to list and increment current date
         results.append(df)
         current_dt = next_dt + datetime.timedelta(days=1)
     return pd.concat(results)
