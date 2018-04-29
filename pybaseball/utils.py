@@ -56,7 +56,7 @@ def split_request(start_dt, end_dt, player_id, url):
         # retrieve data
         data = requests.get(url.format(start_str, end_str, player_id))
         df = pd.read_csv(io.StringIO(data.text))
-        # add data to list and increment current date
+        # add data to list and increment current dates
         results.append(df)
         current_dt = next_dt + datetime.timedelta(days=1)
     return pd.concat(results)
