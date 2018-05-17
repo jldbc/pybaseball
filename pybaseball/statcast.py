@@ -139,8 +139,19 @@ def postprocessing(data, team):
     data.replace(r'^null$', np.nan, regex=True, inplace = True)
 
     # convert columns to numeric
-    not_numeric = ['sv_id', 'umpire', 'zone', 'type', 'inning_topbot', 'bb_type', 'away_team', 'home_team', 'p_throws', 'stand', 'game_type', 'des', 'description', 'events', 'player_name', 'game_date', 'pitch_type', 'pitch_name']
-    numeric_cols = [col for col in data.columns if col not in not_numeric]
+    not_numeric = ['sv_id', 'umpire', 'type', 'inning_topbot', 'bb_type', 'away_team', 'home_team', 'p_throws', 
+                   'stand', 'game_type', 'des', 'description', 'events', 'player_name', 'game_date', 'pitch_type', 'pitch_name']
+
+    numeric_cols = ['release_speed','release_pos_x','release_pos_z','batter','pitcher','zone','hit_location','balls',
+                    'strikes','game_year','pfx_x','pfx_z','plate_x','plate_z','on_3b','on_2b','on_1b','outs_when_up','inning',
+                    'hc_x','hc_y','pos2_person_id','vx0','vy0','vz0','ax','ay','az','sz_top','sz_bot',
+                    'hit_distance_sc','launch_speed','launch_angle','effective_speed','release_spin_rate','release_extension',
+                    'game_pk','pos1_person_id','pos2_person_id','pos3_person_id','pos4_person_id','pos5_person_id',
+                    'pos6_person_id','pos7_person_id','pos8_person_id','pos9_person_id','release_pos_y',
+                    'estimated_ba_using_speedangle','estimated_woba_using_speedangle','woba_value','woba_denom','babip_value',
+                    'iso_value','launch_speed_angle','at_bat_number','pitch_number','home_score','away_score','bat_score',
+                    'fld_score','post_away_score','post_home_score','post_bat_score','post_fld_score']
+
     data[numeric_cols] = data[numeric_cols].astype(float)
 
     # convert date col to datetime data type and sort so that this returns in an order that makes sense (by date and game)
@@ -188,7 +199,7 @@ def statcast(start_dt=None, end_dt=None, team=None, verbose=True):
             data = small_request(start_dt,end_dt)
         else:
             data = large_request(start_dt,end_dt,d1,d2,step=small_query_threshold,verbose=verbose)
-        # clean up data types, 'null' to np.NaN, subset to team if requested
+
         data = postprocessing(data, team)
         return data
 
