@@ -49,7 +49,7 @@ def split_request(start_dt, end_dt, player_id, url):
     while current_dt < end_dt:
         remaining = end_dt - current_dt
         # increment date ranges by at most 60 days
-        delta = min(remaining, datetime.timedelta(days=60))
+        delta = min(remaining, datetime.timedelta(days=2190))
         next_dt = current_dt + delta
         start_str = current_dt.strftime('%Y-%m-%d')
         end_str = next_dt.strftime('%Y-%m-%d')
