@@ -4,6 +4,16 @@ import datetime
 import io
 
 
+team_start_year = {'LAA': 1961, 'HOU': 1962, 'OAK': 1901, 'TOR': 1977,
+                   'TB': 1998, 'CLE': 1901, 'SEA': 1977, 'BAL': 1901,
+                   'TEX': 1961, 'BOS': 1901, 'KC': 1969, 'KRC': 1969,
+                   'DET': 1901, 'MIN': 1901, 'CHW': 1901, 'NYY': 1903,
+                   'ATL': 1871, 'MIL': 1997, 'STL': 1882, 'CHC': 1874,
+                   'ARI': 1998, 'LAD': 1884, 'SF': 1883, 'SFG': 1883,
+                   'MIA': 1993, 'NYM': 1962, 'WSN': 1969, 'SDP': 1883,
+                   'PHI': 1883, 'PIT': 1882, 'CIN': 1882, 'COL': 1993}
+
+
 def validate_datestring(date_text):
     try:
         datetime.datetime.strptime(date_text, '%Y-%m-%d')

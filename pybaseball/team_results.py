@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from datetime import datetime
+from pybaseball.utils import team_start_year
 
-# TODO: raise error if year > current year or < first year of a team's existence
-# TODO: sanitize team inputs (force to all caps)
 # TODO: retrieve data for all teams? a full season's worth of results
 
 def get_soup(season, team):
@@ -95,8 +95,19 @@ def make_numeric(data):
 
 def schedule_and_record(season=None, team=None):
     # retrieve html from baseball reference
+    team = team.upper()
+    try:
+        start_year = team_start_year[team]
+    except KeyError:
+        m = 'Please verify that your team abbreviation is accurate'
+        raise ValueError(m)
+    if season > datetime.now().year:
+        raise ValueError('Season cannot be after current year')
+    if season < start_year:
+        m = "Season cannot be before team's first year of existence"
+        raise ValueError(m)
     soup = get_soup(season, team)
-    table = get_table(soup,team)
+    table = get_table(soup, team)
     table = process_win_streak(table)
     table = make_numeric(table)
     return table
