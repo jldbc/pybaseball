@@ -99,7 +99,7 @@ def schedule_and_record(season=None, team=None):
     try:
         start_year = team_start_year[team]
     except KeyError:
-        m = 'Please verify that your team abbreviation is accurate'
+        m = 'Please verify that team abbreviation is accurate'
         raise ValueError(m)
     if season > datetime.now().year:
         raise ValueError('Season cannot be after current year')
