@@ -44,3 +44,9 @@ from .lahman import teams
 from .lahman import teams_franchises
 from .lahman import teams_half
 from .lahman import download_lahman
+from .retrosheet import season_game_logs
+from .retrosheet import world_series_logs
+from .retrosheet import all_star_game_logs
+from .retrosheet import wild_card_logs
+from .retrosheet import division_series_logs
+from .retrosheet import lcs_logs

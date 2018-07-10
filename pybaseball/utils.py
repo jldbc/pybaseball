@@ -2,6 +2,7 @@ import pandas as pd
 import requests
 import datetime
 import io
+import zipfile
 
 
 def validate_datestring(date_text):
@@ -60,3 +61,12 @@ def split_request(start_dt, end_dt, player_id, url):
         results.append(df)
         current_dt = next_dt + datetime.timedelta(days=1)
     return pd.concat(results)
+
+
+def get_zip_file(url):
+    """
+    Get zip file from provided URL
+    """
+    with requests.get(url, stream=True) as f:
+        z = zipfile.ZipFile(io.BytesIO(f.content))
+    return z
