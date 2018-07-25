@@ -4,6 +4,7 @@ import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
 from pybaseball.lahman import teams
+from pybaseball.utils import first_season_map
 
 # TODO: retrieve data for all teams? a full season's worth of results
 
@@ -97,20 +98,15 @@ def schedule_and_record(season=None, team=None):
     # retrieve html from baseball reference
     # sanatize input
     team = team.upper()
-    df = teams()
-    seasons = df['yearID']
-    team_names = df['teamIDBR']
-    first_occurrences = team_names.drop_duplicates(keep='first')
-    first_occurrences_index = first_occurrences.index.values
-    first_years = pd.DataFrame(seasons[first_occurrences_index])
-    first_years['teamID'] = first_occurrences
-    first_season_map = dict(zip(first_years['teamID'],
-                                first_years['yearID']))
-    if season < first_season_map[team]:
-        m = "Season cannot be before first year of a team's existence"
-        raise ValueError(m)
+    try:
+        if season < first_season_map[team]:
+            m = "Season cannot be before first year of a team's existence"
+            raise ValueError(m)
+    # ignore validation if team isn't found in dictionary
+    except KeyError:
+        pass
     if season > datetime.now().year:
-        raise ValueError('Season cannon be after current year')
+        raise ValueError('Season cannot be after current year')
 
     soup = get_soup(season, team)
     table = get_table(soup, team)
