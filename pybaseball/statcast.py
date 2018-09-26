@@ -144,10 +144,10 @@ def postprocessing(data, team):
 
     numeric_cols = ['release_speed','release_pos_x','release_pos_z','batter','pitcher','zone','hit_location','balls',
                     'strikes','game_year','pfx_x','pfx_z','plate_x','plate_z','on_3b','on_2b','on_1b','outs_when_up','inning',
-                    'hc_x','hc_y','pos2_person_id','vx0','vy0','vz0','ax','ay','az','sz_top','sz_bot',
+                    'hc_x','hc_y','fielder_2','vx0','vy0','vz0','ax','ay','az','sz_top','sz_bot',
                     'hit_distance_sc','launch_speed','launch_angle','effective_speed','release_spin_rate','release_extension',
-                    'game_pk','pos1_person_id','pos2_person_id','pos3_person_id','pos4_person_id','pos5_person_id',
-                    'pos6_person_id','pos7_person_id','pos8_person_id','pos9_person_id','release_pos_y',
+                    'game_pk','pitcher.1','fielder_2.1','fielder_3','fielder_4','fielder_5',
+                    'fielder_6','fielder_7','fielder_8','fielder_9','release_pos_y',
                     'estimated_ba_using_speedangle','estimated_woba_using_speedangle','woba_value','woba_denom','babip_value',
                     'iso_value','launch_speed_angle','at_bat_number','pitch_number','home_score','away_score','bat_score',
                     'fld_score','post_away_score','post_home_score','post_bat_score','post_fld_score']
