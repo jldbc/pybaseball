@@ -87,7 +87,9 @@ setup(
     install_requires=['numpy>=1.13.0', 
                       'pandas >= 0.20.2',
                       'beautifulsoup4>=4.4.0',
-                      'requests>=2.18.1'],
+                      'requests>=2.18.1',
+                      'lxml>=4.2.1'
+                      ],
 
     # List additional groups of dependencies here (e.g. development
     # dependencies). You can install these using the following syntax,
