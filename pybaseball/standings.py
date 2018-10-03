@@ -7,7 +7,7 @@ import pandas as pd
 def get_soup(year):
     url = 'http://www.baseball-reference.com/leagues/MLB/{}-standings.shtml'.format(year)
     s=requests.get(url).content
-    return BeautifulSoup(s, "html.parser")
+    return BeautifulSoup(s, "lxml")
 
 def get_tables(soup, season):
     datasets = []
@@ -71,8 +71,8 @@ def standings(season=None):
         t = soup.find_all(string=lambda text:isinstance(text,Comment))
         # list of seasons whose table placement breaks the site's usual pattern
         exceptions = [1884, 1885, 1886, 1887, 1888, 1889, 1890, 1892, 1903]
-        if (season>1904 or season in exceptions): code = BeautifulSoup(t[16], "html.parser")
-        elif season<=1904: code = BeautifulSoup(t[15], "html.parser")
+        if (season>1904 or season in exceptions): code = BeautifulSoup(t[16], "lxml")
+        elif season<=1904: code = BeautifulSoup(t[15], "lxml")
         tables = get_tables(code, season)
     tables = [pd.DataFrame(table) for table in tables]
     for idx in range(len(tables)):

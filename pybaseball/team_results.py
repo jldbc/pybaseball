@@ -14,7 +14,7 @@ def get_soup(season, team):
         season = datetime.datetime.today().strftime("%Y")
     url = "http://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml".format(team, season)
     s=requests.get(url).content
-    return BeautifulSoup(s, "html.parser")
+    return BeautifulSoup(s, "lxml")
 
 def get_table(soup,team):
     try:

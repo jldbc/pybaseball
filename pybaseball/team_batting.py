@@ -8,7 +8,7 @@ def get_soup(start_season, end_season, league, ind):
     url = url.format(league, end_season, start_season, ind)
     s=requests.get(url).content
     #print(s)
-    return BeautifulSoup(s, "html.parser")
+    return BeautifulSoup(s, "lxml")
 
 def get_table(soup, ind):
     #doesn't work yet
