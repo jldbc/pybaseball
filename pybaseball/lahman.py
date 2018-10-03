@@ -21,7 +21,8 @@ def get_lahman_zip():
 def download_lahman():
 	# download entire lahman db to present working directory
 	z = get_lahman_zip()
-	z.extractall()
+	if z is not None:
+		z.extractall()
 
 def parks():
 	# do this for every table in the lahman db so they can exist as separate functions
