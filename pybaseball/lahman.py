@@ -8,15 +8,18 @@ from bs4 import BeautifulSoup
 url = "http://seanlahman.com/files/database/baseballdatabank-2017.1.zip"
 base_string = os.path.join("baseballdatabank-2017.1","core")
 
+_handle = None
 def get_lahman_zip():
-	# Retrieve the Lahman database zip file, returns None if file already exists in cwd. 
-	# Making this a function since everything else will be re-using these lines
-	if os.path.exists(base_string):
-		z = None
-	else:
-		s = requests.get(url, stream=True)
-		z = zipfile.ZipFile(BytesIO(s.content))
-	return z
+    # Retrieve the Lahman database zip file, returns None if file already exists in cwd.
+    # If we already have the zip file, keep re-using that.
+    # Making this a function since everything else will be re-using these lines
+    global _handle
+    if os.path.exists(base_string):
+        _handle = None
+    elif not _handle:
+        s = requests.get(url, stream=True)
+        _handle = zipfile.ZipFile(BytesIO(s.content))
+    return _handle
 
 def download_lahman():
 	# download entire lahman db to present working directory
