@@ -26,6 +26,9 @@ def download_lahman():
 	z = get_lahman_zip()
 	if z is not None:
 		z.extractall()
+		z = get_lahman_zip()
+		# this way we'll now start using the extracted zip directory
+		# instead of the session ZipFile object
 
 def parks():
 	# do this for every table in the lahman db so they can exist as separate functions
