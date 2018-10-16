@@ -3,9 +3,9 @@ import pandas as pd
 from bs4 import BeautifulSoup
 import requests
 
-def get_soup(start_season, end_season, league, ind):
-    url = "http://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg={}&qual=0&type=c,4,5,11,7,8,13,-1,24,36,37,40,43,44,48,51,-1,6,45,62,-1,59&season={}&month=0&season1={}&ind={}&team=0,ts&rost=0&age=0&filter=&players=0&page=1_100000"
-    url = url.format(league, end_season, start_season, ind)
+def get_soup(start_season, end_season, league, ind, position):
+    url = "http://www.fangraphs.com/leaders.aspx?pos=all&stats={}&lg={}&qual=0&type=c,4,5,11,7,8,13,-1,24,36,37,40,43,44,48,51,-1,6,45,62,-1,59&season={}&month=0&season1={}&ind={}&team=0,ts&rost=0&age=0&filter=&players=0&page=1_100000"
+    url = url.format(position, league, end_season, start_season, ind)
     s=requests.get(url).content
     #print(s)
     return BeautifulSoup(s, "lxml")
@@ -57,7 +57,7 @@ def postprocessing(data):
     return data
 
 
-def team_pitching(start_season, end_season=None, league='all', ind=1):
+def team_pitching(start_season, end_season=None, league='all', ind=1, position='pit'):
     """
     Get season-level pitching data aggregated by team. 
 
@@ -66,12 +66,15 @@ def team_pitching(start_season, end_season=None, league='all', ind=1):
     end_season : int : final season you want data for 
     league : "all", "nl", or "al"
     ind : int : =1 if you want individual season level data, =0 if you want a team'ss aggreagate data over all seasons in the query
+    position : 'sta' for starters, 'rel' for relievers
     """
+    if position not in ['pit', 'sta', 'rel']:
+        raise ValueError("Invalid Postion argument. Use 'sta' for starters or 'rel' for relievers.")
     if start_season is None:
         raise ValueError("You need to provide at least one season to collect data for. Try team_pitching(season) or team_pitching(start_season, end_season).")
     if end_season is None:
         end_season = start_season
-    soup = get_soup(start_season=start_season, end_season=end_season, league=league, ind=ind)
+    soup = get_soup(start_season=start_season, end_season=end_season, league=league, ind=ind, position=position)
     table = get_table(soup, ind)
     table = postprocessing(table)
     return table
