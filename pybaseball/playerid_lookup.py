@@ -4,7 +4,6 @@ import io
 
 # dropped key_uuid. looks like a has we wouldn't need for anything. 
 # TODO: allow for typos. String similarity? 
-# TODO: allow user to submit list of multiple names
 
 
 def get_lookup_table():
@@ -25,12 +24,31 @@ def get_lookup_table():
     return table
 
 
-def playerid_lookup(last, first=None):
+def playerid_lookup(last=None, first=None, player_list=None):
     # force input strings to lowercase
-    last = last.lower()
+    if last:
+        last = last.lower()
     if first:
         first = first.lower()
     table = get_lookup_table()
+    
+    # if player_list has a value, then the user is passing in a list of players
+    # the list of players may be comma delimited for last, first, or just last
+    if player_list:
+        player_counter = 1
+        for player in player_list:
+            last = player.split(",")[0].strip()
+            first = None
+            if(len(player.split(",")) > 1):
+                first = player.split(",")[1].strip()
+            if(player_counter == 1):
+                results = playerid_lookup(last, first)
+            else:
+                results = results.append(playerid_lookup(last, first), ignore_index = True)
+            player_counter += 1
+        return results
+            
+    
     if first is None:
         results = table.loc[table['name_last']==last]
     else:
