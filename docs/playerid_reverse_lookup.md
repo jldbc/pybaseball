@@ -13,7 +13,7 @@ This function is useful for connecting data sets from various sources or for fin
 
 ## Examples of valid queries
 
-~~~~
+```python
 from pybaseball import playerid_reverse_lookup
 
 # a list of mlbam ids
@@ -27,4 +27,4 @@ fg_ids = [826, 5417, 210, 1101]
 
 # find their names and ids from other data sources
 data = playerid_reverse_lookup(fg_ids, key_type='fangraphs')
-~~~~
+```
