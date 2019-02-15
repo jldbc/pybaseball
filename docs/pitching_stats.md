@@ -22,7 +22,7 @@ While this query should work for any historical season, some of the more modern 
 
 ## Examples of valid queries
 
-~~~~
+```python
 from pybaseball import pitching_stats
 
 # get all of this season's pitching data so far
@@ -38,4 +38,4 @@ data = pitching_stats(2010, 2016)
 data = pitching_stats(2010, 2016, ind=0)
 
 
-~~~~
+```

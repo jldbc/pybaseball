@@ -12,7 +12,7 @@ This table only has data from 2008 to present. The `batting_stats()` function is
 
 ## Examples of valid queries
 
-~~~~
+```python
 from pybaseball import batting_stats_bref
 
 # get all of this season's batting data so far
@@ -20,5 +20,5 @@ data = batting_stats_bref()
 
 # retrieve data on the 2009 season
 data = batting_stats_bref(2009)
-~~~~
+```
 
