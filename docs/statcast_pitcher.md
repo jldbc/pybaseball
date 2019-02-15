@@ -18,7 +18,7 @@ In rare cases where a player has seen greater than 30,000 pitches over the time 
 
 ## Examples of valid queries
 
-~~~~
+```python
 from pybaseball import statcast_pitcher
 from pybaseball import playerid_lookup
 
@@ -30,4 +30,4 @@ data = statcast_pitcher('2008-04-01', '2017-07-15', player_id = 519242)
 
 # get data for July 15th, 2017
 data = statcast_pitcher('2017-07-15', player_id = 519242)
-~~~~
+```

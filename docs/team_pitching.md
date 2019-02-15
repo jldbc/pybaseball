@@ -15,7 +15,7 @@ The team_pitching function returns a dataframe of team-level pitching stats. Thi
 
 ## Examples of valid queries
 
-~~~~
+```python
 from pybaseball import team_pitching
 
 # get each team's individual-season-level pitching stats from 2010 through 2013
@@ -26,4 +26,4 @@ data = team_pitching(2010, 2013, ind=0)
 
 # get team pitching stats for only the 1999 season
 data = team_pitching(1999)
-~~~~
+```
