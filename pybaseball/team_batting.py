@@ -76,3 +76,45 @@ def team_batting(start_season, end_season=None, league='all', ind=1):
     table = get_table(soup, ind)
     table = postprocessing(table)
     return table
+
+def team_batting_ref(team, start_season, end_season=None):
+    """
+    Get season-level Batting Statistics for Specific Team (from Baseball-Reference)
+
+    ARGUMENTS:
+    team : str : The Team Abbreviation (i.e. 'NYY' for Yankees) of the Team you want data for
+    start_season : int : first season you want data for (or the only season if you do not specify an end_season)
+    end_season : int : final season you want data for
+    """
+    if start_season is None:
+        raise ValueError("You need to provide at least one season to collect data for. Try team_batting(season) or team_batting(start_season, end_season).")
+    if end_season is None:
+        end_season = start_season
+
+    url = "https://www.baseball-reference.com/teams/{}".format(team)
+
+    data = []
+    headings = None
+    for season in range(start_season, end_season+1):
+        stats_url = "{}/{}.shtml".format(url, season)
+        response = requests.get(stats_url)
+        soup = BeautifulSoup(response.content, 'html.parser')
+
+        table = soup.find_all('table', {'class': 'sortable stats_table'})[0]
+
+        if headings is None:
+            headings = [row.text.strip() for row in table.find_all('th')[1:28]]
+
+        rows = table.find_all('tr')
+        for row in rows:
+            cols = row.find_all('td')
+            cols = [ele.text.strip() for ele in cols]
+            data.append([ele for ele in cols[0:]])
+
+        # data = pd.DataFrame(data=data, columns=headings)[:-5]  # -5 to remove Team Totals and other rows
+        # data = data.dropna()
+
+    data = pd.DataFrame(data=data, columns=headings)[:-5]  # -5 to remove Team Totals and other rows
+    data = data.dropna()  # Removes Row of All Nones
+
+    return data
