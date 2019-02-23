@@ -2,7 +2,7 @@
 
 Pull data from [Sean Lahman's database](http://www.seanlahman.com/baseball-archive/statistics/) using the following functions:
 
-~~~~
+```python
 from pybaseball.lahman import *
 download_lahman() #download the entire lahman database to your current working directory
 
@@ -86,4 +86,4 @@ teams_franchises = teams_franchises()
 
 # split season data for teams
 teams_half = teams_half() 
-~~~~
+```

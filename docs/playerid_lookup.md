@@ -15,7 +15,7 @@ This data comes from Chadwick Bureau, meaning that there are several people in t
 
 ## Examples of valid queries
 
-~~~~
+```python
 from pybaseball import playerid_lookup
 
 # find the ids of all players with last name Jones (returns 1,314 rows)
@@ -23,4 +23,4 @@ data = playerid_lookup('jones')
 
 # only return the ids of chipper jones (returns one row)
 data = playerid_lookup('jones','chipper')
-~~~~
+```
