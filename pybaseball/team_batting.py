@@ -87,7 +87,7 @@ def team_batting_bref(team, start_season, end_season=None):
     end_season : int : final season you want data for
     """
     if start_season is None:
-        raise ValueError("You need to provide at least one season to collect data for. Try team_batting(season) or team_batting(start_season, end_season).")
+        raise ValueError("You need to provide at least one season to collect data for. Try team_batting_bref(season) or team_batting_bref(start_season, end_season).")
     if end_season is None:
         end_season = start_season
 
@@ -119,8 +119,3 @@ def team_batting_bref(team, start_season, end_season=None):
     data = data.dropna()  # Removes Row of All Nones
 
     return data
-
-
-if __name__ == '__main__':
-    data = team_batting_bref('MIL', 2018)
-    print(data)
