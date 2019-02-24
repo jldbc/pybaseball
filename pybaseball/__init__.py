@@ -35,6 +35,7 @@ from .lahman import home_games
 from .lahman import managers
 from .lahman import managers_half
 from .lahman import master
+from .lahman import people
 from .lahman import pitching
 from .lahman import pitching_post
 from .lahman import salaries
