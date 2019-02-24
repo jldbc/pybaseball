@@ -1,12 +1,14 @@
 # Lahman Data Acquisition Functions
 
-Pull data from [Sean Lahman's database](http://www.seanlahman.com/baseball-archive/statistics/) using the following functions:
+Pull data from [Sean Lahman's database](http://www.seanlahman.com/baseball-archive/statistics/, also hosted by Chadwick Bureau on GitHub -- our new source) using the following functions:
 
 ```python
 from pybaseball.lahman import *
 download_lahman() #download the entire lahman database to your current working directory
 
 # a table of all player biographical info and ids
+people = people()
+# or you can use
 master = master()
 
 # park id, name, alias, city, state, and country
