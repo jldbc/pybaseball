@@ -78,7 +78,7 @@ def team_pitching(start_season, end_season=None, league='all', ind=1):
 
 def team_pitching_bref(team, start_season, end_season=None):
     """
-    Get season-level Batting Statistics for Specific Team (from Baseball-Reference)
+    Get season-level Pitching Statistics for Specific Team (from Baseball-Reference)
 
     ARGUMENTS:
     team : str : The Team Abbreviation (i.e. 'NYY' for Yankees) of the Team you want data for
