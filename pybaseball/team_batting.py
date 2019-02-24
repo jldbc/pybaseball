@@ -77,7 +77,7 @@ def team_batting(start_season, end_season=None, league='all', ind=1):
     table = postprocessing(table)
     return table
 
-def team_batting_ref(team, start_season, end_season=None):
+def team_batting_bref(team, start_season, end_season=None):
     """
     Get season-level Batting Statistics for Specific Team (from Baseball-Reference)
 
@@ -96,6 +96,7 @@ def team_batting_ref(team, start_season, end_season=None):
     data = []
     headings = None
     for season in range(start_season, end_season+1):
+        print(season)
         stats_url = "{}/{}.shtml".format(url, season)
         response = requests.get(stats_url)
         soup = BeautifulSoup(response.content, 'html.parser')
@@ -109,12 +110,17 @@ def team_batting_ref(team, start_season, end_season=None):
         for row in rows:
             cols = row.find_all('td')
             cols = [ele.text.strip() for ele in cols]
+            cols = [col.replace('*', '').replace('#', '') for col in cols]  # Removes '*' and '#' from some names
+            cols.insert(2, season)
             data.append([ele for ele in cols[0:]])
 
-        # data = pd.DataFrame(data=data, columns=headings)[:-5]  # -5 to remove Team Totals and other rows
-        # data = data.dropna()
-
+    headings.insert(2, "Year")
     data = pd.DataFrame(data=data, columns=headings)[:-5]  # -5 to remove Team Totals and other rows
     data = data.dropna()  # Removes Row of All Nones
 
     return data
+
+
+if __name__ == '__main__':
+    data = team_batting_bref('MIL', 2018)
+    print(data)
