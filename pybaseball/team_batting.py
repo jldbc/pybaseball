@@ -96,7 +96,7 @@ def team_batting_bref(team, start_season, end_season=None):
     data = []
     headings = None
     for season in range(start_season, end_season+1):
-        print(season)
+        print("Getting Batting Data: {} {}".format(season, team))
         stats_url = "{}/{}.shtml".format(url, season)
         response = requests.get(stats_url)
         soup = BeautifulSoup(response.content, 'html.parser')
