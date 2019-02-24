@@ -5,8 +5,8 @@ import pandas as pd
 from io import BytesIO, StringIO
 from bs4 import BeautifulSoup
 
-url = "http://seanlahman.com/files/database/baseballdatabank-2017.1.zip"
-base_string = os.path.join("baseballdatabank-2017.1","core")
+url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
+base_string = os.path.join("baseballdatabank-master","core")
 
 _handle = None
 def get_lahman_zip():
@@ -139,9 +139,13 @@ def managers_half():
 	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
 	return data
 
+# Alias for people -- the new name for master
 def master():
+	return people()
+
+def people():
 	z = get_lahman_zip()
-	f = os.path.join(base_string, "Master.csv")
+	f = os.path.join(base_string, "People.csv")
 	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
 	return data
 
