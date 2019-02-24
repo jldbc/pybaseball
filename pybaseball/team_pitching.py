@@ -110,11 +110,16 @@ def team_pitching_bref(team, start_season, end_season=None):
             cols = row.find_all('td')
             cols = [ele.text.strip() for ele in cols]
             cols = [col.replace('*', '').replace('#', '') for col in cols]  # Removes '*' and '#' from some names
+            cols = [col for col in cols if 'Totals' not in col and 'NL teams' not in col and 'AL teams' not in col]  # Removes Team Totals and other rows
             cols.insert(2, season)
             data.append([ele for ele in cols[0:]])
 
     headings.insert(2, "Year")
-    data = pd.DataFrame(data=data, columns=headings)[:-5]  # -5 to remove Team Totals and other rows
+    data = pd.DataFrame(data=data, columns=headings) # [:-5]  # -5 to remove Team Totals and other rows (didn't work in multi-year queries)
     data = data.dropna()  # Removes Row of All Nones
 
     return data
+
+if __name__ == '__main__':
+    data = team_pitching_bref('MIL', 2017, 2018)
+    data.to_csv('G:/test.csv')
