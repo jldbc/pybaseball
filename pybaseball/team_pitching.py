@@ -119,7 +119,3 @@ def team_pitching_bref(team, start_season, end_season=None):
     data = data.dropna()  # Removes Row of All Nones
 
     return data
-
-if __name__ == '__main__':
-    data = team_pitching_bref('MIL', 2017, 2018)
-    data.to_csv('G:/test.csv')
