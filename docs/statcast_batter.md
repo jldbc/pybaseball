@@ -15,7 +15,7 @@ The earliest available statcast data comes from the 2008 season when the system 
 
 ## Examples of valid queries
 
-~~~~
+```python
 from pybaseball import statcast_batter
 from pybaseball import playerid_lookup
 
@@ -28,4 +28,4 @@ data = statcast_batter('2008-04-01', '2017-07-15', player_id = 120074)
 # get data for August 16th, 2014
 data = statcast_batter('2014-08-16', player_id = 120074)
 
-~~~~
+```

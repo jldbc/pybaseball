@@ -20,7 +20,7 @@ Baseball savant limits queries to 30000 rows each. For this reason, if your requ
 
 ## Examples of valid queries
 
-~~~~
+```python
 from pybaseball import statcast
 
 # get all statcast data for July 4th, 2017
@@ -34,4 +34,4 @@ data = statcast('2016-04-01', '2016-10-30', team='TEX')
 
 # get data for yesterday
 data = statcast()
-~~~~
+```
