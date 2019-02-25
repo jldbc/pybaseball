@@ -88,13 +88,13 @@ def salaries_by_all(start_season, end_season=None, to_float=False):
 
 	return data
 
-def salaries_by_team(start_season, end_season=None, team=None, to_float=False):
+def salaries_by_team(team, start_season, end_season=None, to_float=False):
 	"""
 	Get season-level player salaries for a specified team and time-frame
 
+	team : str : Abbreviation for the team you want to collect salary data (i.e. 'NYY' for New York Yankees).
 	start_season : int : First season for which you want salary data.
 	end_season : int : Last season for which you want salary data. If set to None, then will only get data for start_season.
-	team : str : Abbreviation for the team you want to collect salary data (i.e. 'NYY' for New York Yankees).
 	to_float : bool : Set to True if you want to convert salary to float, otherwise leave as False.
 	"""
 
@@ -121,13 +121,13 @@ def salaries_by_team(start_season, end_season=None, team=None, to_float=False):
 
 	return data
 
-def salaries_by_position(start_season, end_season=None, position=None, to_float=False):
+def salaries_by_position(position, start_season, end_season=None, to_float=False):
 	"""
 	Get season-level player salaries for a specified position and timeframe
 
+	position : str : Abbreviation for position you want to collect salary data (i.e. '1B' for first-base, or 'SP' for starting-pitcher).
 	start_season : int : First season for which you want salary data.
 	end_season : int : Last season for which you want salary data. If set to None, then will only get data for start_season.
-	position : str : Abbreviation for position you want to collect salary data (i.e. '1B' for first-base, or 'SP' for starting-pitcher).
 	to_float : bool : Set to True if you want to convert salary to float, otherwise leave as False.
 	"""
 	if start_season is None:
