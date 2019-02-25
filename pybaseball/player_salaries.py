@@ -75,6 +75,7 @@ def salaries_by_all(start_season, end_season=None, to_float=False):
 	data = []
 	headings = ['Year', 'Player', 'Position', 'Salary']
 	for season in range(start_season, end_season+1):
+		print("Getting Salary Data: {} All".format(season))
 		season_salaries_url = "{}/{}".format(spotrac_salaries_url, season)
 		soup = get_soup(season_salaries_url)
 
@@ -108,6 +109,7 @@ def salaries_by_team(team, start_season, end_season=None, to_float=False):
 	data = []
 	headings = ['Year', 'Player', 'Position', 'Salary']
 	for season in range(start_season, end_season+1):
+		print("Getting Salary Data: {} {}".format(season, team))
 		season_salaries_url = "{}/{}/{}".format(spotrac_salaries_url, season, team_abbr[team])
 		soup = get_soup(season_salaries_url)
 
@@ -140,6 +142,7 @@ def salaries_by_position(position, start_season, end_season=None, to_float=False
 	data = []
 	headings = ['Year', 'Player', 'Position', 'Salary']
 	for season in range(start_season, end_season+1):
+		print("Getting Salary Data: {} {}".format(season, position))
 		season_salaries_url = "{}/{}/{}".format(spotrac_salaries_url, season, pos_abbr[position])
 		soup = get_soup(season_salaries_url)
 
@@ -152,6 +155,5 @@ def salaries_by_position(position, start_season, end_season=None, to_float=False
 		data['Salary'] = data['Salary'].map(lambda x: x.lstrip('$').replace(',', '')).apply(float)
 
 	return data
-
 
 
