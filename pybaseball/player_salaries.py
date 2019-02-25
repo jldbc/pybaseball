@@ -155,10 +155,3 @@ def salaries_by_position(position, start_season, end_season=None, to_float=False
 
 
 
-if __name__ == '__main__':
-	print(salaries_by_all(2018))
-	# print(salaries_by_team(2018, team='MIL', to_float=True))
-	# print(salaries_by_position(2018, 2018, position='SP', to_float=False))
-
-
-
