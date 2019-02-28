@@ -9,9 +9,9 @@ Retrieve all statcast data for a given game id.
 
 ## Examples of valid queries
 
-~~~~
+```python
 from pybaseball import statcast_single_game
 
 # get statcast data for game_pk 
 data = statcast_single_game(529429)
-~~~~
+```
