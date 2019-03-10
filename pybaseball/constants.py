@@ -55,12 +55,3 @@ def handedness_park_factors(season):
     table = get_table(soup)
     return table
 
-
-"""
-def vcwoba(df):
-    cons = pd.DataFrame([wobac[r] for r in df.yearID])
-    df['wOBA'] = (cons.wBB * df.BB + cons.wHBP * df.HBP \
-    + cons.w1B * df['1B'] + cons.w2B * df['2B'] \
-    + cons.w3B * df['3B'] + cons.wHR * df.HR) \
-    / (df.AB + df.BB - df.IBB + df.SF + df.HBP)
-"""
