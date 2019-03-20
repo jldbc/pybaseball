@@ -8,7 +8,7 @@ def get_table(soup):
 	table = soup.find_all('table', {'id': 'batting_standard'})[0]
 	headings = [row.text.strip() for row in table.find_all('th')[0:30]]
 
-	rows = table.find_all('tr')[:-9][1:] # :-9 to remove totals and other unwanted rows | 1: to remove headings
+	rows = table.find_all('tr')[1:] # [1:] to remove headings from rows
 	for row in rows:
 		year = row.find('th').text
 		cols = row.find_all('td')
@@ -30,7 +30,7 @@ def player_batting_bref(bref_id):
 
 	return : DataFrame : Pandas DataFrame containing available career batting stats for the specified player.
 	"""
-	url = "https://www.baseball-reference.com/players/r/{}.shtml".format(bref_id)
+	url = "https://www.baseball-reference.com/players/{}/{}.shtml".format(bref_id[0], bref_id)
 	response = requests.get(url)
 	soup = BeautifulSoup(response.content, 'html.parser')
 
@@ -40,6 +40,6 @@ def player_batting_bref(bref_id):
 
 
 if __name__ == '__main__':
-	ruth = player_batting_bref('ruthba01')
+	ruth = player_batting_bref('aaronha01')
 
 	print(ruth)
