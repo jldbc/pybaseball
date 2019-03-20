@@ -37,9 +37,3 @@ def player_batting_bref(bref_id):
 	data = get_table(soup)
 
 	return data
-
-
-if __name__ == '__main__':
-	ruth = player_batting_bref('aaronha01')
-
-	print(ruth)
