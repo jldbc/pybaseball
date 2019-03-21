@@ -3,8 +3,7 @@ import requests
 import io
 
 # dropped key_uuid. looks like a has we wouldn't need for anything. 
-# TODO: allow for typos. String similarity? 
-# TODO: allow user to submit list of multiple names
+# TODO: allow for typos. String similarity?
 
 
 def get_lookup_table():
@@ -39,6 +38,37 @@ def playerid_lookup(last, first=None):
     results = results.reset_index().drop('index', 1)
     return results
 
+
+def batch_playerid_lookup(names):
+    """
+    Gets player id's for a list of player names.
+
+    names : list : List of names to look up in format [[last, first], [last1, first1], [last2, first3]]
+    return : DataFrame : DataFrame containing a row for each requested player.
+    """
+    table = get_lookup_table()
+
+    player_ids = []
+    for name in names:
+        last = name[0].lower()
+        if name[1]:
+            first = name[1].lower()
+
+        if first is None:
+            results = table.loc[table['name_last'] == last]
+        else:
+            results = table.loc[(table['name_last'] == last) & (table['name_first'] == first)]
+
+        results = results.reset_index().drop('index', 1)
+        player_ids.append(results)
+
+    df = pd.DataFrame(columns=player_ids[0].columns)
+    for id in player_ids:
+        df = pd.concat([df, id])
+    return df.reset_index(drop=True)
+
+
+
 # data = playerid_lookup('bonilla')
 # data = playerid_lookup('bonilla', 'bobby')
 
@@ -68,3 +98,4 @@ def playerid_reverse_lookup(player_ids, key_type=None):
     results = table[table[key].isin(player_ids)]
     results = results.reset_index().drop('index', 1)
     return results
+
