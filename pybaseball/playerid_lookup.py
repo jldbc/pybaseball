@@ -43,7 +43,7 @@ def batch_playerid_lookup(names):
     """
     Gets player id's for a list of player names.
 
-    names : list : List of names to look up in format [[last, first], [last1, first1], [last2, first3]]
+    names : list : List of names to look up in format [[last, first], [last1, first1], [last2, first2]]
     return : DataFrame : DataFrame containing a row for each requested player.
     """
     table = get_lookup_table()
