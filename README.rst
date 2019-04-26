@@ -131,14 +131,14 @@ Batting stats are obtained similar to pitching stats. The function call for gett
 4   Jim Adduci   32     69  MLB-AL     Detroit  6  24  21  3  5  ...      0
 5  Tim Adleman   29     72  MLB-NL  Cincinnati  1   2   2  0  0  ...      0
 
-   SH  SF  GDP  SB  CS     BA    OBP    SLG    OPS
-1   0   0    1   0   0  0.300  0.323  0.667  0.989
-2   0   0    1   1   0  0.333  0.333  0.333  0.667
-3   0   0    0   0   0  0.444  0.444  0.778  1.222
-4   0   0    0   0   0  0.238  0.333  0.381  0.714
-5   0   0    0   0   0  0.000  0.000  0.000  0.000
+   SH  SF  GDP  SB  CS     BA    OBP    SLG    OPS  mlb_ID
+1   0   0    1   0   0  0.300  0.323  0.667  0.989  547989
+2   0   0    1   1   0  0.333  0.333  0.333  0.667  572669
+3   0   0    0   0   0  0.444  0.444  0.778  1.222  571431
+4   0   0    0   0   0  0.238  0.333  0.381  0.714  451192
+5   0   0    0   0   0  0.000  0.000  0.000  0.000  534947
 
-[5 rows x 27 columns]
+[5 rows x 28 columns]
 ~~~~
 
 ## Game-by-Game Results and Schedule 

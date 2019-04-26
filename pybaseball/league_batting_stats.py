@@ -3,6 +3,7 @@ import pandas as pd
 import datetime
 import io
 from bs4 import BeautifulSoup
+import re
 
 
 def validate_datestring(date_text):
@@ -51,12 +52,21 @@ def get_table(soup):
     table = soup.find_all('table')[0]
     data = []
     headings = [th.get_text() for th in table.find("tr").find_all("th")][1:]
+    headings.append('mlb_ID')
     data.append(headings)
     table_body = table.find('tbody')
     rows = table_body.find_all('tr')
+    mlb_re = re.compile('.*mlb_ID=([0-9]+)')
     for row in rows:
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
+
+        # The url in the first <a> tag contains the mlb ID.  Extract this out
+        # and add it as a separate column.
+        mlb_id_match = mlb_re.search(str(row.find('a')))
+        if mlb_id_match is not None:
+            cols.append(mlb_id_match[1])
+
         data.append([ele for ele in cols])
     data = pd.DataFrame(data)
     data = data.rename(columns=data.iloc[0])
@@ -84,7 +94,7 @@ def batting_stats_range(start_dt=None, end_dt=None):
     # convert the necessary columns to numeric.
     for column in ['Age', '#days', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B',
                     'HR', 'RBI', 'BB', 'IBB', 'SO', 'HBP', 'SH', 'SF', 'GDP',
-                    'SB', 'CS', 'BA', 'OBP', 'SLG', 'OPS']:
+                    'SB', 'CS', 'BA', 'OBP', 'SLG', 'OPS', 'mlb_ID']:
         #table[column] = table[column].astype('float')
         table[column] = pd.to_numeric(table[column])
         #table['column'] = table['column'].convert_objects(convert_numeric=True)
