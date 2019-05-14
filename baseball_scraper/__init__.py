@@ -1,4 +1,4 @@
-import pybaseball.utils
+import baseball_scraper.utils
 from .playerid_lookup import playerid_reverse_lookup
 from .playerid_lookup import playerid_lookup
 from .statcast import statcast, statcast_single_game

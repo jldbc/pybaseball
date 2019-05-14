@@ -3,8 +3,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from pybaseball.lahman import teams
-from pybaseball.utils import first_season_map
+from baseball_scraper.lahman import teams
+from baseball_scraper.utils import first_season_map
 
 # TODO: retrieve data for all teams? a full season's worth of results
 
@@ -49,18 +49,18 @@ def get_table(soup,team):
                 cols[16].string = "Unknown"
             if cols[15].text=="":
                 cols[15].string = "Unknown"
-            if cols[17].text == "": 
+            if cols[17].text == "":
                 cols[17].string = "Unknown" # Unknown if attendance data is missing
 
             cols = [ele.text.strip() for ele in cols]
             data.append([ele for ele in cols if ele])
         except:
             # two cases will break the above: games that haven't happened yet, and BR's redundant mid-table headers
-            # if future games, grab the scheduling info. Otherwise do nothing. 
+            # if future games, grab the scheduling info. Otherwise do nothing.
             if len(cols)>1:
                 cols = [ele.text.strip() for ele in cols][0:5]
                 data.append([ele for ele in cols if ele])
-    #convert to pandas dataframe. make first row the table's column names and reindex. 
+    #convert to pandas dataframe. make first row the table's column names and reindex.
     data = pd.DataFrame(data)
     data = data.rename(columns=data.iloc[0])
     data = data.reindex(data.index.drop(0))

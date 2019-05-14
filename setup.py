@@ -1,19 +1,4 @@
-#from setuptools import setup
-
-#setup(name='pybaseball',
-#        version='0.1',
-#        description='retrieve baseball data in python',
-#        author='James LeDoux',
-#        author_email='ledoux.james.r@gmail.com',
-#        url='github.com/jldbc/pybaseball',
-#        license='MIT',
-#        packages=['pybaseball'],
-#        zip_safe=False)
-
-
-# Always prefer setuptools over distutils
-from setuptools import setup, find_packages
-# To use a consistent encoding
+from setuptools import setup
 from codecs import open
 from os import path
 
@@ -24,18 +9,18 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='pybaseball',
+    name='baseball_scraper',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='1.0.5',
+    version='0.0.1',
 
     description='Retrieve baseball data in Python',
     long_description=long_description,
 
     # The project's main homepage.
-    url='https://github.com/jldbc/pybaseball',
+    url='https://github.com/spilchen/baseball_scraper',
 
     # Author details
     author='James LeDoux',
@@ -74,7 +59,7 @@ setup(
 
     # You can just specify the packages manually here if your project is
     # simple. Or you can use find_packages().
-    packages= ['pybaseball'],
+    packages=['baseball_scraper'],
 
     # Alternatively, if you want to distribute just a my_module.py, uncomment
     # this:
@@ -84,7 +69,7 @@ setup(
     # your project is installed. For an analysis of "install_requires" vs pip's
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
-    install_requires=['numpy>=1.13.0', 
+    install_requires=['numpy>=1.13.0',
                       'pandas >= 0.20.2',
                       'beautifulsoup4>=4.4.0',
                       'requests>=2.18.1',

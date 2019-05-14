@@ -21,7 +21,7 @@ as additional data are received. We are grateful to anyone who
 discovers discrepancies and we appreciate learning of the details.
 """
 import pandas as pd
-from pybaseball.utils import get_zip_file
+from baseball_scraper.utils import get_zip_file
 from datetime import datetime
 
 

@@ -1,4 +1,4 @@
-from pybaseball.utils import sanitize_input, split_request
+from baseball_scraper.utils import sanitize_input, split_request
 
 
 def statcast_pitcher(start_dt=None, end_dt=None, player_id=None):
