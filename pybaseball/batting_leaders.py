@@ -10,7 +10,7 @@ def get_soup(start_season, end_season, league, qual, ind):
     url = url.format(league, qual, end_season, start_season, ind)
     s=requests.get(url).content
     #print(s)
-    return BeautifulSoup(s, "html.parser")
+    return BeautifulSoup(s, "lxml")
 
 def get_table(soup, ind):
     table = soup.find('table', {'class': 'rgMasterTable'})
