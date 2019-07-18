@@ -13,8 +13,7 @@ def get_soup(start_season, end_season, league, qual, ind):
     return BeautifulSoup(s, "lxml")
 
 def get_table(soup, ind):
-    tables = soup.find_all('table')
-    table = tables[11]
+    table = soup.find('table', {'class': 'rgMasterTable'})
     data = []
     # pull heading names from the fangraphs tables
     headings = [row.text.strip() for row in table.find_all('th')[1:]]
@@ -39,10 +38,11 @@ def get_table(soup, ind):
     percentages = ['Zone% (pi)','Contact% (pi)','Z-Contact% (pi)','O-Contact% (pi)','Swing% (pi)','Z-Swing% (pi)','O-Swing% (pi)','XX% (pi)','SL% (pi)','SI% (pi)','SB% (pi)','KN% (pi)','FS% (pi)','FC% (pi)','FA% (pi)','CU% (pi)','CS% (pi)','CH% (pi)','TTO%','Hard%','Med%','Soft%','Oppo%','Cent%','Pull%','Zone% (pfx)','Contact% (pfx)','Z-Contact% (pfx)','O-Contact% (pfx)','Swing% (pfx)','Z-Swing% (pfx)','O-Swing% (pfx)','UN% (pfx)','KN% (pfx)','SC% (pfx)','CH% (pfx)','EP% (pfx)','KC% (pfx)','CU% (pfx)','SL% (pfx)','SI% (pfx)','FO% (pfx)','FS% (pfx)','FC% (pfx)','FT% (pfx)','FA% (pfx)','SwStr%','F-Strike%','Zone%','Contact%','Z-Contact%','O-Contact%','Swing%','Z-Swing%','O-Swing%','PO%','XX%','KN%','SF%','CH%','CB%','CT%','SL%','FB%','BUH%','IFH%','HR/FB','IFFB%','FB% (Pitch)','GB%', 'LD%','GB/FB','K%','BB%']
     for col in percentages:
         # skip if column is all NA (happens for some of the more obscure stats + in older seasons)
-        if data[col].count()>0:
-            data[col] = data[col].str.strip(' %')
-            data[col] = data[col].str.strip('%')
-            data[col] = data[col].astype(float)/100.
+        if not data[col].empty:
+            if pd.api.types.is_string_dtype(data[col]):
+                data[col] = data[col].str.strip(' %')
+                data[col] = data[col].str.strip('%')
+                data[col] = data[col].astype(float)/100.
         else:
             #print(col)
             pass
