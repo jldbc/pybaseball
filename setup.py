@@ -33,7 +33,7 @@ setup(
 
     description='Retrieve baseball data in Python',
     long_description=long_description,
-
+    long_description_content_type="text/markdown",
     # The project's main homepage.
     url='https://github.com/jldbc/pybaseball',
 
