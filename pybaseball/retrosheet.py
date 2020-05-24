@@ -25,7 +25,10 @@ from pybaseball.utils import get_text_file
 from datetime import datetime
 from io import StringIO
 from github import Github
-
+import os
+from getpass import getuser, getpass
+from github.GithubException import RateLimitExceededException
+import warnings
 
 gamelog_columns = [
     'date', 'game_num', 'day_of_week', 'visiting_team',
@@ -93,9 +96,71 @@ parkcode_columns = [
     'park_id', 'name', 'nickname', 'city', 'state', 'open', 'close', 'league', 'notes'
 ]
 
+roster_columns = [
+    'player_id', 'last_name', 'first_name', 'bats', 'throws', 'team', 'position'
+]
+
 gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/gamelog/GL{}.TXT'
 schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/schedule/{}SKED.TXT'
 parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/misc/parkcode.txt'
+roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/rosters/{}{}.ROS'
+
+def get_rosters_season(season = 2019):
+    """
+    Pulls retrosheet roster files for an entire season
+    """
+    GH_TOKEN=os.getenv('GH_TOKEN', '')
+
+    try:
+        g = Github(GH_TOKEN)
+        repo = g.get_repo('chadwickbureau/retrosheet')
+        tree = repo.get_git_tree('master')
+        for t in tree.tree:
+            if t.path == 'rosters':
+                subtree = t
+
+        rosters = [t.path for t in repo.get_git_tree(subtree.sha).tree if str(season) in t.path]
+        if len(rosters) == 0:
+            raise ValueError('Rosters not available for {}'.format(season))
+    except RateLimitExceededException:
+        warnings.warn(
+            'Github rate limit exceeded. Cannot check if the file you want exists.',
+            UserWarning
+        )
+
+    df_list = [get_roster(team = r[:3], season = season, checked=False) for r in rosters]
+
+    return pd.concat(df_list)
+
+def get_roster(team = 'WAS', season = 2019, checked = False):
+    """
+    Pulls retrosheet roster files
+    """
+    GH_TOKEN=os.getenv('GH_TOKEN', '')
+
+    if not checked:
+        g = Github(GH_TOKEN)
+        try:
+            repo = g.get_repo('chadwickbureau/retrosheet')
+            tree = repo.get_git_tree('master')
+            for t in tree.tree:
+                if t.path == 'rosters':
+                    subtree = t
+
+            rosters = [t.path for t in repo.get_git_tree(subtree.sha).tree]
+            file_name = '{}{}.ROS'.format(team, season)
+            if file_name not in rosters:
+                raise ValueError('Roster not available for {} in {}'.format(team, season))
+        except RateLimitExceededException:
+            warnings.warn(
+                'Github rate limit exceeded. Cannot check if the file you want exists.',
+                UserWarning
+            )
+
+    s = get_text_file(roster_url.format(team, season))
+    data = pd.read_csv(StringIO(s), header=None, sep=',', quotechar='"')
+    data.columns = roster_columns
+    return data
 
 def get_parkcodes():
     """
@@ -105,7 +170,6 @@ def get_parkcodes():
     data = pd.read_csv(StringIO(s), sep=',', quotechar='"')
     data.columns = parkcode_columns
     return data
-
 
 def get_schedule(season):
     """
