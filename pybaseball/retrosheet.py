@@ -89,8 +89,23 @@ schedule_columns = [
     'date_of_makeup'
 ]
 
+parkcode_columns = [
+    'park_id', 'name', 'nickname', 'city', 'state', 'open', 'close', 'league', 'notes'
+]
+
 gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/gamelog/GL{}.TXT'
 schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/schedule/{}SKED.TXT'
+parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/misc/parkcode.txt'
+
+def get_parkcodes():
+    """
+    Pulls retrosheet Park IDs
+    """
+    s = get_text_file(parkid_url)
+    data = pd.read_csv(StringIO(s), sep=',', quotechar='"')
+    data.columns = parkcode_columns
+    return data
+
 
 def get_schedule(season):
     """
