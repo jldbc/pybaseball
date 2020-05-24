@@ -82,7 +82,32 @@ gamelog_columns = [
     'acquisition_info'
 ]
 
+schedule_columns = [
+    'date', 'game_num', 'day_of_week', 'visiting_team', 'visiting_team_league',
+    'visiting_team_game_num', 'home_team', 'home_team_league',
+    'home_team_game_num', 'day_night', 'postponement_cancellation',
+    'date_of_makeup'
+]
+
 gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/gamelog/GL{}.TXT'
+schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/schedule/{}SKED.TXT'
+
+def get_schedule(season):
+    """
+    Pull retrosheet schedule for a given season
+    """
+    # validate input
+    g = Github()
+    repo = g.get_repo('chadwickbureau/retrosheet')
+    schedules = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents('schedule')]
+    file_name = '{}SKED.TXT'.format(season)
+
+    if file_name not in schedules:
+        raise ValueError('Schedule not available for {}'.format(season))
+    s = get_text_file(schedule_url.format(season))
+    data = pd.read_csv(StringIO(s), header=None, sep=',', quotechar='"')
+    data.columns = schedule_columns
+    return data
 
 def season_game_logs(season):
     """
