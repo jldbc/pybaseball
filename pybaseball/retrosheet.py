@@ -104,8 +104,49 @@ gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/maste
 schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/schedule/{}SKED.TXT'
 parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/misc/parkcode.txt'
 roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/rosters/{}{}.ROS'
+event_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/event/{}/{}'
 
-def get_rosters_season(season = 2019):
+def get_events(season, type='regular', export_dir='.'):
+    """
+    Pulls retrosheet event files for an entire season. The `type` argument
+    specifies whether to pull regular season, postseason or asg files.
+
+    Right now, pybaseball does not parse the retrosheet files but downloads and
+    saves them.
+    """
+    GH_TOKEN=os.getenv('GH_TOKEN', '')
+    if not os.path.exists(export_dir):
+        os.mkdir(export_dir)
+
+    try:
+        g = Github(GH_TOKEN)
+        repo = g.get_repo('chadwickbureau/retrosheet')
+        tree = repo.get_git_tree('master')
+        for t in tree.tree:
+            if t.path == 'event':
+                subtree = t
+
+        subtree = repo.get_git_tree(subtree.sha)
+        for t in subtree.tree:
+            if t.path == type:
+                subsubtree = t
+
+        event_files = [t.path for t in repo.get_git_tree(subsubtree.sha).tree if str(season) in t.path]
+        if len(event_files) == 0:
+            raise ValueError('Event files not available for {}'.format(season))
+    except RateLimitExceededException:
+        warnings.warn(
+            'Github rate limit exceeded. Cannot check if the file you want exists.',
+            UserWarning
+        )
+
+    for filename in event_files:
+        print(f'Downloading {filename}')
+        s = get_text_file(event_url.format(type, filename))
+        with open(os.path.join(export_dir, filename), 'w') as f:
+            f.write(s)
+
+def get_rosters_season(season):
     """
     Pulls retrosheet roster files for an entire season
     """
@@ -132,7 +173,7 @@ def get_rosters_season(season = 2019):
 
     return pd.concat(df_list)
 
-def get_roster(team = 'WAS', season = 2019, checked = False):
+def get_roster(team, season, checked = False):
     """
     Pulls retrosheet roster files
     """
@@ -175,8 +216,9 @@ def get_schedule(season):
     """
     Pull retrosheet schedule for a given season
     """
+    GH_TOKEN=os.getenv('GH_TOKEN', '')
     # validate input
-    g = Github()
+    g = Github(GH_TOKEN)
     repo = g.get_repo('chadwickbureau/retrosheet')
     schedules = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents('schedule')]
     file_name = '{}SKED.TXT'.format(season)
@@ -192,8 +234,9 @@ def season_game_logs(season):
     """
     Pull Retrosheet game logs for a given season
     """
+    GH_TOKEN=os.getenv('GH_TOKEN', '')
     # validate input
-    g = Github()
+    g = Github(GH_TOKEN)
     repo = g.get_repo('chadwickbureau/retrosheet')
     gamelogs = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents('gamelog')]
     file_name = 'GL{}.TXT'.format(season)
