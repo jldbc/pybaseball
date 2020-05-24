@@ -99,3 +99,13 @@ def get_zip_file(url):
     with requests.get(url, stream=True) as f:
         z = zipfile.ZipFile(io.BytesIO(f.content))
     return z
+
+def get_text_file(url):
+    """
+    Get raw github file from provided URL
+    """
+
+    with requests.get(url, stream=True) as f:
+        s = f.text
+
+    return s
