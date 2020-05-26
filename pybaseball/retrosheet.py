@@ -212,7 +212,7 @@ def park_codes():
     data.columns = parkcode_columns
     return data
 
-def schedule(season):
+def schedules(season):
     """
     Pull retrosheet schedule for a given season
     """
