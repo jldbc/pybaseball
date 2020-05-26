@@ -1,6 +1,6 @@
 # Retrosheet
 
-The functions in `retrosheet.py` retrieve game log data from [Retrosheet.org](http://www.retrosheet.org/gamelogs/index.html).
+The functions in `retrosheet.py` retrieve game logs, rosters, schedules, park codes and event files by Retrosheet from [the Chadwick Bureau Github](https://github.com/chadwickbureau/retrosheet).
 
 ## Retrosheet Data Notice
 
@@ -34,3 +34,11 @@ discovers discrepancies and we appreciate learning of the details.
 `division_series_logs`: Retrieve game logs from all Division Series Games.
 
 `lcs_logs()`: Retrieve game logs from all LCS games.
+
+`schedule(season)`: Retrieve all scheduled games and postponements for a given season.
+
+`park_codes()`: Retrieves the park codes used by retrosheet.
+
+`rosters(season)`: Retrieves all major league rosters for a given season.
+
+`events(season, type='regular', export_dir='.')`: Downloads the event files from retrosheet. `type` can be one of `regular`, `post`, or `asg`. The files are saved in the specified export directory.

@@ -106,7 +106,7 @@ parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master
 roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/rosters/{}{}.ROS'
 event_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/event/{}/{}'
 
-def get_events(season, type='regular', export_dir='.'):
+def events(season, type='regular', export_dir='.'):
     """
     Pulls retrosheet event files for an entire season. The `type` argument
     specifies whether to pull regular season, postseason or asg files.
@@ -146,7 +146,7 @@ def get_events(season, type='regular', export_dir='.'):
         with open(os.path.join(export_dir, filename), 'w') as f:
             f.write(s)
 
-def get_rosters_season(season):
+def rosters(season):
     """
     Pulls retrosheet roster files for an entire season
     """
@@ -173,7 +173,7 @@ def get_rosters_season(season):
 
     return pd.concat(df_list)
 
-def get_roster(team, season, checked = False):
+def _roster(team, season, checked = False):
     """
     Pulls retrosheet roster files
     """
@@ -203,7 +203,7 @@ def get_roster(team, season, checked = False):
     data.columns = roster_columns
     return data
 
-def get_parkcodes():
+def park_codes():
     """
     Pulls retrosheet Park IDs
     """
@@ -212,7 +212,7 @@ def get_parkcodes():
     data.columns = parkcode_columns
     return data
 
-def get_schedule(season):
+def schedule(season):
     """
     Pull retrosheet schedule for a given season
     """
