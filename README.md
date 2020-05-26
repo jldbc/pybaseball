@@ -4,7 +4,7 @@
 
 **Recent Updates**: Added [Statcast Single Game](https://github.com/jldbc/pybaseball/blob/master/docs/statcast_single_game.md) function, [Lahman database](https://github.com/jldbc/pybaseball/blob/master/docs/lahman.md), and bWAR acquisition functions for [batting](https://github.com/jldbc/pybaseball/blob/master/docs/bwar_bat.md) and [pitching](https://github.com/jldbc/pybaseball/blob/master/docs/bwar_pitch.md). [Release notes: [1.0.4](https://github.com/jldbc/pybaseball/releases/tag/1.0.4), [1.0.3](https://github.com/jldbc/pybaseball/releases/tag/1.0.3)].
 
-`pybaseball` is a Python package for baseball data analysis. This package scrapes Baseball Reference, Baseball Savant, and FanGraphs so you don't have to. The package retrieves statcast data, pitching stats, batting stats, division standings/team records, awards data, and more. Data is available at the individual pitch level, as well as aggregated at the season level and over custom time periods. See the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) for a comprehensive list of data acquisition functions. 
+`pybaseball` is a Python package for baseball data analysis. This package scrapes Baseball Reference, Baseball Savant, and FanGraphs so you don't have to. The package retrieves statcast data, pitching stats, batting stats, division standings/team records, awards data, and more. Data is available at the individual pitch level, as well as aggregated at the season level and over custom time periods. See the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) for a comprehensive list of data acquisition functions.
 
 ## Installation
 
@@ -24,7 +24,7 @@ python setup.py install
 
 ## Statcast: Pull advanced metrics from Major League Baseball's Statcast system
 
-Statcast data include pitch-level features such as Perceived Velocity (PV), Spin Rate (SR), Exit Velocity (EV), pitch X, Y, and Z coordinates, and more. The function `statcast(start_dt, end_dt)` pulls this data from baseballsavant.com. 
+Statcast data include pitch-level features such as Perceived Velocity (PV), Spin Rate (SR), Exit Velocity (EV), pitch X, Y, and Z coordinates, and more. The function `statcast(start_dt, end_dt)` pulls this data from baseballsavant.com.
 
 ```python
 >>> from pybaseball import statcast
@@ -51,7 +51,7 @@ Statcast data include pitch-level features such as Perceived Velocity (PV), Spin
 
 If `start_dt` and `end_dt` are supplied, it will return all statcast data between those two dates. If not, it will return yesterday's data. The optional argument `verbose` will control whether the library updates you on its progress while it pulls the data.
 
-For a player-specific statcast query, pull pitching or batting data using the `statcast_pitcher` and `statcast_batter` functions. These take the same `start_dt` and `end_dt` arguments as the statcast function, as well as a `player_id` argument. This ID comes from MLB Advanced Media, and can be obtained using the function `playerid_lookup`. A complete example: 
+For a player-specific statcast query, pull pitching or batting data using the `statcast_pitcher` and `statcast_batter` functions. These take the same `start_dt` and `end_dt` arguments as the statcast function, as well as a `player_id` argument. This ID comes from MLB Advanced Media, and can be obtained using the function `playerid_lookup`. A complete example:
 
 ```python
 >>> # Find Clayton Kershaw's player id
@@ -66,7 +66,7 @@ Gathering player lookup table. This may take a moment.
    mlb_played_first  mlb_played_last
 0            2008.0           2017.0
 
->>> # His MLBAM ID is 477132, so we feed that as the player_id argument to the following function 
+>>> # His MLBAM ID is 477132, so we feed that as the player_id argument to the following function
 >>> kershaw_stats = statcast_pitcher('2017-06-01', '2017-07-01', 477132)
 >>> kershaw_stats.head(2)
   pitch_type   game_date release_speed release_pos_x release_pos_z  
@@ -94,7 +94,7 @@ Gathering player lookup table. This may take a moment.
 
 ## Pitching Stats: pitching stats for players across multiple seasons, single seasons, or during a specified time period
 
-This library contains two main functions for obtaining pitching data. For league-wide season-level pitching data, use the function `pitching_stats(start_season, end_season)`. This will return one row per player per season, and provide all metrics made available by FanGraphs. 
+This library contains two main functions for obtaining pitching data. For league-wide season-level pitching data, use the function `pitching_stats(start_season, end_season)`. This will return one row per player per season, and provide all metrics made available by FanGraphs.
 
 The second is `pitching_stats_range(start_dt, end_dt)`. This allows you to obtain pitching data over a specific time interval, allowing you to get more granular than the FanGraphs function (for example, to see which pitcher had the strongest month of May). This query pulls data from Baseball Reference. Note that all dates should be in `YYYY-MM-DD` format.
 
@@ -138,7 +138,7 @@ If you prefer Baseball Reference to FanGraphs, there is a third option called `p
 
 ## Batting Stats: hitting stats for players within seasons or during a specified time period
 
-Batting stats are obtained similar to pitching stats. The function call for getting a season-level stats is `batting_stats(start_season, end_season)`, and for a particular time range it is `batting_stats_range(start_dt, end_dt)`. The Baseball Reference equivalent for season-level data is `batting_stats_bref(season)`. 
+Batting stats are obtained similar to pitching stats. The function call for getting a season-level stats is `batting_stats(start_season, end_season)`, and for a particular time range it is `batting_stats_range(start_dt, end_dt)`. The Baseball Reference equivalent for season-level data is `batting_stats_bref(season)`.
 
 ```python
 >>> from pybaseball import batting_stats_range
@@ -161,8 +161,8 @@ Batting stats are obtained similar to pitching stats. The function call for gett
 [5 rows x 27 columns]
 ```
 
-## Game-by-Game Results and Schedule 
-The `schedule_and_record` function returns a team's game-by-game results for a given season, including game date, home and away teams, end result (W/L/Tie), score, winning/losing/saving pitchers, attendance, and division standing at that date. The function's only two arguments are `season` and `team`, where team is the team's abbreviation (i.e. NYY for New York Yankees, SEA for Seattle Mariners). If the season argument is set to the current season, the query returns results for past games and the schedule for those that have not occurred yet. 
+## Game-by-Game Results and Schedule
+The `schedule_and_record` function returns a team's game-by-game results for a given season, including game date, home and away teams, end result (W/L/Tie), score, winning/losing/saving pitchers, attendance, and division standing at that date. The function's only two arguments are `season` and `team`, where team is the team's abbreviation (i.e. NYY for New York Yankees, SEA for Seattle Mariners). If the season argument is set to the current season, the query returns results for past games and the schedule for those that have not occurred yet.
 
 ```python
 # Example: Let's take a look at the individual-game results of the 1927 Yankees
@@ -187,9 +187,9 @@ The `schedule_and_record` function returns a team's game-by-game results for a g
 
 ## Standings: up to date or historical division standings, W/L records
 
-The `standings(season)` function gives division standings for a given season. If the current season is chosen, it will give the most current set of standings. Otherwise, it will give the end-of-season standings for each division for the chosen season. 
+The `standings(season)` function gives division standings for a given season. If the current season is chosen, it will give the most current set of standings. Otherwise, it will give the end-of-season standings for each division for the chosen season.
 
-This function returns a list of dataframes. Each dataframe is the standings for one of MLB's six divisions. 
+This function returns a list of dataframes. Each dataframe is the standings for one of MLB's six divisions.
 
 ```python
 >>> from pybaseball import standings
@@ -205,17 +205,17 @@ This function returns a list of dataframes. Each dataframe is the standings for 
 
 # Complete Documentation
 
-So far this has provided a basic overview of what this package can do and how you can use it. For full documentation on available functions and their arguments, see the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) folder. 
+So far this has provided a basic overview of what this package can do and how you can use it. For full documentation on available functions and their arguments, see the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) folder.
 
-# So what can I do with this? 
+# So what can I do with this?
 
 Need some inspiration? See some examples of classic baseball studies replicated using this package [here](https://github.com/jldbc/pybaseball/tree/master/EXAMPLES).
 
 ------
 
-## Credit 
+## Credit
 
-This pacakge was inspired by Bill Petti's excellent R package [baseballr](https://github.com/billpetti/baseballr), which at the time of this package's development had no Python equivalent. My hope is to fill that void with this package. 
+This pacakge was inspired by Bill Petti's excellent R package [baseballr](https://github.com/billpetti/baseballr), which at the time of this package's development had no Python equivalent. My hope is to fill that void with this package.
 
 The Lahman data comes from [Sean Lahman's baseball database](http://www.seanlahman.com/baseball-archive/statistics/).
 
@@ -229,4 +229,4 @@ Moving forward, I intend to:
 * Identify edge cases where these queries fail (please open up an issue if you find one!)
 * Add more examples
 
-Interested in contributing? I've left some ideas in [contributing.md](https://github.com/jldbc/pybaseball/tree/master/contributing.md). 
+Interested in contributing? I've left some ideas in [contributing.md](https://github.com/jldbc/pybaseball/tree/master/contributing.md).
