@@ -35,7 +35,7 @@ discovers discrepancies and we appreciate learning of the details.
 
 `lcs_logs()`: Retrieve game logs from all LCS games.
 
-`schedule(season)`: Retrieve all scheduled games and postponements for a given season.
+`schedules(season)`: Retrieve all scheduled games and postponements for a given season.
 
 `park_codes()`: Retrieves the park codes used by retrosheet.
 
