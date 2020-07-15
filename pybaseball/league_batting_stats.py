@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import datetime
 import io
+import warnings
 from bs4 import BeautifulSoup
 
 
@@ -42,15 +43,16 @@ def get_soup(start_dt, end_dt):
     # if((start_dt is None) or (end_dt is None)):
     #    print('Error: a date range needs to be specified')
     #    return None
-    url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=b&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
+    url = f"https://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=c,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,34,35,36,37,38,39,40,60,41,201,205,200,52,51,50,61,62,63,64,65,66,67,68,69,70,71,53,111,54,56,203,199,204,55,57,58,59&season={start_dt[:4]}&month=1000&season1={end_dt[:4]}&ind=0&startdate={start_dt}&enddate={end_dt}&page=1_1500"
     s = requests.get(url).content
     return BeautifulSoup(s, "lxml")
 
 
 def get_table(soup):
-    table = soup.find_all('table')[0]
+    warnings.warn("\nPlease consider supporting FanGraphs\nhttps://plus.fangraphs.com/product/fangraphs-membership/", Warning)
+    table = soup.find_all('table')[16]
     data = []
-    headings = [th.get_text() for th in table.find("tr").find_all("th")][1:]
+    headings = [th.get_text() for th in table.find_all("th")]
     data.append(headings)
     table_body = table.find('tbody')
     rows = table_body.find_all('tr')
@@ -82,13 +84,17 @@ def batting_stats_range(start_dt=None, end_dt=None):
     table = table.dropna(how='all')  # drop if all columns are NA
     # scraped data is initially in string format.
     # convert the necessary columns to numeric.
-    for column in ['Age', '#days', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B',
-                    'HR', 'RBI', 'BB', 'IBB', 'SO', 'HBP', 'SH', 'SF', 'GDP',
-                    'SB', 'CS', 'BA', 'OBP', 'SLG', 'OPS']:
+    for column in ['#', 'Age', 'G', 'AB', 'PA', 'H', '1B', '2B', '3B',
+           'HR', 'R', 'RBI', 'BB', 'IBB', 'SO', 'HBP', 'SF', 'SH', 'GDP',
+           'SB', 'CS', 'AVG', 'BB/K', 'OBP', 'SLG', 'OPS', 'ISO',
+           'Spd', 'BABIP', 'UBR', 'wGDP', 'wSB', 'wRC', 'wRAA', 'wOBA',
+           'wRC+', 'WPA', '-WPA', '+WPA', 'RE24', 'REW', 'pLI', 'phLI', 'PH',
+           'WPA/LI', 'Clutch', 'Bat', 'BsR', 'Fld', 'Pos', 'Off', 'Def', 'Lg',
+           'Rep', 'RAR', 'WAR']:
         #table[column] = table[column].astype('float')
         table[column] = pd.to_numeric(table[column])
         #table['column'] = table['column'].convert_objects(convert_numeric=True)
-    table = table.drop('', 1)
+    table = table.reset_index(drop=True)
     return table
 
 
