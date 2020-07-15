@@ -2,6 +2,7 @@ import requests
 import pandas as pd
 import numpy as np
 import io
+import warnings
 from bs4 import BeautifulSoup
 import datetime
 
@@ -42,15 +43,16 @@ def get_soup(start_dt, end_dt):
     if((start_dt is None) or (end_dt is None)):
         print('Error: a date range needs to be specified')
         return None
-    url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=p&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
+    url = f"https://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=1&type=c,4,5,6,7,8,9,10,11,114,12,13,14,15,16,17,18,19,20,21,22,23,24,36,37,38,40,120,121,217,41,42,43,44,117,118,119,45,124,62,122,229,240,251,262,273,230,241,252,263,274,231,242,253,264,275,234,245,256,267,278,226,237,248,259,270,235,246,257,268,279,228,239,250,261,272,227,238,249,260,271,232,243,254,265,276,233,244,255,266,277,236,247,258,269,280,63,64,65,66,67,68,69,70,71,72,73,74,115,116,212,213,214,215,58,59,60,54,55,56,57,29,30,31,292,293,294,295,296,297,298,299&season={start_dt[:4]}&month=0&season1={end_dt[:4]}&ind=0&team=0&rost=0&age=0&filter=&players=0&startdate={start_dt}&enddate={end_dt}&page=1_1500"
     s = requests.get(url).content
     return BeautifulSoup(s, "lxml")
 
 
 def get_table(soup):
-    table = soup.find_all('table')[0]
+    warnings.warn("\nPlease consider supporting FanGraphs\nhttps://plus.fangraphs.com/product/fangraphs-membership/", Warning)
+    table = soup.find_all('table')[16]
     data = []
-    headings = [th.get_text() for th in table.find("tr").find_all("th")][1:]
+    headings = [th.get_text() for th in table.find_all("th")]
     data.append(headings)
     table_body = table.find('tbody')
     rows = table_body.find_all('tr')
@@ -79,20 +81,33 @@ def pitching_stats_range(start_dt=None, end_dt=None):
     # retrieve html from baseball reference
     soup = get_soup(start_dt, end_dt)
     table = get_table(soup)
-    table = table.dropna(how='all') # drop if all columns are NA
-    #fix some strange formatting for percentage columns
-    table = table.replace('---%', np.nan)
-    #make sure these are all numeric
-    for column in ['Age', '#days', 'G', 'GS', 'W', 'L', 'SV', 'IP', 'H',
-                    'R', 'ER', 'BB', 'SO', 'HR', 'HBP', 'ERA', 'AB', '2B',
-                    '3B', 'IBB', 'GDP', 'SF', 'SB', 'CS', 'PO', 'BF', 'Pit',
-                    'WHIP', 'BAbip', 'SO9', 'SO/W']:
+    table = table.dropna(how='all')  # drop if all columns are NA
+    # scraped data is initially in string format.
+    # convert the necessary columns to numeric.
+    for column in ['#', 'W', 'L', 'ERA', 'G', 'GS', 'CG', 'ShO', 'SV',
+           'HLD', 'BS', 'IP', 'TBF', 'H', 'R', 'ER', 'HR', 'BB', 'IBB', 'HBP',
+           'WP', 'BK', 'SO', 'K/9', 'BB/9', 'K/BB', 'HR/9', 'AVG', 'WHIP', 'BABIP', 
+           'ERA-', 'FIP-', 'xFIP-',
+           'FIP', 'E-F', 'xFIP', 'SIERA', 'vFA (pi)', 'FA-X (pi)',
+           'FA-Z (pi)', 'wFA (pi)', 'vFC (pi)', 'FC-X (pi)',
+           'FC-Z (pi)', 'wFC (pi)', 'vFS (pi)', 'FS-X (pi)',
+           'FS-Z (pi)', 'wFS (pi)', 'vSI (pi)', 'SI-X (pi)',
+           'SI-Z (pi)', 'wSI (pi)', 'vCH (pi)', 'CH-X (pi)',
+           'CH-Z (pi)', 'wCH (pi)', 'vSL (pi)', 'SL-X (pi)',
+           'SL-Z (pi)', 'wSL (pi)', 'vCU (pi)', 'CU-X (pi)',
+           'CU-Z (pi)', 'wCU (pi)', 'vCS (pi)', 'CS-X (pi)',
+           'CS-Z (pi)', 'wCS (pi)', 'vKN (pi)', 'KN-X (pi)',
+           'KN-Z (pi)', 'wKN (pi)', 'vSB (pi)', 'SB-X (pi)',
+           'SB-Z (pi)', 'wSB (pi)', 'vXX (pi)', 'XX-X (pi)',
+           'XX-Z (pi)', 'wXX (pi)', 'WPA', '-WPA', '+WPA', 'RE24', 'REW',
+           'pLI', 'inLI', 'gmLI', 'exLI', 'Pulls', 'WPA/LI', 'Clutch', 'SD',
+           'MD', 'RA9-WAR', 'BIP-Wins', 'LOB-Wins', 'FDP-Wins', 'RAR', 'WAR',
+           'Starting', 'Start-IP', 'Relieving', 'Relief-IP',
+           'Balls', 'Strikes', 'Pitches', 'Pace (pi)']:
+        #table[column] = table[column].astype('float')
         table[column] = pd.to_numeric(table[column])
-    #convert str(xx%) values to float(0.XX) decimal values
-    for column in ['Str', 'StL', 'StS', 'GB/FB', 'LD', 'PU']:
-        table[column] = table[column].replace('%','',regex=True).astype('float')/100
-
-    table = table.drop('',1)
+        #table['column'] = table['column'].convert_objects(convert_numeric=True)
+    table = table.reset_index(drop=True)
     return table
 
 def pitching_stats_bref(season=None):
