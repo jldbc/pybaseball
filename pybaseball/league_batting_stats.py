@@ -43,7 +43,7 @@ def get_soup(start_dt, end_dt):
     # if((start_dt is None) or (end_dt is None)):
     #    print('Error: a date range needs to be specified')
     #    return None
-    url = f"https://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=y&type=c,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,34,35,36,37,38,39,40,60,41,201,205,200,52,51,50,61,62,63,64,65,66,67,68,69,70,71,53,111,54,56,203,199,204,55,57,58,59&season={start_dt[:4]}&month=1000&season1={end_dt[:4]}&ind=0&startdate={start_dt}&enddate={end_dt}&page=1_1500"
+    url = f"https://www.fangraphs.com/leaders.aspx?pos=all&stats=bat&lg=all&qual=1&type=c,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,34,35,36,37,38,39,40,60,41,201,205,200,52,51,50,61,62,63,64,65,66,67,68,69,70,71,53,111,54,56,203,199,204,55,57,58,59&season={start_dt[:4]}&month=1000&season1={end_dt[:4]}&ind=0&startdate={start_dt}&enddate={end_dt}&page=1_1500"
     s = requests.get(url).content
     return BeautifulSoup(s, "lxml")
 
@@ -78,7 +78,7 @@ def batting_stats_range(start_dt=None, end_dt=None):
         raise ValueError("Year must be 2008 or later")
     if datetime.datetime.strptime(end_dt, "%Y-%m-%d").year < 2008:
         raise ValueError("Year must be 2008 or later")
-    # retrieve html from baseball reference
+    # retrieve html from fangraphs 
     soup = get_soup(start_dt, end_dt)
     table = get_table(soup)
     table = table.dropna(how='all')  # drop if all columns are NA
