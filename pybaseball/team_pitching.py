@@ -11,9 +11,7 @@ def get_soup(start_season, end_season, league, ind):
     return BeautifulSoup(s, "lxml")
 
 def get_table(soup, ind):
-    #doesn't work yet
-    tables = soup.find_all('table')
-    table = tables[11]
+    table = soup.find('table', {'class': 'rgMasterTable'})
     data = []
     # couldn't find these in the table, hardcoding for now
     if ind == 0:
@@ -117,5 +115,6 @@ def team_pitching_bref(team, start_season, end_season=None):
     headings.insert(2, "Year")
     data = pd.DataFrame(data=data, columns=headings) # [:-5]  # -5 to remove Team Totals and other rows (didn't work in multi-year queries)
     data = data.dropna()  # Removes Row of All Nones
+    data.reset_index(drop=True, inplace=True)  # Fixes index issue (Index was named 'W" for some reason)
 
     return data

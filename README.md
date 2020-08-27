@@ -1,25 +1,35 @@
 # pybaseball
 
-**1.0.4 Release: 31 March 2018**
+**2.0.0 Release: 18 August, 2020**
 
-**Recent Updates**: Added [Statcast Single Game](https://github.com/jldbc/pybaseball/blob/master/docs/statcast_single_game.md) function, [Lahman database](https://github.com/jldbc/pybaseball/blob/master/docs/lahman.md), and bWAR acquisition functions for [batting](https://github.com/jldbc/pybaseball/blob/master/docs/bwar_bat.md) and [pitching](https://github.com/jldbc/pybaseball/blob/master/docs/bwar_pitch.md). [Release notes: [1.0.4](https://github.com/jldbc/pybaseball/releases/tag/1.0.4), [1.0.3](https://github.com/jldbc/pybaseball/releases/tag/1.0.3)].
+## Recent Updates
+- `pybaseball` is now listed on the PyPI as `pybaseball2`. The package is still used as `import pybaseball`, but install it with `pip install pybaseball2`.
+- New functionality:
+   - Plot spray charts on stadium (#9, thanks to @andersonfrailey)
+   - Baseball Reference game logs (#4, thanks to @reddigari)
+   - More functions for Chadwick Bureau data (#8, thanks to @valdezt)
+   - Exposes Chadwick Bureau lookup table (#7)
+   - Top Prospects (#5, thanks to @TylerLiu42)
+   - Full Season Statcast data (#2, @TylerLiu42)
+   - Amateur Draft results (#11, @TylerLiu42)
+- Bugfixes, with thanks to @bgunn34 and @TAThor
 
-`pybaseball` is a Python package for baseball data analysis. This package scrapes Baseball Reference, Baseball Savant, and FanGraphs so you don't have to. The package retrieves statcast data, pitching stats, batting stats, division standings/team records, awards data, and more. Data is available at the individual pitch level, as well as aggregated at the season level and over custom time periods. See the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) for a comprehensive list of data acquisition functions. 
+`pybaseball` is a Python package for baseball data analysis. This package scrapes Baseball Reference, Baseball Savant, and FanGraphs so you don't have to. The package retrieves statcast data, pitching stats, batting stats, division standings/team records, awards data, and more. Data is available at the individual pitch level, as well as aggregated at the season level and over custom time periods. See the [docs](https://github.com/schorrm/pybaseball/tree/master/docs) for a comprehensive list of data acquisition functions.
 
 ## Installation
 
 Pybaseball can be installed via pip:
 
-```python
-pip install pybaseball
+```bash
+pip install pybaseball2
 ```
 
 or from the repo (which may at times be more up to date):
 
-```python
-git clone https://github.com/jldbc/pybaseball
+```bash
+git clone https://github.com/schorrm/pybaseball
 cd pybaseball
-python setup.py install
+pip install -e .
 ```
 
 ## Statcast: Pull advanced metrics from Major League Baseball's Statcast system
@@ -94,7 +104,7 @@ Gathering player lookup table. This may take a moment.
 
 ## Pitching Stats: pitching stats for players across multiple seasons, single seasons, or during a specified time period
 
-This library contains two main functions for obtaining pitching data. For league-wide season-level pitching data, use the function `pitching_stats(start_season, end_season)`. This will return one row per player per season, and provide all metrics made available by FanGraphs. 
+This library contains two main functions for obtaining pitching data. For league-wide season-level pitching data, use the function `pitching_stats(start_season, end_season)`. This will return one row per player per season, and provide all metrics made available by FanGraphs.
 
 The second is `pitching_stats_range(start_dt, end_dt)`. This allows you to obtain pitching data over a specific time interval, allowing you to get more granular than the FanGraphs function (for example, to see which pitcher had the strongest month of May). This query pulls data from Baseball Reference. Note that all dates should be in `YYYY-MM-DD` format.
 
@@ -205,28 +215,31 @@ This function returns a list of dataframes. Each dataframe is the standings for 
 
 # Complete Documentation
 
-So far this has provided a basic overview of what this package can do and how you can use it. For full documentation on available functions and their arguments, see the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) folder. 
+So far this has provided a basic overview of what this package can do and how you can use it. For full documentation on available functions and their arguments, see the [docs](https://github.com/schorrm/pybaseball/tree/master/docs) folder. 
 
 # So what can I do with this? 
 
-Need some inspiration? See some examples of classic baseball studies replicated using this package [here](https://github.com/jldbc/pybaseball/tree/master/EXAMPLES).
+Need some inspiration? See some examples of classic baseball studies replicated using this package [here](https://github.com/schorrm/pybaseball/tree/master/EXAMPLES).
 
 ------
 
-## Credit 
+## Credit
 
-This pacakge was inspired by Bill Petti's excellent R package [baseballr](https://github.com/billpetti/baseballr), which at the time of this package's development had no Python equivalent. My hope is to fill that void with this package. 
+This package was developed by James LeDoux and forked from his original repo.
+
+This pacakge was inspired by Bill Petti's excellent R package [baseballr](https://github.com/billpetti/baseballr), which at the time of this package's development had no Python equivalent. Our hope is to fill that void with this package.
 
 The Lahman data comes from [Sean Lahman's baseball database](http://www.seanlahman.com/baseball-archive/statistics/).
 
-All other data comes from FanGraphs, Baseball Reference, and Baseball Savant.
+All other data comes from FanGraphs, Baseball Reference, the Chadwick Bureau, Retrosheet, and Baseball Savant.
 
 ## Work in Progress:
-Moving forward, I intend to:
+
+Moving forward, we intend to:
 
 * Implement custom metrics such as Statcast edge percentages, historical Elo ratings, wOBA, etc.
 * Retrieve data from other useful sources
 * Identify edge cases where these queries fail (please open up an issue if you find one!)
 * Add more examples
 
-Interested in contributing? I've left some ideas in [contributing.md](https://github.com/jldbc/pybaseball/tree/master/contributing.md). 
+Interested in contributing? There are some ideas in [contributing.md](https://github.com/schorrm/pybaseball/tree/master/contributing.md).

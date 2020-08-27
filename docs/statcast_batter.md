@@ -29,3 +29,23 @@ data = statcast_batter('2008-04-01', '2017-07-15', player_id = 120074)
 data = statcast_batter('2014-08-16', player_id = 120074)
 
 ```
+# Statcast Batter Exit Velo Barrels
+`statcast_batter_exitvelo_barrels(year, minBBE=[qualified])`
+
+This function retrieves batted ball data for all batters in a given year. 
+
+## Arguments
+`year:` The year for which you wish to retrieve batted ball data. Format: YYYY.
+
+`minBBE:` The minimum number of batted ball events for each player. If a player falls below this threshold, they will be excluded from the results. If no value is specified, only qualified batters will be returned.
+
+## Examples of Valid Queries
+```python
+from pybaseball import statcast_batter_exitvelo_barrels
+
+# get data for all qualified batters in 2019
+data = statcast_batter_exitvelo_barrels(2019)
+
+# get data for batters with a minimum of 100 batted ball events in 2019
+data = statcast_batter_exitvelo_barrels(2019, 100)
+```
