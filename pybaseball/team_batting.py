@@ -11,9 +11,7 @@ def get_soup(start_season, end_season, league, ind):
     return BeautifulSoup(s, "lxml")
 
 def get_table(soup, ind):
-    #doesn't work yet
-    tables = soup.find_all('table')
-    table = tables[11]
+    table = soup.find('table', {'class': 'rgMasterTable'})
     data = []
     # couldn't find these in the table, hardcoding for now
     if ind == 0:

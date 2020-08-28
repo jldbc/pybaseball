@@ -1,6 +1,6 @@
 # Lahman Data Acquisition Functions
 
-Pull data from [Sean Lahman's database](http://www.seanlahman.com/baseball-archive/statistics/, also hosted by Chadwick Bureau on GitHub -- our new source) using the following functions:
+Pull data from [Sean Lahman's database](http://www.seanlahman.com/baseball-archive/statistics/), also hosted by [Chadwick Bureau on GitHub](https://github.com/chadwickbureau/baseballdatabank) -- our new source -- using the following functions:
 
 ```python
 from pybaseball.lahman import *
