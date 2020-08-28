@@ -1,16 +1,3 @@
-#from setuptools import setup
-
-#setup(name='pybaseball',
-#        version='0.1',
-#        description='retrieve baseball data in python',
-#        author='James LeDoux',
-#        author_email='ledoux.james.r@gmail.com',
-#        url='github.com/jldbc/pybaseball',
-#        license='MIT',
-#        packages=['pybaseball'],
-#        zip_safe=False)
-
-
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
@@ -24,9 +11,9 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='pybaseball2',
+    name='pybaseball',
 
-    project_name='pybaseball2',
+    project_name='pybaseball',
 
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
