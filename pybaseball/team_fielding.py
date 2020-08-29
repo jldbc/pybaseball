@@ -142,7 +142,7 @@ def team_fielding_bref(team, start_season, end_season=None):
             cols = [col.replace('*', '').replace('#', '') for col in cols]
             # Removes Team Totals and other rows
             cols = [
-                col for col in cols if 'Totals' not in col and 'NL teams' not in col and 'AL teams' not in col
+                col for col in cols if 'Team Runs' not in col
             ]
             cols.insert(2, season)
             data.append(cols)
