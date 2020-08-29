@@ -106,7 +106,7 @@ def team_fielding_bref(team, start_season, end_season=None):
     if start_season is None:
         raise ValueError(
             "You need to provide at least one season to collect data for. " +
-            "Try team_batting_bref(season) or team_batting_bref(start_season, end_season)."
+            "Try team_fielding_bref(season) or team_fielding_bref(start_season, end_season)."
         )
     if end_season is None:
         end_season = start_season
