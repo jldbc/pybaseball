@@ -24,7 +24,7 @@ setup(
     long_description=long_description,
     long_description_content_type="text/markdown",
     # The project's main homepage.
-    url='https://github.com/schorrm/pybaseball',
+    url='https://github.com/jldbc/pybaseball',
 
     # Author details
     author='James LeDoux',
