@@ -61,7 +61,7 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
         # if these dates are detected, check if the next season is within the user's query
         # if yes, fast-forward to the next season to avoid empty requests
         # if no, break the loop. all useful data has been pulled.
-        if d.month < 4 and d.day < 15:
+        if (d.month == 3 and d.day < 15) or d.month <= 2:
             print('Skipping offseason dates')
             d1 = d1.replace(month=3,day=15,year=d1.year)
             d = d1 + datetime.timedelta(days=step+1)
