@@ -29,9 +29,10 @@ def postprocess(data):
     }
     data.rename(repl_dict, axis=1, inplace=True)
     data["Home"] = ~data["Home"].isnull()  # '@' if away, empty if home
-    data = data[data["Game"].str.match("\d+")]  # drop empty month rows
+    data = data[data["Game"].str.match("\\d+")]  # drop empty month rows
     data = data.apply(pd.to_numeric, errors="ignore")
     data["Game"] = data["Game"].astype(int)
+
     return data.reset_index(drop=True)
 
 
