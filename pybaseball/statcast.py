@@ -65,7 +65,7 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
             print('Skipping offseason dates')
             d1 = d1.replace(month=3,day=15,year=d1.year)
             d = d1 + datetime.timedelta(days=step+1)
-        elif d1.month > 10 and d1.day > 14:
+        elif (d1.month == 11 and d1.day > 14) or d1.month > 11:
             if d2.year > d.year:
                 print('Skipping offseason dates')
                 d1 = d1.replace(month=3,day=15,year=d1.year+1)
