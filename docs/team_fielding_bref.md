@@ -15,7 +15,7 @@ The 'team_fielding_bref' function returns a dataframe of team-level fielding sta
 
 ```python
 ~~~~
-from pybaseball import team_fielding
+from pybaseball import team_fielding_bref
 
 # get the Yankees (NYY) seasonal fielding stats from 2010 through 2013
 data = team_fielding_bref('NYY', 2010, 2013)
