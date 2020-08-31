@@ -229,7 +229,7 @@ Need some inspiration? See some examples of classic baseball studies replicated 
 
 This package was developed by James LeDoux and is maintained by [Moshe Schorr](https://github.com/schorrm).
 
-This pacakge was inspired by Bill Petti's excellent R package [baseballr](https://github.com/billpetti/baseballr), which at the time of this package's development had no Python equivalent. Our hope is to fill that void with this package.
+This package was inspired by Bill Petti's excellent R package [baseballr](https://github.com/billpetti/baseballr), which at the time of this package's development had no Python equivalent. Our hope is to fill that void with this package.
 
 The Lahman data comes from [Sean Lahman's baseball database](http://www.seanlahman.com/baseball-archive/statistics/).
 
