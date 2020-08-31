@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import pandas as pd
 import pytest
@@ -7,54 +9,20 @@ from pybaseball.team_fielding import team_fielding, _FG_TEAM_FIELDING_URL
 
 
 @pytest.fixture()
-def sample_html():
-    return """
-        <html>
-        <head></head>
-        <body>
-            <table class="rgMasterTable">
-                <thead>
-                    <tr>
-                        <th class="rgHeader">#</th>
-                        <th class="rgHeader">Team</th>
-                        <th class="rgHeader">Runs</th>
-                        <th class="rgHeader">Hits</th>
-                        <th class="rgHeader">CS%</th>
-                        <th class="rgHeader">HR</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>#1</td>
-                        <td>TBR</td>
-                        <td>1</td>
-                        <td>2</td>
-                        <td>50 %</td>
-                        <td>8</td>
-                    </tr>
-                    <tr>
-                        <td>#2</td>
-                        <td>555</td>
-                        <td>3</td>
-                        <td>4</td>
-                        <td>45%</td>
-                        <td>null</td>
-                    </tr>
-                </tbody>
-            </table>
-        </body>
-    """
+def data_dir():
+    this_dir = os.path.dirname(os.path.realpath(__file__))
+    return os.path.join(this_dir, 'data')
 
 
 @pytest.fixture()
-def sample_processed_result():
-    return pd.DataFrame(
-        [
-            ['TBR', 1.0, 2.0, 0.50, 8],
-            ['555', 3.0, 4.0, 0.45, np.nan]
-        ],
-        columns=['Team', 'Runs', 'Hits', 'CS%', 'HR']
-    ).reset_index(drop=True)
+def sample_html(data_dir):
+    with open(os.path.join(data_dir, 'team_fielding.html')) as html:
+        return html.read()
+
+
+@pytest.fixture()
+def sample_processed_result(data_dir):
+    return pd.read_csv(os.path.join(data_dir, 'team_fielding.csv'), index_col=0)
 
 
 class TestTeamFielding:
