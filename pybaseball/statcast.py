@@ -171,7 +171,9 @@ def postprocessing(data, team):
         data = data.loc[(data['home_team']==team)|(data['away_team']==team)]
     elif(team != None):
         raise ValueError('Error: invalid team abbreviation. Valid team names are: {}'.format(valid_teams))
-    data = data.reset_index()
+
+    data = data.reset_index(drop=True)
+
     return data
 
 def statcast(start_dt=None, end_dt=None, team=None, verbose=True):
