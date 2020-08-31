@@ -74,8 +74,9 @@ def playerid_lookup(last=None, first=None, player_list=None):
         results = table.loc[table['name_last'] == last]
     else:
         results = table.loc[(table['name_last'] == last) & (table['name_first'] == first)]
-    #results[['key_mlbam', 'key_fangraphs', 'mlb_played_first', 'mlb_played_last']] = results[['key_mlbam', 'key_fangraphs', 'mlb_played_first', 'mlb_played_last']].astype(int) # originally returned as floats which is wrong
-    results = results.reset_index().drop('index', 1)
+
+    results = results.reset_index(drop=True)
+
     return results
 
 
@@ -110,5 +111,6 @@ def playerid_reverse_lookup(player_ids, key_type=None):
     key = 'key_{}'.format(key_type)
 
     results = table[table[key].isin(player_ids)]
-    results = results.reset_index().drop('index', 1)
+    results = results.reset_index(drop=True)
+
     return results
