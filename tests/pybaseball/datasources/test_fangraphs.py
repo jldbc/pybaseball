@@ -1,9 +1,8 @@
 import numpy as np
 import pandas as pd
 import pytest
-import requests
 
-from pybaseball.team_fielding import team_fielding, _FG_TEAM_FIELDING_URL
+from pybaseball.datasources import fangraphs
 
 
 @pytest.fixture()
@@ -57,23 +56,13 @@ def sample_processed_result():
     ).reset_index(drop=True)
 
 
-class TestTeamFielding:
-    def test_team_fielding(self, monkeypatch, sample_html, sample_processed_result):
-        season = 2019
+class TestDatasourceFangraphs:
+    def test_get_table(self, sample_html, sample_processed_result):
+        actual_result = fangraphs.get_fangraphs_tabular_data_from_html(
+            sample_html,
+            '//table',
+            ["CS%"],
+            ["Team"]
+        ).reset_index(drop=True)
 
-        def response_get_monkeypatch(url):
-            assert url.endswith(
-                _FG_TEAM_FIELDING_URL.format(start_season=season, end_season=season, league='all', ind=1)
-            )
-
-            class DummyResponse:
-                def __init__(self, html):
-                    self.content = html
-
-            return DummyResponse(sample_html)
-
-        monkeypatch.setattr(requests, 'get', response_get_monkeypatch)
-
-        team_fielding_result = team_fielding(season).reset_index(drop=True)
-
-        pd.testing.assert_frame_equal(team_fielding_result, sample_processed_result)
+        pd.testing.assert_frame_equal(sample_processed_result, actual_result)
