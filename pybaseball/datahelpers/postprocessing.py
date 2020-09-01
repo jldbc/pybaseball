@@ -1,13 +1,36 @@
-from typing import List
+import re
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
 
+null_regexes = [r'^\s*$', r'^null$']
+
+
+def try_parse(value: str, column_name, null_replacement: any = np.nan) -> Union[str, int, float]:
+    for regex in null_regexes:
+        if re.compile(regex).match(value):
+            return null_replacement
+
+    percentage = False
+
+    if value.endswith('%') or column_name.endswith('%'):
+        percentage = True
+
+    try:
+        if '.' in value:
+            return float(value.strip(' %')) / (1 if not percentage else 100.0)
+        else:
+            result = int(value.strip(' %'))
+            return result if not percentage else result / 100.0
+    except:
+        return value
+
 
 def coalesce_nulls(data: pd.DataFrame, value: any = np.nan) -> pd.DataFrame:
-    # fill missing values with NaN
-    data.replace(r'^\s*$', value, regex=True, inplace=True)
-    data.replace(r'^null$', value, regex=True, inplace=True)
+    # Fill missing values with NaN
+    for regex in null_regexes:
+        data.replace(regex, value, regex=True, inplace=True)
 
     return data
 

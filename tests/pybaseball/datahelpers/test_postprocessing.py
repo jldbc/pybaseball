@@ -18,6 +18,18 @@ def sample_unprocessed_result():
 
 
 class TestPostProcessing:
+    def test_try_parse_int(self):
+        assert postprocessing.try_parse('1', 'runs') == 1
+
+    def test_try_parse_float(self):
+        assert postprocessing.try_parse('1.0', 'runs') == 1.0
+
+    def test_try_parse_percentage_value(self):
+        assert postprocessing.try_parse('10%', 'avg') == 0.1
+
+    def test_try_parse_percentage_column(self):
+        assert postprocessing.try_parse('50', 'CS%') == 0.5
+
     def test_coalesce_nulls(self, sample_unprocessed_result):
         expected_result = pd.DataFrame(
             [

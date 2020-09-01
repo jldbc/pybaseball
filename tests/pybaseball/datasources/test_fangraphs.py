@@ -26,15 +26,15 @@ def sample_html():
                     <tr>
                         <td>#1</td>
                         <td>TBR</td>
-                        <td>1</td>
+                        <td>1.0</td>
                         <td>2</td>
                         <td>50 %</td>
                         <td>8</td>
                     </tr>
                     <tr>
                         <td>#2</td>
-                        <td>555</td>
-                        <td>3</td>
+                        <td>NYY</td>
+                        <td>3.5</td>
                         <td>4</td>
                         <td>45%</td>
                         <td>null</td>
@@ -49,8 +49,8 @@ def sample_html():
 def sample_processed_result():
     return pd.DataFrame(
         [
-            ['TBR', 1.0, 2.0, 0.50, 8],
-            ['555', 3.0, 4.0, 0.45, np.nan]
+            ['TBR', 1, 2, 0.50, 8],
+            ['NYY', 3.5, 4, 0.45, np.nan]
         ],
         columns=['Team', 'Runs', 'Hits', 'CS%', 'HR']
     ).reset_index(drop=True)
