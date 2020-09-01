@@ -1,78 +1,23 @@
-import numpy as np
 import pandas as pd
 from bs4 import BeautifulSoup, Comment
 import requests
 
+from pybaseball.datasources import fangraphs
+from pybaseball.datahelpers import postprocessing
 
-def get_soup(start_season, end_season, league, ind):
-    url = f"https://www.fangraphs.com/leaders.aspx?pos=all&stats=fld&lg={league}&qual=0&type=1&season={end_season}&month=0&season1={start_season}&ind={ind}&team=0,ts&rost=0&age=0&filter=&players=0&startdate=&enddate=&page=1_100000"
-    s = requests.get(url).content
-    # print(s)
-    return BeautifulSoup(s, "lxml")
-
-
-def get_table(soup, ind):
-    table = soup.find('table', {'class': 'rgMasterTable'})
-    data = []
-
-    table_head = table.find('thead')
-    th_cols = table_head.find_all('th', {'class': 'rgHeader'})
-
-    # Extract the headers, drop the # header
-    headings = [x.text.strip() for x in th_cols][1:]
-
-    data.append(headings)
-    table_body = table.find('tbody')
-    rows = table_body.find_all('tr')
-    for row in rows:
-        cols = row.find_all('td')
-        cols = [ele.text.strip() for ele in cols]
-        data.append([ele for ele in cols[1:]])
-    data = pd.DataFrame(data)
-    data = data.rename(columns=data.iloc[0])
-    data = data.reindex(data.index.drop(0))
-    return data
-
-
-def postprocessing(data):
-    # fill missing values with NaN
-    data.replace(r'^\s*$', np.nan, regex=True, inplace=True)
-    data.replace(r'^null$', np.nan, regex=True, inplace=True)
-
-    # convert percent strings to float values
-    percentages = ['CS%', 'lgCS%']
-    for col in percentages:
-        # skip if column is all NA (happens for some of the more obscure stats + in older seasons)
-        if col in data.columns and data[col].count() > 0:
-            data[col] = data[col].str.strip(' %')
-            data[col] = data[col].str.strip('%')
-            data[col] = data[col].astype(float)/100.
-        else:
-            # print(col)
-            pass
-
-    # convert columns to numeric
-    not_numeric = ['Team', 'Name', 'Pos\xa0Summary']
-    numeric_cols = [col for col in data.columns if col not in not_numeric]
-
-    # data[numeric_cols] = data[numeric_cols].astype(float)
-    # Ideally we'd do it the pandas way ^, but it's barfing when some columns have no data
-    for col in numeric_cols:
-        data[col] = data[col].astype(float)
-
-    return data
+_FG_TEAM_FIELDING_URL = "/leaders.aspx?pos=all&stats=fld&lg={league}&qual=0&type=1&season={end_season}&month=0&season1={start_season}&ind={ind}&team=0,ts&rost=0&age=0&filter=&players=0&startdate=&enddate=&page=1_100000"
 
 
 def team_fielding(start_season, end_season=None, league='all', ind=1):
     """
-    Get season-level fielding data aggregated by team. 
+    Get season-level fielding data aggregated by team.
 
     ARGUMENTS:
     start_season    : int : first season you want data for (or the only season if you do not specify an end_season)
-    end_season      : int : final season you want data for 
+    end_season      : int : final season you want data for
     league          : str : "all", "nl", or "al"
-    ind             : int : =1 if you want individual season level data, =0 if you want a team's
-                            aggreagate data over all seasons in the query
+    ind             : int : 1 if you want individual season level data,
+                            0 if you want a team's aggregate data over all seasons in the query
     """
 
     if start_season is None:
@@ -82,15 +27,15 @@ def team_fielding(start_season, end_season=None, league='all', ind=1):
         )
     if end_season is None:
         end_season = start_season
-    soup = get_soup(
-        start_season=start_season,
-        end_season=end_season,
-        league=league,
-        ind=ind
+
+    fg_data = fangraphs.get_fangraphs_tabular_data_from_url(
+        _FG_TEAM_FIELDING_URL.format(start_season=start_season, end_season=end_season, league=league, ind=ind),
+        '//table[@class="rgMasterTable"]',
+        percentage_columns=['CS%', 'lgCS%'],
+        non_numeric_columns=['Team', 'Name']
     )
-    table = get_table(soup, ind)
-    table = postprocessing(table)
-    return table
+
+    return fg_data
 
 
 def team_fielding_bref(team, start_season, end_season=None):
@@ -150,6 +95,15 @@ def team_fielding_bref(team, start_season, end_season=None):
     headings.insert(2, "Year")
     data = pd.DataFrame(data=data, columns=headings)
     data = data.dropna()  # Removes Row of All Nones
-    data = postprocessing(data)
+
+    postprocessing.coalesce_nulls(data)
+    postprocessing.convert_percentages(data, ['CS%', 'lgCS%'])
+    postprocessing.convert_numeric(
+        data,
+        postprocessing.columns_except(
+            data,
+            ['Team', 'Name', 'Pos\xa0Summary']
+        )
+    )
 
     return data
