@@ -7,7 +7,7 @@ import pandas as pd
 null_regexes = [r'^\s*$', r'^null$']
 
 
-def try_parse(value: str, column_name, null_replacement: any = np.nan) -> Union[str, int, float]:
+def try_parse(value: str, column_name: str, null_replacement: Union[str, int, float] = np.nan) -> Union[str, int, float]:
     for regex in null_regexes:
         if re.compile(regex).match(value):
             return null_replacement
@@ -27,7 +27,7 @@ def try_parse(value: str, column_name, null_replacement: any = np.nan) -> Union[
         return value
 
 
-def coalesce_nulls(data: pd.DataFrame, value: any = np.nan) -> pd.DataFrame:
+def coalesce_nulls(data: pd.DataFrame, value: Union[str, int, float] = np.nan) -> pd.DataFrame:
     # Fill missing values with NaN
     for regex in null_regexes:
         data.replace(regex, value, regex=True, inplace=True)
