@@ -59,8 +59,7 @@ def sample_processed_result():
 class TestDatasourceFangraphs:
     def test_get_table(self, sample_html, sample_processed_result):
         actual_result = fangraphs.get_fangraphs_tabular_data_from_html(
-            sample_html,
-            '//table'
+            sample_html
         ).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(sample_processed_result, actual_result)

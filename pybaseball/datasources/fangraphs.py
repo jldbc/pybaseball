@@ -9,7 +9,8 @@ from pybaseball.datahelpers import postprocessing
 ROOT_URL = 'https://www.fangraphs.com'
 
 
-def get_fangraphs_tabular_data_from_html(html: Union[str, bytes], xpath: str) -> pd.DataFrame:
+def get_fangraphs_tabular_data_from_html(html: Union[str, bytes]) -> pd.DataFrame:
+    xpath: str = '//table[@class="rgMasterTable"]'
     html_dom = lxml.etree.HTML(html)
 
     headings_xpath = f"({xpath}/thead//th[contains(@class, 'rgHeader')])[position()>1]/descendant-or-self::*/text()"
@@ -27,10 +28,7 @@ def get_fangraphs_tabular_data_from_html(html: Union[str, bytes], xpath: str) ->
     return fg_data
 
 
-def get_fangraphs_tabular_data_from_url(
-    url: str,
-    xpath: str
-) -> pd.DataFrame:
+def get_fangraphs_tabular_data_from_url(url: str) -> pd.DataFrame:
     content = requests.get(ROOT_URL + url).content
 
-    return get_fangraphs_tabular_data_from_html(content, xpath)
+    return get_fangraphs_tabular_data_from_html(content)

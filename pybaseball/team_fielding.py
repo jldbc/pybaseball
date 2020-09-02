@@ -29,8 +29,7 @@ def team_fielding(start_season, end_season=None, league='all', ind=1):
         end_season = start_season
 
     fg_data = fangraphs.get_fangraphs_tabular_data_from_url(
-        _FG_TEAM_FIELDING_URL.format(start_season=start_season, end_season=end_season, league=league, ind=ind),
-        '//table[@class="rgMasterTable"]'
+        _FG_TEAM_FIELDING_URL.format(start_season=start_season, end_season=end_season, league=league, ind=ind)
     )
 
     return fg_data
