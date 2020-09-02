@@ -1,21 +1,28 @@
+from typing import Callable
+
 import pandas as pd
 import pytest
 import requests
 
-from pybaseball.team_batting import team_batting, _FG_TEAM_BATTING_URL
+from pybaseball.team_batting import _FG_TEAM_BATTING_URL, team_batting
 
 
 @pytest.fixture()
-def sample_html(get_data_file_contents):
+def sample_html(get_data_file_contents: Callable) -> str:
     return get_data_file_contents('team_batting.html')
 
 
 @pytest.fixture()
-def sample_processed_result(get_data_file_dataframe):
+def sample_processed_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('team_batting.csv')
 
 class TestTeamBatting:
-    def test_team_batting(self, response_get_monkeypatch, sample_html, sample_processed_result):
+    def test_team_batting(
+        self,
+        response_get_monkeypatch: Callable,
+        sample_html: str,
+        sample_processed_result: pd.DataFrame
+    ):
         season = 2019
 
         expected_url = _FG_TEAM_BATTING_URL.format(start_season=season, end_season=season, league='all', ind=1)

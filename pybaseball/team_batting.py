@@ -9,7 +9,7 @@ import pybaseball.datasources.fangraphs as fangraphs
 
 _FG_TEAM_BATTING_URL = "/leaders.aspx?pos=all&stats=bat&lg={league}&qual=0&type=8&season={end_season}&month=0&season1={start_season}&ind={ind}&team=0,ts&rost=0&age=0&filter=&players=0&page=1_100000"
 
-def team_batting(start_season, end_season=None, league='all', ind=1):
+def team_batting(start_season:int, end_season:int=None, league:str='all', ind:int=1):
     """
     Get season-level batting data aggregated by team. 
 

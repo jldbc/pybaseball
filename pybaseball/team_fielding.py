@@ -8,7 +8,7 @@ from pybaseball.datahelpers import postprocessing
 _FG_TEAM_FIELDING_URL = "/leaders.aspx?pos=all&stats=fld&lg={league}&qual=0&type=1&season={end_season}&month=0&season1={start_season}&ind={ind}&team=0,ts&rost=0&age=0&filter=&players=0&startdate=&enddate=&page=1_100000"
 
 
-def team_fielding(start_season, end_season=None, league='all', ind=1):
+def team_fielding(start_season: int, end_season:int=None, league:str='all', ind:int=1):
     """
     Get season-level fielding data aggregated by team.
 
