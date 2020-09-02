@@ -23,3 +23,6 @@ jobs:
           pip install -e .[test]
       - name: Run tests
         run: pytest
+      - name: Run MyPy
+        run: mypy --ignore-missing-imports .
+        continue-on-error: true
