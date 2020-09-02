@@ -1,5 +1,5 @@
 import lxml
-from typing import List
+from typing import List, Union
 
 import pandas as pd
 import requests
@@ -9,7 +9,7 @@ from pybaseball.datahelpers import postprocessing
 ROOT_URL = 'https://www.fangraphs.com'
 
 
-def get_fangraphs_tabular_data_from_html(html: str, xpath: str) -> pd.DataFrame:
+def get_fangraphs_tabular_data_from_html(html: Union[str, bytes], xpath: str) -> pd.DataFrame:
     html_dom = lxml.etree.HTML(html)
 
     headings_xpath = f"({xpath}/thead//th[contains(@class, 'rgHeader')])[position()>1]/descendant-or-self::*/text()"
