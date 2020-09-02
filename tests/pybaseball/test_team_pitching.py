@@ -2,7 +2,7 @@ import pandas as pd
 import pytest
 import requests
 
-from pybaseball.team_pitching import team_pitching#, _FG_TEAM_PITCHING_URL
+from pybaseball.team_pitching import team_pitching, _FG_TEAM_PITCHING_URL
 
 
 @pytest.fixture()
@@ -20,9 +20,9 @@ class TestTeamPitching:
         season = 2019
 
         def response_get_monkeypatch(url):
-            # assert url.endswith(
-            #     _FG_TEAM_PITCHING_URL.format(start_season=season, end_season=season, league='all', ind=1)
-            # )
+            assert url.endswith(
+                _FG_TEAM_PITCHING_URL.format(start_season=season, end_season=season, league='all', ind=1)
+            )
 
             class DummyResponse:
                 def __init__(self, html):
