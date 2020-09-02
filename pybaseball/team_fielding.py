@@ -30,9 +30,7 @@ def team_fielding(start_season, end_season=None, league='all', ind=1):
 
     fg_data = fangraphs.get_fangraphs_tabular_data_from_url(
         _FG_TEAM_FIELDING_URL.format(start_season=start_season, end_season=end_season, league=league, ind=ind),
-        '//table[@class="rgMasterTable"]',
-        percentage_columns=['CS%', 'lgCS%'],
-        non_numeric_columns=['Team', 'Name']
+        '//table[@class="rgMasterTable"]'
     )
 
     return fg_data
