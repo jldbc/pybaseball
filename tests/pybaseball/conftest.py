@@ -1,6 +1,7 @@
 import os
 import pytest
 import pandas as pd
+import requests
 
 @pytest.fixture()
 def data_dir() -> str:
@@ -21,3 +22,19 @@ def get_data_file_dataframe(data_dir: str):
         return pd.read_csv(os.path.join(data_dir, filename), index_col=0).reset_index(drop=True)
 
     return get_dataframe
+
+@pytest.fixture()
+def response_get_monkeypatch(monkeypatch):
+    def setup(result: str, expected_url: str):
+        def _monkeypatch(url: str):
+            assert url.endswith(expected_url)
+
+            class DummyResponse:
+                def __init__(self, html):
+                    self.content = html
+
+            return DummyResponse(result)
+
+        monkeypatch.setattr(requests, 'get', _monkeypatch)
+
+    return setup

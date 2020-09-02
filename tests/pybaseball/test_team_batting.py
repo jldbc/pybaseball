@@ -15,21 +15,12 @@ def sample_processed_result(get_data_file_dataframe):
     return get_data_file_dataframe('team_batting.csv')
 
 class TestTeamBatting:
-    def test_team_batting(self, monkeypatch, sample_html, sample_processed_result):
+    def test_team_batting(self, response_get_monkeypatch, sample_html, sample_processed_result):
         season = 2019
 
-        def response_get_monkeypatch(url):
-            assert url.endswith(
-                _FG_TEAM_BATTING_URL.format(start_season=season, end_season=season, league='all', ind=1)
-            )
+        expected_url = _FG_TEAM_BATTING_URL.format(start_season=season, end_season=season, league='all', ind=1)
 
-            class DummyResponse:
-                def __init__(self, html):
-                    self.content = html
-
-            return DummyResponse(sample_html)
-
-        monkeypatch.setattr(requests, 'get', response_get_monkeypatch)
+        response_get_monkeypatch(sample_html, expected_url)
 
         team_batting_result = team_batting(season).reset_index(drop=True)
 
