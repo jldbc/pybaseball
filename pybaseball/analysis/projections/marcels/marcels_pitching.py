@@ -15,8 +15,6 @@ class MarcelProjectionsPitching(MarcelsProjectionsBase):
     REQUIRED_COLUMNS = ["IPouts"]
     PLAYING_TIME_COLUMN = "IPouts"
 
-    def __init__(self, stats_df=None, primary_pos_df=None):
-        super().__init__(stats_df, primary_pos_df)
 
     def _load_data(self):
         return pitching()
