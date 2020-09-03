@@ -4,20 +4,20 @@ import pytest
 
 
 class TestMarcelBatting:
-    def test_batting_projections_season():
+    def test_batting_projections_season(self):
         md = MarcelProjectionsBatting()
         md.projections(2020)
 
     @pytest.mark.parametrize(
         "season, expected", [(2020, 36), (2019, 38), (2018, 41), (2017, 34), (2004, 42)]
     )
-    def test_batting_metric_projections(season, expected):
+    def test_batting_metric_projections(self, season, expected):
 
         md = MarcelProjectionsBatting()
         proj = md.metric_projection("HR", season)
         assert round(proj.HR.max()) == expected
 
-    def test_batting_bad_data():
+    def test_batting_bad_data(self):
         stats_df = DataFrame({"x": [1, 2, 3]})
         with pytest.raises(ValueError):
             MarcelProjectionsBatting(stats_df=stats_df)
