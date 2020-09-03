@@ -29,7 +29,8 @@ def batting_stats(start_season: int, end_season: int = None, league: str = 'all'
             start_season=start_season,
             ind=ind
         ),
-        column_name_mapper=column_mapper.map
+        column_name_mapper=column_mapper.map,
+        known_percentages = ['GB/FB']
     )
 
     return fg_data.sort_values(['WAR', 'OPS'], ascending=False)

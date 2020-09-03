@@ -9,7 +9,7 @@ from pybaseball.datahelpers import postprocessing
 ROOT_URL = 'https://www.fangraphs.com'
 
 
-def get_fangraphs_tabular_data_from_html(html: Union[str, bytes], column_name_mapper: Callable = None) -> pd.DataFrame:
+def get_fangraphs_tabular_data_from_html(html: Union[str, bytes], column_name_mapper: Callable = None, known_percentages: List[str] = []) -> pd.DataFrame:
     xpath: str = '//table[@class="rgMasterTable"]'
     html_dom = lxml.etree.HTML(html)
 
@@ -22,7 +22,10 @@ def get_fangraphs_tabular_data_from_html(html: Union[str, bytes], column_name_ma
     data_rows_xpath = f"({xpath}/tbody//tr)"
     data_rows_dom = html_dom.xpath(data_rows_xpath)
     data_rows = [
-        [postprocessing.try_parse(y, headings[index]) for index, y in enumerate(x.xpath('td[position()>1]/descendant-or-self::*/text()'))]
+        [
+            postprocessing.try_parse(y, headings[index], known_percentages=known_percentages)
+            for index, y in enumerate(x.xpath('td[position()>1]/descendant-or-self::*/text()'))
+        ]
         for x in data_rows_dom
     ]
 
@@ -31,7 +34,11 @@ def get_fangraphs_tabular_data_from_html(html: Union[str, bytes], column_name_ma
     return fg_data
 
 
-def get_fangraphs_tabular_data_from_url(url: str, column_name_mapper: Callable = None) -> pd.DataFrame:
+def get_fangraphs_tabular_data_from_url(url: str, column_name_mapper: Callable = None, known_percentages: List[str] = []) -> pd.DataFrame:
     content = requests.get(ROOT_URL + url).content
 
-    return get_fangraphs_tabular_data_from_html(content, column_name_mapper)
+    return get_fangraphs_tabular_data_from_html(
+        content,
+        column_name_mapper=column_name_mapper,
+        known_percentages=known_percentages
+    )

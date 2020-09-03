@@ -5,9 +5,14 @@ import numpy as np
 import pandas as pd
 
 null_regexes = [r'^\s*$', r'^null$']
-known_percentages = ['GB/FB']
 
-def try_parse(value: str, column_name: str, null_replacement: Union[str, int, float] = np.nan) -> Union[str, int, float]:
+
+def try_parse(
+    value: str,
+    column_name: str,
+    null_replacement: Union[str, int, float] = np.nan,
+    known_percentages: List[str] = []
+) -> Union[str, int, float]:
     for regex in null_regexes:
         if re.compile(regex).match(value):
             return null_replacement
