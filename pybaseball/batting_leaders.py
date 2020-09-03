@@ -50,4 +50,4 @@ class BattingStatsColumnMapper:
             return 'FB% (Pitch)'
 
         # Just tack on a number for other calls
-        return self.call_counts[column_name] + " " + str(self.call_counts[column_name])
+        return column_name + " " + str(self.call_counts[column_name])

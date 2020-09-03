@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 import requests
 
-from pybaseball.batting_leaders import _FG_BATTING_LEADERS_TYPES, _FG_BATTING_LEADERS_URL, batting_stats
+from pybaseball.batting_leaders import _FG_BATTING_LEADERS_TYPES, _FG_BATTING_LEADERS_URL, batting_stats, BattingStatsColumnMapper
 
 
 @pytest.fixture()
@@ -42,3 +42,14 @@ class TestBattingLeaders:
         assert batting_stats_result['Dol'][8] == sample_processed_result['Dol'][8]
 
         pd.testing.assert_frame_equal(batting_stats_result, sample_processed_result)
+
+    def test_column_mapper(self):
+        mapper = BattingStatsColumnMapper()
+
+        assert mapper.map('FB%') == 'FB%'
+
+        assert mapper.map('HR') == 'HR'
+
+        assert mapper.map('FB%') == 'FB% (Pitch)'
+
+        assert mapper.map('HR') == 'HR 2'
