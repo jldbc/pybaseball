@@ -67,18 +67,18 @@ def sanitize_input(start_dt, end_dt, player_id):
     return start_dt, end_dt, player_id
 
 
-def split_request(start_dt, end_dt, player_id, url):
+def split_request(start_dt: str, end_dt: str, player_id: int, url: str) -> pd.DataFrame:
     """
     Splits Statcast queries to avoid request timeouts
     """
     current_dt = datetime.datetime.strptime(start_dt, '%Y-%m-%d')
-    end_dt = datetime.datetime.strptime(end_dt, '%Y-%m-%d')
+    end_dt_datetime = datetime.datetime.strptime(end_dt, '%Y-%m-%d')
     results = []  # list to hold data as it is returned
     player_id = str(player_id)
     print('Gathering Player Data')
     # break query into multiple requests
-    while current_dt <= end_dt:
-        remaining = end_dt - current_dt
+    while current_dt <= end_dt_datetime:
+        remaining = end_dt_datetime - current_dt
         # increment date ranges by at most 60 days
         delta = min(remaining, datetime.timedelta(days=2190))
         next_dt = current_dt + delta

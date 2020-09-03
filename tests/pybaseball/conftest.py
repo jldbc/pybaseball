@@ -1,11 +1,17 @@
 import os
 import urllib.parse
-from typing import Callable, Dict, Generator, Union
+from typing import Callable, Dict, Generator, List, Union
 
 import pandas as pd
 import pytest
 import requests
 from _pytest.monkeypatch import MonkeyPatch
+from typing_extensions import Protocol
+
+_ParseDates = Union[bool, List[int], List[str], List[List], Dict]
+
+class GetDataFrameCallable(Protocol):
+    def __call__(self, filename: str, parse_dates: _ParseDates = False) -> pd.DataFrame: ...
 
 
 @pytest.fixture()
@@ -35,11 +41,11 @@ def get_data_file_contents(data_dir: str) -> Callable:
     return get_contents
 
 @pytest.fixture()
-def get_data_file_dataframe(data_dir: str) -> Callable:
+def get_data_file_dataframe(data_dir: str) -> GetDataFrameCallable:
     """
         Returns a function that will allow getting a dataframe from a csv file in the tests data directory easily
     """
-    def get_dataframe(filename: str, parse_dates=False) -> pd.DataFrame:
+    def get_dataframe(filename: str, parse_dates: _ParseDates = False) -> pd.DataFrame:
         """
             Get the DatFrame representation of the contents of a csv file in the tests data directory
 
@@ -56,7 +62,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
     """
         Returns a function that will monkeypatch the requests.get function call to return expected data 
     """
-    def setup(result: Union[str, bytes], expected_url: str = None):
+    def setup(result: Union[str, bytes], expected_url: str = None) -> None:
         """
            Get the DatFrame representation of the contents of a csv file in the tests data directory
 
