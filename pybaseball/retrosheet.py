@@ -20,15 +20,17 @@ material presented here. All information is subject to corrections
 as additional data are received. We are grateful to anyone who
 discovers discrepancies and we appreciate learning of the details.
 """
-import pandas as pd
-from pybaseball.utils import get_text_file
-from datetime import datetime
-from io import StringIO
-from github import Github
 import os
-from getpass import getuser, getpass
-from github.GithubException import RateLimitExceededException
 import warnings
+from datetime import datetime
+from getpass import getpass, getuser
+from io import StringIO
+
+import pandas as pd
+from github import Github
+from github.GithubException import RateLimitExceededException
+
+from pybaseball.utils import get_text_file
 
 gamelog_columns = [
     'date', 'game_num', 'day_of_week', 'visiting_team',
