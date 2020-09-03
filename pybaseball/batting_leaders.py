@@ -1,7 +1,4 @@
-import numpy as np
 import pandas as pd
-import requests
-from bs4 import BeautifulSoup
 
 import pybaseball.datasources.fangraphs as fangraphs
 
@@ -10,7 +7,7 @@ _FG_BATTING_LEADERS_URL = "/leaders.aspx?pos=all&stats=bat&lg={league}&qual={qua
 # TODO: update url to include more stats
 
 
-def batting_stats(start_season: int, end_season: int = None, league: str = 'all', qual: int = 1, ind: int = 1):
+def batting_stats(start_season: int, end_season: int = None, league: str = 'all', qual: int = 1, ind: int = 1) -> pd.DataFrame:
     if start_season is None:
         raise ValueError(
             "You need to provide at least one season to collect data for. Try batting_leaders(season) or batting_leaders(start_season, end_season)."
@@ -40,7 +37,7 @@ class BattingStatsColumnMapper:
     def __init__(self):
         self.call_counts = {}
 
-    def map(self, column_name):
+    def map(self, column_name: str) -> str:
         self.call_counts[column_name] = self.call_counts.get(column_name, 0) + 1
         # First time around use the actual column name
         if self.call_counts[column_name] == 1:
