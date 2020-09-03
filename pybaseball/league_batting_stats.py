@@ -1,8 +1,11 @@
-import requests
-import pandas as pd
 import datetime
 import io
+
+import pandas as pd
+import requests
 from bs4 import BeautifulSoup
+
+from .datahelpers import caching
 
 
 def validate_datestring(date_text):
@@ -92,6 +95,7 @@ def batting_stats_range(start_dt=None, end_dt=None):
     return table
 
 
+@caching.dataframe_cache()
 def batting_stats_bref(season=None):
     """
     Get all batting stats for a set season. If no argument is supplied, gives
@@ -105,10 +109,11 @@ def batting_stats_bref(season=None):
     return(batting_stats_range(start_dt, end_dt))
 
 
+@caching.dataframe_cache()
 def bwar_bat(return_all=False):
     """
-    Get data from war_daily_bat table. Returns WAR, its components, and a few other useful stats. 
-    To get all fields from this table, supply argument return_all=True.  
+    Get data from war_daily_bat table. Returns WAR, its components, and a few other useful stats.
+    To get all fields from this table, supply argument return_all=True.
     """
     url = "http://www.baseball-reference.com/data/war_daily_bat.txt"
     s = requests.get(url).content

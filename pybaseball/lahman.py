@@ -1,9 +1,15 @@
 import requests	
 from zipfile import ZipFile	
 import os
+import zipfile
+from io import BytesIO
+from typing import Optional, Union, Tuple, IO
+
 import pandas as pd
 from io import BytesIO
 from typing import Optional
+
+from .datahelpers import caching
 
 url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
 base_string = "baseballdatabank-master/core"
@@ -14,9 +20,10 @@ def get_lahman_zip() -> Optional[ZipFile]:
     # Retrieve the Lahman database zip file, returns None if file already exists in cwd.
     # If we already have the zip file, keep re-using that.
     # Making this a function since everything else will be re-using these lines
-    global _handle
-    if os.path.exists(base_string):
+    global _handle, _separator
+    if os.path.exists(get_base_string(os.sep)):
         _handle = None
+        _separator = os.sep
     elif not _handle:
         s = requests.get(url, stream=True)
         _handle = ZipFile(BytesIO(s.content))
@@ -31,10 +38,11 @@ def download_lahman():
         # this way we'll now start using the extracted zip directory
         # instead of the session ZipFile object
 
+@caching.dataframe_cache()
 def _get_file(tablename: str, quotechar: str = "'") -> pd.DataFrame:
     z = get_lahman_zip()
     f = f'{base_string}/{tablename}'
-    data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar=quotechar)
+    data = pd.read_csv(f'{caching.cache_config.cache_directory}/{f}' if z is None else z.open(f), header=0, sep=',', quotechar=quotechar)
     return data
 
 

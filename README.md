@@ -215,6 +215,57 @@ This function returns a list of dataframes. Each dataframe is the standings for 
 5      Cincinnati Reds   68  94  .420  35.5
 ```
 
+# Caching
+
+To facilitate faster data retrieval for repeated calls, caching may be used to save a local copy of the requested data.
+By default caching is disabled so as to respect a user's potential desire to not have their hard drive space used
+without their permission. However, enabling caching is simple.
+
+Caching can be turned on by including the caching module in the pybaseball.datahelpers submodule, and enabling the
+caching option like so:
+
+```python
+from pybaseball.datahelpers import caching
+
+caching.cache_config.enable()
+```
+
+This will store a copy of the data returned for each DataFrame returning function call.
+This data will be stored in `~/.pybaseball/cached_data` (or `%USERPROFILE%\.pybaseball\cached_data` in Windows) by
+default. This can be configured by modifying the config:
+
+```python
+from pybaseball.datahelpers import caching
+
+caching.cache_config.cache_directory = '~/other_location'
+```
+
+The cache_config has many options that can be set or it can be replaced with a new CacheConfig object:
+
+```python
+from datetime import timedelta
+
+from pybaseball.datahelpers import caching
+
+caching.cache_config = caching.CacheConfig(
+   enabled=True,
+   cache_directory='~/other_other_location',
+   expiration=timedelta(days=7),
+   cache_type=caching.CacheType.CSV
+)
+```
+
+Each CacheConfig option is as follows:
+- `enabled` - bool - Whether caching should be enabled
+- `cache_directory` - str - The location to store the cached data. If it does not exist, it will be created.
+- `expiration` - datetime.timedelta - The timedelta after the cache file is created to expire it. Default = 24 hours.
+- `cache_type` - pybaseball.datahelpers.caching.CacheType - The method to use in storing the cache. Options:
+  - `CacheType.CSV` - Cache is stored in a pandas compatible CSV format
+  - `CacheType.CSV_GZ` - Cache is stored in a pandas compatible GZip file with a compressed CSV file inside
+  - `CacheType.PARQUET` - Cache is stored in Apache Parquet format: https://parquet.apache.org/
+  - `CacheType.PICKLE` - Cache is stored as python pickle files
+
+
 # Complete Documentation
 
 So far this has provided a basic overview of what this package can do and how you can use it. For full documentation on available functions and their arguments, see the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) folder. 

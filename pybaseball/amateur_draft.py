@@ -1,12 +1,16 @@
 import pandas as pd
 import requests
 
-def get_draft_results(year, round): 
+from .datahelpers import caching
+
+
+def get_draft_results(year, round):
     url = f"https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={round}&draft_type=junreg&query_type=year_round&"
-    res = requests.get(url, timeout=None).content 
+    res = requests.get(url, timeout=None).content
     draft_results = pd.read_html(res)
     return draft_results
 
+@caching.dataframe_cache()
 def amateur_draft(year, round, keep_stats=True):
     draft_results = get_draft_results(year, round)
     draft_results = pd.concat(draft_results)

@@ -1,8 +1,14 @@
-import pandas as pd
-import requests
 import datetime
 import io
 import zipfile
+from .datahelpers import caching
+import pandas as pd
+import requests
+
+import pandas as pd
+import requests
+
+from pybaseball.datahelpers import caching
 
 NULLABLE_INT = pd.Int32Dtype()
 
@@ -100,6 +106,7 @@ def get_zip_file(url):
     with requests.get(url, stream=True) as f:
         z = zipfile.ZipFile(io.BytesIO(f.content))
     return z
+
 
 def get_text_file(url):
     """

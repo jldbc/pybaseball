@@ -69,6 +69,8 @@ def get_tables(soup, season):
         datasets[idx] = pd.DataFrame(datasets[idx])
     return datasets #returns a list of dataframes
 
+
+@caching.dataframe_cache()
 def standings(season=None):
     # get most recent standings if date not specified
     if season is None:
