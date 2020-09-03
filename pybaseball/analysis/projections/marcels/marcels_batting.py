@@ -1,6 +1,9 @@
-from pybbda.data.tools.processing.aggregate import aggregate_by_season
-from pybbda.data.tools.lahman.data import augment_lahman_batting
-from pybbda.analysis.projections.marcels.marcels_base import MarcelsProjectionsBase
+from pybaseball.datahelpers.postprocessing import (
+    augment_lahman_batting,
+    aggregate_by_season,
+)
+from pybaseball.datasources.lahman import batting
+from .marcels_base import MarcelsProjectionsBase
 
 
 class MarcelProjectionsBatting(MarcelsProjectionsBase):
@@ -29,7 +32,7 @@ class MarcelProjectionsBatting(MarcelsProjectionsBase):
         super().__init__(stats_df, primary_pos_df)
 
     def _load_data(self):
-        return self.ld.batting
+        return batting()
 
     def preprocess_data(self, stats_df):
         """

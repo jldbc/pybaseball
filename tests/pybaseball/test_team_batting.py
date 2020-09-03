@@ -4,8 +4,8 @@ import pandas as pd
 import pytest
 import requests
 
-from pybaseball.team_batting import _FG_TEAM_BATTING_URL, team_batting
-
+from pybaseball import team_batting
+from pybaseball.team_batting import _FG_TEAM_BATTING_URL
 
 @pytest.fixture()
 def sample_html(get_data_file_contents: Callable) -> str:

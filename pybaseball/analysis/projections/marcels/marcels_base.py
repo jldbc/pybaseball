@@ -1,15 +1,25 @@
+"""
+Module defining base class for marcel projections. Marcel projections are defined as the minimal projections system
+that does anything reasonable. They
+
+* make a rate projection based on last 3 seasons
+    * projection is weighted average of performance plus a regression to the mean
+* make a playing time projection
+
+for batters the weights are 5, 4, 3 and for pitchers 3, 2, 1
+
+The original description of Marcels is in this post by Tome Tanog
+http://www.tangotiger.net/archives/stud0346.shtml
+"""
 from abc import ABC
 import sys
 
 import pandas as pd
 import numpy as np
 
-from pybbda.data.tools.processing.transform import get_age
-from pybbda.data.tools.lahman.data import get_primary_position
-from pybaseball.datasources.lahman import LahmanData
+from pybaseball.datahelpers.transform import get_age, get_primary_position
+from pybaseball.datasources.lahman import fielding, people
 from .age_adjustment import age_adjustment
-
-# http://www.tangotiger.net/archives/stud0346.shtml
 
 
 class MarcelsProjectionsBase(ABC):
@@ -21,21 +31,20 @@ class MarcelsProjectionsBase(ABC):
     PT_WEIGHTS = (0.5, 0.1, 0)
 
     def __init__(self, stats_df=None, primary_pos_df=None):
-        self.ld = LahmanData()
 
         self.stats_df = stats_df if stats_df is not None else self._load_data()
         self.validate_data(self.stats_df)
         self.stats_df = self.preprocess_data(self.stats_df)
 
         self.primary_pos_df = (
-            get_primary_position(self.ld.fielding)
+            get_primary_position(fielding())
             if primary_pos_df is None
             else primary_pos_df
         )
         self.metric_weights = np.array(self.METRIC_WEIGHTS)
         self.pt_weights = np.array(self.PT_WEIGHTS)
         self.league_avg_pa = self.LEAGUE_AVG_PT
-        self.people = self.ld.people
+        self.people = people()
 
     def _load_data(self):
         NotImplemented

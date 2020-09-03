@@ -99,32 +99,6 @@ def convert_percentages(data: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
 
 
 
-def get_primary_position(fielding_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Determines the primary position of a player during a season. `fielding_df` is
-    a DataFrame similar to Lahman Fielding, i.e. it must contain columns, `playerID`,
-    `yearID`, `POS`, and `G`.
-
-    :param fielding_df:
-    :return: DataFrame
-    """
-
-    fld_combined_stints = (
-        fielding_df.groupby(["playerID", "yearID", "POS"]).sum().reset_index()
-    )
-    gm_rank_df = (
-        fld_combined_stints.groupby(["playerID", "yearID"])
-        .G.rank(method="first", ascending=False)
-        .to_frame()
-        .rename({"G": "gm_rank"}, axis=1)
-    )
-    return (
-        pd.concat((fld_combined_stints, gm_rank_df), axis=1)
-        .query("gm_rank == 1")
-        .drop("gm_rank", axis=1)
-        .filter(["playerID", "yearID", "POS"])
-        .rename({"POS": "primaryPos"}, axis=1)
-    )
 
 
 def compute_pa(bat_df: pd.DataFrame) -> pd.Series:
@@ -174,3 +148,6 @@ def augment_lahman_pitching(stats_df: pd.DataFrame) -> pd.DataFrame:
     :return:
     """
     return stats_df
+
+def aggregate_by_season(stats_df):
+    return stats_df.groupby(["playerID", "yearID"]).sum().reset_index()
