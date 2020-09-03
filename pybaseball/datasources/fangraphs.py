@@ -1,6 +1,6 @@
-import lxml
-from typing import List, Union
+from typing import Callable, List, Union
 
+import lxml
 import pandas as pd
 import requests
 
@@ -9,12 +9,15 @@ from pybaseball.datahelpers import postprocessing
 ROOT_URL = 'https://www.fangraphs.com'
 
 
-def get_fangraphs_tabular_data_from_html(html: Union[str, bytes]) -> pd.DataFrame:
+def get_fangraphs_tabular_data_from_html(html: Union[str, bytes], column_name_mapper: Callable = None) -> pd.DataFrame:
     xpath: str = '//table[@class="rgMasterTable"]'
     html_dom = lxml.etree.HTML(html)
 
     headings_xpath = f"({xpath}/thead//th[contains(@class, 'rgHeader')])[position()>1]/descendant-or-self::*/text()"
     headings = html_dom.xpath(headings_xpath)
+
+    if column_name_mapper:
+        headings = [column_name_mapper(h) for h in headings]
 
     data_rows_xpath = f"({xpath}/tbody//tr)"
     data_rows_dom = html_dom.xpath(data_rows_xpath)
@@ -28,7 +31,7 @@ def get_fangraphs_tabular_data_from_html(html: Union[str, bytes]) -> pd.DataFram
     return fg_data
 
 
-def get_fangraphs_tabular_data_from_url(url: str) -> pd.DataFrame:
+def get_fangraphs_tabular_data_from_url(url: str, column_name_mapper: Callable = None) -> pd.DataFrame:
     content = requests.get(ROOT_URL + url).content
 
-    return get_fangraphs_tabular_data_from_html(content)
+    return get_fangraphs_tabular_data_from_html(content, column_name_mapper)

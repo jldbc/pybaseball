@@ -5,7 +5,7 @@ import numpy as np
 import pandas as pd
 
 null_regexes = [r'^\s*$', r'^null$']
-
+known_percentages = ['GB/FB']
 
 def try_parse(value: str, column_name: str, null_replacement: Union[str, int, float] = np.nan) -> Union[str, int, float]:
     for regex in null_regexes:
@@ -14,7 +14,7 @@ def try_parse(value: str, column_name: str, null_replacement: Union[str, int, fl
 
     percentage = False
 
-    if value.endswith('%') or column_name.endswith('%'):
+    if value.endswith('%') or column_name.endswith('%') or column_name in known_percentages:
         percentage = True
 
     try:
