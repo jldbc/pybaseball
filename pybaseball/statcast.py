@@ -7,7 +7,8 @@ import numpy as np
 import pandas as pd
 import requests
 
-import pybaseball.datasources.statcast as statcast_ds
+from .datahelpers import caching
+from .datasources import statcast as statcast_ds
 
 _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={game_pk}"
 _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&team={team}&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&"
@@ -34,14 +35,14 @@ def sanitize_input(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[date
         print(
             "Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, try get_statcast(start_dt, end_dt)."
         )
-    
+
     # If only one date is supplied, assume they only want that day's stats
     # query in this case is from date 1 to date 1
     if start_dt is None:
         start_dt = end_dt
     if end_dt is None:
         end_dt = start_dt
-    
+
     # Now that both dates are not None, make sure they are valid date strings
     return validate_datestring(start_dt), validate_datestring(end_dt)
 
@@ -65,20 +66,20 @@ def large_request(start_dt_date: date, end_dt_date: date, step: int, verbose: bo
     are date objects for first and last day of query, for doing date math a third date
     object (d) will be used to increment over time for the several intermediate queries.
     """
-    
+
     # Count failed requests. If > X, break
     error_counter = 0
 
     # A flag for passing over the success message of requests are failing
     no_success_msg_flag = False
-    
+
     dataframe_list = []
 
     d1 = start_dt_date
     d2 = end_dt_date
 
     print("This is a large query, it may take a moment to complete")
-    
+
     # Number of days per mini-query
     # (test this later to see how large I can make this without losing data)
 
@@ -137,7 +138,7 @@ def large_request(start_dt_date: date, end_dt_date: date, step: int, verbose: bo
 
                     # Flag for passing over the success message since this request failed
                     no_success_msg_flag = True
-                    
+
                     # Reset counter
                     error_counter = 0
                     break
@@ -148,7 +149,7 @@ def large_request(start_dt_date: date, end_dt_date: date, step: int, verbose: bo
                 print(f"Completed sub-query from {d1} to {d}")
             else:
                 no_success_msg_flag = False # if failed, reset this flag so message will send again next iteration
-        
+
         # Increment dates
         d1 = d + timedelta(days=1)
         d = d + timedelta(days=step+1)
