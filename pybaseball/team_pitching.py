@@ -1,4 +1,3 @@
-import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
@@ -8,19 +7,21 @@ import pybaseball.datasources.fangraphs as fangraphs
 _FG_TEAM_PITCHING_URL = "/leaders.aspx?pos=all&stats=pit&lg={league}&qual=0&type=c,4,5,11,7,8,13,-1,24,36,37,40,43,44,48,51,-1,6,45,62,-1,59&season={end_season}&month=0&season1={start_season}&ind={ind}&team=0,ts&rost=0&age=0&filter=&players=0&page=1_100000"
 
 
-def team_pitching(start_season:int, end_season:int=None, league:str='all', ind:int=1):
+def team_pitching(start_season: int, end_season: int = None, league: str = 'all', ind: int = 1):
     """
-    Get season-level pitching data aggregated by team. 
+    Get season-level pitching data aggregated by team.
 
     ARGUMENTS:
     start_season    : int : first season you want data for (or the only season if you do not specify an end_season)
-    end_season      : int : final season you want data for 
+    end_season      : int : final season you want data for
     league          : str : "all", "nl", or "al"
     ind             : int : 1 if you want individual season level data
                             0 if you want a team'ss aggreagate data over all seasons in the query
     """
     if start_season is None:
-        raise ValueError("You need to provide at least one season to collect data for. Try team_pitching(season) or team_pitching(start_season, end_season).")
+        raise ValueError(
+            "You need to provide at least one season to collect data for. Try team_pitching(season) or team_pitching(start_season, end_season)."
+        )
     if end_season is None:
         end_season = start_season
 
@@ -40,7 +41,9 @@ def team_pitching_bref(team, start_season, end_season=None):
     end_season : int : final season you want data for
     """
     if start_season is None:
-        raise ValueError("You need to provide at least one season to collect data for. Try team_pitching_bref(season) or team_pitching_bref(start_season, end_season).")
+        raise ValueError(
+            "You need to provide at least one season to collect data for. Try team_pitching_bref(season) or team_pitching_bref(start_season, end_season)."
+        )
     if end_season is None:
         end_season = start_season
 
