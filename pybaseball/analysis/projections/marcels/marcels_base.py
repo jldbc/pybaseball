@@ -8,7 +8,7 @@ that does anything reasonable. They
 
 for batters the weights are 5, 4, 3 and for pitchers 3, 2, 1
 
-The original description of Marcels is in this post by Tome Tanog
+The original description of Marcels is in this post by Tom Tango
 http://www.tangotiger.net/archives/stud0346.shtml
 """
 from abc import ABC
