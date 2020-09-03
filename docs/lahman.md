@@ -3,7 +3,7 @@
 Pull data from [Sean Lahman's database](http://www.seanlahman.com/baseball-archive/statistics/), also hosted by [Chadwick Bureau on GitHub](https://github.com/chadwickbureau/baseballdatabank) -- our new source -- using the following functions:
 
 ```python
-from pybaseball.lahman import *
+from pybaseball.datasources.lahman import *
 download_lahman() #download the entire lahman database to your current working directory
 
 # a table of all player biographical info and ids
