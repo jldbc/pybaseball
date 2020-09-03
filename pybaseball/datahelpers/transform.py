@@ -2,7 +2,7 @@
 import pandas as pd
 
 from pybaseball import NULLABLE_INT
-from pybaseball.datasources.lahman import people
+from pybaseball.lahman import people
 
 
 def get_age(stats_df, people_df=None):

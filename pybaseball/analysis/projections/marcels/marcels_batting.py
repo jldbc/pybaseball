@@ -2,7 +2,7 @@ from pybaseball.datahelpers.postprocessing import (
     augment_lahman_batting,
     aggregate_by_season,
 )
-from pybaseball.datasources.lahman import batting
+from pybaseball.lahman import batting
 from .marcels_base import MarcelsProjectionsBase
 
 

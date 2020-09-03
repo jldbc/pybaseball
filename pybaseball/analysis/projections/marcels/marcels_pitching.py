@@ -1,4 +1,4 @@
-from pybaseball.datasources.lahman import pitching
+from pybaseball.lahman import pitching
 from pybaseball.datahelpers.postprocessing import (
     augment_lahman_pitching,
     aggregate_by_season,
@@ -14,7 +14,6 @@ class MarcelProjectionsPitching(MarcelsProjectionsBase):
     PT_WEIGHTS = (0.5, 0.1, 0)
     REQUIRED_COLUMNS = ["IPouts"]
     PLAYING_TIME_COLUMN = "IPouts"
-
 
     def _load_data(self):
         return pitching()

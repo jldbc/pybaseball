@@ -18,7 +18,7 @@ import pandas as pd
 import numpy as np
 
 from pybaseball.datahelpers.transform import get_age, get_primary_position
-from pybaseball.datasources.lahman import fielding, people
+from pybaseball.lahman import fielding, people
 from .age_adjustment import age_adjustment
 
 
