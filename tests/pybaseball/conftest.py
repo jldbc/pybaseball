@@ -1,5 +1,5 @@
 import os
-from typing import Generator, Callable
+from typing import Generator, Callable, Union
 
 import pandas as pd
 import pytest
@@ -38,7 +38,7 @@ def get_data_file_dataframe(data_dir: str) -> Callable:
     """
         Returns a function that will allow getting a dataframe from a csv file in the tests data directory easily
     """
-    def get_dataframe(filename: str) -> pd.DataFrame:
+    def get_dataframe(filename: str, parse_dates=False) -> pd.DataFrame:
         """
             Get the DatFrame representation of the contents of a csv file in the tests data directory
 
@@ -46,7 +46,7 @@ def get_data_file_dataframe(data_dir: str) -> Callable:
             ARGUMENTS:
             filename    : str : the name of the file within the tests data directory to load into a DataFrame
         """
-        return pd.read_csv(os.path.join(data_dir, filename), index_col=0).reset_index(drop=True)
+        return pd.read_csv(os.path.join(data_dir, filename), index_col=0, parse_dates=parse_dates).reset_index(drop=True)
 
     return get_dataframe
 
@@ -55,7 +55,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
     """
         Returns a function that will monkeypatch the requests.get function call to return expected data 
     """
-    def setup(result: str, expected_url: str = None):
+    def setup(result: Union[str, bytes], expected_url: str = None):
         """
            Get the DatFrame representation of the contents of a csv file in the tests data directory
 
@@ -65,7 +65,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
             expected_url    : str (optional) : an expected_url to test the get call against
                                                to ensure the correct endpoint is hit
         """
-        def _monkeypatch(url: str) -> object:
+        def _monkeypatch(url: str, timeout: int = None) -> object:
             if expected_url is not None:
                 assert url.endswith(expected_url)
 

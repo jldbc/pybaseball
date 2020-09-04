@@ -1,6 +1,7 @@
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
-
 import pytest
 
 from pybaseball.datahelpers import postprocessing
@@ -18,6 +19,12 @@ def sample_unprocessed_result():
 
 
 class TestPostProcessing:
+    def test_try_parse_short_date(self):
+        assert postprocessing.try_parse('2020-09-04', 'game_dt') == datetime(year=2020, month=9, day=4)
+        
+    def test_try_parse_long_date(self):
+        assert postprocessing.try_parse('2020-09-03T05:40:30.210Z', 'game_dt') == datetime(year=2020, month=9, day=3, hour=5, minute=40, second=30, microsecond=210000)
+
     def test_try_parse_int(self):
         assert postprocessing.try_parse('1', 'runs') == 1
 

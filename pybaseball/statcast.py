@@ -31,19 +31,18 @@ def sanitize_input(start_dt, end_dt):
     return start_dt, end_dt
 
 def single_game_request(game_pk):
-
     url = "https://baseballsavant.mlb.com/statcast_search/csv?all=true&type=details&game_pk={game_pk}".format(game_pk=game_pk)
     s=requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(s.decode('utf-8')))#, error_bad_lines=False) # skips 'bad lines' breaking scrapes. still testing this.
     return data
 
-def small_request(start_dt,end_dt):
+def small_request(start_dt, end_dt):
     url = "https://baseballsavant.mlb.com/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={}&game_date_lt={}&team=&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&".format(start_dt, end_dt)
     s=requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(s.decode('utf-8')))#, error_bad_lines=False) # skips 'bad lines' breaking scrapes. still testing this.
     return data
 
-def large_request(start_dt,end_dt,d1,d2,step,verbose):
+def large_request(start_dt, end_dt, d1, d2, step, verbose):
     """
     break start and end date into smaller increments, collecting all data in small chunks and appending all results to a common dataframe
     end_dt is the date strings for the final day of the query
@@ -63,19 +62,19 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
         # if no, break the loop. all useful data has been pulled.
         if (d.month == 3 and d.day < 15) or d.month <= 2:
             print('Skipping offseason dates')
-            d1 = d1.replace(month=3,day=15,year=d1.year)
+            d1 = d1.replace(month=3, day=15, year=d1.year)
             d = d1 + datetime.timedelta(days=step+1)
         elif (d1.month == 11 and d1.day > 14) or d1.month > 11:
             if d2.year > d.year:
                 print('Skipping offseason dates')
-                d1 = d1.replace(month=3,day=15,year=d1.year+1)
+                d1 = d1.replace(month=3, day=15, year=d1.year+1)
                 d = d1 + datetime.timedelta(days=step+1)
             else:
                 break
 
         start_dt = d1.strftime('%Y-%m-%d')
         intermediate_end_dt = d.strftime('%Y-%m-%d')
-        data = small_request(start_dt,intermediate_end_dt)
+        data = small_request(start_dt, intermediate_end_dt)
         # append to list of dataframes if not empty or failed (failed requests have one row saying "Error: Query Timeout")
         if data.shape[0] > 1:
             dataframe_list.append(data)
@@ -83,7 +82,7 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
         else:
             success = 0
             while success == 0:
-                data = small_request(start_dt,intermediate_end_dt)
+                data = small_request(start_dt, intermediate_end_dt)
                 if data.shape[0] > 1:
                     dataframe_list.append(data)
                     success = 1
@@ -95,17 +94,17 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
                     tmp_end = d - datetime.timedelta(days=1)
                     tmp_end = tmp_end.strftime('%Y-%m-%d')
                     smaller_data_1 = small_request(start_dt, tmp_end)
-                    smaller_data_2 = small_request(intermediate_end_dt,intermediate_end_dt)
+                    smaller_data_2 = small_request(intermediate_end_dt, intermediate_end_dt)
                     if smaller_data_1.shape[0] > 1:
                         dataframe_list.append(smaller_data_1)
-                        print("Completed sub-query from {} to {}".format(start_dt,tmp_end))
+                        print("Completed sub-query from {} to {}".format(start_dt, tmp_end))
                     else:
-                        print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(start_dt,tmp_end))
+                        print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(start_dt, tmp_end))
                     if smaller_data_2.shape[0] > 1:
                         dataframe_list.append(smaller_data_2)
-                        print("Completed sub-query from {} to {}".format(intermediate_end_dt,intermediate_end_dt))
+                        print("Completed sub-query from {} to {}".format(intermediate_end_dt, intermediate_end_dt))
                     else:
-                        print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(intermediate_end_dt,intermediate_end_dt))
+                        print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(intermediate_end_dt, intermediate_end_dt))
 
                     no_success_msg_flag = True # flag for passing over the success message since this request failed
                     error_counter = 0 # reset counter
@@ -114,7 +113,7 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
 
         if verbose:
             if no_success_msg_flag is False:
-                print("Completed sub-query from {} to {}".format(start_dt,intermediate_end_dt))
+                print("Completed sub-query from {} to {}".format(start_dt, intermediate_end_dt))
             else:
                 no_success_msg_flag = False # if failed, reset this flag so message will send again next iteration
         # increment dates
@@ -128,10 +127,10 @@ def large_request(start_dt,end_dt,d1,d2,step,verbose):
     else:
         # start_dt from the earlier loop will work, but instead of d we now want the original end_dt
         start_dt = d1.strftime('%Y-%m-%d')
-        data = small_request(start_dt,end_dt)
+        data = small_request(start_dt, end_dt)
         dataframe_list.append(data)
         if verbose:
-            print("Completed sub-query from {} to {}".format(start_dt,end_dt))
+            print("Completed sub-query from {} to {}".format(start_dt, end_dt))
 
     # concatenate all dataframes into final result set
     final_data = pd.concat(dataframe_list, axis=0)
@@ -202,9 +201,9 @@ def statcast(start_dt=None, end_dt=None, team=None, verbose=True):
         d2 = datetime.datetime.strptime(end_dt, date_format)
         days_in_query = (d2 - d1).days
         if days_in_query <= small_query_threshold:
-            data = small_request(start_dt,end_dt)
+            data = small_request(start_dt, end_dt)
         else:
-            data = large_request(start_dt,end_dt,d1,d2,step=small_query_threshold,verbose=verbose)
+            data = large_request(start_dt, end_dt, d1, d2, step=small_query_threshold, verbose=verbose)
 
         data = postprocessing(data, team)
         return data

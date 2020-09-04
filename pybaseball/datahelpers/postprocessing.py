@@ -1,30 +1,49 @@
 import re
+from datetime import datetime
 from typing import List, Union
 
 import numpy as np
 import pandas as pd
 
 null_regexes = [r'^\s*$', r'^null$']
+date_formats = [
+    '%Y-%m-%d',              # Standard statcast format
+    '%Y-%m-%dT%H:%M:%S.%fZ', # Just in case (https://github.com/jldbc/pybaseball/issues/104)
+]
 
-
-def try_parse(value: str, column_name: str, null_replacement: Union[str, int, float] = np.nan) -> Union[str, int, float]:
+def try_parse(
+    value: str,
+    column_name: str,
+    null_replacement: Union[str, int, float, datetime] = np.nan,
+    known_percentages: List[str] = []
+) -> Union[str, int, float, datetime]:
     for regex in null_regexes:
         if re.compile(regex).match(value):
             return null_replacement
 
     percentage = False
 
-    if value.endswith('%') or column_name.endswith('%'):
-        percentage = True
+    # Is it a date?
+    for date_format in date_formats:
+        try:
+            return datetime.strptime(value, date_format)
+        except:
+            pass
 
+    # Is it an float or an int (including percetages)?
     try:
+        if value.endswith('%') or column_name.endswith('%') or column_name in known_percentages:
+            percentage = True
+
         if '.' in value:
             return float(value.strip(' %')) / (1 if not percentage else 100.0)
         else:
             result = int(value.strip(' %'))
             return result if not percentage else result / 100.0
     except:
-        return value
+        pass
+
+    return value
 
 
 def coalesce_nulls(data: pd.DataFrame, value: Union[str, int, float] = np.nan) -> pd.DataFrame:
