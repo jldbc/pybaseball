@@ -70,8 +70,8 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
                 assert url.endswith(expected_url)
 
             class DummyResponse:
-                def __init__(self, html: str):
-                    self.content = html
+                def __init__(self, content: Union[str, bytes]):
+                    self.content = content
 
             return DummyResponse(result)
 
