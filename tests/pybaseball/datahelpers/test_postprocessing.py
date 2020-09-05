@@ -24,18 +24,49 @@ class TestPostProcessing:
         
     def test_try_parse_long_date(self):
         assert postprocessing.try_parse('2020-09-03T05:40:30.210Z', 'game_dt') == datetime(year=2020, month=9, day=3, hour=5, minute=40, second=30, microsecond=210000)
+    
+    def test_try_parse_date_nonstr(self):
+        dt = datetime(year=2020, month=9, day=4)
+        assert postprocessing.try_parse(dt, 'game_dt') == dt
 
     def test_try_parse_int(self):
         assert postprocessing.try_parse('1', 'runs') == 1
 
+    def test_try_parse_int_nonstr(self):
+        assert postprocessing.try_parse(1, 'runs') == 1
+
     def test_try_parse_float(self):
         assert postprocessing.try_parse('1.0', 'runs') == 1.0
+
+    def test_try_parse_float_nonstr(self):
+        assert postprocessing.try_parse(1.0, 'runs') == 1.0
 
     def test_try_parse_percentage_value(self):
         assert postprocessing.try_parse('10%', 'avg') == 0.1
 
     def test_try_parse_percentage_column(self):
         assert postprocessing.try_parse('50', 'CS%') == 0.5
+
+    def test_try_parse_dataframe(self):
+        raw_data = pd.DataFrame(
+            [
+                ['1', 'TBR', '2019-01-01', '0.5', '40%', 8],
+                ['2', 'NYY', '2019-02-01', '0.6', '20%', 'null']
+            ],
+            columns=['id', 'team', 'dt', 'rate', 'chance', 'wins']
+        )
+
+        processed_data = postprocessing.try_parse_dataframe(raw_data)
+
+        expected_data = pd.DataFrame(
+            [
+                [1, 'TBR', np.datetime64('2019-01-01'), 0.5, 0.4, 8],
+                [2, 'NYY', np.datetime64('2019-02-01'), 0.6, 0.2, np.nan]
+            ],
+            columns=['id', 'team', 'dt', 'rate', 'chance', 'wins']
+        )
+
+        pd.testing.assert_frame_equal(processed_data, expected_data)
 
     def test_coalesce_nulls(self, sample_unprocessed_result):
         expected_result = pd.DataFrame(

@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import List, Union
+from typing import Dict, List, Union
 
 import numpy as np
 import pandas as pd
@@ -11,12 +11,27 @@ date_formats = [
     '%Y-%m-%dT%H:%M:%S.%fZ', # Just in case (https://github.com/jldbc/pybaseball/issues/104)
 ]
 
+def try_parse_dataframe(
+    data: pd.DataFrame,
+    null_replacement: Union[str, int, float, datetime] = np.nan,
+    known_percentages: List[str] = []
+) -> pd.DataFrame:
+    values = [
+        {column: try_parse(data[column][row_i], column) for column in data.columns}
+        for row_i in range(len(data)) 
+    ]
+
+    return pd.DataFrame(values)
+
 def try_parse(
     value: str,
     column_name: str,
     null_replacement: Union[str, int, float, datetime] = np.nan,
     known_percentages: List[str] = []
 ) -> Union[str, int, float, datetime]:
+    if not isinstance(value, str):
+        return value
+
     for regex in null_regexes:
         if re.compile(regex).match(value):
             return null_replacement
