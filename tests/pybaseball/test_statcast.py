@@ -3,8 +3,9 @@ from typing import Callable
 import pandas as pd
 import pytest
 import requests
+from datetime import datetime, timedelta
 
-from pybaseball.statcast import statcast, statcast_single_game
+from pybaseball.statcast import statcast, statcast_single_game, sanitize_input, _SC_SMALL_REQUEST, _SC_SINGLE_GAME_REQUEST
 
 
 @pytest.fixture()
@@ -26,13 +27,54 @@ def single_game(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('single_game_request.csv', parse_dates=[2])
 
 class TestStatcast:
+    def test_sanitize_input_nones(self):
+        yesterday = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+
+        start_dt, end_dt = sanitize_input(None, None)
+
+        assert start_dt == yesterday
+        assert end_dt == datetime.today().strftime('%Y-%m-%d')
+        
+    def test_sanitize_input_no_end_dt(self):
+        yesterday = (datetime.today() - timedelta(days=1)).strftime('%Y-%m-%d')
+
+        start_dt, end_dt = sanitize_input(yesterday, None)
+
+        assert start_dt == yesterday
+        assert end_dt == yesterday
+        
+    def test_sanitize_input(self):
+        start_dt, end_dt = sanitize_input('2020-05-06', '2020-06-06')
+
+        assert start_dt == '2020-05-06'
+        assert end_dt == '2020-06-06'
+        
+    def test_sanitize_input_bad_start_dt(self):
+        with pytest.raises(ValueError) as ex_info:
+            sanitize_input('INVALID', '2020-06-06')
+
+        assert str(ex_info.value) == 'Incorrect data format, should be YYYY-MM-DD'
+        
+    def test_sanitize_input_bad_end_dt(self):
+        with pytest.raises(ValueError) as ex_info:
+            sanitize_input('2020-05-06', 'INVALID')
+
+        assert str(ex_info.value) == 'Incorrect data format, should be YYYY-MM-DD'
+
     def test_statcast(
         self,
         response_get_monkeypatch: Callable,
         small_request_raw: str,
         small_request: pd.DataFrame
     ):
-        response_get_monkeypatch(small_request_raw.encode('UTF-8'))
+        start_dt, end_dt = sanitize_input(None, None)
+        response_get_monkeypatch(
+            small_request_raw.encode('UTF-8'),
+            _SC_SMALL_REQUEST.format(
+                start_dt=start_dt,
+                end_dt=end_dt
+            )
+        )
 
         statcast_result = statcast().reset_index(drop=True)
 
@@ -44,8 +86,13 @@ class TestStatcast:
         single_game_raw: str,
         single_game: pd.DataFrame
     ):
-        response_get_monkeypatch(single_game_raw.encode('UTF-8'))
+        game_pk = '631614'
 
-        statcast_result = statcast_single_game('631614').reset_index(drop=True)
+        response_get_monkeypatch(
+            single_game_raw.encode('UTF-8'),
+            _SC_SINGLE_GAME_REQUEST.format(game_pk=game_pk)
+        )
+
+        statcast_result = statcast_single_game(game_pk).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(statcast_result, single_game)

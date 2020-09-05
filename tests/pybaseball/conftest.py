@@ -67,6 +67,8 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
         """
         def _monkeypatch(url: str, timeout: int = None) -> object:
             if expected_url is not None:
+                print(url)
+                print(expected_url)
                 assert url.endswith(expected_url)
 
             class DummyResponse:
