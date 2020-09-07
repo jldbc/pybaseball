@@ -1,7 +1,7 @@
 
 import pandas as pd
 
-from pybaseball import NULLABLE_INT
+from pybaseball.utils import NULLABLE_INT
 from pybaseball.lahman import people
 
 
