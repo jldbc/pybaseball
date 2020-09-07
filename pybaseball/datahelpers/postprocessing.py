@@ -151,27 +151,27 @@ def aggregate_by_season(stats_df):
 
 def check_is_zero_one(instance, attribute, value):
     if value not in [0, 1]:
-        raise ValueError("{} must be either 0 or 1, not {}".format(attribute, value))
+        raise ValueError(f"{attribute} must be either 0 or 1, not {value}")
 
 
 def check_greater_zero(instance, attribute, value):
     if value <= 0:
         raise ValueError(
-            "{} must be greater than zero, not {}".format(attribute, value)
+            f"{attribute} must be greater than zero, not {value}"
         )
 
 
 def check_between_zero_one(instance, attribute, value):
     if not 0 <= value <= 1:
         raise ValueError(
-            "{} must be between zero and one, not {}".format(attribute, value)
+            f"{attribute} must be between zero and one, not {value}"
         )
 
 
 def check_len(instance, attribute, value, len_constraint=-1):
     if len(value) != len_constraint:
         raise ValueError(
-            "length of {} must be {}, not {}".format(
+            f"length of {attribute} must be {len_constraint}, not {len(value)}".format(
                 attribute, len_constraint, len(value)
             )
         )
