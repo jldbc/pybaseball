@@ -1,10 +1,17 @@
 import numpy as np
-from functools import partial
+from functools import lru_cache
 
 
-def _trig_in_degrees(trig_func, angle_in_degrees):
-    return trig_func(np.deg2rad(angle_in_degrees))
+@lru_cache(maxsize=64)
+def _deg_to_radians(angle_in_degrees):
+    return np.deg2rad(angle_in_degrees)
 
 
-cos_in_degrees = partial(_trig_in_degrees, np.cos)
-sin_in_degrees = partial(_trig_in_degrees, np.sin)
+@lru_cache(maxsize=64)
+def cos_in_degrees(angle_in_degrees):
+    return np.cos(_deg_to_radians(angle_in_degrees))
+
+
+@lru_cache(maxsize=64)
+def sin_in_degrees(angle_in_degrees):
+    return np.sin(_deg_to_radians(angle_in_degrees))
