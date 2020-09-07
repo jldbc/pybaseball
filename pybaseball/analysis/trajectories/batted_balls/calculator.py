@@ -125,7 +125,7 @@ class BattedBallTrajectory:
 
         initial_velocity = (
             initial_speed
-            * self.env_parameters.unit_conversions.mph_to_fts
+            * self.env_parameters.unit_conversions.MPH_TO_FTS
             * np.array(
                 [
                     cos_in_degrees(launch_angle)
