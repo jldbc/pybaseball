@@ -40,7 +40,7 @@ class BattedBallTrajectory:
         self.c0 = (
             0.07182
             * self.env_parameters.air_density
-            * self.env_parameters.unit_conversions.kgm3_to_lbft3
+            * self.env_parameters.unit_conversions.KGM3_TO_LBFT3
             * (5.125 / self.batted_ball_constants.mass)
             * (self.batted_ball_constants.circumference / 9.125) ** 2
         )

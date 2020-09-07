@@ -1,6 +1,7 @@
 import attr
 import numpy as np
 from pybaseball.datahelpers.postprocessing import check_greater_zero
+from pybaseball.analysis.trajectories import unit_conversions
 
 
 @attr.s(frozen=True, kw_only=True)
@@ -43,8 +44,8 @@ class EnvironmentalParameters:
     )
 
     def __attrs_post_init__(self):
-        self.unit_conversions = UnitConversions()
-        self.elevation_m = self.elevation_ft * self.unit_conversions.ft_to_m
+        self.unit_conversions = unit_conversions
+        self.elevation_m = self.elevation_ft * self.unit_conversions.FT_TO_M
         self.temperature_c = (self.temperature_f - 32) * 5 / 9
         self.pressure_mm_hg = self.pressure_in_hg * 1000 / 39.37
         self.SVP = 4.5841 * np.exp(
@@ -62,12 +63,3 @@ class EnvironmentalParameters:
             )
             / 760
         )
-
-
-@attr.s(frozen=True, kw_only=True)
-class UnitConversions:
-    # conversions,
-    mph_to_fts = attr.ib(default=1.467)
-    ft_to_m = attr.ib(default=0.3048037)
-    lbft3_to_kgm3 = attr.ib(default=16.01848)
-    kgm3_to_lbft3 = attr.ib(default=0.06242789)

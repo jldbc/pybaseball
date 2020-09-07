@@ -166,12 +166,3 @@ def check_between_zero_one(instance, attribute, value):
         raise ValueError(
             f"{attribute} must be between zero and one, not {value}"
         )
-
-
-def check_len(instance, attribute, value, len_constraint=-1):
-    if len(value) != len_constraint:
-        raise ValueError(
-            f"length of {attribute} must be {len_constraint}, not {len(value)}".format(
-                attribute, len_constraint, len(value)
-            )
-        )

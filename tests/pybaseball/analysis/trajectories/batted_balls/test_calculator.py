@@ -34,13 +34,13 @@ def test_projectile_motion():
     assert traj.t.iloc[-1] == pytest.approx(
         2
         * initial_speed
-        * batted_ball_traj.env_parameters.unit_conversions.mph_to_fts
+        * batted_ball_traj.env_parameters.unit_conversions.MPH_TO_FTS
         / batted_ball_traj.env_parameters.g_gravity,
         0.5,
     )
     assert traj.z.max() == pytest.approx(
         0.5
-        * (initial_speed * batted_ball_traj.env_parameters.unit_conversions.mph_to_fts)
+        * (initial_speed * batted_ball_traj.env_parameters.unit_conversions.MPH_TO_FTS)
         ** 2
         / batted_ball_traj.env_parameters.g_gravity,
         1,
@@ -57,7 +57,7 @@ def test_projectile_motion():
     assert traj.t.iloc[-1] == pytest.approx(
         2
         * initial_speed
-        * batted_ball_traj.env_parameters.unit_conversions.mph_to_fts
+        * batted_ball_traj.env_parameters.unit_conversions.MPH_TO_FTS
         / batted_ball_traj.env_parameters.g_gravity,
         0.5,
     )
@@ -66,7 +66,7 @@ def test_projectile_motion():
         * (
             initial_speed
             * sin_in_degrees(launch_angle)
-            * batted_ball_traj.env_parameters.unit_conversions.mph_to_fts
+            * batted_ball_traj.env_parameters.unit_conversions.MPH_TO_FTS
         )
         ** 2
         / batted_ball_traj.env_parameters.g_gravity,
