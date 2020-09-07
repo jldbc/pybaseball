@@ -13,6 +13,9 @@ def try_parse(
     null_replacement: Union[str, int, float] = np.nan,
     known_percentages: List[str] = []
 ) -> Union[str, int, float]:
+    if not isinstance(value, str):
+        return value if value is not None else null_replacement
+
     for regex in null_regexes:
         if re.compile(regex).match(value):
             return null_replacement
