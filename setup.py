@@ -75,7 +75,7 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=['numpy>=1.13.0',
-                      'pandas >= 0.20.2',
+                      'pandas >= 1.0.3',
                       'beautifulsoup4>=4.4.0',
                       'requests>=2.18.1',
                       'lxml>=4.2.1',

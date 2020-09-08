@@ -3,7 +3,6 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from pybaseball.lahman import teams
 from pybaseball.utils import first_season_map
 
 # TODO: retrieve data for all teams? a full season's worth of results
