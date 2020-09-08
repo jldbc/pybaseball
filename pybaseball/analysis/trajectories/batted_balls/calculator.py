@@ -4,7 +4,10 @@ from scipy.integrate import RK45
 import numpy as np
 import pandas as pd
 from pybaseball.datahelpers.postprocessing import check_between_zero_one
-from pybaseball.analysis.trajectories.utils import cos_in_degrees, sin_in_degrees
+from pybaseball.analysis.trajectories.utils import unit_vector, spin_components
+from pybaseball.analysis.trajectories.unit_conversions import (
+    REVS_PER_MINUTE_TO_RADIANS_PER_SECOND,
+)
 from .parameters import (
     BattedBallConstants,
     DragForceCoefficients,
@@ -36,7 +39,7 @@ class BattedBallTrajectory:
 
     def __attrs_post_init__(self):
         self.initial_position = np.array((self.x0, self.y0, self.z0))
-        self.pi_30 = np.pi / 30
+        self.pi_30 = REVS_PER_MINUTE_TO_RADIANS_PER_SECOND
         self.c0 = (
             0.07182
             * self.env_parameters.air_density
@@ -53,7 +56,7 @@ class BattedBallTrajectory:
         :param spin: float
         :return: float
         """
-        return spin * np.pi / 30
+        return spin * self.pi_30
 
     def s_fun(self, t, vw, spin):
         """
@@ -126,15 +129,7 @@ class BattedBallTrajectory:
         initial_velocity = (
             initial_speed
             * self.env_parameters.unit_conversions.MPH_TO_FTS
-            * np.array(
-                [
-                    cos_in_degrees(launch_angle)
-                    * sin_in_degrees(launch_direction_angle),
-                    cos_in_degrees(launch_angle)
-                    * cos_in_degrees(launch_direction_angle),
-                    sin_in_degrees(launch_angle),
-                ]
-            )
+            * unit_vector(launch_angle, launch_direction_angle)
         )
 
         initial_conditions = np.concatenate(
@@ -192,33 +187,7 @@ class BattedBallTrajectory:
         _, _, _, vx, vy, vz = trajectory_vars
         v = np.sqrt(vx ** 2 + vy ** 2 + vz ** 2)
 
-        sidespin = spin * sin_in_degrees(spin_angle)
-        backspin = spin * cos_in_degrees(spin_angle)
-
-        wb = backspin
-        ws = sidespin
-
-        wx = (
-            (
-                wb * cos_in_degrees(launch_direction_angle)
-                - ws
-                * sin_in_degrees(launch_angle)
-                * sin_in_degrees(launch_direction_angle)
-            )
-            * np.pi
-            / 30
-        )
-        wy = (
-            (
-                -wb * sin_in_degrees(launch_direction_angle)
-                - ws
-                * sin_in_degrees(launch_angle)
-                * cos_in_degrees(launch_direction_angle)
-            )
-            * np.pi
-            / 30
-        )
-        wz = ws * cos_in_degrees(launch_angle) * np.pi / 30
+        wx, wy, wz = spin_components(spin, spin_angle, launch_angle, launch_direction_angle)
 
         cd = self.cd_fun(t, v, spin)
         cl = self.cl_fun(t, v, spin)

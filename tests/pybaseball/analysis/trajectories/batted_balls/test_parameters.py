@@ -1,7 +1,5 @@
 from attr.exceptions import FrozenInstanceError
-from pybaseball.analysis.trajectories.batted_balls.parameters import (
-    BattedBallConstants,
-)
+from pybaseball.analysis.trajectories.batted_balls.parameters import BattedBallConstants
 import pytest
 
 

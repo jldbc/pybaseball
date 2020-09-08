@@ -1,6 +1,10 @@
+import numpy as np
 from pybaseball.analysis.trajectories import BattedBallTrajectory
-from pybaseball.analysis.trajectories.utils import sin_in_degrees
 import pytest
+
+
+def sin_in_degrees(angle):
+    return np.sin(np.deg2rad(angle))
 
 
 def test_batted_ball_init():
