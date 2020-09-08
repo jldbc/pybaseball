@@ -1,3 +1,6 @@
+# Ignore examples
 EXAMPLES/* linguist-vendored
-*.csv linguist-vendored # Ignore supporting data files
-*.html linguist-vendored # Ignore supporting html files
+
+# Ignore supporting data files
+*.csv linguist-vendored
+*.html linguist-vendored
