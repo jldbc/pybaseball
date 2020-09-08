@@ -39,7 +39,7 @@ def spin_components(
 @lru_cache(maxsize=64)
 def unit_vector(elevation_angle: float, azimuthal_angle: float) -> np.array:
     """
-    Returns a 3-dimensional unit vector given the polar and azimuthal angles.
+    Returns a 3-dimensional unit vector given the elevation and azimuthal angles.
     The angles must be specified in degrees.
 
     :param elevation_angle:

@@ -20,7 +20,7 @@ def test_spin_components(
 
 @pytest.mark.parametrize(
     "elevation_angle, azimuthal_angle",
-    [(1, 1), (2, 2), (2.71828, 3.1419), (-10, 10), (1e3, 1e-3)],
+    [(1, 1), (2, 2), (2.71828, 3.14159), (-10, 10), (1e3, 1e-3)],
 )
 def test_unit_vector(elevation_angle, azimuthal_angle):
     velocity_unit_vector = unit_vector(elevation_angle, azimuthal_angle)
