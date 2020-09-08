@@ -39,8 +39,6 @@ class TestBattingLeaders:
 
         batting_stats_result = batting_stats(season).reset_index(drop=True)
 
-        assert batting_stats_result['Dol'][8] == sample_processed_result['Dol'][8]
-
         pd.testing.assert_frame_equal(batting_stats_result, sample_processed_result)
 
     def test_column_mapper(self):
