@@ -4,6 +4,7 @@ import datetime
 import io
 import zipfile
 
+NULLABLE_INT = pd.Int32Dtype()
 
 # dictionary containing team abbreviations and their first year in existance
 first_season_map = {'ALT': 1884, 'ANA': 1997, 'ARI': 1998, 'ATH': 1871,
