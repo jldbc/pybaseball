@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import Dict, List, Union
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
@@ -98,9 +98,6 @@ def convert_percentages(data: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
     return data
 
 
-
-
-
 def compute_pa(bat_df: pd.DataFrame) -> pd.Series:
     """
     Computes PA, using AB, HBP, SH, and SF. If any of those columns are null,
@@ -151,3 +148,21 @@ def augment_lahman_pitching(stats_df: pd.DataFrame) -> pd.DataFrame:
 
 def aggregate_by_season(stats_df):
     return stats_df.groupby(["playerID", "yearID"]).sum().reset_index()
+
+def check_is_zero_one(instance, attribute, value):
+    if value not in [0, 1]:
+        raise ValueError(f"{attribute} must be either 0 or 1, not {value}")
+
+
+def check_greater_zero(instance, attribute, value):
+    if value <= 0:
+        raise ValueError(
+            f"{attribute} must be greater than zero, not {value}"
+        )
+
+
+def check_between_zero_one(instance, attribute, value):
+    if not 0 <= value <= 1:
+        raise ValueError(
+            f"{attribute} must be between zero and one, not {value}"
+        )
