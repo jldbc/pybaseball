@@ -1,9 +1,6 @@
 import numpy as np
 from functools import lru_cache
-from pybaseball.analysis.trajectories.unit_conversions import (
-    RPM_TO_RAD_SEC,
-)
-
+from pybaseball.analysis.trajectories.unit_conversions import RPM_TO_RAD_SEC
 
 @lru_cache(maxsize=64)
 def spin_components(
