@@ -1,5 +1,4 @@
-import sys
-from enum import Enum
+from enum import Enum, unique
 from typing import Callable, List, Optional, Union
 
 import lxml
@@ -8,6 +7,7 @@ import requests
 
 from pybaseball.datahelpers import postprocessing
 from pybaseball.datasources.html_table import HTMLTable
+from pybaseball.enums.fangraphs import batting_stats, fielding_stats, pitching_stats
 
 _ROOT_URL = 'https://www.fangraphs.com'
 _TABLE_XPATH = '//table[@class="rgMasterTable"]'
@@ -33,12 +33,14 @@ _FG_TEAM_PITCHING_URL = "/leaders.aspx?pos=all&stats=pit&lg={league}&qual=0&type
 MIN_AGE = 0
 MAX_AGE = 100
 
+@unique
 class FanGraphsLeague(Enum):
     ALL = 'all'
     AL  = 'al'
     FL  = 'fl'
     NL  = 'nl'
 
+@unique
 class FanGraphsMonth(Enum):
     ALL               = 0
     MARCH_APRIL       = 4
@@ -48,6 +50,7 @@ class FanGraphsMonth(Enum):
     AUGUST            = 8
     SEPTEMBER_OCTOBER = 9
 
+@unique
 class FanGraphsPositions(Enum):
     ALL               = 'all'
     PITCHER           = 'p'
@@ -62,8 +65,8 @@ class FanGraphsPositions(Enum):
     OUT_FIELD         = 'of'
     DESIGNATED_HITTER = 'dh'
     NO_POSITION       = 'np'
-
-
+ 
+@unique
 class FanGraphsStatTypes(Enum):
     BATTING  = 'bat'
     FIELDING = 'fld'
@@ -84,7 +87,7 @@ class FanGraphs(HTMLTable):
                  month: FanGraphsMonth = FanGraphsMonth.ALL, on_active_roster: bool = False,
                  minimum_age: int = MIN_AGE, maximum_age: int = MAX_AGE, team: str = '', _filter: str = '',
                  players: str = '', position: FanGraphsPositions = FanGraphsPositions.ALL,
-                 max_results: int = sys.maxsize, column_name_mapper: Callable = None,
+                 max_results: int = 1000000, column_name_mapper: Callable = None,
                  known_percentages: List[str] = []) -> pd.DataFrame:
         """
         Get leaderboard data from FanGraphs.
@@ -114,7 +117,7 @@ class FanGraphs(HTMLTable):
         position           : FanGraphsPositions : Position to filter data by.
                                                   Default = FanGraphsPositions.ALL
         max_results        : int                : The maximum number of results to return.
-                                                  Default = sys.maxsize (In effect, all results)
+                                                  Default = 1000000 (In effect, all results)
         column_name_mapper : Callable           : A function to pass to get_tabular_data_from_url to map column names.
                                                   Default = None
         known_percentages  : List[str]          : A list of columns that are known to be percentages that the default
@@ -124,7 +127,7 @@ class FanGraphs(HTMLTable):
         if start_season is None:
             raise ValueError(
                 "You need to provide at least one season to collect data for. " +
-                "Try batting_leaders(season) or batting_leaders(start_season, end_season)."
+                "Try specifying start_season or start_season and end_season."
             )
         if end_season is None:
             end_season = start_season
@@ -133,7 +136,7 @@ class FanGraphs(HTMLTable):
             {
                 'pos': position.value,
                 'stats': stats.value,
-                'league': league.value,
+                'lg': league.value,
                 'qual': qual if qual is not None else 'y',
                 'type': types,
                 'season': end_season,
@@ -191,7 +194,7 @@ class FanGraphs(HTMLTable):
         fg_data = self._leaders(
             start_season,
             stats=FanGraphsStatTypes.BATTING,
-            types=_FG_BATTING_LEADERS_TYPES,
+            types=batting_stats.FanGraphsBattingStat.ALL(),
             end_season=end_season,
             league=league,
             qual=qual,
@@ -207,39 +210,48 @@ class FanGraphs(HTMLTable):
 
         return fg_data.sort_values(['WAR', 'OPS'], ascending=False)
 
-    def pitching_stats(self, start_season: int, end_season: int = None, league: str = 'all', qual: Union[int, str] = 1,
-                       ind: int = 1) -> pd.DataFrame:
+    def pitching_stats(self, start_season: int, end_season: int = None, league: FanGraphsLeague = FanGraphsLeague.ALL,
+                      qual: Optional[int] = None, split_seasons: bool = True,
+                      month: FanGraphsMonth = FanGraphsMonth.ALL, on_active_roster: bool = False,
+                      minimum_age: int = MIN_AGE, maximum_age: int = MAX_AGE) -> pd.DataFrame:
         """
         Get season-level pitching data from FanGraphs.
 
         ARGUMENTS:
-        start_season : int      : first season you want data for
-                                  (or the only season if you do not specify an end_season)
-        end_season   : int      : final season you want data for
-        league       : str      : "all", "nl", or "al"
-        qual         : int, str : minimum number of pitches thrown to be included in the data (integer).
-                                  Use the string 'y' for fangraphs default.
-        ind          : int      : 1 if you want individual season-level data
-                                  0 if you want a player's aggreagate data over all seasons in the query
+        start_season     : int                : First season to return data for
+        end_season       : int                : Last season to return data for
+                                                Default = start_season
+        league           : FanGraphsLeague    : League to return data for: ALL, AL, FL, NL
+                                                Default = FanGraphsLeague.ALL
+        qual             : Optional[int]      : Minimum number of plate appearances to be included.
+                                                If None is specified, the FanGraphs default ('y') is used.
+                                                Default = None
+        split_seasons    : bool               : True if you want individual season-level data
+                                                False if you want aggregate data over all seasons.
+                                                Default = False
+        month            : FanGraphsMonth     : Month to filter data by. FanGraphsMonth.ALL to not filter by month.
+                                                Default = FanGraphsMonth.ALL
+        on_active_roster : bool               : Only include active roster players.
+                                                Default = False
+        minimum_age      : int                : Minimum player age.
+                                                Default = 0
+        maximum_age      : int                : Maximum player age.
+                                                Default = 100
         """
 
-        if start_season is None:
-            raise ValueError(
-                "You need to provide at least one season to collect data for. " +
-                "Try pitching_leaders(season) or pitching_leaders(start_season, end_season)."
-            )
-        if end_season is None:
-            end_season = start_season
-
-        data = self.get_tabular_data_from_url(
-            _FG_PITCHING_LEADERS_URL.format(
-                league=league,
-                qual=qual,
-                end_season=end_season,
-                start_season=start_season,
-                ind=ind,
-                types=_FG_PITCHING_LEADERS_TYPES
-            )
+        data = self._leaders(
+            start_season,
+            stats=FanGraphsStatTypes.PITCHING,
+            types=pitching_stats.FanGraphsPitchingStat.ALL(),
+            end_season=end_season,
+            league=league,
+            qual=qual,
+            split_seasons=split_seasons,
+            month=month,
+            on_active_roster=on_active_roster,
+            minimum_age=minimum_age,
+            maximum_age=maximum_age,
+            column_name_mapper=GenericColumnMapper().map
         )
 
         # Sort by WAR and wins so best players float to the top
@@ -247,6 +259,7 @@ class FanGraphs(HTMLTable):
 
         # Put WAR at the end because it looks better
         cols = data.columns.tolist()
+        print(cols)
         cols.insert(7, cols.pop(cols.index('WAR')))
         data = data.reindex(columns=cols)
 
@@ -331,6 +344,19 @@ class FanGraphs(HTMLTable):
         )
 
         return fg_data
+
+class GenericColumnMapper:
+    def __init__(self):
+        self.call_counts = {}
+
+    def map(self, column_name: str) -> str:
+        self.call_counts[column_name] = self.call_counts.get(column_name, 0) + 1
+        # First time around use the actual column name
+        if self.call_counts[column_name] == 1:
+            return column_name
+
+        # Just tack on a number for other calls
+        return column_name + " " + str(self.call_counts[column_name])
 
 
 class BattingStatsColumnMapper:

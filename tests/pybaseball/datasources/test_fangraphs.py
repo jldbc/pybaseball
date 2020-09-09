@@ -17,6 +17,7 @@ from pybaseball.datasources.fangraphs import (_FG_BATTING_LEADERS_TYPES,
                                               BattingStatsColumnMapper,
                                               FanGraphs)
 
+from pybaseball.enums.fangraphs import batting_stats, fielding_stats, pitching_stats
 
 @pytest.fixture()
 def sample_html():
@@ -135,9 +136,9 @@ class TestDatasourceFangraphs:
             {
                 'pos': 'all',
                 'stats': 'bat',
-                'league': 'all',
+                'lg': 'all',
                 'qual': 'y',
-                'type': _FG_BATTING_LEADERS_TYPES,
+                'type': batting_stats.FanGraphsBattingStat.ALL(),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -147,7 +148,7 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
-                'page': f'1_{sys.maxsize}'
+                'page': f'1_1000000'
             }
         )
 
@@ -161,13 +162,24 @@ class TestDatasourceFangraphs:
                             test_pitching_stats_result: pd.DataFrame):
         season = 2019
 
-        expected_url = _FG_PITCHING_LEADERS_URL.format(
-            start_season=season,
-            end_season=season,
-            league='all',
-            qual=1,
-            ind=1,
-            types=_FG_PITCHING_LEADERS_TYPES
+        expected_url = FanGraphs()._create_url(_FG_LEADERS_URL,
+            {
+                'pos': 'all',
+                'stats': 'pit',
+                'lg': 'all',
+                'qual': 'y',
+                'type': pitching_stats.FanGraphsPitchingStat.ALL(),
+                'season': season,
+                'month': 0,
+                'season1': season,
+                'ind': '1',
+                'team': '',
+                'rost': '0',
+                'age': f"{MIN_AGE},{MAX_AGE}",
+                'filter': '',
+                'players': '',
+                'page': f'1_1000000'
+            }
         )
 
         response_get_monkeypatch(test_pitching_stats_html, expected_url)

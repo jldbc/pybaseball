@@ -20,16 +20,7 @@ def _sample_processed_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
 def test_pitching_stats(response_get_monkeypatch: Callable, sample_html: str, sample_processed_result: pd.DataFrame):
     season = 2019
 
-    expected_url = _FG_PITCHING_LEADERS_URL.format(
-        start_season=season,
-        end_season=season,
-        league='all',
-        qual=1,
-        ind=1,
-        types=_FG_PITCHING_LEADERS_TYPES
-    )
-
-    response_get_monkeypatch(sample_html, expected_url)
+    response_get_monkeypatch(sample_html)
 
     with pytest.warns(DeprecationWarning):
         pitching_stats_result = pitching_stats(season).reset_index(drop=True)

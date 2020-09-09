@@ -20,7 +20,7 @@ class HTMLTable:
         if query_string_params and isinstance(query_string_params, dict):
             query_string = "?" + "&".join([f"{key}={value}" for key, value in query_string_params.items()])
 
-        return self.root_url + url_base + query_string
+        return url_base + query_string
 
     def get_tabular_data_from_html(self, html: Union[str, bytes], column_name_mapper: Callable = None, known_percentages: List[str] = []) -> pd.DataFrame:
         html_dom = lxml.etree.HTML(html)
@@ -46,10 +46,13 @@ class HTMLTable:
 
     def get_tabular_data_from_url(self, url: str, column_name_mapper: Callable = None,
                                 known_percentages: List[str] = []) -> pd.DataFrame:
-        content = requests.get(self.root_url + url).content
+        response = requests.get(self.root_url + url)
+
+        if response.status_code > 399:
+            raise requests.exceptions.HTTPError(f"Error accessing '{self.root_url + url}'. Received status code {response.status_code}")
 
         return self.get_tabular_data_from_html(
-            content,
+            response.content,
             column_name_mapper=column_name_mapper,
             known_percentages=known_percentages
         )
