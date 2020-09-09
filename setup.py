@@ -80,7 +80,8 @@ setup(
                       'requests>=2.18.1',
                       'lxml>=4.2.1',
                       'pygithub>=1.51',
-                      'altair'
+                      'altair',
+                      'scipy>=1.4.0'
                       ],
 
     # List additional groups of dependencies here (e.g. development
