@@ -1,7 +1,7 @@
 import numpy as np
 from functools import lru_cache
 from pybaseball.analysis.trajectories.unit_conversions import (
-    REVS_PER_MINUTE_TO_RADIANS_PER_SECOND,
+    RPM_TO_RAD_SEC,
 )
 
 
@@ -22,21 +22,22 @@ def spin_components(
     launch_angle_in_radians = np.deg2rad(launch_angle)
     launch_direction_angle_in_radians = np.deg2rad(launch_direction_angle)
 
-    sidespin = spin * np.sin(spin_angle_in_radians)
-    backspin = spin * np.cos(spin_angle_in_radians)
+    spin_rad_sec = spin * RPM_TO_RAD_SEC
+    sidespin = spin_rad_sec * np.sin(spin_angle_in_radians)
+    backspin = spin_rad_sec * np.cos(spin_angle_in_radians)
 
     wx = (
         backspin * np.cos(launch_direction_angle_in_radians)
         - sidespin * np.sin(launch_angle_in_radians) * np.sin(launch_direction_angle_in_radians)
-    ) * REVS_PER_MINUTE_TO_RADIANS_PER_SECOND
+    )
     wy = (
         - backspin * np.sin(launch_direction_angle_in_radians)
         - sidespin * np.sin(launch_angle_in_radians) * np.cos(launch_direction_angle_in_radians)
-    ) * REVS_PER_MINUTE_TO_RADIANS_PER_SECOND
-    wz = sidespin * np.cos(launch_angle_in_radians) * REVS_PER_MINUTE_TO_RADIANS_PER_SECOND
+    )
+    wz = sidespin * np.cos(launch_angle_in_radians)
     return np.array((wx, wy, wz))
 
-@lru_cache(maxsize=64)
+
 def unit_vector(elevation_angle: float, azimuthal_angle: float) -> np.array:
     """
     Returns a 3-dimensional unit vector given the elevation and azimuthal angles.

@@ -6,7 +6,7 @@ import pandas as pd
 from pybaseball.datahelpers.postprocessing import check_between_zero_one
 from pybaseball.analysis.trajectories.utils import unit_vector, spin_components
 from pybaseball.analysis.trajectories.unit_conversions import (
-    REVS_PER_MINUTE_TO_RADIANS_PER_SECOND,
+    RPM_TO_RAD_SEC,
 )
 from .parameters import (
     BattedBallConstants,
@@ -39,7 +39,7 @@ class BattedBallTrajectory:
 
     def __attrs_post_init__(self):
         self.initial_position = np.array((self.x0, self.y0, self.z0))
-        self.pi_30 = REVS_PER_MINUTE_TO_RADIANS_PER_SECOND
+        self.pi_30 = RPM_TO_RAD_SEC
         self.c0 = (
             0.07182
             * self.env_parameters.air_density
