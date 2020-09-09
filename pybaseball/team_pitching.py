@@ -1,10 +1,10 @@
+import warnings
+
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
 import pybaseball.datasources.fangraphs as fangraphs
-
-_FG_TEAM_PITCHING_URL = "/leaders.aspx?pos=all&stats=pit&lg={league}&qual=0&type=c,4,5,11,7,8,13,-1,24,36,37,40,43,44,48,51,-1,6,45,62,-1,59&season={end_season}&month=0&season1={start_season}&ind={ind}&team=0,ts&rost=0&age=0&filter=&players=0&page=1_100000"
 
 
 def team_pitching(start_season: int, end_season: int = None, league: str = 'all', ind: int = 1):
@@ -18,18 +18,10 @@ def team_pitching(start_season: int, end_season: int = None, league: str = 'all'
     ind             : int : 1 if you want individual season level data
                             0 if you want a team'ss aggreagate data over all seasons in the query
     """
-    if start_season is None:
-        raise ValueError(
-            "You need to provide at least one season to collect data for. Try team_pitching(season) or team_pitching(start_season, end_season)."
-        )
-    if end_season is None:
-        end_season = start_season
+    
+    warnings.warn("team_pitching is deprecated in favor of FanGraphs().team_pitching", DeprecationWarning)
 
-    fg_data = fangraphs.get_fangraphs_tabular_data_from_url(
-        _FG_TEAM_PITCHING_URL.format(start_season=start_season, end_season=end_season, league=league, ind=ind)
-    )
-
-    return fg_data
+    return fangraphs.FanGraphs().team_pitching(start_season, end_season=end_season, league=league, ind=ind)
 
 def team_pitching_bref(team, start_season, end_season=None):
     """

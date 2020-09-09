@@ -1,11 +1,10 @@
 import pandas as pd
 from bs4 import BeautifulSoup, Comment
 import requests
+import warnings
 
 from pybaseball.datasources import fangraphs
 from pybaseball.datahelpers import postprocessing
-
-_FG_TEAM_FIELDING_URL = "/leaders.aspx?pos=all&stats=fld&lg={league}&qual=0&type=1&season={end_season}&month=0&season1={start_season}&ind={ind}&team=0,ts&rost=0&age=0&filter=&players=0&startdate=&enddate=&page=1_100000"
 
 
 def team_fielding(start_season: int, end_season: int = None, league: str = 'all', ind: int = 1):
@@ -20,19 +19,9 @@ def team_fielding(start_season: int, end_season: int = None, league: str = 'all'
                             0 if you want a team's aggregate data over all seasons in the query
     """
 
-    if start_season is None:
-        raise ValueError(
-            "You need to provide at least one season to collect data for. " +
-            "Try team_fielding(season) or team_fielding(start_season, end_season)."
-        )
-    if end_season is None:
-        end_season = start_season
+    warnings.warn("team_fielding is deprecated in favor of FanGraphs().team_fielding", DeprecationWarning)
 
-    fg_data = fangraphs.get_fangraphs_tabular_data_from_url(
-        _FG_TEAM_FIELDING_URL.format(start_season=start_season, end_season=end_season, league=league, ind=ind)
-    )
-
-    return fg_data
+    return fangraphs.FanGraphs().team_fielding(start_season, end_season=end_season, league=league, ind=ind)
 
 
 def team_fielding_bref(team, start_season, end_season=None):
