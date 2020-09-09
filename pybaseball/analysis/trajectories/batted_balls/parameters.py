@@ -55,8 +55,8 @@ class EnvironmentalParameters:
         )
 
         self.air_density = 1.2929 * (
-            273
-            / (self.temperature_c + 273)
+            273.15
+            / (self.temperature_c + 273.15)
             * (
                 self.pressure_mm_hg * np.exp(-self.beta * self.elevation_m)
                 - 0.3783 * self.relative_humidity * self.SVP * 0.01
