@@ -47,6 +47,12 @@ class TestPostProcessing:
     def test_try_parse_percentage_column(self):
         assert postprocessing.try_parse('50', 'CS%') == 0.5
 
+    def test_try_parse_percentage_column_known(self):
+        assert postprocessing.try_parse('50', 'CS', known_percentages=['CS']) == 0.5
+
+    def test_try_parse_null(self):
+        assert pd.isna(postprocessing.try_parse(None, 'runs'))
+
     def test_try_parse_dataframe(self):
         raw_data = pd.DataFrame(
             [
