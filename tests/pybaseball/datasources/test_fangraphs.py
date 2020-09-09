@@ -1,3 +1,4 @@
+import sys
 from typing import Callable
 
 import numpy as np
@@ -5,13 +6,14 @@ import pandas as pd
 import pytest
 
 from pybaseball.datasources.fangraphs import (_FG_BATTING_LEADERS_TYPES,
-                                              _FG_BATTING_LEADERS_URL,
+                                              _FG_LEADERS_URL,
                                               _FG_PITCHING_LEADERS_TYPES,
                                               _FG_PITCHING_LEADERS_URL,
                                               _FG_TEAM_BATTING_URL,
                                               _FG_TEAM_FIELDING_URL,
-                                              _FG_TEAM_PITCHING_URL,
                                               _FG_TEAM_PITCHING_TYPES,
+                                              _FG_TEAM_PITCHING_URL, MAX_AGE,
+                                              MIN_AGE,
                                               BattingStatsColumnMapper,
                                               FanGraphs)
 
@@ -129,13 +131,24 @@ class TestDatasourceFangraphs:
                            test_batting_stats_result: pd.DataFrame):
         season = 2019
 
-        expected_url = _FG_BATTING_LEADERS_URL.format(
-            start_season=season,
-            end_season=season,
-            league='all',
-            qual=1,
-            ind=1,
-            types=_FG_BATTING_LEADERS_TYPES
+        expected_url = FanGraphs()._create_url(_FG_LEADERS_URL,
+            {
+                'pos': 'all',
+                'stats': 'bat',
+                'league': 'all',
+                'qual': 'y',
+                'type': _FG_BATTING_LEADERS_TYPES,
+                'season': season,
+                'month': 0,
+                'season1': season,
+                'ind': '1',
+                'team': '',
+                'rost': '0',
+                'age': f"{MIN_AGE},{MAX_AGE}",
+                'filter': '',
+                'players': '',
+                'page': f'1_{sys.maxsize}'
+            }
         )
 
         response_get_monkeypatch(test_batting_stats_html, expected_url)

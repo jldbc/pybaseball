@@ -2,7 +2,7 @@ import warnings
 
 import pandas as pd
 
-import pybaseball.datasources.fangraphs as fangraphs
+from pybaseball.datasources.fangraphs import FanGraphs, FanGraphsLeague
 
 
 def batting_stats(start_season: int, end_season: int = None, league: str = 'all', qual: int = 1,
@@ -23,4 +23,10 @@ def batting_stats(start_season: int, end_season: int = None, league: str = 'all'
 
     warnings.warn("batting_stats is deprecated in favor of FanGraphs().batting_stats", DeprecationWarning)
 
-    return fangraphs.FanGraphs().batting_stats(start_season, end_season=end_season, league=league, qual=qual, ind=ind)
+    return FanGraphs().batting_stats(
+        start_season,
+        end_season=end_season,
+        league=FanGraphsLeague(league),
+        qual=qual,
+        split_seasons=(ind=='1')
+    )

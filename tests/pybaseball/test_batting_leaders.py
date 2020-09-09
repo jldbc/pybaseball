@@ -5,7 +5,6 @@ import pytest
 import requests
 
 from pybaseball.batting_leaders import batting_stats
-from pybaseball.datasources.fangraphs import _FG_BATTING_LEADERS_TYPES, _FG_BATTING_LEADERS_URL
 
 
 @pytest.fixture(name="sample_html")
@@ -22,16 +21,7 @@ def test_batting_stats(response_get_monkeypatch: Callable, sample_html: str,
                         sample_processed_result: pd.DataFrame):
     season = 2019
 
-    expected_url = _FG_BATTING_LEADERS_URL.format(
-        start_season=season,
-        end_season=season,
-        league='all',
-        qual=1,
-        ind=1,
-        types=_FG_BATTING_LEADERS_TYPES
-    )
-
-    response_get_monkeypatch(sample_html, expected_url)
+    response_get_monkeypatch(sample_html)
 
     with pytest.warns(DeprecationWarning):
         batting_stats_result = batting_stats(season).reset_index(drop=True)

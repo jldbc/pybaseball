@@ -1,4 +1,4 @@
-from typing import Callable, List, Union
+from typing import Callable, Dict, List, Union
 
 import lxml
 import pandas as pd
@@ -13,6 +13,14 @@ class HTMLTable:
         self.headings_xpath = headings_xpath
         self.data_rows_xpath = data_rows_xpath
         self.data_cell_xpath = data_cell_xpath
+
+    def _create_url(self, url_base: str, query_string_params: Dict[str, Union[str, int]] = {}):
+        query_string = ''
+
+        if query_string_params and isinstance(query_string_params, dict):
+            query_string = "?" + "&".join([f"{key}={value}" for key, value in query_string_params.items()])
+
+        return self.root_url + url_base + query_string
 
     def get_tabular_data_from_html(self, html: Union[str, bytes], column_name_mapper: Callable = None, known_percentages: List[str] = []) -> pd.DataFrame:
         html_dom = lxml.etree.HTML(html)
