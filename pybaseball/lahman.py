@@ -1,199 +1,141 @@
-import requests
-import zipfile
 import os
+import zipfile
+from io import BytesIO
+from typing import Optional, Union, Tuple, IO
+
 import pandas as pd
-from io import BytesIO, StringIO
-from bs4 import BeautifulSoup
+import requests
 
-url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
-base_string = os.path.join("baseballdatabank-master","core")
+_lahman_url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
 
-_handle = None
-def get_lahman_zip():
+def get_base_string(separator: str = os.sep) -> str:
+    return separator.join(["baseballdatabank-master", "core"])
+
+def get_file_name(separator: str, filename: str) -> str:
+    return separator.join([get_base_string(separator), filename])
+
+
+def _read_lahman_data_file(filename: str, header: int = 0, sep: str = ',', quotechar: str = "'") -> pd.DataFrame:
+    (z, separator) = get_lahman_zip()
+    filepath = get_file_name(separator, filename)
+    _file_handle: Optional[Union[str, IO[bytes]]] = None
+    if z is not None:
+        _file_handle = z.open(filepath)
+    elif not os.path.exists(filepath):
+        # If we have the files locally, but ours is missing, then use the remote
+        (z, separator) = get_lahman_zip(force_remote=True)
+        filepath = get_file_name(separator, filename)
+        # We should have a handle now, else fail
+        assert z is not None
+        _file_handle = z.open(filepath)
+    else:
+        _file_handle = filepath
+
+    return pd.read_csv(_file_handle, header=header, sep=sep, quotechar=quotechar)
+
+def get_lahman_zip(force_remote: bool = False) -> Tuple[Optional[zipfile.ZipFile], str]:
     # Retrieve the Lahman database zip file, returns None if file already exists in cwd.
     # If we already have the zip file, keep re-using that.
     # Making this a function since everything else will be re-using these lines
-    global _handle
-    if os.path.exists(base_string):
-        _handle = None
-    elif not _handle:
-        s = requests.get(url, stream=True)
-        _handle = zipfile.ZipFile(BytesIO(s.content))
-    return _handle
+    if os.path.exists(get_base_string()) and not force_remote:
+        handle = None
+        separator = os.sep
+    else:
+        s = requests.get(_lahman_url, stream=True)
+        handle = zipfile.ZipFile(BytesIO(s.content))
+        separator = '/' # File separator inside the zip is always / regardless of os
+    return (handle, separator)
 
-def download_lahman():
-	# download entire lahman db to present working directory
-	z = get_lahman_zip()
-	if z is not None:
-		z.extractall()
-		z = get_lahman_zip()
-		# this way we'll now start using the extracted zip directory
-		# instead of the session ZipFile object
+def download_lahman() -> Tuple[Optional[zipfile.ZipFile], str]:
+    # Download entire lahman db to present working directory
+    (z, separator) = get_lahman_zip()
+    if z is not None:
+        z.extractall()
+        return get_lahman_zip()
+    return (z, separator)
 
-def parks():
-	# do this for every table in the lahman db so they can exist as separate functions
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "Parks.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+def parks() -> pd.DataFrame:
+    return _read_lahman_data_file("Parks.csv")
 
 def all_star_full():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "AllstarFull.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("AllstarFull.csv")
 
 def appearances():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "Appearances.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("Appearances.csv")
 
 def awards_managers():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "AwardsManagers.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("AwardsManagers.csv")
 
 def awards_players():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "AwardsPlayers.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("AwardsPlayers.csv")
 
 def awards_share_managers():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "AwardsShareManagers.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("AwardsShareManagers.csv")
 
 def awards_share_players():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "AwardsSharePlayers.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("AwardsSharePlayers.csv")
 
 def batting():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "Batting.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("Batting.csv")
 
 def batting_post():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "BattingPost.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("BattingPost.csv")
 
 def college_playing():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "CollegePlaying.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("CollegePlaying.csv")
 
 def fielding():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "Fielding.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("Fielding.csv")
 
 def fielding_of():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "FieldingOF.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("FieldingOF.csv")
 
 def fielding_of_split():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "FieldingOFsplit.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("FieldingOFsplit.csv")
 
 def fielding_post():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "FieldingPost.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("FieldingPost.csv")
 
 def hall_of_fame():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "HallOfFame.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("HallOfFame.csv")
 
 def home_games():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "HomeGames.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("HomeGames.csv")
 
 def managers():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "Managers.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("Managers.csv")
 
 def managers_half():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "ManagersHalf.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("ManagersHalf.csv")
 
 # Alias for people -- the new name for master
 def master():
-	return people()
+    return people()
 
 def people():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "People.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("People.csv")
 
 def pitching():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "Pitching.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("Pitching.csv")
 
 def pitching_post():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "PitchingPost.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("PitchingPost.csv")
 
 def salaries():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "Salaries.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("Salaries.csv")
 
 def schools():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "Schools.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar='"') # different here bc of doublequotes used in some school names
-	return data
+    # Different quotechar here bc of doublequotes used in some school names
+    return _read_lahman_data_file("Schools.csv", quotechar='"')
 
 def series_post():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "SeriesPost.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data 
+    return _read_lahman_data_file("SeriesPost.csv")
 
 def teams():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "Teams.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("Teams.csv")
 
 def teams_franchises():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "TeamsFranchises.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
+    return _read_lahman_data_file("TeamsFranchises.csv")
 
 def teams_half():
-	z = get_lahman_zip()
-	f = os.path.join(base_string, "TeamsHalf.csv")
-	data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar="'")
-	return data
-
+    return _read_lahman_data_file("TeamsHalf.csv")
