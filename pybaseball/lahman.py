@@ -23,7 +23,7 @@ def get_lahman_zip():
     elif not _handle:
         s = requests.get(url, stream=True)
         _handle = zipfile.ZipFile(BytesIO(s.content))
-        _separator = '/'
+        _separator = '/' # Internal zip file separator is / regardless of os
     return _handle
 
 def download_lahman():
