@@ -209,7 +209,6 @@ class FanGraphs(HTMLTable):
 
         # Put WAR at the end because it looks better
         cols = data.columns.tolist()
-        print(cols)
         cols.insert(7, cols.pop(cols.index('WAR')))
         data = data.reindex(columns=cols)
 
