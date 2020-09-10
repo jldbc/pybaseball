@@ -57,85 +57,85 @@ def download_lahman() -> Tuple[Optional[zipfile.ZipFile], str]:
 def parks() -> pd.DataFrame:
     return _read_lahman_data_file("Parks.csv")
 
-def all_star_full():
+def all_star_full() -> pd.DataFrame:
     return _read_lahman_data_file("AllstarFull.csv")
 
-def appearances():
+def appearances() -> pd.DataFrame:
     return _read_lahman_data_file("Appearances.csv")
 
-def awards_managers():
+def awards_managers() -> pd.DataFrame:
     return _read_lahman_data_file("AwardsManagers.csv")
 
-def awards_players():
+def awards_players() -> pd.DataFrame:
     return _read_lahman_data_file("AwardsPlayers.csv")
 
-def awards_share_managers():
+def awards_share_managers() -> pd.DataFrame:
     return _read_lahman_data_file("AwardsShareManagers.csv")
 
-def awards_share_players():
+def awards_share_players() -> pd.DataFrame:
     return _read_lahman_data_file("AwardsSharePlayers.csv")
 
-def batting():
+def batting() -> pd.DataFrame:
     return _read_lahman_data_file("Batting.csv")
 
-def batting_post():
+def batting_post() -> pd.DataFrame:
     return _read_lahman_data_file("BattingPost.csv")
 
-def college_playing():
+def college_playing() -> pd.DataFrame:
     return _read_lahman_data_file("CollegePlaying.csv")
 
-def fielding():
+def fielding() -> pd.DataFrame:
     return _read_lahman_data_file("Fielding.csv")
 
-def fielding_of():
+def fielding_of() -> pd.DataFrame:
     return _read_lahman_data_file("FieldingOF.csv")
 
-def fielding_of_split():
+def fielding_of_split() -> pd.DataFrame:
     return _read_lahman_data_file("FieldingOFsplit.csv")
 
-def fielding_post():
+def fielding_post() -> pd.DataFrame:
     return _read_lahman_data_file("FieldingPost.csv")
 
-def hall_of_fame():
+def hall_of_fame() -> pd.DataFrame:
     return _read_lahman_data_file("HallOfFame.csv")
 
-def home_games():
+def home_games() -> pd.DataFrame:
     return _read_lahman_data_file("HomeGames.csv")
 
-def managers():
+def managers() -> pd.DataFrame:
     return _read_lahman_data_file("Managers.csv")
 
-def managers_half():
+def managers_half() -> pd.DataFrame:
     return _read_lahman_data_file("ManagersHalf.csv")
 
 # Alias for people -- the new name for master
-def master():
+def master() -> pd.DataFrame:
     return people()
 
-def people():
+def people() -> pd.DataFrame:
     return _read_lahman_data_file("People.csv")
 
-def pitching():
+def pitching() -> pd.DataFrame:
     return _read_lahman_data_file("Pitching.csv")
 
-def pitching_post():
+def pitching_post() -> pd.DataFrame:
     return _read_lahman_data_file("PitchingPost.csv")
 
-def salaries():
+def salaries() -> pd.DataFrame:
     return _read_lahman_data_file("Salaries.csv")
 
-def schools():
+def schools() -> pd.DataFrame:
     # Different quotechar here bc of doublequotes used in some school names
     return _read_lahman_data_file("Schools.csv", quotechar='"')
 
-def series_post():
+def series_post() -> pd.DataFrame:
     return _read_lahman_data_file("SeriesPost.csv")
 
-def teams():
+def teams() -> pd.DataFrame:
     return _read_lahman_data_file("Teams.csv")
 
-def teams_franchises():
+def teams_franchises() -> pd.DataFrame:
     return _read_lahman_data_file("TeamsFranchises.csv")
 
-def teams_half():
+def teams_half() -> pd.DataFrame:
     return _read_lahman_data_file("TeamsHalf.csv")
