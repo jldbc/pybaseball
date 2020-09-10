@@ -3,7 +3,6 @@ from typing import Callable
 import pandas as pd
 import pytest
 
-from pybaseball.datasources.fangraphs import _FG_PITCHING_LEADERS_TYPES, _FG_PITCHING_LEADERS_URL
 from pybaseball.pitching_leaders import pitching_stats
 
 

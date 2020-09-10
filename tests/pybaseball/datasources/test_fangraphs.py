@@ -5,11 +5,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pybaseball.datasources.fangraphs import (_FG_BATTING_LEADERS_TYPES,
-                                              _FG_LEADERS_URL,
-                                              _FG_PITCHING_LEADERS_TYPES,
-                                              _FG_PITCHING_LEADERS_URL,
-                                              _FG_TEAM_BATTING_URL,
+from pybaseball.datasources.fangraphs import (_FG_LEADERS_URL,
                                               _FG_TEAM_FIELDING_URL,
                                               _FG_TEAM_PITCHING_TYPES,
                                               _FG_TEAM_PITCHING_URL, MAX_AGE,
@@ -193,7 +189,25 @@ class TestDatasourceFangraphs:
                           test_team_batting_result: pd.DataFrame):
         season = 2019
 
-        expected_url = _FG_TEAM_BATTING_URL.format(start_season=season, end_season=season, league='all', ind=1)
+        expected_url = FanGraphs()._create_url(_FG_LEADERS_URL,
+            {
+                'pos': 'all',
+                'stats': 'bat',
+                'lg': 'all',
+                'qual': 'y',
+                'type': batting_stats.FanGraphsBattingStat.ALL(),
+                'season': season,
+                'month': 0,
+                'season1': season,
+                'ind': '1',
+                'team': '0,ts',
+                'rost': '0',
+                'age': f"{MIN_AGE},{MAX_AGE}",
+                'filter': '',
+                'players': '0',
+                'page': f'1_1000000'
+            }
+        )
 
         response_get_monkeypatch(test_team_batting_html, expected_url)
 

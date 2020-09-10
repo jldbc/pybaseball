@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-import pybaseball.datasources.fangraphs as fangraphs
+from pybaseball.datasources.fangraphs import FanGraphs, FanGraphsLeague
 
 
 def team_batting(start_season: int, end_season: int = None, league: str = 'all', ind: int = 1) -> pd.DataFrame:
@@ -21,7 +21,12 @@ def team_batting(start_season: int, end_season: int = None, league: str = 'all',
 
     warnings.warn("team_batting is deprecated in favor of FanGraphs().team_batting", DeprecationWarning)
 
-    return fangraphs.FanGraphs().team_batting(start_season, end_season=end_season, league=league, ind=ind)
+    return FanGraphs().team_batting(
+        start_season,
+        end_season=end_season,
+        league=FanGraphsLeague(league),
+        split_seasons=(ind==1)
+    )
 
 def team_batting_bref(team, start_season, end_season=None):
     """

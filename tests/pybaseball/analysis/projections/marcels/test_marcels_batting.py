@@ -1,6 +1,7 @@
-from pybaseball.analysis.projections.marcels import MarcelProjectionsBatting
-from pandas import DataFrame
 import pytest
+from pandas import DataFrame
+
+from pybaseball.analysis.projections.marcels import MarcelProjectionsBatting
 
 
 class TestMarcelBatting:

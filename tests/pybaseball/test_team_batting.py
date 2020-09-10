@@ -4,7 +4,6 @@ import pandas as pd
 import pytest
 import requests
 
-from pybaseball.datasources.fangraphs import _FG_TEAM_BATTING_URL
 from pybaseball.team_batting import team_batting
 
 
@@ -20,9 +19,7 @@ def _sample_processed_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
 def test_team_batting(response_get_monkeypatch: Callable, sample_html: str, sample_processed_result: pd.DataFrame):
     season = 2019
 
-    expected_url = _FG_TEAM_BATTING_URL.format(start_season=season, end_season=season, league='all', ind=1)
-
-    response_get_monkeypatch(sample_html, expected_url)
+    response_get_monkeypatch(sample_html)
 
     with pytest.warns(DeprecationWarning):
         team_batting_result = team_batting(season).reset_index(drop=True)
