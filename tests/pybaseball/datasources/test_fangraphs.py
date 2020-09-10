@@ -6,7 +6,6 @@ import pandas as pd
 import pytest
 
 from pybaseball.datasources.fangraphs import (_FG_LEADERS_URL,
-                                              _FG_TEAM_FIELDING_URL,
                                               _FG_TEAM_PITCHING_TYPES,
                                               _FG_TEAM_PITCHING_URL, MAX_AGE,
                                               MIN_AGE,
@@ -66,7 +65,6 @@ def sample_processed_result():
     ).reset_index(drop=True)
 
 
-
 @pytest.fixture(name="test_batting_stats_html")
 def _test_batting_stats_html(get_data_file_contents: Callable) -> str:
     return get_data_file_contents('batting_leaders.html')
@@ -96,7 +94,6 @@ def _test_team_batting_html(get_data_file_contents: Callable) -> str:
 def _test_team_batting_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('team_batting.csv')
 
-
     
 @pytest.fixture(name="test_team_fielding_html")
 def _test_team_fielding_html(get_data_file_contents: Callable) -> str:
@@ -107,6 +104,7 @@ def _test_team_fielding_html(get_data_file_contents: Callable) -> str:
 def _test_team_fielding_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('team_fielding.csv')
 
+
 @pytest.fixture(name="test_team_pitching_html")
 def _test_team_pitching_html(get_data_file_contents: Callable) -> str:
     return get_data_file_contents('team_pitching.html')
@@ -115,6 +113,7 @@ def _test_team_pitching_html(get_data_file_contents: Callable) -> str:
 @pytest.fixture(name="test_team_pitching_result")
 def _test_team_pitching_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('team_pitching.csv')
+
 
 class TestDatasourceFangraphs:
     def test_get_table(self, sample_html, sample_processed_result):
@@ -184,7 +183,6 @@ class TestDatasourceFangraphs:
 
         pd.testing.assert_frame_equal(pitching_stats_result, test_pitching_stats_result)
 
-    
     def test_team_batting(self, response_get_monkeypatch: Callable, test_team_batting_html: str,
                           test_team_batting_result: pd.DataFrame):
         season = 2019
@@ -220,8 +218,26 @@ class TestDatasourceFangraphs:
                            test_team_fielding_result: pd.DataFrame):
         season = 2019
 
-        expected_url = _FG_TEAM_FIELDING_URL.format(start_season=season, end_season=season, league='all', ind=1)
-        
+        expected_url = FanGraphs()._create_url(_FG_LEADERS_URL,
+            {
+                'pos': 'all',
+                'stats': 'fld',
+                'lg': 'all',
+                'qual': 'y',
+                'type': fielding_stats.FanGraphsFieldingStat.ALL(),
+                'season': season,
+                'month': 0,
+                'season1': season,
+                'ind': '1',
+                'team': '0,ts',
+                'rost': '0',
+                'age': f"{MIN_AGE},{MAX_AGE}",
+                'filter': '',
+                'players': '0',
+                'page': f'1_1000000'
+            }
+        )
+
         response_get_monkeypatch(test_team_fielding_html, expected_url)
 
         team_fielding_result = FanGraphs().team_fielding(season).reset_index(drop=True)

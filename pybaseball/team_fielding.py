@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup, Comment
 import requests
 import warnings
 
-from pybaseball.datasources import fangraphs
+from pybaseball.datasources.fangraphs import FanGraphs, FanGraphsLeague
 from pybaseball.datahelpers import postprocessing
 
 
@@ -21,7 +21,12 @@ def team_fielding(start_season: int, end_season: int = None, league: str = 'all'
 
     warnings.warn("team_fielding is deprecated in favor of FanGraphs().team_fielding", DeprecationWarning)
 
-    return fangraphs.FanGraphs().team_fielding(start_season, end_season=end_season, league=league, ind=ind)
+    return FanGraphs().team_fielding(
+        start_season,
+        end_season=end_season,
+        league=FanGraphsLeague(league),
+        split_seasons=(ind==1)
+    )
 
 
 def team_fielding_bref(team, start_season, end_season=None):

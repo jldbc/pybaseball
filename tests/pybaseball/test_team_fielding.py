@@ -4,7 +4,6 @@ import pandas as pd
 import pytest
 import requests
 
-from pybaseball.datasources.fangraphs import _FG_TEAM_FIELDING_URL
 from pybaseball.team_fielding import team_fielding
 
 
@@ -20,9 +19,7 @@ def sample_processed_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
 def test_team_fielding(response_get_monkeypatch: Callable, sample_html: str, sample_processed_result: pd.DataFrame):
     season = 2019
 
-    expected_url = _FG_TEAM_FIELDING_URL.format(start_season=season, end_season=season, league='all', ind=1)
-    
-    response_get_monkeypatch(sample_html, expected_url)
+    response_get_monkeypatch(sample_html)
 
     with pytest.warns(DeprecationWarning):
         team_fielding_result = team_fielding(season).reset_index(drop=True)
