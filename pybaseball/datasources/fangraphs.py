@@ -7,7 +7,10 @@ import requests
 
 from pybaseball.datahelpers import postprocessing
 from pybaseball.datasources.html_table import HTMLTable
-from pybaseball.enums.fangraphs import batting_stats, fielding_stats, pitching_stats
+from pybaseball.enums.fangraphs import (
+    FanGraphsBattingStat, FanGraphsFieldingStat, FanGraphsLeague,
+    FanGraphsMonth, FanGraphsPitchingStat, FanGraphsPositions,
+    FanGraphsStatTypes)
 
 _ROOT_URL = 'https://www.fangraphs.com'
 _TABLE_XPATH = '//table[@class="rgMasterTable"]'
@@ -19,49 +22,6 @@ _FG_LEADERS_URL = "/leaders.aspx"
 
 MIN_AGE = 0
 MAX_AGE = 100
-
-
-@unique
-class FanGraphsLeague(Enum):
-    ALL = 'all'
-    AL  = 'al'
-    FL  = 'fl'
-    NL  = 'nl'
-
-
-@unique
-class FanGraphsMonth(Enum):
-    ALL               = 0
-    MARCH_APRIL       = 4
-    MAY               = 5
-    JUNE              = 6
-    JULY              = 7
-    AUGUST            = 8
-    SEPTEMBER_OCTOBER = 9
-
-
-@unique
-class FanGraphsPositions(Enum):
-    ALL               = 'all'
-    PITCHER           = 'p'
-    CATCHER           = 'c'
-    FIRST_BASE        = '1b'
-    SECOND_BASE       = '2b'
-    SHORT_STOP        = 'ss'
-    THIRD_BASE        = '3b'
-    RIGHT_FIELD       = 'rf'
-    CENTER_FIELD      = 'cf'
-    LEFT_FIELD        = 'lf'
-    OUT_FIELD         = 'of'
-    DESIGNATED_HITTER = 'dh'
-    NO_POSITION       = 'np'
-
-
-@unique
-class FanGraphsStatTypes(Enum):
-    BATTING  = 'bat'
-    FIELDING = 'fld'
-    PITCHING = 'pit'
 
 
 class FanGraphs(HTMLTable):
@@ -147,9 +107,8 @@ class FanGraphs(HTMLTable):
             leaders_url,
             column_name_mapper=column_name_mapper,
             known_percentages=known_percentages
-        )
-        
-    
+        )        
+
     def batting_stats(self, start_season: int, end_season: int = None, league: FanGraphsLeague = FanGraphsLeague.ALL,
                       qual: Optional[int] = None, split_seasons: bool = True,
                       month: FanGraphsMonth = FanGraphsMonth.ALL, on_active_roster: bool = False,
@@ -185,7 +144,7 @@ class FanGraphs(HTMLTable):
         fg_data = self._leaders(
             start_season,
             stats=FanGraphsStatTypes.BATTING,
-            types=batting_stats.FanGraphsBattingStat.ALL(),
+            types=FanGraphsBattingStat.ALL(),
             end_season=end_season,
             league=league,
             qual=qual,
@@ -233,7 +192,7 @@ class FanGraphs(HTMLTable):
         data = self._leaders(
             start_season,
             stats=FanGraphsStatTypes.PITCHING,
-            types=pitching_stats.FanGraphsPitchingStat.ALL(),
+            types=FanGraphsPitchingStat.ALL(),
             end_season=end_season,
             league=league,
             qual=qual,
@@ -290,7 +249,7 @@ class FanGraphs(HTMLTable):
         data = self._leaders(
             start_season,
             stats=FanGraphsStatTypes.BATTING,
-            types=batting_stats.FanGraphsBattingStat.ALL(),
+            types=FanGraphsBattingStat.ALL(),
             end_season=end_season,
             league=league,
             qual=qual,
@@ -342,7 +301,7 @@ class FanGraphs(HTMLTable):
         data = self._leaders(
             start_season,
             stats=FanGraphsStatTypes.FIELDING,
-            types=fielding_stats.FanGraphsFieldingStat.ALL(),
+            types=FanGraphsFieldingStat.ALL(),
             end_season=end_season,
             league=league,
             qual=qual,
@@ -391,7 +350,7 @@ class FanGraphs(HTMLTable):
         data = self._leaders(
             start_season,
             stats=FanGraphsStatTypes.PITCHING,
-            types=pitching_stats.FanGraphsPitchingStat.ALL(),
+            types=FanGraphsPitchingStat.ALL(),
             end_season=end_season,
             league=league,
             qual=qual,
@@ -406,6 +365,7 @@ class FanGraphs(HTMLTable):
         )
 
         return data
+
 
 class GenericColumnMapper:
     def __init__(self):
