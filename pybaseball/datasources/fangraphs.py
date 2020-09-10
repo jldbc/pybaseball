@@ -13,9 +13,9 @@ from pybaseball.enums.fangraphs import (
     FanGraphsStatTypes)
 
 _ROOT_URL = 'https://www.fangraphs.com'
-_TABLE_XPATH = '//table[@class="rgMasterTable"]'
-_HEADINGS_XPATH = f"({_TABLE_XPATH}/thead//th[contains(@class, 'rgHeader')])[position()>1]/descendant-or-self::*/text()"
-_DATA_ROWS_XPATH = f"({_TABLE_XPATH}/tbody//tr)"
+_TABLE_CLASS = 'rgMasterTable'
+_HEADINGS_XPATH = "({TABLE_XPATH}/thead//th[contains(@class, 'rgHeader')])[position()>1]/descendant-or-self::*/text()"
+_DATA_ROWS_XPATH = "({TABLE_XPATH}/tbody//tr)"
 _DATA_CELLS_XPATH = 'td[position()>1]/descendant-or-self::*/text()'
 
 _FG_LEADERS_URL = "/leaders.aspx"
@@ -30,7 +30,8 @@ class FanGraphs(HTMLTable):
             root_url=_ROOT_URL,
             headings_xpath=_HEADINGS_XPATH,
             data_rows_xpath=_DATA_ROWS_XPATH,
-            data_cell_xpath=_DATA_CELLS_XPATH
+            data_cell_xpath=_DATA_CELLS_XPATH,
+            table_class=_TABLE_CLASS,
         )
 
     def _leaders(self, start_season: int, stats: FanGraphsStatTypes, types: str, end_season: int = None,
