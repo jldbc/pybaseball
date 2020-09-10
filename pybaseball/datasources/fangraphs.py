@@ -17,10 +17,6 @@ _DATA_CELLS_XPATH = 'td[position()>1]/descendant-or-self::*/text()'
 
 _FG_LEADERS_URL = "/leaders.aspx"
 
-_FG_TEAM_PITCHING_TYPES = "c,4,5,11,7,8,13,-1,24,36,37,40,43,44,48,51,-1,6,45,62,-1,59"
-_FG_TEAM_PITCHING_URL = "/leaders.aspx?pos=all&stats=pit&lg={league}&qual=0&type={types}&season={end_season}&month=0&season1={start_season}&ind={ind}&team=0,ts&rost=0&age=0&filter=&players=0&page=1_100000"
-
-
 MIN_AGE = 0
 MAX_AGE = 100
 
@@ -363,34 +359,53 @@ class FanGraphs(HTMLTable):
 
         return data
 
-    def team_pitching(self, start_season: int, end_season: int = None, league: str = 'all', ind: int = 1):
+    def team_pitching(self, start_season: int, end_season: int = None, league: FanGraphsLeague = FanGraphsLeague.ALL,
+                      qual: Optional[int] = None, split_seasons: bool = True,
+                      month: FanGraphsMonth = FanGraphsMonth.ALL, on_active_roster: bool = False,
+                      minimum_age: int = MIN_AGE, maximum_age: int = MAX_AGE) -> pd.DataFrame:
         """
         Get season-level pitching data aggregated by team.
 
         ARGUMENTS:
-        start_season    : int : first season you want data for (or the only season if you do not specify an end_season)
-        end_season      : int : final season you want data for
-        league          : str : "all", "nl", or "al"
-        ind             : int : 1 if you want individual season level data
-                                0 if you want a team'ss aggreagate data over all seasons in the query
+        start_season     : int                : First season to return data for
+        end_season       : int                : Last season to return data for
+                                                Default = start_season
+        league           : FanGraphsLeague    : League to return data for: ALL, AL, FL, NL
+                                                Default = FanGraphsLeague.ALL
+        qual             : Optional[int]      : Minimum number of plate appearances to be included.
+                                                If None is specified, the FanGraphs default ('y') is used.
+                                                Default = None
+        split_seasons    : bool               : True if you want individual season-level data
+                                                False if you want aggregate data over all seasons.
+                                                Default = False
+        month            : FanGraphsMonth     : Month to filter data by. FanGraphsMonth.ALL to not filter by month.
+                                                Default = FanGraphsMonth.ALL
+        on_active_roster : bool               : Only include active roster players.
+                                                Default = False
+        minimum_age      : int                : Minimum player age.
+                                                Default = 0
+        maximum_age      : int                : Maximum player age.
+                                                Default = 100
         """
-        if start_season is None:
-            raise ValueError(
-                "You need to provide at least one season to collect data for. Try team_pitching(season) or team_pitching(start_season, end_season)."
-            )
-        if end_season is None:
-            end_season = start_season
-
-        fg_data = self.get_tabular_data_from_url(
-            _FG_TEAM_PITCHING_URL.format(
-                start_season=start_season,
-                end_season=end_season,
-                league=league,
-                ind=ind,
-                types=_FG_TEAM_PITCHING_TYPES)
+        
+        data = self._leaders(
+            start_season,
+            stats=FanGraphsStatTypes.PITCHING,
+            types=pitching_stats.FanGraphsPitchingStat.ALL(),
+            end_season=end_season,
+            league=league,
+            qual=qual,
+            split_seasons=split_seasons,
+            month=month,
+            team='0,ts',
+            players='0',
+            on_active_roster=on_active_roster,
+            minimum_age=minimum_age,
+            maximum_age=maximum_age,
+            column_name_mapper=GenericColumnMapper().map
         )
 
-        return fg_data
+        return data
 
 class GenericColumnMapper:
     def __init__(self):

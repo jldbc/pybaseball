@@ -5,10 +5,8 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from pybaseball.datasources.fangraphs import (_FG_LEADERS_URL,
-                                              _FG_TEAM_PITCHING_TYPES,
-                                              _FG_TEAM_PITCHING_URL, MAX_AGE,
-                                              MIN_AGE,
+from pybaseball.datasources.fangraphs import (_FG_LEADERS_URL, MAX_AGE,
+                                              MIN_AGE, GenericColumnMapper,
                                               BattingStatsColumnMapper,
                                               FanGraphs)
 
@@ -249,12 +247,24 @@ class TestDatasourceFangraphs:
                            test_team_pitching_result: pd.DataFrame):
         season = 2019
 
-        expected_url = _FG_TEAM_PITCHING_URL.format(
-            start_season=season,
-            end_season=season,
-            league='all',
-            ind=1,
-            types=_FG_TEAM_PITCHING_TYPES
+        expected_url = FanGraphs()._create_url(_FG_LEADERS_URL,
+            {
+                'pos': 'all',
+                'stats': 'pit',
+                'lg': 'all',
+                'qual': 'y',
+                'type': pitching_stats.FanGraphsPitchingStat.ALL(),
+                'season': season,
+                'month': 0,
+                'season1': season,
+                'ind': '1',
+                'team': '0,ts',
+                'rost': '0',
+                'age': f"{MIN_AGE},{MAX_AGE}",
+                'filter': '',
+                'players': '0',
+                'page': f'1_1000000'
+            }
         )
 
         response_get_monkeypatch(test_team_pitching_html, expected_url)
@@ -262,6 +272,18 @@ class TestDatasourceFangraphs:
         team_pitching_result = FanGraphs().team_pitching(season).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(team_pitching_result, test_team_pitching_result)
+
+class TestGenericColumnWrapper:
+    def test_generic_column_mapper(self):
+        mapper = GenericColumnMapper()
+
+        assert mapper.map('FB%') == 'FB%'
+
+        assert mapper.map('HR') == 'HR'
+
+        assert mapper.map('FB%') == 'FB% 2'
+
+        assert mapper.map('HR') == 'HR 2'
 
 class TestBattingStatsColumnWrapper:
     def test_batting_stats_column_mapper(self):

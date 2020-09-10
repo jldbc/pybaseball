@@ -4,7 +4,6 @@ import pandas as pd
 import pytest
 import requests
 
-from pybaseball.datasources.fangraphs import _FG_TEAM_PITCHING_URL, _FG_TEAM_PITCHING_TYPES
 from pybaseball.team_pitching import team_pitching
 
 
@@ -21,15 +20,7 @@ def sample_processed_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
 def test_team_pitching(response_get_monkeypatch: Callable, sample_html: str, sample_processed_result: pd.DataFrame):
     season = 2019
 
-    expected_url = _FG_TEAM_PITCHING_URL.format(
-        start_season=season,
-        end_season=season,
-        league='all',
-        ind=1,
-        types=_FG_TEAM_PITCHING_TYPES
-    )
-
-    response_get_monkeypatch(sample_html, expected_url)
+    response_get_monkeypatch(sample_html)
 
     with pytest.warns(DeprecationWarning):
         team_pitching_result = team_pitching(season).reset_index(drop=True)
