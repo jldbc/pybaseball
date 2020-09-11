@@ -145,6 +145,3 @@ cython_debug/
 
 # MacOS
 .DS_Store
-
-# lahman cache
-baseballdatabank-master
