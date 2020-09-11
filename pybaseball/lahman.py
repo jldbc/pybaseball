@@ -4,6 +4,7 @@ from io import BytesIO
 from typing import IO, Optional, Tuple, Union
 from zipfile import ZipFile
 
+import pandas as pd
 import requests
 
 url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
