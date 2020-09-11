@@ -5,10 +5,17 @@ from typing import List, Union
 import numpy as np
 import pandas as pd
 
-null_regexes = [r'^\s*$', r'^null$']
+null_regexes = [
+    re.compile(r'^\s*$'),
+    re.compile(r'^null$', re.RegexFlag.IGNORECASE)
+]
+
 date_formats = [
-    '%Y-%m-%d',              # Standard statcast format
-    '%Y-%m-%dT%H:%M:%S.%fZ', # Just in case (https://github.com/jldbc/pybaseball/issues/104)
+    # Standard statcast format
+    (re.compile(r'^\d{4}-\d{1,2}-\d{1,2}$'),                            '%Y-%m-%d'),
+
+    # Just in case (https://github.com/jldbc/pybaseball/issues/104)
+    (re.compile(r'^\d{4}-\d{1,2}-\d{1,2}T\d{2}:\d{2}:\d{2}.\d{1,6}Z$'), '%Y-%m-%dT%H:%M:%S.%fZ'),
 ]
 
 def try_parse_dataframe(
@@ -33,23 +40,20 @@ def try_parse(
         return value
 
     for regex in null_regexes:
-        if re.compile(regex).match(value):
+        if regex.match(value):
             return null_replacement
 
-    percentage = False
-
     # Is it a date?
-    for date_format in date_formats:
-        try:
-            return datetime.strptime(value, date_format)
-        except:
-            pass
+    for date_regex, date_format in date_formats:
+        if date_regex.match(value):
+            try:
+                return datetime.strptime(value, date_format)
+            except:
+                pass
 
     # Is it an float or an int (including percetages)?
     try:
-        if value.endswith('%') or column_name.endswith('%') or column_name in known_percentages:
-            percentage = True
-
+        percentage = (value.endswith('%') or column_name.endswith('%') or column_name in known_percentages)
         if '.' in value:
             return float(value.strip(' %')) / (1 if not percentage else 100.0)
         else:
