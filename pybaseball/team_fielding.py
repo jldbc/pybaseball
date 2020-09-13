@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup, Comment
 import requests
 import warnings
 
-from pybaseball.datasources.fangraphs import FanGraphs, FanGraphsLeague
+from pybaseball.datasources.fangraphs import fg_team_fielding_data, FanGraphsLeague
 from pybaseball.datahelpers import postprocessing
 
 
@@ -19,9 +19,9 @@ def team_fielding(start_season: int, end_season: int = None, league: str = 'all'
                             0 if you want a team's aggregate data over all seasons in the query
     """
 
-    warnings.warn("team_fielding is deprecated in favor of FanGraphs().team_fielding", DeprecationWarning)
+    warnings.warn("team_fielding is deprecated in favor of fg_team_fielding_data", DeprecationWarning)
 
-    return FanGraphs().team_fielding(
+    return fg_team_fielding_data(
         start_season,
         end_season=end_season,
         league=FanGraphsLeague(league),

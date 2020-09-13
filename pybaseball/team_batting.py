@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from pybaseball.datasources.fangraphs import FanGraphs, FanGraphsLeague
+from pybaseball.datasources.fangraphs import FanGraphsLeague, fg_team_batting_data
 
 
 def team_batting(start_season: int, end_season: int = None, league: str = 'all', ind: int = 1) -> pd.DataFrame:
@@ -19,9 +19,9 @@ def team_batting(start_season: int, end_season: int = None, league: str = 'all',
                             0 if you want a team's aggreagate data over all seasons in the query
     """
 
-    warnings.warn("team_batting is deprecated in favor of FanGraphs().team_batting", DeprecationWarning)
+    warnings.warn("team_batting is deprecated in favor of fg_team_batting_data", DeprecationWarning)
 
-    return FanGraphs().team_batting(
+    return fg_team_batting_data(
         start_season,
         end_season=end_season,
         league=FanGraphsLeague(league),
