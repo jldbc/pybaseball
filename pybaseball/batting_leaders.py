@@ -30,5 +30,5 @@ def batting_stats(start_season: int, end_season: int = None, league: str = 'all'
         end_season=end_season,
         league=FanGraphsLeague(league),
         qual=qual,
-        split_seasons=(ind=='1')
+        split_seasons=(ind==1)
     )
