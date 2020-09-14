@@ -8,14 +8,6 @@ from pybaseball.datahelpers import postprocessing
 from pybaseball.datahelpers.column_mapper import ColumnListMapperFunction
 
 
-def _create_url(url_base: str, query_string_params: Dict[str, Union[str, int]] = {}):
-    query_string = ''
-
-    if query_string_params and isinstance(query_string_params, dict):
-        query_string = "?" + "&".join([f"{key}={value}" for key, value in query_string_params.items()])
-
-    return url_base + query_string
-
 class HTMLTableProcessor:
     def __init__(self, root_url: str, headings_xpath: str, data_rows_xpath: str, data_cell_xpath: str,
                  table_class: str = None):
@@ -61,9 +53,10 @@ class HTMLTableProcessor:
             known_percentages=known_percentages
         )
 
-    def get_tabular_data_from_url(self, url: str, column_name_mapper: ColumnListMapperFunction = None,
+    def get_tabular_data_from_url(self, url: str, query_params: Dict[str, Union[str, int]] = None,
+                                  column_name_mapper: ColumnListMapperFunction = None,
                                   known_percentages: List[str] = []) -> pd.DataFrame:
-        response = requests.get(self.root_url + url)
+        response = requests.get(self.root_url + url, params=query_params)
 
         if response.status_code > 399:
             raise requests.exceptions.HTTPError(
@@ -80,7 +73,8 @@ class HTMLTableProcessor:
                                       column_name_mapper: ColumnListMapperFunction = None,
                                       known_percentages: List[str] = []) -> pd.DataFrame:
         return self.get_tabular_data_from_url(
-            _create_url(base_url, query_params),
+            base_url,
+            query_params=query_params,
             column_name_mapper=column_name_mapper,
             known_percentages=known_percentages,
         )
