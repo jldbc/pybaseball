@@ -1,11 +1,9 @@
+import requests	
+from zipfile import ZipFile	
 import os
-import zipfile
-from io import BytesIO
-from typing import IO, Optional, Tuple, Union
-from zipfile import ZipFile
-
 import pandas as pd
-import requests
+from io import BytesIO
+from typing import Optional
 
 url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
 base_string = "baseballdatabank-master/core"
