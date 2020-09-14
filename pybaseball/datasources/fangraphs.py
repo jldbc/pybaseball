@@ -51,6 +51,38 @@ class FanGraphsDataTable(ABC):
               maximum_age: int = MAX_AGE, team: str = '0', _filter: str = '', players: str = '',
               position: FanGraphsPositions = FanGraphsPositions.ALL, max_results: int = 1000000,) -> pd.DataFrame:
 
+        """
+        Get leaderboard data from FanGraphs.
+
+        ARGUMENTS:
+        start_season       : int                : First season to return data for
+        end_season         : int                : Last season to return data for
+                                                  Default = start_season
+        types              : str                : The columns of data to return
+        league             : FanGraphsLeague    : League to return data for: ALL, AL, FL, NL
+                                                  Default = FanGraphsLeague.ALL
+        qual               : Optional[int]      : Minimum number of plate appearances to be included.
+                                                  If None is specified, the FanGraphs default ('y') is used.
+                                                  Default = None
+        split_seasons      : bool               : True if you want individual season-level data
+                                                  False if you want aggregate data over all seasons.
+                                                  Default = False
+        month              : FanGraphsMonth     : Month to filter data by. FanGraphsMonth.ALL to not filter by month.
+                                                  Default = FanGraphsMonth.ALL
+        on_active_roster   : bool               : Only include active roster players.
+                                                  Default = False
+        minimum_age        : int                : Minimum player age.
+                                                  Default = 0
+        maximum_age        : int                : Maximum player age.
+                                                  Default = 100
+        team               : str                : Team to filter data by.
+                                                  Specify "0,ts" to get aggregate team data.
+        position           : FanGraphsPositions : Position to filter data by.
+                                                  Default = FanGraphsPositions.ALL
+        max_results        : int                : The maximum number of results to return.
+                                                  Default = 1000000 (In effect, all results)
+        """
+
         types = self.DEFAULT_TYPES if types is None else types
 
         if start_season is None:
