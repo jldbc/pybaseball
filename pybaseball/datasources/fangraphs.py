@@ -9,8 +9,8 @@ import requests
 from pybaseball.datahelpers import postprocessing
 from pybaseball.datahelpers.column_mapper import BattingStatsColumnMapper, ColumnListMapperFunction, GenericColumnMapper
 from pybaseball.datasources.html_table_processor import HTMLTableProcessor
-from pybaseball.enums.fangraphs import (FanGraphsBattingStat, FanGraphsFieldingStat, FanGraphsLeague, FanGraphsMonth,
-                                        FanGraphsPitchingStat, FanGraphsPositions, FanGraphsStat, FanGraphsStatTypes,
+from pybaseball.enums.fangraphs import (FanGraphsBattingData, FanGraphsDataType, FanGraphsFieldingData, FanGraphsLeague,
+                                        FanGraphsMonth, FanGraphsPitchingData, FanGraphsPositions, FanGraphsStat,
                                         type_list_to_str)
 
 _FG_LEADERS_URL = "/leaders.aspx"
@@ -25,8 +25,8 @@ class FanGraphsDataTable(ABC):
     DATA_ROWS_XPATH: str = "({TABLE_XPATH}/tbody//tr)"
     DATA_CELLS_XPATH: str = "td[position()>1]/descendant-or-self::*/text()"
     QUERY_ENDPOINT: str = _FG_LEADERS_URL
-    STATS: FanGraphsStatTypes = FanGraphsStatTypes.NONE
-    DEFAULT_TYPES: List[FanGraphsStat] = []
+    STATS: FanGraphsStat = FanGraphsStat.NONE
+    DEFAULT_TYPES: List[FanGraphsDataType] = []
     KNOWN_PERCENTAGES: List[str] = []
     TEAM_DATA: bool = False
     COLUMN_NAME_MAPPER: ColumnListMapperFunction = GenericColumnMapper().map_list
@@ -53,7 +53,7 @@ class FanGraphsDataTable(ABC):
     def _validate(self, data: pd.DataFrame) -> pd.DataFrame:
         return data
 
-    def fetch(self, start_season: int, end_season: Optional[int] = None, types: List[FanGraphsStat] = [],
+    def fetch(self, start_season: int, end_season: Optional[int] = None, types: List[FanGraphsDataType] = [],
               league: FanGraphsLeague = FanGraphsLeague.ALL, qual: Optional[int] = None, split_seasons: bool = True,
               month: FanGraphsMonth = FanGraphsMonth.ALL, on_active_roster: bool = False, minimum_age: int = MIN_AGE,
               maximum_age: int = MAX_AGE, team: str = '0', _filter: str = '', players: str = '',
@@ -135,8 +135,8 @@ class FanGraphsDataTable(ABC):
         )
 
 class FanGraphsBattingDataTable(FanGraphsDataTable):
-    STATS: FanGraphsStatTypes = FanGraphsStatTypes.BATTING
-    DEFAULT_TYPES: List[FanGraphsStat] = FanGraphsBattingStat.ALL()
+    STATS: FanGraphsStat = FanGraphsStat.BATTING
+    DEFAULT_TYPES: List[FanGraphsDataType] = FanGraphsBattingData.ALL()
     COLUMN_NAME_MAPPER: ColumnListMapperFunction = BattingStatsColumnMapper().map_list
     KNOWN_PERCENTAGES: List[str] = ["GB/FB"]
 
@@ -144,8 +144,8 @@ class FanGraphsBattingDataTable(FanGraphsDataTable):
         return self._sort(data, ["WAR", "OPS"], ascending=False)
 
 class FanGraphsPitchingDataTable(FanGraphsDataTable):
-    STATS: FanGraphsStatTypes = FanGraphsStatTypes.PITCHING
-    DEFAULT_TYPES: List[FanGraphsStat] = FanGraphsPitchingStat.ALL()
+    STATS: FanGraphsStat = FanGraphsStat.PITCHING
+    DEFAULT_TYPES: List[FanGraphsDataType] = FanGraphsPitchingData.ALL()
 
     def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
         if "WAR" in data.columns:
@@ -156,19 +156,19 @@ class FanGraphsPitchingDataTable(FanGraphsDataTable):
         return self._sort(data, ["WAR", "W"], ascending=False)
 
 class FanGraphsTeamBattingDataTable(FanGraphsDataTable):
-    STATS: FanGraphsStatTypes = FanGraphsStatTypes.BATTING
-    DEFAULT_TYPES: List[FanGraphsStat] = FanGraphsBattingStat.ALL()
+    STATS: FanGraphsStat = FanGraphsStat.BATTING
+    DEFAULT_TYPES: List[FanGraphsDataType] = FanGraphsBattingData.ALL()
     COLUMN_NAME_MAPPER: ColumnListMapperFunction = BattingStatsColumnMapper().map_list
     TEAM_DATA: bool = True
 
 class FanGraphsTeamFieldingDataTable(FanGraphsDataTable):
-    STATS: FanGraphsStatTypes = FanGraphsStatTypes.FIELDING
-    DEFAULT_TYPES: List[FanGraphsStat] = FanGraphsFieldingStat.ALL()
+    STATS: FanGraphsStat = FanGraphsStat.FIELDING
+    DEFAULT_TYPES: List[FanGraphsDataType] = FanGraphsFieldingData.ALL()
     TEAM_DATA: bool = True
 
 class FanGraphsTeamPitchingDataTable(FanGraphsDataTable):
-    STATS: FanGraphsStatTypes = FanGraphsStatTypes.PITCHING
-    DEFAULT_TYPES: List[FanGraphsStat] = FanGraphsPitchingStat.ALL()
+    STATS: FanGraphsStat = FanGraphsStat.PITCHING
+    DEFAULT_TYPES: List[FanGraphsDataType] = FanGraphsPitchingData.ALL()
     TEAM_DATA: bool = True
 
 fg_batting_data = FanGraphsBattingDataTable().fetch

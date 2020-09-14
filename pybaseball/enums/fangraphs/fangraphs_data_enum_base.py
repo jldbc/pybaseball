@@ -3,7 +3,7 @@ from typing import List
 
 _COMMON_COLUMNS =  ['0', '1', '2']
 
-class FanGraphsStatsBase(Enum):
+class FanGraphsDataEnumBase(Enum):
     @classmethod
     def ALL(enum_class) -> List:
         common_columns = ['c'] + _COMMON_COLUMNS
