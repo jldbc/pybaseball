@@ -70,7 +70,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
             final_url = url
 
             if params:
-                query_params = urllib.parse.urlencode(params)
+                query_params = urllib.parse.urlencode(params, safe=',')
                 final_url = f"{final_url}?{query_params}"
 
             if expected_url is not None:
