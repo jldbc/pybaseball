@@ -1,4 +1,5 @@
 import sys
+import urllib.parse
 from typing import Callable
 
 import numpy as np
@@ -7,7 +8,6 @@ import pytest
 
 from pybaseball.datasources.fangraphs import (_FG_LEADERS_URL, MAX_AGE, MIN_AGE, fg_batting_data, fg_pitching_data,
                                               fg_team_batting_data, fg_team_fielding_data, fg_team_pitching_data)
-from pybaseball.datasources.html_table_processor import _create_url
 from pybaseball.enums.fangraphs import FanGraphsBattingStat, FanGraphsFieldingStat, FanGraphsPitchingStat
 
 
@@ -65,7 +65,7 @@ class TestDatasourceFangraphs:
                            test_batting_stats_result: pd.DataFrame):
         season = 2019
 
-        expected_url = _create_url(_FG_LEADERS_URL,
+        query_params = urllib.parse.urlencode(
             {
                 'pos': 'all',
                 'stats': 'bat',
@@ -82,8 +82,11 @@ class TestDatasourceFangraphs:
                 'filter': '',
                 'players': '',
                 'page': f'1_1000000'
-            }
+            },
+            safe=','
         )
+
+        expected_url = f"{_FG_LEADERS_URL}?{query_params}" 
 
         response_get_monkeypatch(test_batting_stats_html, expected_url)
 
@@ -95,7 +98,7 @@ class TestDatasourceFangraphs:
                             test_pitching_stats_result: pd.DataFrame):
         season = 2019
 
-        expected_url = _create_url(_FG_LEADERS_URL,
+        query_params = urllib.parse.urlencode(
             {
                 'pos': 'all',
                 'stats': 'pit',
@@ -112,8 +115,11 @@ class TestDatasourceFangraphs:
                 'filter': '',
                 'players': '',
                 'page': f'1_1000000'
-            }
+            },
+            safe=','
         )
+
+        expected_url = f"{_FG_LEADERS_URL}?{query_params}"
 
         response_get_monkeypatch(test_pitching_stats_html, expected_url)
 
@@ -125,7 +131,7 @@ class TestDatasourceFangraphs:
                           test_team_batting_result: pd.DataFrame):
         season = 2019
 
-        expected_url = _create_url(_FG_LEADERS_URL,
+        query_params = urllib.parse.urlencode(
             {
                 'pos': 'all',
                 'stats': 'bat',
@@ -142,8 +148,11 @@ class TestDatasourceFangraphs:
                 'filter': '',
                 'players': '',
                 'page': f'1_1000000'
-            }
+            },
+            safe=','
         )
+
+        expected_url = f"{_FG_LEADERS_URL}?{query_params}"
 
         response_get_monkeypatch(test_team_batting_html, expected_url)
 
@@ -156,7 +165,7 @@ class TestDatasourceFangraphs:
                            test_team_fielding_result: pd.DataFrame):
         season = 2019
 
-        expected_url = _create_url(_FG_LEADERS_URL,
+        query_params = urllib.parse.urlencode(
             {
                 'pos': 'all',
                 'stats': 'fld',
@@ -173,8 +182,11 @@ class TestDatasourceFangraphs:
                 'filter': '',
                 'players': '',
                 'page': f'1_1000000'
-            }
+            },
+            safe=','
         )
+
+        expected_url = f"{_FG_LEADERS_URL}?{query_params}"
 
         response_get_monkeypatch(test_team_fielding_html, expected_url)
 
@@ -187,7 +199,7 @@ class TestDatasourceFangraphs:
                            test_team_pitching_result: pd.DataFrame):
         season = 2019
 
-        expected_url = _create_url(_FG_LEADERS_URL,
+        query_params = urllib.parse.urlencode(
             {
                 'pos': 'all',
                 'stats': 'pit',
@@ -204,8 +216,10 @@ class TestDatasourceFangraphs:
                 'filter': '',
                 'players': '',
                 'page': f'1_1000000'
-            }
+            },
+            safe=','
         )
+        expected_url = f"{_FG_LEADERS_URL}?{query_params}"
 
         response_get_monkeypatch(test_team_pitching_html, expected_url)
 
