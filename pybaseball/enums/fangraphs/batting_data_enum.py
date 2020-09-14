@@ -1,7 +1,7 @@
-from .fangraphs_stats_base import FanGraphsStatsBase
+from .fangraphs_data_enum_base import FanGraphsDataEnumBase
 
 
-class FanGraphsBattingStat(FanGraphsStatsBase):
+class FanGraphsBattingData(FanGraphsDataEnumBase):
     COMMON                            = 'c'
     LINE_BREAK                        = '-1'
     NAME                              = '0'

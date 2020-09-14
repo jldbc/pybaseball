@@ -1,12 +1,12 @@
 from typing import Union
 
-from .batting_stats import FanGraphsBattingStat
-from .fielding_stats import FanGraphsFieldingStat
+from .batting_data_enum import FanGraphsBattingData
+from .fielding_data_enum import FanGraphsFieldingData
 from .league import FanGraphsLeague
 from .month import FanGraphsMonth
-from .pitching_stats import FanGraphsPitchingStat
+from .pitching_data_enum import FanGraphsPitchingData
 from .positions import FanGraphsPositions
-from .stat_types import FanGraphsStatTypes
-from.fangraphs_stats_base import type_list_to_str
+from .stat_types import FanGraphsStat
+from.fangraphs_data_enum_base import type_list_to_str
 
-FanGraphsStat = Union[FanGraphsBattingStat, FanGraphsFieldingStat, FanGraphsPitchingStat]
+FanGraphsDataType = Union[FanGraphsBattingData, FanGraphsFieldingData, FanGraphsPitchingData]
