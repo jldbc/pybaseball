@@ -74,6 +74,10 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
                 final_url = f"{final_url}?{query_params}"
 
             if expected_url is not None:
+                # These prints are desired as these are long and get cut off in the test outpute.
+                # These will only render on failed tests, so only when you would want to see them anyway.
+                print("expected", expected_url)
+                print("received", final_url)
                 assert final_url.endswith(expected_url)
 
             class DummyResponse:
