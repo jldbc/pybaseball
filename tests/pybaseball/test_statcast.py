@@ -72,11 +72,32 @@ class TestStatcast:
             small_request_raw.encode('UTF-8'),
             _SC_SMALL_REQUEST.format(
                 start_dt=start_dt,
-                end_dt=end_dt
+                end_dt=end_dt,
+                team=''
             )
         )
 
         statcast_result = statcast().reset_index(drop=True)
+
+        pd.testing.assert_frame_equal(statcast_result, small_request)
+    
+    def test_statcast_team(
+        self,
+        response_get_monkeypatch: Callable,
+        small_request_raw: str,
+        small_request: pd.DataFrame
+    ):
+        start_dt, end_dt = sanitize_input(None, None)
+        response_get_monkeypatch(
+            small_request_raw.encode('UTF-8'),
+            _SC_SMALL_REQUEST.format(
+                start_dt=start_dt,
+                end_dt=end_dt,
+                team='TB'
+            )
+        )
+
+        statcast_result = statcast(None, None, team='TB').reset_index(drop=True)
 
         pd.testing.assert_frame_equal(statcast_result, small_request)
 
