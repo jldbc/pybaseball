@@ -1,8 +1,8 @@
-from enum import Enum
-from typing import List
+from .fangraphs_stats_base import FanGraphsStatsBase
 
 
-class FanGraphsBattingStat(Enum):
+class FanGraphsBattingStat(FanGraphsStatsBase):
+    COMMON                            = 'c'
     LINE_BREAK                        = '-1'
     NAME                              = '0'
     TEAM                              = '1'
@@ -357,12 +357,3 @@ class FanGraphsBattingStat(Enum):
     HARDHIT                           = '310' # ?
     HARDHIT_PCT                       = '311' # HardHit% ?
     EVENTS                            = '312' # ?
-
-    @staticmethod
-    def ALL() -> str:
-        common_columns = ['0', '1']
-        column_list: List[str] = list(set(
-            [column.value for column in FanGraphsBattingStat if column.value not in common_columns]
-        ))
-        column_list.sort(key=lambda x: int(x) if x.isdigit() else -2)
-        return ','.join(['c'] + column_list)
