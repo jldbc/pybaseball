@@ -25,7 +25,7 @@ def team_pitching(start_season: int, end_season: int = None, league: str = 'all'
         start_season,
         end_season=end_season,
         league=FanGraphsLeague(league),
-        split_seasons=(ind==1)
+        split_seasons=bool(ind)
     )
 
 def team_pitching_bref(team, start_season, end_season=None):
