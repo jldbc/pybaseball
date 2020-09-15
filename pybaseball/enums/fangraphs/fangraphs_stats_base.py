@@ -13,7 +13,7 @@ class FangraphsStatsBase(Enum):
         column_list.sort(key=lambda x: int(x.value) if x.value.isdigit() else -2)
         prepend = []
         # pylint: disable = no-member
-        if 'COMMON' in enum_class._member_names_: # type: ignore
+        if 'COMMON' in enum_class.__members__.keys(): # type: ignore
             prepend = [enum_class.COMMON] # type: ignore
         return prepend + column_list
 
