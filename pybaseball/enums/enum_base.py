@@ -1,11 +1,11 @@
 from enum import Enum
-from typing import List, Optional, Type, TypeVar, Any
+from typing import Any, List, Optional, Type, TypeVar
 
 _T = TypeVar('_T')
 
 class EnumBase(Enum):
     @classmethod
-    def values(enum_class: Type[_T]) -> List[_T]:
+    def values(enum_class: Type[_T]) -> Any:
         return [x.value for x in enum_class] # type: ignore
     
     @classmethod
@@ -33,4 +33,11 @@ class EnumBase(Enum):
     
     @classmethod
     def safe_parse_by_value(enum_class: Type[_T], value: Any) -> Optional[_T]:
-        pass
+        values = enum_class.values() # type: ignore
+
+        matched = [x for x in values if str(x).upper() == str(value).upper()]
+
+        if matched:
+            return enum_class(matched[0]) # type: ignore
+
+        return None
