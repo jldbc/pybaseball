@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 
 @unique
-class FanGraphsPositions(Enum):
+class FangraphsPositions(Enum):
     ALL               = 'all'
     PITCHER           = 'p'
     CATCHER           = 'c'

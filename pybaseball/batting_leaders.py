@@ -3,7 +3,7 @@ from typing import Optional
 
 import pandas as pd
 
-from pybaseball.datasources.fangraphs import FanGraphsLeague, fg_batting_data
+from pybaseball.datasources.fangraphs import FangraphsLeague, fg_batting_data
 
 
 def batting_stats(start_season: int, end_season: int = None, league: str = 'all', qual: Optional[int] = None,
@@ -28,7 +28,7 @@ def batting_stats(start_season: int, end_season: int = None, league: str = 'all'
     return fg_batting_data(
         start_season,
         end_season=end_season,
-        league=FanGraphsLeague(league),
+        league=FangraphsLeague(league),
         qual=qual,
         split_seasons=bool(ind)
     )
