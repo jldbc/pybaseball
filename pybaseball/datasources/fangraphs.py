@@ -54,7 +54,7 @@ class FangraphsDataTable(ABC):
         return data
 
     def fetch(self, start_season: int, end_season: Optional[int] = None, stat_columns: Union[str, List[str]] = 'ALL',
-              league: FangraphsLeague = FangraphsLeague.ALL, qual: Optional[int] = None, split_seasons: bool = True,
+              league: str = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
               month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
               maximum_age: int = MAX_AGE, team: str = '0', _filter: str = '', players: str = '',
               position: FangraphsPositions = FangraphsPositions.ALL, max_results: int = 1000000,) -> pd.DataFrame:
@@ -66,10 +66,10 @@ class FangraphsDataTable(ABC):
         start_season       : int                : First season to return data for
         end_season         : int                : Last season to return data for
                                                   Default = start_season
-        stat_columns       : List[str]          : The columns of data to return
+        stat_columns       : str or List[str]   : The columns of data to return
                                                   Default = ALL
-        league             : FangraphsLeague    : League to return data for: ALL, AL, FL, NL
-                                                  Default = FangraphsLeague.ALL
+        league             : str                : League to return data for: ALL, AL, FL, NL
+                                                  Default = ALL
         qual               : Optional[int]      : Minimum number of plate appearances to be included.
                                                   If None is specified, the Fangraphs default ('y') is used.
                                                   Default = None
@@ -108,7 +108,7 @@ class FangraphsDataTable(ABC):
         url_options = {
             'pos': position.value,
             'stats': self.STATS_CATEGORY.value,
-            'lg': league.value,
+            'lg': FangraphsLeague.parse(league).value,
             'qual': qual if qual is not None else 'y',
             'type': stat_list_to_str(stat_columns_enums),
             'season': end_season,

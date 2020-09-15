@@ -3,7 +3,7 @@ from bs4 import BeautifulSoup, Comment
 import requests
 import warnings
 
-from pybaseball.datasources.fangraphs import fg_team_fielding_data, FangraphsLeague
+from pybaseball.datasources.fangraphs import fg_team_fielding_data
 from pybaseball.datahelpers import postprocessing
 
 
@@ -24,7 +24,7 @@ def team_fielding(start_season: int, end_season: int = None, league: str = 'all'
     return fg_team_fielding_data(
         start_season,
         end_season=end_season,
-        league=FangraphsLeague(league),
+        league=league,
         split_seasons=bool(ind)
     )
 
