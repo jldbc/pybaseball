@@ -105,10 +105,13 @@ class FangraphsDataTable(ABC):
 
         assert self.STATS_CATEGORY is not None
 
+        if league is None:
+            raise ValueError("parameter 'league' cannot be None.")
+
         url_options = {
             'pos': position.value,
             'stats': self.STATS_CATEGORY.value,
-            'lg': FangraphsLeague.parse(league).value,
+            'lg': FangraphsLeague.parse(league.upper()).value,
             'qual': qual if qual is not None else 'y',
             'type': stat_list_to_str(stat_columns_enums),
             'season': end_season,
