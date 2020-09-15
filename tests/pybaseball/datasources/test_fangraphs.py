@@ -8,7 +8,7 @@ import pytest
 
 from pybaseball.datasources.fangraphs import (_FG_LEADERS_URL, MAX_AGE, MIN_AGE, fg_batting_data, fg_pitching_data,
                                               fg_team_batting_data, fg_team_fielding_data, fg_team_pitching_data)
-from pybaseball.enums.fangraphs import FanGraphsBattingData, FanGraphsFieldingData, FanGraphsPitchingData, type_list_to_str
+from pybaseball.enums.fangraphs import FangraphsBattingStats, FangraphsFieldingStats, FangraphsPitchingStats, type_list_to_str
 
 
 @pytest.fixture(name="test_batting_stats_html")
@@ -71,7 +71,7 @@ class TestDatasourceFangraphs:
                 'stats': 'bat',
                 'lg': 'all',
                 'qual': 'y',
-                'type': type_list_to_str(FanGraphsBattingData.ALL()),
+                'type': type_list_to_str(FangraphsBattingStats.ALL()),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -103,7 +103,7 @@ class TestDatasourceFangraphs:
                 'stats': 'bat',
                 'lg': 'all',
                 'qual': 'y',
-                'type': type_list_to_str([FanGraphsBattingData.COMMON, FanGraphsBattingData.WAR], replace_common=False),
+                'type': type_list_to_str([FangraphsBattingStats.COMMON, FangraphsBattingStats.WAR], replace_common=False),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -122,7 +122,7 @@ class TestDatasourceFangraphs:
 
         response_get_monkeypatch(test_batting_stats_html, expected_url)
 
-        batting_stats_result = fg_batting_data(season, types=[FanGraphsBattingData.WAR]).reset_index(drop=True)
+        batting_stats_result = fg_batting_data(season, types=[FangraphsBattingStats.WAR]).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(batting_stats_result, test_batting_stats_result)
 
@@ -136,7 +136,7 @@ class TestDatasourceFangraphs:
                 'stats': 'pit',
                 'lg': 'all',
                 'qual': 'y',
-                'type': type_list_to_str(FanGraphsPitchingData.ALL()),
+                'type': type_list_to_str(FangraphsPitchingStats.ALL()),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -169,7 +169,7 @@ class TestDatasourceFangraphs:
                 'stats': 'pit',
                 'lg': 'all',
                 'qual': 'y',
-                'type': type_list_to_str([FanGraphsPitchingData.COMMON, FanGraphsPitchingData.ERA_MINUS], replace_common=False),
+                'type': type_list_to_str([FangraphsPitchingStats.COMMON, FangraphsPitchingStats.ERA_MINUS], replace_common=False),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -188,7 +188,7 @@ class TestDatasourceFangraphs:
 
         response_get_monkeypatch(test_pitching_stats_html, expected_url)
 
-        pitching_stats_result = fg_pitching_data(season, types=[FanGraphsPitchingData.ERA_MINUS]).reset_index(drop=True)
+        pitching_stats_result = fg_pitching_data(season, types=[FangraphsPitchingStats.ERA_MINUS]).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(pitching_stats_result, test_pitching_stats_result)
 
@@ -202,7 +202,7 @@ class TestDatasourceFangraphs:
                 'stats': 'bat',
                 'lg': 'all',
                 'qual': 'y',
-                'type': type_list_to_str(FanGraphsBattingData.ALL()),
+                'type': type_list_to_str(FangraphsBattingStats.ALL()),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -235,7 +235,7 @@ class TestDatasourceFangraphs:
                 'stats': 'bat',
                 'lg': 'all',
                 'qual': 'y',
-                'type': type_list_to_str([FanGraphsBattingData.COMMON, FanGraphsBattingData.HOME_RUNS], replace_common=False),
+                'type': type_list_to_str([FangraphsBattingStats.COMMON, FangraphsBattingStats.HOME_RUNS], replace_common=False),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -254,7 +254,7 @@ class TestDatasourceFangraphs:
 
         response_get_monkeypatch(test_team_batting_html, expected_url)
 
-        team_batting_result = fg_team_batting_data(season, types=[FanGraphsBattingData.HOME_RUNS]).reset_index(drop=True)
+        team_batting_result = fg_team_batting_data(season, types=[FangraphsBattingStats.HOME_RUNS]).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(team_batting_result, test_team_batting_result)
 
@@ -269,7 +269,7 @@ class TestDatasourceFangraphs:
                 'stats': 'fld',
                 'lg': 'all',
                 'qual': 'y',
-                'type': type_list_to_str(FanGraphsFieldingData.ALL()),
+                'type': type_list_to_str(FangraphsFieldingStats.ALL()),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -303,7 +303,7 @@ class TestDatasourceFangraphs:
                 'stats': 'fld',
                 'lg': 'all',
                 'qual': 'y',
-                'type': type_list_to_str([FanGraphsFieldingData.COMMON, FanGraphsFieldingData.ULTIMATE_ZONE_RATING], replace_common=False),
+                'type': type_list_to_str([FangraphsFieldingStats.COMMON, FangraphsFieldingStats.ULTIMATE_ZONE_RATING], replace_common=False),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -322,7 +322,7 @@ class TestDatasourceFangraphs:
 
         response_get_monkeypatch(test_team_fielding_html, expected_url)
 
-        team_fielding_result = fg_team_fielding_data(season, types=[FanGraphsFieldingData.ULTIMATE_ZONE_RATING]).reset_index(drop=True)
+        team_fielding_result = fg_team_fielding_data(season, types=[FangraphsFieldingStats.ULTIMATE_ZONE_RATING]).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(team_fielding_result, test_team_fielding_result)
 
@@ -337,7 +337,7 @@ class TestDatasourceFangraphs:
                 'stats': 'pit',
                 'lg': 'all',
                 'qual': 'y',
-                'type': type_list_to_str(FanGraphsPitchingData.ALL()),
+                'type': type_list_to_str(FangraphsPitchingStats.ALL()),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -370,7 +370,7 @@ class TestDatasourceFangraphs:
                 'stats': 'pit',
                 'lg': 'all',
                 'qual': 'y',
-                'type': type_list_to_str([FanGraphsPitchingData.COMMON, FanGraphsPitchingData.WINS], replace_common=False),
+                'type': type_list_to_str([FangraphsPitchingStats.COMMON, FangraphsPitchingStats.WINS], replace_common=False),
                 'season': season,
                 'month': 0,
                 'season1': season,
@@ -388,6 +388,6 @@ class TestDatasourceFangraphs:
 
         response_get_monkeypatch(test_team_pitching_html, expected_url)
 
-        team_pitching_result = fg_team_pitching_data(season, types=[FanGraphsPitchingData.WINS]).reset_index(drop=True)
+        team_pitching_result = fg_team_pitching_data(season, types=[FangraphsPitchingStats.WINS]).reset_index(drop=True)
 
         pd.testing.assert_frame_equal(team_pitching_result, test_team_pitching_result)
