@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import List, Tuple, Union
 
 _COMMON_COLUMNS =  ['0', '1', '2']
 
@@ -13,9 +13,7 @@ class FangraphsStatsBase(Enum):
         column_list.sort(key=lambda x: int(x.value) if x.value.isdigit() else -2)
         prepend = []
         # pylint: disable = no-member
-        enum_members: List[str] = enum_class._member_names_ # type: ignore
-        # pylint: disable = no-member
-        if 'COMMON' in enum_members:
+        if 'COMMON' in enum_class._member_names_: # type: ignore
             prepend = [enum_class.COMMON] # type: ignore
         return prepend + column_list
 
@@ -33,7 +31,7 @@ class FangraphsStatsBase(Enum):
 
         return ','.join([x.value for x in stripped])
 
-def type_list_to_str(values: List, replace_common: bool = True) -> str:
+def stat_list_to_str(values: List, replace_common: bool = True) -> str:
     if not values:
         return ''
 
