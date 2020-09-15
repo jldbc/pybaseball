@@ -1,9 +1,9 @@
-from enum import Enum
+from pybaseball.enums.enum_base import EnumBase
 from typing import List, Tuple, Union
 
 _COMMON_COLUMNS =  ['0', '1', '2']
 
-class FangraphsStatsBase(Enum):
+class FangraphsStatsBase(EnumBase):
     @classmethod
     def ALL(enum_class) -> List:
         common_columns = ['c'] + _COMMON_COLUMNS
@@ -13,7 +13,7 @@ class FangraphsStatsBase(Enum):
         column_list.sort(key=lambda x: int(x.value) if x.value.isdigit() else -2)
         prepend = []
         # pylint: disable = no-member
-        if 'COMMON' in enum_class.__members__.keys(): # type: ignore
+        if enum_class.safe_parse('COMMON') is not None: # type: ignore
             prepend = [enum_class.COMMON] # type: ignore
         return prepend + column_list
 

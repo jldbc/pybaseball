@@ -9,9 +9,9 @@ import requests
 from pybaseball.datahelpers import postprocessing
 from pybaseball.datahelpers.column_mapper import BattingStatsColumnMapper, ColumnListMapperFunction, GenericColumnMapper
 from pybaseball.datasources.html_table_processor import HTMLTableProcessor
-from pybaseball.enums.fangraphs import (FangraphsBattingStats, FangraphsStatColumn, FangraphsFieldingStats, FangraphsLeague,
-                                        FangraphsMonth, FangraphsPitchingStats, FangraphsPositions, FangraphsStatsCategory,
-                                        stat_list_from_str, stat_list_to_str)
+from pybaseball.enums.fangraphs import (FangraphsBattingStats, FangraphsFieldingStats, FangraphsLeague, FangraphsMonth,
+                                        FangraphsPitchingStats, FangraphsPositions, FangraphsStatColumn,
+                                        FangraphsStatsCategory, stat_list_from_str, stat_list_to_str)
 
 _FG_LEADERS_URL = "/leaders.aspx"
 
@@ -55,7 +55,7 @@ class FangraphsDataTable(ABC):
 
     def fetch(self, start_season: int, end_season: Optional[int] = None, stat_columns: Union[str, List[str]] = 'ALL',
               league: FangraphsLeague = FangraphsLeague.ALL, qual: Optional[int] = None, split_seasons: bool = True,
-              month: FangraphsMonth = FangraphsMonth.ALL, on_active_roster: bool = False, minimum_age: int = MIN_AGE,
+              month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
               maximum_age: int = MAX_AGE, team: str = '0', _filter: str = '', players: str = '',
               position: FangraphsPositions = FangraphsPositions.ALL, max_results: int = 1000000,) -> pd.DataFrame:
 
@@ -76,8 +76,8 @@ class FangraphsDataTable(ABC):
         split_seasons      : bool               : True if you want individual season-level data
                                                   False if you want aggregate data over all seasons.
                                                   Default = False
-        month              : FangraphsMonth     : Month to filter data by. FangraphsMonth.ALL to not filter by month.
-                                                  Default = FangraphsMonth.ALL
+        month              : str                : Month to filter data by. 'ALL' to not filter by month.
+                                                  Default = 'ALL'
         on_active_roster   : bool               : Only include active roster players.
                                                   Default = False
         minimum_age        : int                : Minimum player age.
@@ -112,7 +112,7 @@ class FangraphsDataTable(ABC):
             'qual': qual if qual is not None else 'y',
             'type': stat_list_to_str(stat_columns_enums),
             'season': end_season,
-            'month': month.value,
+            'month': FangraphsMonth.parse(month).value,
             'season1': start_season,
             'ind': int(split_seasons),
             'team': team + ',ts' if self.TEAM_DATA else '',
