@@ -7,6 +7,6 @@ from .month import FangraphsMonth
 from .pitching_data_enum import FangraphsPitchingStats
 from .positions import FangraphsPositions
 from .fangraphs_stats_category import FangraphsStatsCategory
-from.fangraphs_data_enum_base import type_list_to_str
+from. fangraphs_stats_base import type_list_to_str
 
 FangraphsDataType = Union[FangraphsBattingStats, FangraphsFieldingStats, FangraphsPitchingStats]
