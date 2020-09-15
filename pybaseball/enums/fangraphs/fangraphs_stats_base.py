@@ -10,10 +10,11 @@ class FangraphsStatsBase(EnumBase):
         column_list = list(set(
             [column for column in enum_class if column.value not in common_columns]
         ))
+        # Order the columns numerically, except for 'c' which always goes first
         column_list.sort(key=lambda x: int(x.value) if x.value.isdigit() else -2)
         prepend = []
         # pylint: disable = no-member
-        if enum_class.safe_parse('COMMON') is not None: # type: ignore
+        if enum_class.safe_parse('COMMON') is not None and enum_class.COMMON not in column_list: # type: ignore
             prepend = [enum_class.COMMON] # type: ignore
         return prepend + column_list
 

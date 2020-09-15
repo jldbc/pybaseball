@@ -1,8 +1,10 @@
-from enum import Enum, unique
+from enum import unique
+
+from pybaseball.enums.enum_base import EnumBase
 
 
 @unique
-class FangraphsPositions(Enum):
+class FangraphsPositions(EnumBase):
     ALL               = 'all'
     PITCHER           = 'p'
     CATCHER           = 'c'
