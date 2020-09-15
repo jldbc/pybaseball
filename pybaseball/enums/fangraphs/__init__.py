@@ -31,7 +31,7 @@ def stat_list_from_str(stat_category: FangraphsStatsCategory, values: Union[str,
         return obj_type.ALL()
 
     for value in values:
-        if value not in obj_type._member_names_: # type: ignore
+        if value not in obj_type.__members__.keys(): # type: ignore
             raise ValueError(f"Invalid stat column of {value} was used. Stat columns must be a valid member of the enum: {obj_type.__name__}")
 
     stat_list = [obj_type[x] for x in values]
