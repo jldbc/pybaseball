@@ -10,7 +10,7 @@ from pybaseball.datahelpers import postprocessing
 from pybaseball.datahelpers.column_mapper import BattingStatsColumnMapper, ColumnListMapperFunction, GenericColumnMapper
 from pybaseball.datasources.html_table_processor import HTMLTableProcessor
 from pybaseball.enums.fangraphs import (FanGraphsBattingData, FanGraphsDataType, FanGraphsFieldingData, FanGraphsLeague,
-                                        FanGraphsMonth, FanGraphsPitchingData, FanGraphsPositions, FanGraphsStat,
+                                        FanGraphsMonth, FanGraphsPitchingData, FanGraphsPositions, FanGraphsStatsCategory,
                                         type_list_to_str)
 
 _FG_LEADERS_URL = "/leaders.aspx"
@@ -25,7 +25,7 @@ class FanGraphsDataTable(ABC):
     DATA_ROWS_XPATH: str = "({TABLE_XPATH}/tbody//tr)"
     DATA_CELLS_XPATH: str = "td[position()>1]/descendant-or-self::*/text()"
     QUERY_ENDPOINT: str = _FG_LEADERS_URL
-    STATS: FanGraphsStat = FanGraphsStat.NONE
+    STATS: FanGraphsStatsCategory = FanGraphsStatsCategory.NONE
     DEFAULT_TYPES: List[FanGraphsDataType] = []
     KNOWN_PERCENTAGES: List[str] = []
     TEAM_DATA: bool = False
@@ -135,7 +135,7 @@ class FanGraphsDataTable(ABC):
         )
 
 class FanGraphsBattingDataTable(FanGraphsDataTable):
-    STATS: FanGraphsStat = FanGraphsStat.BATTING
+    STATS: FanGraphsStatsCategory = FanGraphsStatsCategory.BATTING
     DEFAULT_TYPES: List[FanGraphsDataType] = FanGraphsBattingData.ALL()
     COLUMN_NAME_MAPPER: ColumnListMapperFunction = BattingStatsColumnMapper().map_list
     KNOWN_PERCENTAGES: List[str] = ["GB/FB"]
@@ -144,7 +144,7 @@ class FanGraphsBattingDataTable(FanGraphsDataTable):
         return self._sort(data, ["WAR", "OPS"], ascending=False)
 
 class FanGraphsPitchingDataTable(FanGraphsDataTable):
-    STATS: FanGraphsStat = FanGraphsStat.PITCHING
+    STATS: FanGraphsStatsCategory = FanGraphsStatsCategory.PITCHING
     DEFAULT_TYPES: List[FanGraphsDataType] = FanGraphsPitchingData.ALL()
 
     def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -156,18 +156,18 @@ class FanGraphsPitchingDataTable(FanGraphsDataTable):
         return self._sort(data, ["WAR", "W"], ascending=False)
 
 class FanGraphsTeamBattingDataTable(FanGraphsDataTable):
-    STATS: FanGraphsStat = FanGraphsStat.BATTING
+    STATS: FanGraphsStatsCategory = FanGraphsStatsCategory.BATTING
     DEFAULT_TYPES: List[FanGraphsDataType] = FanGraphsBattingData.ALL()
     COLUMN_NAME_MAPPER: ColumnListMapperFunction = BattingStatsColumnMapper().map_list
     TEAM_DATA: bool = True
 
 class FanGraphsTeamFieldingDataTable(FanGraphsDataTable):
-    STATS: FanGraphsStat = FanGraphsStat.FIELDING
+    STATS: FanGraphsStatsCategory = FanGraphsStatsCategory.FIELDING
     DEFAULT_TYPES: List[FanGraphsDataType] = FanGraphsFieldingData.ALL()
     TEAM_DATA: bool = True
 
 class FanGraphsTeamPitchingDataTable(FanGraphsDataTable):
-    STATS: FanGraphsStat = FanGraphsStat.PITCHING
+    STATS: FanGraphsStatsCategory = FanGraphsStatsCategory.PITCHING
     DEFAULT_TYPES: List[FanGraphsDataType] = FanGraphsPitchingData.ALL()
     TEAM_DATA: bool = True
 
