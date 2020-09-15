@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 
 @unique
-class FanGraphsStat(Enum):
+class FangraphsStatsCategory(Enum):
     NONE     = None
     BATTING  = 'bat'
     FIELDING = 'fld'

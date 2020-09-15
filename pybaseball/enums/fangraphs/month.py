@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 
 @unique
-class FanGraphsMonth(Enum):
+class FangraphsMonth(Enum):
     ALL               = 0
     MARCH_APRIL       = 4
     MAY               = 5

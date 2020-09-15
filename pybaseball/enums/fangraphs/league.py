@@ -2,7 +2,7 @@ from enum import Enum, unique
 
 
 @unique
-class FanGraphsLeague(Enum):
+class FangraphsLeague(Enum):
     ALL = 'all'
     AL  = 'al'
     FL  = 'fl'

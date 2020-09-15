@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from pybaseball.datasources.fangraphs import FanGraphsLeague, fg_team_batting_data
+from pybaseball.datasources.fangraphs import FangraphsLeague, fg_team_batting_data
 
 
 def team_batting(start_season: int, end_season: int = None, league: str = 'all', ind: int = 1) -> pd.DataFrame:
@@ -24,7 +24,7 @@ def team_batting(start_season: int, end_season: int = None, league: str = 'all',
     return fg_team_batting_data(
         start_season,
         end_season=end_season,
-        league=FanGraphsLeague(league),
+        league=FangraphsLeague(league),
         split_seasons=bool(ind)
     )
 
