@@ -25,7 +25,7 @@ class FangraphsDataTable(ABC):
     DATA_ROWS_XPATH: str = "({TABLE_XPATH}/tbody//tr)"
     DATA_CELLS_XPATH: str = "td[position()>1]/descendant-or-self::*/text()"
     QUERY_ENDPOINT: str = _FG_LEADERS_URL
-    STATS: FangraphsStatsCategory = FangraphsStatsCategory.NONE
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.NONE
     DEFAULT_TYPES: List[FangraphsDataType] = []
     KNOWN_PERCENTAGES: List[str] = []
     TEAM_DATA: bool = False
@@ -102,11 +102,11 @@ class FangraphsDataTable(ABC):
         if end_season is None:
             end_season = start_season
 
-        assert self.STATS is not None
+        assert self.STATS_CATEGORY is not None
 
         url_options = {
             'pos': position.value,
-            'stats': self.STATS.value,
+            'stats': self.STATS_CATEGORY.value,
             'lg': league.value,
             'qual': qual if qual is not None else 'y',
             'type': type_list_to_str(types),
@@ -135,7 +135,7 @@ class FangraphsDataTable(ABC):
         )
 
 class FangraphsBattingStatsTable(FangraphsDataTable):
-    STATS: FangraphsStatsCategory = FangraphsStatsCategory.BATTING
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.BATTING
     DEFAULT_TYPES: List[FangraphsDataType] = FangraphsBattingStats.ALL()
     COLUMN_NAME_MAPPER: ColumnListMapperFunction = BattingStatsColumnMapper().map_list
     KNOWN_PERCENTAGES: List[str] = ["GB/FB"]
@@ -144,7 +144,7 @@ class FangraphsBattingStatsTable(FangraphsDataTable):
         return self._sort(data, ["WAR", "OPS"], ascending=False)
 
 class FangraphsPitchingStatsTable(FangraphsDataTable):
-    STATS: FangraphsStatsCategory = FangraphsStatsCategory.PITCHING
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.PITCHING
     DEFAULT_TYPES: List[FangraphsDataType] = FangraphsPitchingStats.ALL()
 
     def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -156,18 +156,18 @@ class FangraphsPitchingStatsTable(FangraphsDataTable):
         return self._sort(data, ["WAR", "W"], ascending=False)
 
 class FangraphsTeamBattingDataTable(FangraphsDataTable):
-    STATS: FangraphsStatsCategory = FangraphsStatsCategory.BATTING
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.BATTING
     DEFAULT_TYPES: List[FangraphsDataType] = FangraphsBattingStats.ALL()
     COLUMN_NAME_MAPPER: ColumnListMapperFunction = BattingStatsColumnMapper().map_list
     TEAM_DATA: bool = True
 
 class FangraphsTeamFieldingDataTable(FangraphsDataTable):
-    STATS: FangraphsStatsCategory = FangraphsStatsCategory.FIELDING
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.FIELDING
     DEFAULT_TYPES: List[FangraphsDataType] = FangraphsFieldingStats.ALL()
     TEAM_DATA: bool = True
 
 class FangraphsTeamPitchingDataTable(FangraphsDataTable):
-    STATS: FangraphsStatsCategory = FangraphsStatsCategory.PITCHING
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.PITCHING
     DEFAULT_TYPES: List[FangraphsDataType] = FangraphsPitchingStats.ALL()
     TEAM_DATA: bool = True
 
