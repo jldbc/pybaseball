@@ -109,7 +109,7 @@ class FangraphsDataTable(ABC):
             raise ValueError("parameter 'league' cannot be None.")
 
         url_options = {
-            'pos': FangraphsPositions.parse(position),
+            'pos': FangraphsPositions.parse(position).value,
             'stats': self.STATS_CATEGORY.value,
             'lg': FangraphsLeague.parse(league.upper()).value,
             'qual': qual if qual is not None else 'y',
