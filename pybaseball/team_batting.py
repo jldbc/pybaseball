@@ -19,8 +19,6 @@ def team_batting(start_season: int, end_season: int = None, league: str = 'all',
                             0 if you want a team's aggreagate data over all seasons in the query
     """
 
-    warnings.warn("team_batting is deprecated in favor of fg_team_batting_data", PendingDeprecationWarning)
-
     return fg_team_batting_data(
         start_season,
         end_season=end_season,
