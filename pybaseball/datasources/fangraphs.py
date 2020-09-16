@@ -118,7 +118,7 @@ class FangraphsDataTable(ABC):
             'month': FangraphsMonth.parse(month).value,
             'season1': start_season,
             'ind': int(split_seasons),
-            'team': team + ',ts' if self.TEAM_DATA else '',
+            'team': team + (',ts' if self.TEAM_DATA else ''),
             'rost': int(on_active_roster),
             'age': f"{minimum_age},{maximum_age}",
             'filter': _filter,
