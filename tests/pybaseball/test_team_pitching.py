@@ -22,7 +22,7 @@ def test_team_pitching(response_get_monkeypatch: Callable, sample_html: str, sam
 
     response_get_monkeypatch(sample_html)
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(PendingDeprecationWarning):
         team_pitching_result = team_pitching(season).reset_index(drop=True)
 
     pd.testing.assert_frame_equal(team_pitching_result, sample_processed_result)

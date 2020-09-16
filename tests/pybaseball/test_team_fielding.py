@@ -21,7 +21,7 @@ def test_team_fielding(response_get_monkeypatch: Callable, sample_html: str, sam
 
     response_get_monkeypatch(sample_html)
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(PendingDeprecationWarning):
         team_fielding_result = team_fielding(season).reset_index(drop=True)
 
     pd.testing.assert_frame_equal(team_fielding_result, sample_processed_result)

@@ -21,7 +21,7 @@ def test_team_batting(response_get_monkeypatch: Callable, sample_html: str, samp
 
     response_get_monkeypatch(sample_html)
 
-    with pytest.warns(DeprecationWarning):
+    with pytest.warns(PendingDeprecationWarning):
         team_batting_result = team_batting(season).reset_index(drop=True)
 
     pd.testing.assert_frame_equal(team_batting_result, sample_processed_result)
