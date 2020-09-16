@@ -18,8 +18,6 @@ def team_pitching(start_season: int, end_season: int = None, league: str = 'all'
     ind             : int : 1 if you want individual season level data
                             0 if you want a team'ss aggreagate data over all seasons in the query
     """
-    
-    warnings.warn("team_pitching is deprecated in favor of fg_team_pitching_data", PendingDeprecationWarning)
 
     return fg_team_pitching_data(
         start_season,
