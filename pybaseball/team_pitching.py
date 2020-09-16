@@ -4,7 +4,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from pybaseball.datasources.fangraphs import fg_team_pitching_data
+from .datasources.fangraphs import fg_team_pitching_data
 
 
 def team_pitching(start_season: int, end_season: int = None, league: str = 'all', ind: int = 1):
@@ -19,7 +19,7 @@ def team_pitching(start_season: int, end_season: int = None, league: str = 'all'
                             0 if you want a team'ss aggreagate data over all seasons in the query
     """
     
-    warnings.warn("team_pitching is deprecated in favor of fg_team_pitching_data", DeprecationWarning)
+    warnings.warn("team_pitching is deprecated in favor of fg_team_pitching_data", PendingDeprecationWarning)
 
     return fg_team_pitching_data(
         start_season,

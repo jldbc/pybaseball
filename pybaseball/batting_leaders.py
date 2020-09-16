@@ -3,7 +3,7 @@ from typing import Optional
 
 import pandas as pd
 
-from pybaseball.datasources.fangraphs import fg_batting_data
+from .datasources.fangraphs import fg_batting_data
 
 
 def batting_stats(start_season: int, end_season: int = None, league: str = 'all', qual: Optional[int] = None,
@@ -23,7 +23,7 @@ def batting_stats(start_season: int, end_season: int = None, league: str = 'all'
                                    0 if you want a player's aggreagate data over all seasons in the query
     """
 
-    warnings.warn("batting_stats is deprecated in favor of fg_batting_data", DeprecationWarning)
+    warnings.warn("batting_stats is deprecated in favor of fg_batting_data", PendingDeprecationWarning)
 
     return fg_batting_data(
         start_season,
