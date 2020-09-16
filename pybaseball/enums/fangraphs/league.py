@@ -1,6 +1,6 @@
 from enum import unique
 
-from pybaseball.enums.enum_base import EnumBase
+from ..enum_base import EnumBase
 
 
 @unique

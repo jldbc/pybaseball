@@ -6,10 +6,10 @@ import lxml
 import pandas as pd
 import requests
 
-from pybaseball.datahelpers import postprocessing
-from pybaseball.datahelpers.column_mapper import BattingStatsColumnMapper, ColumnListMapperFunction, GenericColumnMapper
-from pybaseball.datasources.html_table_processor import HTMLTableProcessor
-from pybaseball.enums.fangraphs import (FangraphsBattingStats, FangraphsFieldingStats, FangraphsLeague, FangraphsMonth,
+from ..datahelpers import postprocessing
+from ..datahelpers.column_mapper import BattingStatsColumnMapper, ColumnListMapperFunction, GenericColumnMapper
+from .html_table_processor import HTMLTableProcessor
+from ..enums.fangraphs import (FangraphsBattingStats, FangraphsFieldingStats, FangraphsLeague, FangraphsMonth,
                                         FangraphsPitchingStats, FangraphsPositions, FangraphsStatColumn,
                                         FangraphsStatsCategory, stat_list_from_str, stat_list_to_str)
 

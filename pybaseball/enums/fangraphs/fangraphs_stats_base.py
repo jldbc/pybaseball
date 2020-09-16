@@ -1,4 +1,4 @@
-from pybaseball.enums.enum_base import EnumBase
+from ..enum_base import EnumBase
 from typing import List, Tuple, Union
 
 _COMMON_COLUMNS =  ['0', '1', '2']

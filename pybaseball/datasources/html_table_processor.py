@@ -4,8 +4,8 @@ import lxml
 import pandas as pd
 import requests
 
-from pybaseball.datahelpers import postprocessing
-from pybaseball.datahelpers.column_mapper import ColumnListMapperFunction
+from ..datahelpers import postprocessing
+from ..datahelpers.column_mapper import ColumnListMapperFunction
 
 
 class HTMLTableProcessor:
