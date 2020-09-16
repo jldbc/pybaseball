@@ -23,7 +23,6 @@ def test_batting_stats(response_get_monkeypatch: Callable, sample_html: str,
 
     response_get_monkeypatch(sample_html)
 
-    with pytest.warns(PendingDeprecationWarning):
-        batting_stats_result = batting_stats(season).reset_index(drop=True)
+    batting_stats_result = batting_stats(season).reset_index(drop=True)
 
     pd.testing.assert_frame_equal(batting_stats_result, sample_processed_result)

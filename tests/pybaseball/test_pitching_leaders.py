@@ -21,7 +21,6 @@ def test_pitching_stats(response_get_monkeypatch: Callable, sample_html: str, sa
 
     response_get_monkeypatch(sample_html)
 
-    with pytest.warns(PendingDeprecationWarning):
-        pitching_stats_result = pitching_stats(season).reset_index(drop=True)
+    pitching_stats_result = pitching_stats(season).reset_index(drop=True)
 
     pd.testing.assert_frame_equal(pitching_stats_result, sample_processed_result)
