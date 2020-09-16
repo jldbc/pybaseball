@@ -56,7 +56,7 @@ class FangraphsDataTable(ABC):
     def fetch(self, start_season: int, end_season: Optional[int] = None, stat_columns: Union[str, List[str]] = 'ALL',
               league: str = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
               month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
-              maximum_age: int = MAX_AGE, team: str = '0', _filter: str = '', players: str = '',
+              maximum_age: int = MAX_AGE, team: str = '', _filter: str = '', players: str = '',
               position: str = 'ALL', max_results: int = 1000000,) -> pd.DataFrame:
 
         """
@@ -118,7 +118,7 @@ class FangraphsDataTable(ABC):
             'month': FangraphsMonth.parse(month).value,
             'season1': start_season,
             'ind': int(split_seasons),
-            'team': team + (',ts' if self.TEAM_DATA else ''),
+            'team':  f'{team or 0},ts' if self.TEAM_DATA else team,
             'rost': int(on_active_roster),
             'age': f"{minimum_age},{maximum_age}",
             'filter': _filter,
