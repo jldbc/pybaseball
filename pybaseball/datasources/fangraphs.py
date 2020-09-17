@@ -120,7 +120,7 @@ class FangraphsDataTable(ABC):
             'season': end_season,
             'month': FangraphsMonth.parse(month).value,
             'season1': start_season,
-            'ind': ind if ind == 0 else int(split_seasons),
+            'ind': ind if ind == 0 and split_seasons else int(split_seasons),
             'team':  f'{team or 0},ts' if self.TEAM_DATA else team,
             'rost': int(on_active_roster),
             'age': f"{minimum_age},{maximum_age}",
