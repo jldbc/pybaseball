@@ -9,7 +9,7 @@ import requests
 import pybaseball.datasources.statcast as statcast_ds
 
 _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={game_pk}"
-_SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&team=&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&"
+_SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&team={team}&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&"
 
 def validate_datestring(date_text):
     try:
@@ -41,15 +41,19 @@ def sanitize_input(start_dt, end_dt):
     
     return start_dt, end_dt
 
-def small_request(start_dt, end_dt):
-    return statcast_ds.get_statcast_data_from_csv_url(
-        _SC_SMALL_REQUEST.format(start_dt=start_dt, end_dt=end_dt)
-    ).sort_values(
-        ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
-        ascending=False
+def small_request(start_dt, end_dt, team: str = None) -> pd.DataFrame:
+    data = statcast_ds.get_statcast_data_from_csv_url(
+        _SC_SMALL_REQUEST.format(start_dt=start_dt, end_dt=end_dt, team=team if team else '')
     )
+    if data is not None and not data.empty:
+        data = data.sort_values(
+            ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
+            ascending=False
+        )
 
-def large_request(start_dt, end_dt, d1, d2, step, verbose):
+    return data
+
+def large_request(start_dt, end_dt, d1, d2, step, verbose, team: str = None) -> pd.DataFrame:
     """
     Break start and end date into smaller increments, collecting all data in small chunks
     and appending all results to a common dataframe end_dt is the date strings for the
@@ -92,7 +96,7 @@ def large_request(start_dt, end_dt, d1, d2, step, verbose):
 
         start_dt = d1.strftime('%Y-%m-%d')
         intermediate_end_dt = d.strftime('%Y-%m-%d')
-        data = small_request(start_dt, intermediate_end_dt)
+        data = small_request(start_dt, intermediate_end_dt, team=team)
         
         # Append to list of dataframes if not empty or failed
         # (failed requests have one row saying "Error: Query Timeout")
@@ -102,7 +106,7 @@ def large_request(start_dt, end_dt, d1, d2, step, verbose):
             # If it failed, retry up to three times
             success = 0
             while success == 0:
-                data = small_request(start_dt, intermediate_end_dt)
+                data = small_request(start_dt, intermediate_end_dt, team=team)
                 if data.shape[0] > 1:
                     dataframe_list.append(data)
                     success = 1
@@ -114,8 +118,8 @@ def large_request(start_dt, end_dt, d1, d2, step, verbose):
                     # dataframe list if successful, skip and print error message if failed.
                     tmp_end = d - datetime.timedelta(days=1)
                     tmp_end = tmp_end.strftime('%Y-%m-%d')
-                    smaller_data_1 = small_request(start_dt, tmp_end)
-                    smaller_data_2 = small_request(intermediate_end_dt, intermediate_end_dt)
+                    smaller_data_1 = small_request(start_dt, tmp_end, team=team)
+                    smaller_data_2 = small_request(intermediate_end_dt, intermediate_end_dt, team=team)
                     if smaller_data_1.shape[0] > 1:
                         dataframe_list.append(smaller_data_1)
                         print("Completed sub-query from {} to {}".format(start_dt, tmp_end))
@@ -154,7 +158,7 @@ def large_request(start_dt, end_dt, d1, d2, step, verbose):
         # start_dt from the earlier loop will work,
         # but instead of d we now want the original end_dt
         start_dt = d1.strftime('%Y-%m-%d')
-        data = small_request(start_dt, end_dt)
+        data = small_request(start_dt, end_dt, team=team)
         dataframe_list.append(data)
         if verbose:
             print("Completed sub-query from {} to {}".format(start_dt, end_dt))
@@ -191,11 +195,11 @@ def statcast(start_dt=None, end_dt=None, team=None, verbose=True):
         d2 = datetime.datetime.strptime(end_dt, date_format)
         days_in_query = (d2 - d1).days
         if days_in_query <= small_query_threshold:
-            return small_request(start_dt, end_dt)
+            return small_request(start_dt, end_dt, team=team)
         else:
-            return large_request(start_dt, end_dt, d1, d2, step=small_query_threshold, verbose=verbose)
+            return large_request(start_dt, end_dt, d1, d2, step=small_query_threshold, verbose=verbose, team=team)
 
-def statcast_single_game(game_pk, team=None):
+def statcast_single_game(game_pk):
     """
     Pulls statcast play-level data from Baseball Savant for a single game,
     identified by its MLB game ID (game_pk in statcast data)
