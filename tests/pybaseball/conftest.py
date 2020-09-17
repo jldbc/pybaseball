@@ -72,6 +72,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
             class DummyResponse:
                 def __init__(self, content: Union[str, bytes]):
                     self.content = content
+                    self.status_code = 200
 
             return DummyResponse(result)
 
