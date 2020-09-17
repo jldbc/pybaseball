@@ -4,7 +4,7 @@ import pandas as pd
 import pytest
 import requests
 
-from pybaseball.team_pitching import _FG_TEAM_PITCHING_URL, team_pitching
+from pybaseball.team_pitching import team_pitching
 
 
 @pytest.fixture()
@@ -17,19 +17,11 @@ def sample_processed_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('team_pitching.csv')
 
 
-class TestTeamPitching:
-    def test_team_pitching(
-        self,
-        response_get_monkeypatch: Callable,
-        sample_html: str,
-        sample_processed_result: pd.DataFrame
-    ):
-        season = 2019
+def test_team_pitching(response_get_monkeypatch: Callable, sample_html: str, sample_processed_result: pd.DataFrame):
+    season = 2019
 
-        expected_url = _FG_TEAM_PITCHING_URL.format(start_season=season, end_season=season, league='all', ind=1)
+    response_get_monkeypatch(sample_html)
 
-        response_get_monkeypatch(sample_html, expected_url)
+    team_pitching_result = team_pitching(season).reset_index(drop=True)
 
-        team_pitching_result = team_pitching(season).reset_index(drop=True)
-
-        pd.testing.assert_frame_equal(team_pitching_result, sample_processed_result)
+    pd.testing.assert_frame_equal(team_pitching_result, sample_processed_result)

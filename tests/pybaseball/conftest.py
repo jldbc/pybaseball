@@ -1,11 +1,12 @@
 import os
-from typing import Generator, Callable, Union
+import urllib.parse
+from typing import Callable, Dict, Generator, Union
 
 import pandas as pd
 import pytest
 import requests
-
 from _pytest.monkeypatch import MonkeyPatch
+
 
 @pytest.fixture()
 def data_dir() -> str:
@@ -65,9 +66,19 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
             expected_url    : str (optional) : an expected_url to test the get call against
                                                to ensure the correct endpoint is hit
         """
-        def _monkeypatch(url: str, timeout: int = None) -> object:
+        def _monkeypatch(url: str, params: Dict = None, timeout: int = None) -> object:
+            final_url = url
+
+            if params:
+                query_params = urllib.parse.urlencode(params, safe=',')
+                final_url = f"{final_url}?{query_params}"
+
             if expected_url is not None:
-                assert url.endswith(expected_url)
+                # These prints are desired as these are long and get cut off in the test outpute.
+                # These will only render on failed tests, so only when you would want to see them anyway.
+                print("expected", expected_url)
+                print("received", final_url)
+                assert final_url.endswith(expected_url)
 
             class DummyResponse:
                 def __init__(self, content: Union[str, bytes]):
