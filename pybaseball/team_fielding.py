@@ -8,24 +8,8 @@ from .datasources.fangraphs import fg_team_fielding_data
 from .datahelpers import postprocessing
 
 
-def team_fielding(start_season: int, end_season: int = None, league: str = 'all', ind: int = 1):
-    """
-    Get season-level fielding data aggregated by team.
-
-    ARGUMENTS:
-    start_season    : int : first season you want data for (or the only season if you do not specify an end_season)
-    end_season      : int : final season you want data for
-    league          : str : "all", "nl", or "al"
-    ind             : int : 1 if you want individual season level data,
-                            0 if you want a team's aggregate data over all seasons in the query
-    """
-
-    return fg_team_fielding_data(
-        start_season,
-        end_season=end_season,
-        league=league,
-        split_seasons=bool(ind)
-    )
+# This is just a pass through for the new, more configurable function
+team_fielding = fg_team_fielding_data
 
 
 def team_fielding_bref(team, start_season, end_season=None):

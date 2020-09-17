@@ -6,27 +6,5 @@ import pandas as pd
 from .datasources.fangraphs import fg_batting_data
 
 
-def batting_stats(start_season: int, end_season: int = None, league: str = 'all', qual: Optional[int] = None,
-                  ind: int = 1) -> pd.DataFrame:
-    """
-    Get season-level batting data from FanGraphs.
-
-    ARGUMENTS:
-    start_season : int           : first season you want data for
-                                   (or the only season if you do not specify an end_season)
-    end_season   : int           : final season you want data for
-    league       : str           : "all", "nl", or "al"
-    qual         : Optional[int] : minimum number of plate appearances to be included in the data.
-                                   If None is specified, the FanGraphs default ('y') is used.
-                                   Default = None
-    ind          : int           : 1 if you want individual season-level data
-                                   0 if you want a player's aggreagate data over all seasons in the query
-    """
-
-    return fg_batting_data(
-        start_season,
-        end_season=end_season,
-        league=league,
-        qual=qual,
-        split_seasons=bool(ind)
-    )
+# This is just a pass through for the new, more configurable function
+batting_stats = fg_batting_data 
