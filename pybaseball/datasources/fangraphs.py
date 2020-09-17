@@ -53,8 +53,8 @@ class FangraphsDataTable(ABC):
     def _validate(self, data: pd.DataFrame) -> pd.DataFrame:
         return data
 
-    def fetch(self, start_season: int, end_season: Optional[int] = None, stat_columns: Union[str, List[str]] = 'ALL',
-              league: str = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
+    def fetch(self, start_season: int, end_season: Optional[int] = None, league: str = 'ALL', ind: int = 1,
+              stat_columns: Union[str, List[str]] = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
               month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
               maximum_age: int = MAX_AGE, team: str = '', _filter: str = '', players: str = '',
               position: str = 'ALL', max_results: int = 1000000,) -> pd.DataFrame:
@@ -66,9 +66,12 @@ class FangraphsDataTable(ABC):
         start_season       : int              : First season to return data for
         end_season         : int              : Last season to return data for
                                                 Default = start_season
-        stat_columns       : str or List[str] : The columns of data to return
-                                                Default = ALL
         league             : str              : League to return data for: ALL, AL, FL, NL
+                                                Default = ALL
+        ind                : int              : DEPRECATED. ONLY FOR BACKWARDS COMPATIBILITY. USE split_seasons INSTEAD
+                                                1 if you want individual season-level data
+                                                0 if you want a player's aggreagate data over all seasons in the query
+        stat_columns       : str or List[str] : The columns of data to return
                                                 Default = ALL
         qual               : Optional[int]    : Minimum number of plate appearances to be included.
                                                 If None is specified, the Fangraphs default ('y') is used.
@@ -117,7 +120,7 @@ class FangraphsDataTable(ABC):
             'season': end_season,
             'month': FangraphsMonth.parse(month).value,
             'season1': start_season,
-            'ind': int(split_seasons),
+            'ind': ind if ind == 0 else int(split_seasons),
             'team':  f'{team or 0},ts' if self.TEAM_DATA else team,
             'rost': int(on_active_roster),
             'age': f"{minimum_age},{maximum_age}",

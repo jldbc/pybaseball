@@ -7,24 +7,8 @@ from bs4 import BeautifulSoup
 from .datasources.fangraphs import fg_team_batting_data
 
 
-def team_batting(start_season: int, end_season: int = None, league: str = 'all', ind: int = 1) -> pd.DataFrame:
-    """
-    Get season-level batting data aggregated by team.
-
-    ARGUMENTS:
-    start_season    : int : first season you want data for (or the only season if you do not specify an end_season)
-    end_season      : int : final season you want data for
-    league          : str : "all", "nl", or "al"
-    ind             : int : 1 if you want individual season level data
-                            0 if you want a team's aggreagate data over all seasons in the query
-    """
-
-    return fg_team_batting_data(
-        start_season,
-        end_season=end_season,
-        league=league,
-        split_seasons=bool(ind)
-    )
+# This is just a pass through for the new, more configurable function
+team_batting = fg_team_batting_data
 
 def team_batting_bref(team, start_season, end_season=None):
     """

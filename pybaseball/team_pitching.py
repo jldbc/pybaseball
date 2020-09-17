@@ -7,24 +7,8 @@ from bs4 import BeautifulSoup
 from .datasources.fangraphs import fg_team_pitching_data
 
 
-def team_pitching(start_season: int, end_season: int = None, league: str = 'all', ind: int = 1):
-    """
-    Get season-level pitching data aggregated by team.
-
-    ARGUMENTS:
-    start_season    : int : first season you want data for (or the only season if you do not specify an end_season)
-    end_season      : int : final season you want data for
-    league          : str : "all", "nl", or "al"
-    ind             : int : 1 if you want individual season level data
-                            0 if you want a team'ss aggreagate data over all seasons in the query
-    """
-
-    return fg_team_pitching_data(
-        start_season,
-        end_season=end_season,
-        league=league,
-        split_seasons=bool(ind)
-    )
+# This is just a pass through for the new, more configurable function
+team_pitching = fg_team_pitching_data 
 
 def team_pitching_bref(team, start_season, end_season=None):
     """
