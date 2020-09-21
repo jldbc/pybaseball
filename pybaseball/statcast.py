@@ -13,20 +13,24 @@ _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={g
 _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&team={team}&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&"
 DATE_FORMAT = "%Y-%m-%d"
 
-def validate_datestring(date_text: Optional[str]) -> datetime.datetime:
+def validate_datestring(date_text: Optional[str]) -> datetime.date:
     try:
         assert date_text
-        return datetime.datetime.strptime(date_text, DATE_FORMAT)
+        return datetime.datetime.strptime(date_text, DATE_FORMAT).date()
     except (AssertionError, ValueError):
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
-def sanitize_input(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[datetime.datetime, datetime.datetime]:
+def sanitize_input(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[datetime.date, datetime.date]:
     # If no dates are supplied, assume they want yesterday's data
     # send a warning in case they wanted to specify
     if start_dt is None and end_dt is None:
-        today = datetime.datetime.today()
-        start_dt = (today - datetime.timedelta(1)).strftime(DATE_FORMAT)
-        end_dt = today.strftime(DATE_FORMAT)
+        today = datetime.datetime.today().date()
+        start_dt = str(today - datetime.timedelta(1))
+        end_dt = str(today)
+
+        print('start_dt', start_dt)
+        print('end_dt', end_dt)
+
         print(
             "Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, try get_statcast(start_dt, end_dt)."
         )
@@ -41,9 +45,9 @@ def sanitize_input(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[date
     # Now that both dates are not None, make sure they are valid date strings
     return validate_datestring(start_dt), validate_datestring(end_dt)
 
-def small_request(start_dt: datetime.datetime, end_dt: datetime.datetime, team: Optional[str] = None) -> pd.DataFrame:
+def small_request(start_dt: datetime.date, end_dt: datetime.date, team: Optional[str] = None) -> pd.DataFrame:
     data = statcast_ds.get_statcast_data_from_csv_url(
-        _SC_SMALL_REQUEST.format(start_dt=start_dt.strftime(DATE_FORMAT), end_dt=end_dt.strftime(DATE_FORMAT), team=team if team else '')
+        _SC_SMALL_REQUEST.format(start_dt=str(start_dt), end_dt=str(end_dt), team=team if team else '')
     )
     if data is not None and not data.empty:
         data = data.sort_values(
@@ -53,7 +57,7 @@ def small_request(start_dt: datetime.datetime, end_dt: datetime.datetime, team: 
 
     return data
 
-def large_request(start_dt_datetime: datetime.datetime, end_dt_datetime: datetime.datetime, step: int, verbose: bool,
+def large_request(start_dt_datetime: datetime.date, end_dt_datetime: datetime.date, step: int, verbose: bool,
                   team: Optional[str] = None) -> pd.DataFrame:
     """
     Break start and end date into smaller increments, collecting all data in small chunks
@@ -122,14 +126,14 @@ def large_request(start_dt_datetime: datetime.datetime, end_dt_datetime: datetim
                     smaller_data_2 = small_request(d, d, team=team)
                     if smaller_data_1.shape[0] > 1:
                         dataframe_list.append(smaller_data_1)
-                        print("Completed sub-query from {} to {}".format(d1.strftime(DATE_FORMAT), tmp_end.strftime(DATE_FORMAT)))
+                        print(f"Completed sub-query from {d1} to {tmp_end}")
                     else:
-                        print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(d, tmp_end.strftime(DATE_FORMAT)))
+                        print(f"Query unsuccessful for data from {d} to {tmp_end}. Skipping these dates.")
                     if smaller_data_2.shape[0] > 1:
                         dataframe_list.append(smaller_data_2)
-                        print("Completed sub-query from {} to {}".format(d.strftime(DATE_FORMAT), d.strftime(DATE_FORMAT)))
+                        print(f"Completed sub-query from {d} to {d}")
                     else:
-                        print("Query unsuccessful for data from {} to {}. Skipping these dates.".format(d.strftime(DATE_FORMAT), d.strftime(DATE_FORMAT)))
+                        print(f"Query unsuccessful for data from {d} to {d}. Skipping these dates.")
 
                     # Flag for passing over the success message since this request failed
                     no_success_msg_flag = True
@@ -141,7 +145,7 @@ def large_request(start_dt_datetime: datetime.datetime, end_dt_datetime: datetim
 
         if verbose:
             if no_success_msg_flag is False:
-                print("Completed sub-query from {} to {}".format(d1.strftime(DATE_FORMAT), d.strftime(DATE_FORMAT)))
+                print(f"Completed sub-query from {d1} to {d}")
             else:
                 no_success_msg_flag = False # if failed, reset this flag so message will send again next iteration
         
@@ -160,7 +164,7 @@ def large_request(start_dt_datetime: datetime.datetime, end_dt_datetime: datetim
         data = small_request(d1, end_dt_datetime, team=team)
         dataframe_list.append(data)
         if verbose:
-            print("Completed sub-query from {} to {}".format(d1.strftime(DATE_FORMAT), end_dt_datetime.strftime(DATE_FORMAT)))
+            print(f"Completed sub-query from {d1} to {end_dt_datetime}")
 
     # Concatenate all dataframes into final result set
     final_data = pd.concat(dataframe_list, axis=0)

@@ -31,26 +31,26 @@ def single_game(get_data_file_dataframe: GetDataFrameCallable) -> pd.DataFrame:
 
 class TestStatcast:
     def test_sanitize_input_nones(self) -> None:
-        yesterday = datetime.today() - timedelta(days=1)
+        yesterday = datetime.today().date() - timedelta(days=1)
 
         start_dt, end_dt = sanitize_input(None, None)
 
-        assert start_dt.date() == yesterday.date()
-        assert end_dt.date() == datetime.today().date()
+        assert start_dt == yesterday
+        assert end_dt == datetime.today().date()
         
     def test_sanitize_input_no_end_dt(self) -> None:
-        yesterday = datetime.today() - timedelta(days=1)
+        yesterday = datetime.today().date() - timedelta(days=1)
 
-        start_dt, end_dt = sanitize_input(yesterday.strftime(DATE_FORMAT), None)
+        start_dt, end_dt = sanitize_input(str(yesterday), None)
 
-        assert start_dt.date() == yesterday.date()
-        assert end_dt.date() == yesterday.date()
+        assert start_dt == yesterday
+        assert end_dt == yesterday
         
     def test_sanitize_input(self) -> None:
         start_dt, end_dt = sanitize_input('2020-05-06', '2020-06-06')
 
-        assert start_dt == datetime.strptime('2020-05-06', DATE_FORMAT)
-        assert end_dt == datetime.strptime('2020-06-06', DATE_FORMAT)
+        assert start_dt == datetime.strptime('2020-05-06', DATE_FORMAT).date()
+        assert end_dt == datetime.strptime('2020-06-06', DATE_FORMAT).date()
         
     def test_sanitize_input_bad_start_dt(self) -> None:
         with pytest.raises(ValueError) as ex_info:
@@ -74,8 +74,8 @@ class TestStatcast:
         response_get_monkeypatch(
             small_request_raw.encode('UTF-8'),
             _SC_SMALL_REQUEST.format(
-                start_dt=start_dt.strftime(DATE_FORMAT),
-                end_dt=end_dt.strftime(DATE_FORMAT),
+                start_dt=start_dt,
+                end_dt=end_dt,
                 team=''
             )
         )
@@ -94,8 +94,8 @@ class TestStatcast:
         response_get_monkeypatch(
             small_request_raw.encode('UTF-8'),
             _SC_SMALL_REQUEST.format(
-                start_dt=start_dt.strftime(DATE_FORMAT),
-                end_dt=end_dt.strftime(DATE_FORMAT),
+                start_dt=start_dt,
+                end_dt=end_dt,
                 team='TB'
             )
         )
