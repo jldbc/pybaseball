@@ -80,7 +80,7 @@ setup(
                       'requests>=2.18.1',
                       'lxml>=4.2.1',
                       'pygithub>=1.51',
-                      'altair>=4.1.0',
+                      'altair>=4.0.0',
                       'scipy>=1.4.0',
                       ],
 
