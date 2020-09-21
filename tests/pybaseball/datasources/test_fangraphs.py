@@ -60,6 +60,7 @@ def _test_team_pitching_html(get_data_file_contents: Callable) -> str:
 def _test_team_pitching_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('team_pitching.csv')
 
+
 class TestDatasourceFangraphs:
     def test_batting_stats(self, response_get_monkeypatch: Callable, test_batting_stats_html: str,
                            test_batting_stats_result: pd.DataFrame):
