@@ -10,6 +10,15 @@ from typing_extensions import Protocol
 
 _ParseDates = Union[bool, List[int], List[str], List[List], Dict]
 
+# The Protocol class below is to be sure that we are passing the correct kind of Callable around in our tests.
+# These are validated by MyPy at test time. Not at runtime (Python does not do runtime type checking).
+# Protocols are a way to define that when we pass a function around
+# (like we do in these tests to pass the functions in to load data),
+# that the function sent over will take the correct typed parameters,
+# and return the correct types.
+# So in this instance we're defining that the type GetDataFrameCallable is a function that will
+# take the params defined in __call__ and the return type defined in __call__.
+# Further reading: https://docs.python.org/3/library/typing.html#typing.Protocol
 class GetDataFrameCallable(Protocol):
     def __call__(self, filename: str, parse_dates: _ParseDates = False) -> pd.DataFrame: ...
 

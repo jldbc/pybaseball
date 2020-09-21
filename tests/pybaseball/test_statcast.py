@@ -8,6 +8,7 @@ import requests
 from pybaseball.statcast import (_SC_SINGLE_GAME_REQUEST, _SC_SMALL_REQUEST, sanitize_input, statcast,
                                  statcast_single_game, DATE_FORMAT)
 
+# For an explanation of this type, see the note on GetDataFrameCallable in tests/pybaseball/conftest.py
 from .conftest import GetDataFrameCallable
 
 
