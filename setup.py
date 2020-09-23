@@ -80,8 +80,8 @@ setup(
                       'requests>=2.18.1',
                       'lxml>=4.2.1',
                       'pygithub>=1.51',
-                      'altair',
-                      'scipy>=1.4.0'
+                      'altair>=4.0.0',
+                      'scipy>=1.4.0',
                       ],
 
     # List additional groups of dependencies here (e.g. development
@@ -90,7 +90,10 @@ setup(
     # $ pip install -e .[dev,test]
     extras_require={
     #    'dev': ['check-manifest'],
-        'test': ['pytest', 'mypy'],
+        'test': ['pytest>=6.0.2',
+                 'mypy>=0.782',
+                 'pytest-cov>=2.10.1',
+                 ],
     },
 
     # If there are data files included in your packages that need to be
