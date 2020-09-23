@@ -56,7 +56,7 @@ class CacheConfig:
 
 
 # Cache is disabled by default
-cache_config = CacheConfig(enabled=False)
+cache_config = CacheConfig()
 
 
 class dataframe_cache:  # pylint: disable=invalid-name
@@ -132,11 +132,17 @@ class dataframe_cache:  # pylint: disable=invalid-name
     def extension(self) -> str:
         return str(self.cache_config.cache_type.value)
 
-    def __init__(self, cache_config_override: CacheConfig = None, reset_cache: bool = False):
-        if cache_config_override:
-            self.cache_config = cache_config_override
-        else:
-            self.cache_config = cache_config
+    @property
+    def cache_config(self) -> CacheConfig:
+        if self.cache_config_override:
+            return self.cache_config_override
+
+        return cache_config
+    
+    cache_config_override: Optional[CacheConfig] = None
+
+    def __init__(self, cache_config_override: Optional[CacheConfig] = None, reset_cache: bool = False):
+        self.cache_config_override = cache_config_override
         self.reset_cache = reset_cache
         _mkdir(self.cache_config.cache_directory)
 
@@ -161,8 +167,7 @@ class dataframe_cache:  # pylint: disable=invalid-name
                 # If this fails, log it, and then go ahead and make the function call
                 # No need to crash the real work in this phase
                 for ex in traceback.format_exc().split('\n'):
-                    logging.error(ex)
-
+                    logging.debug(ex)
             result = func(*args, **kwargs)
 
             if filename and result is not None and isinstance(result, pd.DataFrame) and not result.empty:
