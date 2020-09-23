@@ -16,9 +16,9 @@ from pybaseball.datahelpers import caching
 
 
 @pytest.fixture(autouse=True, name="mkdir")
-def _mkdir() -> MagicMock:
+def _mkdir(monkeypatch: MonkeyPatch) -> MagicMock:
     mock = MagicMock()
-    patch.object(pathlib.Path.mkdir, mock)
+    monkeypatch.setattr('pathlib.Path.mkdir', mock)
     return mock
 
 
