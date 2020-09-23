@@ -377,20 +377,27 @@ class TestCacheWrapper:
         def _thrower(*args: Any, **kwargs: Any) -> bool:
             raise Exception
      
-        monkeypatch.setattr(os.path, 'exists', _thrower)
 
         df_func = MagicMock(return_value=mock_data_1)
         df_func.__name__ = "df_func"
 
-        df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
+        load_mock = MagicMock()
+        save_mock = MagicMock()
 
+        df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
+        monkeypatch.setattr(df_cache, 'load', load_mock)
+        monkeypatch.setattr(df_cache, 'save', save_mock)
+        monkeypatch.setattr(caching.dataframe_cache, '_get_f_hash', _thrower)
+    
         assert df_cache.cache_config.enabled == True
 
         wrapper = df_cache.__call__(df_func)
-
+    
         result = wrapper(*(1, 2), **{'val1': 'a'})
 
         pd.testing.assert_frame_equal(result, mock_data_1)
+        load_mock.assert_not_called()
+        save_mock.assert_not_called()
 
     def test_load_csv(self, monkeypatch: MonkeyPatch) -> None:
         read_csv_mock = MagicMock()
