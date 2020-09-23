@@ -16,6 +16,8 @@ _ProfileRun = Tuple[Callable, Callable, int]
 
 _ProfileRun = Tuple[Callable, Callable, int]
 
+_ProfileRun = Tuple[Callable, Callable, int]
+
 ITERATIONS = 10
 
 def mock_requests_get(html: str):
