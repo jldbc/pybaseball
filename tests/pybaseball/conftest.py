@@ -1,11 +1,26 @@
 import os
 import urllib.parse
-from typing import Callable, Dict, Generator, Union
+from typing import Callable, Dict, Generator, List, Union
 
 import pandas as pd
 import pytest
 import requests
 from _pytest.monkeypatch import MonkeyPatch
+from typing_extensions import Protocol
+
+_ParseDates = Union[bool, List[int], List[str], List[List], Dict]
+
+# The Protocol class below is to be sure that we are passing the correct kind of Callable around in our tests.
+# These are validated by MyPy at test time. Not at runtime (Python does not do runtime type checking).
+# Protocols are a way to define that when we pass a function around
+# (like we do in these tests to pass the functions in to load data),
+# that the function sent over will take the correct typed parameters,
+# and return the correct types.
+# So in this instance we're defining that the type GetDataFrameCallable is a function that will
+# take the params defined in __call__ and the return type defined in __call__.
+# Further reading: https://docs.python.org/3/library/typing.html#typing.Protocol
+class GetDataFrameCallable(Protocol):
+    def __call__(self, filename: str, parse_dates: _ParseDates = False) -> pd.DataFrame: ...
 
 
 @pytest.fixture()
@@ -35,11 +50,11 @@ def get_data_file_contents(data_dir: str) -> Callable:
     return get_contents
 
 @pytest.fixture()
-def get_data_file_dataframe(data_dir: str) -> Callable:
+def get_data_file_dataframe(data_dir: str) -> GetDataFrameCallable:
     """
         Returns a function that will allow getting a dataframe from a csv file in the tests data directory easily
     """
-    def get_dataframe(filename: str, parse_dates=False) -> pd.DataFrame:
+    def get_dataframe(filename: str, parse_dates: _ParseDates = False) -> pd.DataFrame:
         """
             Get the DatFrame representation of the contents of a csv file in the tests data directory
 
@@ -56,7 +71,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
     """
         Returns a function that will monkeypatch the requests.get function call to return expected data 
     """
-    def setup(result: Union[str, bytes], expected_url: str = None):
+    def setup(result: Union[str, bytes], expected_url: str = None) -> None:
         """
            Get the DatFrame representation of the contents of a csv file in the tests data directory
 

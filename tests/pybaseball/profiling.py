@@ -86,7 +86,8 @@ if __name__ == "__main__":
     # Print stats
     profiler.disable()
     stats_stream = io.StringIO()
-    profiler_stats = pstats.Stats(profiler, stream=stats_stream).sort_stats(pstats.SortKey.PCALLS)
+    profiler_stats = pstats.Stats(profiler, stream=stats_stream).sort_stats(pstats.SortKey.PCALLS) # type: ignore
+    # TODO: After https://github.com/python/typeshed/pull/4523 is integrated into a mypy release, remove ^ type annotation
     profiler_stats.print_stats()
     try:
         print(stats_stream.getvalue())
