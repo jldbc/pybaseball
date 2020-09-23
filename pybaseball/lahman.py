@@ -8,8 +8,6 @@ import requests
 
 from . import cache
 
-from .datahelpers import caching
-
 url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
 base_string = "baseballdatabank-master/core"
 
@@ -22,7 +20,6 @@ def get_lahman_zip() -> Optional[ZipFile]:
     global _handle
     if path.exists(path.join(cache.cache_config.cache_directory, base_string)):
         _handle = None
-        _separator = os.sep
     elif not _handle:
         s = requests.get(url, stream=True)
         _handle = ZipFile(BytesIO(s.content))
@@ -37,7 +34,6 @@ def download_lahman():
         # this way we'll now start using the extracted zip directory
         # instead of the session ZipFile object
 
-@caching.dataframe_cache()
 def _get_file(tablename: str, quotechar: str = "'") -> pd.DataFrame:
     z = get_lahman_zip()
     f = f'{base_string}/{tablename}'

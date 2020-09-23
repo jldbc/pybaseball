@@ -9,7 +9,7 @@ import shutil
 import traceback
 from datetime import datetime, timedelta
 from enum import Enum, unique
-from typing import Callable, Dict, Hashable, Optional, Tuple, Union, Iterable
+from typing import Any, Callable, Dict, Hashable, Iterable, Optional, Tuple, Union
 
 import pandas as pd
 import pyarrow as pa
@@ -25,19 +25,15 @@ class CacheType(Enum):
 
 
 # Splitting this out for testing with no side effects
-def _mkdir(directory: str):
+def _mkdir(directory: str) -> None:
     return pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
 
 # Splitting this out for testing with no side effects
-
-
-def _remove(filename: str):
+def _remove(filename: str) -> None:
     return os.remove(filename)
 
 # Splitting this out for testing with no side effects
-
-
-def _rmtree(directory: str):
+def _rmtree(directory: str) -> None:
     return shutil.rmtree(directory)
 
 
@@ -55,7 +51,7 @@ class CacheConfig:
 
         _mkdir(self.cache_directory)
 
-    def enable(self, enabled: bool = True):
+    def enable(self, enabled: bool = True) -> None:
         self.enabled = enabled
 
 
@@ -64,6 +60,8 @@ cache_config = CacheConfig(enabled=False)
 
 
 class dataframe_cache:  # pylint: disable=invalid-name
+    MAX_ARGS_KEY_LENGTH = 256
+
     @staticmethod
     def _get_value_hash(value: Optional[Union[str, Dict, Hashable, Iterable]], include_designators: bool = True) -> str:
         if value is None:
@@ -107,14 +105,14 @@ class dataframe_cache:  # pylint: disable=invalid-name
             raise ValueError(f"value {value} of type {type(value)} is not hashable.")
 
     @staticmethod
-    def _get_f_name(func: Callable):
+    def _get_f_name(func: Callable) -> str:
         if '__self__' in dir(func):
             # This is a class method
             return f"{func.__getattribute__('__self__').__class__.__name__}.{func.__name__}"
         return f"{func.__name__}"
 
     @staticmethod
-    def _get_f_hash(func: Callable, args: Tuple, kwargs: Dict):
+    def _get_f_hash(func: Callable, args: Tuple, kwargs: Dict) -> str:
         f_hash = f"{dataframe_cache._get_f_name(func)}"
 
         args_hash = dataframe_cache._get_value_hash(args, include_designators=False)
@@ -122,20 +120,17 @@ class dataframe_cache:  # pylint: disable=invalid-name
 
         args_key = ', '.join([args_hash, kwargs_hash]).strip(', ')
 
-        # Check to see if some older Windows systems might have problems with a longer filename
-        if os.name == 'nt':
-            # pylint: disable=import-outside-toplevel
-            from ctypes import wintypes
+        # If the args_key is very long, just use a sha hash
 
-            if len(args_key) > (wintypes.MAX_PATH / 2):
-                # Let's hash this to make the filename shorter
-                args_key = hashlib.sha256(args_key.encode('utf-8')).hexdigest()
+        if len(args_key) > dataframe_cache.MAX_ARGS_KEY_LENGTH:
+            # Let's hash this to make the filename shorter
+            args_key = hashlib.sha256(args_key.encode('utf-8')).hexdigest()
 
         return f"{f_hash}({args_key})"
 
     @property
     def extension(self) -> str:
-        return self.cache_config.cache_type.value
+        return str(self.cache_config.cache_type.value)
 
     def __init__(self, cache_config_override: CacheConfig = None, reset_cache: bool = False):
         if cache_config_override:
@@ -145,8 +140,8 @@ class dataframe_cache:  # pylint: disable=invalid-name
         self.reset_cache = reset_cache
         _mkdir(self.cache_config.cache_directory)
 
-    def __call__(self, func: Callable):
-        def _cached(*args: Tuple, **kwargs: Dict):
+    def __call__(self, func: Callable[..., pd.DataFrame]) -> Callable:
+        def _cached(*args: Any, **kwargs: Any) -> pd.DataFrame:
             # Skip all this if caching is disabled
             if not self.cache_config.enabled:
                 return func(*args, **kwargs)
@@ -180,7 +175,7 @@ class dataframe_cache:  # pylint: disable=invalid-name
 
         return _cached
 
-    def bust_cache(self, func: Callable):
+    def bust_cache(self, func: Callable) -> None:
         cache_files = [
             x for x in os.walk(self.cache_config.cache_directory).__next__()[2] if x.startswith(f"{func.__name__}(")
         ]
@@ -205,7 +200,7 @@ class dataframe_cache:  # pylint: disable=invalid-name
         )
         return data
 
-    def save(self, data: pd.DataFrame, filename: str):
+    def save(self, data: pd.DataFrame, filename: str) -> None:
         if self.cache_config.cache_type in [CacheType.CSV, CacheType.CSV_GZ]:
             data.to_csv(filename)
         elif self.cache_config.cache_type == CacheType.PARQUET:
@@ -217,6 +212,6 @@ class dataframe_cache:  # pylint: disable=invalid-name
             raise ValueError(f"cache_type of {self.cache_config.cache_type} is unsupported.")
 
 
-def bust_cache():
+def bust_cache() -> None:
     _rmtree(cache_config.cache_directory)
     _mkdir(cache_config.cache_directory)
