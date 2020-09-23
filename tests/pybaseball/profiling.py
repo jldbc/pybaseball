@@ -4,12 +4,13 @@ import io
 import os
 import pstats
 import sys
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
+import argparse
 
 import numpy as np
 import requests
 
-from pybaseball import batting_stats, pitching_stats, team_batting, team_fielding, team_pitching
+from pybaseball import batting_stats, pitching_stats, team_batting, team_fielding, team_pitching, datahelpers
 
 ITERATIONS = 10
 
@@ -19,7 +20,7 @@ def mock_requests_get(html: str):
             self.content = content.encode('utf-8')
             self.status_code = 200
 
-    def fake_get(url: str, timeout: Optional[int] = None):
+    def fake_get(*args: Any, **kwargs: Any) -> DummyResponse:
         return DummyResponse(html)
 
     requests.get = fake_get # type: ignore
@@ -79,6 +80,17 @@ if __name__ == "__main__":
     # Setup profiler
     profiler = cProfile.Profile()
     profiler.enable()
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--cache-enabled', action='store_true', default=False)
+    parser.add_argument('--cache-type', default=None)
+    args = parser.parse_args()
+
+    if args.cache_enabled and args.cache_type is not None:
+        datahelpers.caching.bust_cache()
+        datahelpers.caching.cache_config = datahelpers.caching.CacheConfig(enabled=True, cache_type=datahelpers.caching.CacheType[args.cache_type])
+    else:
+        datahelpers.caching.cache_config.enable(False)
 
     # Run
     profile(profile_suite)
