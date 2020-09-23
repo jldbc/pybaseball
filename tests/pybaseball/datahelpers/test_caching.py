@@ -14,7 +14,7 @@ from _pytest.monkeypatch import MonkeyPatch
 
 from pybaseball.datahelpers import caching
 
-
+# Autouse to prevent file system side effects
 @pytest.fixture(autouse=True, name="mkdir")
 def _mkdir(monkeypatch: MonkeyPatch) -> MagicMock:
     mock = MagicMock()
@@ -22,6 +22,7 @@ def _mkdir(monkeypatch: MonkeyPatch) -> MagicMock:
     return mock
 
 
+# Autouse to prevent file system side effects
 @pytest.fixture(autouse=True, name="remove")
 def _remove(monkeypatch: MonkeyPatch) -> MagicMock:
     mock = MagicMock()
@@ -29,10 +30,27 @@ def _remove(monkeypatch: MonkeyPatch) -> MagicMock:
     return mock
 
 
+# Autouse to prevent file system side effects
 @pytest.fixture(autouse=True, name="rmtree")
 def _rmtree(monkeypatch: MonkeyPatch) -> MagicMock:
     mock = MagicMock()
     monkeypatch.setattr(shutil, 'rmtree', mock)
+    return mock
+
+# Autouse to prevent file system side effects
+@pytest.fixture(autouse=True)
+def _override_cache_directory(monkeypatch: MonkeyPatch) -> None:
+    monkeypatch.setattr(
+        caching,
+        'cache_config',
+        caching.CacheConfig(cache_directory=os.path.join(caching.CacheConfig().cache_directory, '.pytest'))
+    )
+    assert not os.path.exists(caching.cache_config.cache_directory)
+
+@pytest.fixture(name='save_mock')
+def _save_mock(monkeypatch: MonkeyPatch) -> MagicMock:
+    mock = MagicMock()
+    monkeypatch.setattr(caching.dataframe_cache, 'save', mock)
     return mock
 
 
@@ -242,15 +260,13 @@ class TestCacheWrapper:
 
             assert df_cache.extension == cache_type.value
 
-    def test_call_cache_disabled(self, monkeypatch: MonkeyPatch) -> None:
+    def test_call_cache_disabled(self, monkeypatch: MonkeyPatch, save_mock: MagicMock) -> None:
         df_func = MagicMock(return_value=pd.DataFrame([1, 2], columns=['a']))
 
         load_mock = MagicMock()
-        save_mock = MagicMock()
 
         df_cache = caching.dataframe_cache()
         monkeypatch.setattr(df_cache, 'load', load_mock)
-        monkeypatch.setattr(df_cache, 'save', save_mock)
 
         assert df_cache.cache_config.enabled == False
 
@@ -262,7 +278,8 @@ class TestCacheWrapper:
         load_mock.assert_not_called()
         save_mock.assert_not_called()
 
-    def test_call_cache_enabled_loads_cache(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
+    def test_call_cache_enabled_loads_cache(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame,
+                                            save_mock: MagicMock) -> None:
         monkeypatch.setattr(os.path, 'exists', MagicMock(return_value=True))
         monkeypatch.setattr(os.path, 'getmtime', MagicMock(return_value=datetime.now().timestamp()))
 
@@ -270,11 +287,9 @@ class TestCacheWrapper:
         df_func.__name__ = "df_func"
 
         load_mock = MagicMock(return_value=mock_data_1)
-        save_mock = MagicMock()
 
         df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
         monkeypatch.setattr(df_cache, 'load', load_mock)
-        monkeypatch.setattr(df_cache, 'save', save_mock)
 
         assert df_cache.cache_config.enabled == True
 
@@ -293,7 +308,8 @@ class TestCacheWrapper:
 
         pd.testing.assert_frame_equal(result, mock_data_1)
 
-    def test_call_cache_ignores_expired(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
+    def test_call_cache_ignores_expired(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame,
+                                        save_mock: MagicMock) -> None:
         a_week_ago = (datetime.now()-timedelta(days=7)).timestamp()
 
         monkeypatch.setattr(os.path, 'exists', MagicMock(return_value=True))
@@ -303,11 +319,9 @@ class TestCacheWrapper:
         df_func.__name__ = "df_func"
         
         load_mock = MagicMock()
-        save_mock = MagicMock()
 
         df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
         monkeypatch.setattr(df_cache, 'load', load_mock)
-        monkeypatch.setattr(df_cache, 'save', save_mock)
 
         assert df_cache.cache_config.enabled == True
 
@@ -324,19 +338,17 @@ class TestCacheWrapper:
         load_mock.assert_not_called()
         save_mock.assert_called_once_with(mock_data_1, expected_filename)
 
-    def test_call_cache_gets_uncached_data(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
+    def test_call_cache_gets_uncached_data(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame,
+                                           save_mock: MagicMock) -> None:
         monkeypatch.setattr(os.path, 'exists', MagicMock(return_value=False))
 
         df_func = MagicMock(return_value=mock_data_1)
         df_func.__name__ = "df_func" # type: ignore
-
         
         load_mock = MagicMock()
-        save_mock = MagicMock()
 
         df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
         monkeypatch.setattr(df_cache, 'load', load_mock)
-        monkeypatch.setattr(df_cache, 'save', save_mock)
 
         assert df_cache.cache_config.enabled == True
 
@@ -373,7 +385,8 @@ class TestCacheWrapper:
         remove.assert_called_once_with(os.path.join(df_cache.cache_config.cache_directory, test_filename))
 
     def test_call_cache_fails_silently_and_calls_wrapped_function(self, monkeypatch: MonkeyPatch,
-                                                                  mock_data_1: pd.DataFrame) -> None:
+                                                                  mock_data_1: pd.DataFrame,
+                                                                  save_mock: MagicMock) -> None:
         def _thrower(*args: Any, **kwargs: Any) -> bool:
             raise Exception
      
@@ -382,11 +395,9 @@ class TestCacheWrapper:
         df_func.__name__ = "df_func"
 
         load_mock = MagicMock()
-        save_mock = MagicMock()
 
         df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
         monkeypatch.setattr(df_cache, 'load', load_mock)
-        monkeypatch.setattr(df_cache, 'save', save_mock)
         monkeypatch.setattr(caching.dataframe_cache, '_get_f_hash', _thrower)
     
         assert df_cache.cache_config.enabled == True
