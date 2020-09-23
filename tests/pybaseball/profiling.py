@@ -14,6 +14,8 @@ from pybaseball import batting_stats, pitching_stats, team_batting, team_fieldin
 
 _ProfileRun = Tuple[Callable, Callable, int]
 
+_ProfileRun = Tuple[Callable, Callable, int]
+
 ITERATIONS = 10
 
 def mock_requests_get(html: str):
