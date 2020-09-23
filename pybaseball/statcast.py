@@ -1,4 +1,4 @@
-import datetime
+from datetime import date, timedelta, datetime
 import io
 import warnings
 from typing import Optional, Tuple, Union
@@ -13,19 +13,19 @@ _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={g
 _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&team={team}&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&"
 DATE_FORMAT = "%Y-%m-%d"
 
-def validate_datestring(date_text: Optional[str]) -> datetime.date:
+def validate_datestring(date_text: Optional[str]) -> date:
     try:
         assert date_text
-        return datetime.datetime.strptime(date_text, DATE_FORMAT).date()
+        return datetime.strptime(date_text, DATE_FORMAT).date()
     except (AssertionError, ValueError):
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
-def sanitize_input(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[datetime.date, datetime.date]:
+def sanitize_input(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[date, date]:
     # If no dates are supplied, assume they want yesterday's data
     # send a warning in case they wanted to specify
     if start_dt is None and end_dt is None:
-        today = datetime.datetime.today().date()
-        start_dt = str(today - datetime.timedelta(1))
+        today = date.today()
+        start_dt = str(today - timedelta(1))
         end_dt = str(today)
 
         print('start_dt', start_dt)
@@ -45,7 +45,7 @@ def sanitize_input(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[date
     # Now that both dates are not None, make sure they are valid date strings
     return validate_datestring(start_dt), validate_datestring(end_dt)
 
-def small_request(start_dt: datetime.date, end_dt: datetime.date, team: Optional[str] = None) -> pd.DataFrame:
+def small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> pd.DataFrame:
     data = statcast_ds.get_statcast_data_from_csv_url(
         _SC_SMALL_REQUEST.format(start_dt=str(start_dt), end_dt=str(end_dt), team=team if team else '')
     )
@@ -57,12 +57,12 @@ def small_request(start_dt: datetime.date, end_dt: datetime.date, team: Optional
 
     return data
 
-def large_request(start_dt_datetime: datetime.date, end_dt_datetime: datetime.date, step: int, verbose: bool,
+def large_request(start_dt_date: date, end_dt_date: date, step: int, verbose: bool,
                   team: Optional[str] = None) -> pd.DataFrame:
     """
     Break start and end date into smaller increments, collecting all data in small chunks
-    and appending all results to a common dataframe start_date_datetime and end_date_datetime
-    are datetime objects for first and last day of query, for doing date math a third datetime
+    and appending all results to a common dataframe start_date_date and end_date_date
+    are date objects for first and last day of query, for doing date math a third date
     object (d) will be used to increment over time for the several intermediate queries.
     """
     
@@ -74,8 +74,8 @@ def large_request(start_dt_datetime: datetime.date, end_dt_datetime: datetime.da
     
     dataframe_list = []
 
-    d1 = start_dt_datetime
-    d2 = end_dt_datetime
+    d1 = start_dt_date
+    d2 = end_dt_date
 
     print("This is a large query, it may take a moment to complete")
     
@@ -83,7 +83,7 @@ def large_request(start_dt_datetime: datetime.date, end_dt_datetime: datetime.da
     # (test this later to see how large I can make this without losing data)
 
     # While intermediate query end_dt <= global query end_dt, keep looping
-    d = d1 + datetime.timedelta(days=step)
+    d = d1 + timedelta(days=step)
     while d <= d2: 
         # Dates before 3/15 and after 11/15 will always be offseason.
         # If these dates are detected, check if the next season is within the user's query.
@@ -92,12 +92,12 @@ def large_request(start_dt_datetime: datetime.date, end_dt_datetime: datetime.da
         if (d.month == 3 and d.day < 15) or d.month <= 2:
             print('Skipping offseason dates')
             d1 = d1.replace(month=3, day=15, year=d1.year)
-            d = d1 + datetime.timedelta(days=step+1)
+            d = d1 + timedelta(days=step+1)
         elif (d1.month == 11 and d1.day > 14) or d1.month > 11:
             if d2.year > d.year:
                 print('Skipping offseason dates')
                 d1 = d1.replace(month=3, day=15, year=d1.year+1)
-                d = d1 + datetime.timedelta(days=step+1)
+                d = d1 + timedelta(days=step+1)
             else:
                 break
 
@@ -121,7 +121,7 @@ def large_request(start_dt_datetime: datetime.date, end_dt_datetime: datetime.da
                     # This request is probably too large. Cut a day off of this request
                     # and make that its own separate request. For each, append to
                     # dataframe list if successful, skip and print error message if failed.
-                    tmp_end = d - datetime.timedelta(days=1)
+                    tmp_end = d - timedelta(days=1)
                     smaller_data_1 = small_request(d1, tmp_end, team=team)
                     smaller_data_2 = small_request(d, d, team=team)
                     if smaller_data_1.shape[0] > 1:
@@ -150,8 +150,8 @@ def large_request(start_dt_datetime: datetime.date, end_dt_datetime: datetime.da
                 no_success_msg_flag = False # if failed, reset this flag so message will send again next iteration
         
         # Increment dates
-        d1 = d + datetime.timedelta(days=1)
-        d = d + datetime.timedelta(days=step+1)
+        d1 = d + timedelta(days=1)
+        d = d + timedelta(days=step+1)
 
     # If start date > end date after being incremented,
     # the loop captured each date's data
@@ -161,10 +161,10 @@ def large_request(start_dt_datetime: datetime.date, end_dt_datetime: datetime.da
         # If start date <= end date, then there are a few leftover dates to grab data for.
         # start_dt from the earlier loop will work,
         # but instead of d we now want the original end_dt
-        data = small_request(d1, end_dt_datetime, team=team)
+        data = small_request(d1, end_dt_date, team=team)
         dataframe_list.append(data)
         if verbose:
-            print(f"Completed sub-query from {d1} to {end_dt_datetime}")
+            print(f"Completed sub-query from {d1} to {end_dt_date}")
 
     # Concatenate all dataframes into final result set
     final_data = pd.concat(dataframe_list, axis=0)
@@ -183,18 +183,18 @@ def statcast(start_dt: str = None, end_dt: str = None, team: str = None, verbose
     If no arguments are provided, this will return yesterday's statcast data. If one date is provided, it will return that date's statcast data.
     """
 
-    start_dt_datetime, end_dt_datetime = sanitize_input(start_dt, end_dt)
+    start_dt_date, end_dt_date = sanitize_input(start_dt, end_dt)
 
     # 5 days or less -> a quick one-shot request.
     # Greater than 5 days -> break it into multiple smaller queries
     small_query_threshold = 5
 
     # How many days worth of data are needed?
-    days_in_query = (end_dt_datetime - start_dt_datetime).days
+    days_in_query = (end_dt_date - start_dt_date).days
     if days_in_query <= small_query_threshold:
-        return small_request(start_dt_datetime, end_dt_datetime, team=team)
+        return small_request(start_dt_date, end_dt_date, team=team)
     else:
-        return large_request(start_dt_datetime, end_dt_datetime, step=small_query_threshold, verbose=verbose, team=team)
+        return large_request(start_dt_date, end_dt_date, step=small_query_threshold, verbose=verbose, team=team)
 
 def statcast_single_game(game_pk: Union[str, int]) -> pd.DataFrame:
     """

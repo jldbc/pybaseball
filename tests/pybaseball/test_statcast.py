@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta, date, datetime
 from typing import Callable
 
 import pandas as pd
@@ -32,15 +32,15 @@ def single_game(get_data_file_dataframe: GetDataFrameCallable) -> pd.DataFrame:
 
 class TestStatcast:
     def test_sanitize_input_nones(self) -> None:
-        yesterday = datetime.today().date() - timedelta(days=1)
+        yesterday = date.today() - timedelta(days=1)
 
         start_dt, end_dt = sanitize_input(None, None)
 
         assert start_dt == yesterday
-        assert end_dt == datetime.today().date()
+        assert end_dt == date.today()
         
     def test_sanitize_input_no_end_dt(self) -> None:
-        yesterday = datetime.today().date() - timedelta(days=1)
+        yesterday = date.today() - timedelta(days=1)
 
         start_dt, end_dt = sanitize_input(str(yesterday), None)
 
