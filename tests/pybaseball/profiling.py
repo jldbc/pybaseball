@@ -12,6 +12,8 @@ import requests
 
 from pybaseball import batting_stats, pitching_stats, team_batting, team_fielding, team_pitching, datahelpers
 
+_ProfileRun = Tuple[Callable, Callable, int]
+
 ITERATIONS = 10
 
 def mock_requests_get(html: str):
@@ -61,17 +63,17 @@ def profile_team_fielding():
 def profile_team_pitching():
     team_pitching(2019)
 
+def get_profile_suite(iterations: int = ITERATIONS) -> List[_ProfileRun]:
+    return [
+        (requests_get_setup('batting_leaders.html'), profile_batting_stats, iterations),
+        (requests_get_setup('pitching_leaders.html'), profile_pitching_stats, iterations),
+        (requests_get_setup('team_batting.html'), profile_team_batting, iterations),
+        (requests_get_setup('team_fielding.html'), profile_team_fielding, iterations),
+        (requests_get_setup('team_pitching.html'), profile_team_pitching, iterations)
+    ]
 
-profile_suite: List[Tuple[Callable, Callable, int]] = [
-    (requests_get_setup('batting_leaders.html'), profile_batting_stats, ITERATIONS),
-    (requests_get_setup('pitching_leaders.html'), profile_pitching_stats, ITERATIONS),
-    (requests_get_setup('team_batting.html'), profile_team_batting, ITERATIONS),
-    (requests_get_setup('team_fielding.html'), profile_team_fielding, ITERATIONS),
-    (requests_get_setup('team_pitching.html'), profile_team_pitching, ITERATIONS)
-]
 
-
-def profile(suite : List[Tuple[Callable, Callable, int]]):
+def profile(suite : List[_ProfileRun]):
     for setup, func, iterations in suite:
         setup()
         [func() for x in range(iterations)]
@@ -84,6 +86,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--cache-enabled', action='store_true', default=False)
     parser.add_argument('--cache-type', default=None)
+    parser.add_argument('--iterations', default=ITERATIONS, type=int)
     args = parser.parse_args()
 
     if args.cache_enabled and args.cache_type is not None:
@@ -93,7 +96,7 @@ if __name__ == "__main__":
         datahelpers.caching.cache_config.enable(False)
 
     # Run
-    profile(profile_suite)
+    profile(get_profile_suite(args.iterations))
 
     # Print stats
     profiler.disable()
