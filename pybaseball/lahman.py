@@ -25,7 +25,6 @@ def get_lahman_zip() -> Optional[ZipFile]:
         _handle = ZipFile(BytesIO(s.content))
     return _handle
 
-@caching.dataframe_cache()
 def download_lahman():
     # download entire lahman db to present working directory
     z = get_lahman_zip()
