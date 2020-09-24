@@ -150,7 +150,7 @@ def augment_lahman_pitching(stats_df: pd.DataFrame) -> pd.DataFrame:
     """
     return stats_df
 
-def aggregate_by_season(stats_df):
+def aggregate_by_season(stats_df: pd.DataFrame) -> pd.DataFrame:
     return stats_df.groupby(["playerID", "yearID"]).sum().reset_index()
 
 def check_is_zero_one(instance, attribute, value):
