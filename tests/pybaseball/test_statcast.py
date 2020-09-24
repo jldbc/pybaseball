@@ -20,7 +20,6 @@ def small_request_raw(get_data_file_contents: Callable[[str], str]) -> str:
 def small_request(get_data_file_dataframe: GetDataFrameCallable) -> pd.DataFrame:
     return get_data_file_dataframe('small_request.csv', parse_dates=[2])
 
-
 @pytest.fixture()
 def single_game_raw(get_data_file_contents: Callable[[str], str]) -> str:
     return get_data_file_contents('single_game_request_raw.csv')
@@ -29,7 +28,6 @@ def single_game_raw(get_data_file_contents: Callable[[str], str]) -> str:
 @pytest.fixture()
 def single_game(get_data_file_dataframe: GetDataFrameCallable) -> pd.DataFrame:
     return get_data_file_dataframe('single_game_request.csv', parse_dates=[2])
-
 
 class TestStatcast:
     def test_statcast(
