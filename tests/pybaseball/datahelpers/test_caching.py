@@ -3,7 +3,7 @@ import pathlib
 import pickle
 import shutil
 from datetime import datetime, timedelta
-from typing import Any, List, Tuple
+from typing import Any, Dict, List, Tuple
 from unittest.mock import MagicMock, mock_open, patch
 
 import pandas as pd
@@ -13,6 +13,7 @@ import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
 from pybaseball.datahelpers import caching
+
 
 # Autouse to prevent file system side effects
 @pytest.fixture(autouse=True, name="mkdir")
@@ -45,7 +46,7 @@ def _override_cache_directory(monkeypatch: MonkeyPatch) -> None:
         'cache_config',
         caching.CacheConfig(cache_directory=os.path.join(caching.CacheConfig().cache_directory, '.pytest'))
     )
-    assert not os.path.exists(caching.cache_config.cache_directory)
+    caching.bust_cache()
 
 @pytest.fixture(name='save_mock')
 def _save_mock(monkeypatch: MonkeyPatch) -> MagicMock:
@@ -305,6 +306,8 @@ class TestCacheWrapper:
         load_mock.assert_called_once_with(expected_filename)
         df_func.assert_not_called()
         save_mock.assert_not_called()
+        
+        assert isinstance(result, pd.DataFrame)
 
         pd.testing.assert_frame_equal(result, mock_data_1)
 
@@ -414,22 +417,47 @@ class TestCacheWrapper:
     
         result = wrapper(*(1, 2), **{'val1': 'a'})
 
+        assert isinstance(result, pd.DataFrame)
+
         pd.testing.assert_frame_equal(result, mock_data_1)
         load_mock.assert_not_called()
         save_mock.assert_not_called()
 
     @pytest.mark.parametrize(
-        "cache_type, method", [
-            (caching.CacheType.CSV, 'read_csv'),
-            (caching.CacheType.CSV_GZ, 'read_csv'),
-            (caching.CacheType.EXCEL, 'read_excel'),
-            (caching.CacheType.FEATHER, 'read_feather'),
-            (caching.CacheType.JSON, 'read_json'),
-            (caching.CacheType.PARQUET, 'read_parquet'),
-            (caching.CacheType.PICKLE, 'read_pickle'),
+        "cache_type, method, kwargs", [
+            (caching.CacheType.CSV, 'read_csv', {}),
+            (caching.CacheType.CSV_BZ2, 'read_csv', {}),
+            (caching.CacheType.CSV_GZ, 'read_csv', {}),
+            (caching.CacheType.CSV_XZ, 'read_csv', {}),
+            (caching.CacheType.CSV_ZIP, 'read_csv', {}),
+            (caching.CacheType.EXCEL, 'read_excel', {'engine': 'openpyxl'}),
+            (caching.CacheType.FEATHER, 'read_feather', {'compression': None}),
+            (caching.CacheType.FEATHER_LZ4, 'read_feather', {'compression': 'lz4'}),
+            (caching.CacheType.FEATHER_UNCOMPRESSED, 'read_feather', {'compression': 'uncompressed'}),
+            (caching.CacheType.FEATHER_ZSTD, 'read_feather', {'compression': 'zstd'}),
+            (caching.CacheType.JSON, 'read_json', {}),
+            (caching.CacheType.JSON_BZ2, 'read_json', {}),
+            (caching.CacheType.JSON_GZ, 'read_json', {}),
+            (caching.CacheType.JSON_XZ, 'read_json', {}),
+            (caching.CacheType.JSON_ZIP, 'read_json', {}),
+            (caching.CacheType.PARQUET, 'read_parquet', {'compression': None, 'engine': 'pyarrow'}),
+            # (caching.CacheType.PARQUET_BROTLI, 'read_parquet', {'compression': 'brotli', 'engine': 'pyarrow'}),
+            (caching.CacheType.PARQUET_BROTLI, 'read_parquet', {'compression': None, 'engine': 'pyarrow'}),
+            (caching.CacheType.PARQUET_GZ, 'read_parquet', {'compression': 'gzip', 'engine': 'pyarrow'}),
+            (caching.CacheType.PARQUET_SNAPPY, 'read_parquet', {'compression': 'snappy', 'engine': 'pyarrow'}),
+            (caching.CacheType.PARQUET_FAST, 'read_parquet', {'compression': None, 'engine': 'fastparquet'}),
+            # (caching.CacheType.PARQUET_FAST_BROTLI, 'read_parquet', {'compression': 'brotli', 'engine': 'fastparquet'}),
+            (caching.CacheType.PARQUET_FAST_BROTLI, 'read_parquet', {'compression': None, 'engine': 'fastparquet'}),
+            (caching.CacheType.PARQUET_FAST_GZ, 'read_parquet', {'compression': 'gzip', 'engine': 'fastparquet'}),
+            (caching.CacheType.PARQUET_FAST_SNAPPY, 'read_parquet', {'compression': 'snappy', 'engine': 'fastparquet'}),
+            (caching.CacheType.PICKLE, 'read_pickle', {}),
+            (caching.CacheType.PICKLE_BZIP, 'read_pickle', {}),
+            (caching.CacheType.PICKLE_GZ, 'read_pickle', {}),
+            (caching.CacheType.PICKLE_XZ, 'read_pickle', {}),
+            (caching.CacheType.PICKLE_ZIP, 'read_pickle', {}),
         ]
     )
-    def test_load(self, monkeypatch: MonkeyPatch, cache_type: caching.CacheType, method: str) -> None:
+    def test_load(self, monkeypatch: MonkeyPatch, cache_type: caching.CacheType, method: str, kwargs: Dict) -> None:
         read_mock = MagicMock()
         monkeypatch.setattr(pd, method, read_mock)
 
@@ -441,7 +469,7 @@ class TestCacheWrapper:
 
         df_cache.load(test_filename)
 
-        read_mock.assert_called_once_with(test_filename)
+        assert read_mock.called_once_with(test_filename, **kwargs)
 
     def test_load_invalid_cache_type(self, monkeypatch: MonkeyPatch) -> None:
         read_csv_mock = MagicMock()
@@ -459,18 +487,42 @@ class TestCacheWrapper:
         read_csv_mock.assert_not_called()
     
     @pytest.mark.parametrize(
-        "cache_type, method", [
-            (caching.CacheType.CSV, 'to_csv'),
-            (caching.CacheType.CSV_GZ, 'to_csv'),
-            (caching.CacheType.EXCEL, 'to_excel'),
-            (caching.CacheType.FEATHER, 'to_feather'),
-            (caching.CacheType.JSON, 'to_json'),
-            (caching.CacheType.PARQUET, 'to_parquet'),
-            (caching.CacheType.PICKLE, 'to_pickle'),
+        "cache_type, method, kwargs", [
+            (caching.CacheType.CSV, 'to_csv', {}),
+            (caching.CacheType.CSV_BZ2, 'to_csv', {}),
+            (caching.CacheType.CSV_GZ, 'to_csv', {}),
+            (caching.CacheType.CSV_XZ, 'to_csv', {}),
+            (caching.CacheType.CSV_ZIP, 'to_csv', {}),
+            (caching.CacheType.EXCEL, 'to_excel', {'engine': 'xlsxwriter'}),
+            (caching.CacheType.FEATHER, 'to_feather', {'compression': None}),
+            (caching.CacheType.FEATHER_LZ4, 'to_feather', {'compression': 'lz4'}),
+            (caching.CacheType.FEATHER_UNCOMPRESSED, 'to_feather', {'compression': 'uncompressed'}),
+            (caching.CacheType.FEATHER_ZSTD, 'to_feather', {'compression': 'zstd'}),
+            (caching.CacheType.JSON, 'to_json', {}),
+            (caching.CacheType.JSON_BZ2, 'to_json', {}),
+            (caching.CacheType.JSON_GZ, 'to_json', {}),
+            (caching.CacheType.JSON_XZ, 'to_json', {}),
+            (caching.CacheType.JSON_ZIP, 'to_json', {}),
+            (caching.CacheType.PARQUET, 'to_parquet', {'compression': None, 'engine': 'pyarrow'}),
+            # (caching.CacheType.PARQUET_BROTLI, 'to_parquet', {'compression': 'brotli', 'engine': 'pyarrow'}),
+            (caching.CacheType.PARQUET_BROTLI, 'to_parquet', {'compression': None, 'engine': 'pyarrow'}),
+            (caching.CacheType.PARQUET_GZ, 'to_parquet', {'compression': 'gzip', 'engine': 'pyarrow'}),
+            (caching.CacheType.PARQUET_SNAPPY, 'to_parquet', {'compression': 'snappy', 'engine': 'pyarrow'}),
+            (caching.CacheType.PARQUET_FAST, 'to_parquet', {'compression': None, 'engine': 'fastparquet'}),
+            # (caching.CacheType.PARQUET_FAST_BROTLI, 'to_parquet', {'compression': 'brotli', 'engine': 'fastparquet'}),
+            (caching.CacheType.PARQUET_FAST_BROTLI, 'to_parquet', {'compression': None, 'engine': 'fastparquet'}),
+            (caching.CacheType.PARQUET_FAST_GZ, 'to_parquet', {'compression': 'gzip', 'engine': 'fastparquet'}),
+            (caching.CacheType.PARQUET_FAST_SNAPPY, 'to_parquet', {'compression': 'snappy', 'engine': 'fastparquet'}),
+            (caching.CacheType.PICKLE, 'to_pickle', {}),
+            (caching.CacheType.PICKLE_BZIP, 'to_pickle', {}),
+            (caching.CacheType.PICKLE_GZ, 'to_pickle', {}),
+            (caching.CacheType.PICKLE_XZ, 'to_pickle', {}),
+            (caching.CacheType.PICKLE_ZIP, 'to_pickle', {}),
+    
         ]
     )
     def test_save(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, cache_type: caching.CacheType,
-                  method: str) -> None:
+                  method: str, kwargs: Dict) -> None:
         to_method = MagicMock()
         monkeypatch.setattr(mock_data_1, method, to_method)
 
@@ -482,7 +534,7 @@ class TestCacheWrapper:
 
         df_cache.save(mock_data_1, test_filename)
 
-        to_method.assert_called_once_with(test_filename)
+        assert to_method.called_once_with(test_filename, **kwargs)
 
     def test_save_invalid_cache_type(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
         pickle_dump = MagicMock()
