@@ -36,6 +36,8 @@ def stat_list_to_str(values: List, replace_common: bool = True) -> str:
     if not values:
         return ''
 
+    assert isinstance(values[0], FangraphsStatsBase)
+
     obj_type = type(values[0])
 
     return obj_type.str_list(values, replace_common)

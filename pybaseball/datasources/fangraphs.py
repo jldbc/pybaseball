@@ -31,7 +31,7 @@ class FangraphsDataTable(ABC):
     TEAM_DATA: bool = False
     COLUMN_NAME_MAPPER: ColumnListMapperFunction = GenericColumnMapper().map_list
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.html_accessor = HTMLTableProcessor(
             root_url=self.ROOT_URL,
             headings_xpath=self.HEADINGS_XPATH,

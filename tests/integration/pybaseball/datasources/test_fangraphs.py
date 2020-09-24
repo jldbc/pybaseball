@@ -1,3 +1,5 @@
+from typing import Callable
+
 import pandas as pd
 import pytest
 
@@ -8,7 +10,7 @@ class TestFGBattingData:
     ALL_DATA_COLUMNS_COUNT = 313
     DEFAULT_MAX_RESULTS = 10
 
-    def test_fg_batting_data(self):
+    def test_fg_batting_data(self) -> None:
         season = 2019
 
         data = fg_batting_data(season, max_results=self.DEFAULT_MAX_RESULTS)
@@ -23,13 +25,13 @@ class TestFGBattingData:
         assert len(seasons) == 1
         assert seasons[0] == season
 
-    def test_fg_batting_data_future_season(self):
+    def test_fg_batting_data_future_season(self) -> None:
         season = 3000
 
         with pytest.raises(ValueError):
             fg_batting_data(season, max_results=self.DEFAULT_MAX_RESULTS)
 
-    def test_fg_batting_data_end_season(self):
+    def test_fg_batting_data_end_season(self) -> None:
         data = fg_batting_data(2018, end_season=2019, max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data is not None
@@ -37,7 +39,7 @@ class TestFGBattingData:
         assert len(data.columns) == self.ALL_DATA_COLUMNS_COUNT
         assert len(data.index) == self.DEFAULT_MAX_RESULTS
 
-    def test_fg_batting_data_end_season_no_split_season(self):
+    def test_fg_batting_data_end_season_no_split_season(self) -> None:
         data = fg_batting_data(2018, end_season=2019, split_seasons=False, max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data is not None
@@ -46,7 +48,7 @@ class TestFGBattingData:
         assert 'Season' not in data.columns
         assert len(data.index) == self.DEFAULT_MAX_RESULTS
 
-    def test_fg_batting_data_single_stat_columns(self):
+    def test_fg_batting_data_single_stat_columns(self) -> None:
         data = fg_batting_data(2019, stat_columns='AB', max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data is not None
@@ -54,7 +56,7 @@ class TestFGBattingData:
         assert len(data.columns) == 4
         assert len(data.index) == self.DEFAULT_MAX_RESULTS
 
-    def test_fg_batting_data_multiple_stat_columns(self):
+    def test_fg_batting_data_multiple_stat_columns(self) -> None:
         data = fg_batting_data(2019, stat_columns=['AB', 'PA'], max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data is not None
@@ -62,7 +64,7 @@ class TestFGBattingData:
         assert len(data.columns) == 5
         assert len(data.index) == self.DEFAULT_MAX_RESULTS
 
-    def test_fg_batting_data_league(self, assert_frame_not_equal):
+    def test_fg_batting_data_league(self, assert_frame_not_equal: Callable[..., bool]) -> None:
         data_al = fg_batting_data(2019, league='AL', max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data_al is not None
@@ -79,7 +81,7 @@ class TestFGBattingData:
 
         assert assert_frame_not_equal(data_al, data_nl)
 
-    def test_fg_batting_data_qual(self):
+    def test_fg_batting_data_qual(self) -> None:
         data = fg_batting_data(2019, qual=715, max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data is not None
@@ -87,7 +89,7 @@ class TestFGBattingData:
         assert len(data.columns) == self.ALL_DATA_COLUMNS_COUNT
         assert len(data.index) == 3
 
-    def test_fg_batting_data_on_active_roster(self, assert_frame_not_equal):
+    def test_fg_batting_data_on_active_roster(self, assert_frame_not_equal: Callable[..., bool]) -> None:
         data = fg_batting_data(2018, max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data is not None
@@ -104,7 +106,7 @@ class TestFGBattingData:
 
         assert_frame_not_equal(data, oar_data)
 
-    def test_fg_batting_minimum_age(self):
+    def test_fg_batting_minimum_age(self) -> None:
         data = fg_batting_data(2019, minimum_age=39, max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data is not None
@@ -112,7 +114,7 @@ class TestFGBattingData:
         assert len(data.columns) == self.ALL_DATA_COLUMNS_COUNT
         assert len(data.index) == 1
 
-    def test_fg_batting_maximum_age(self):
+    def test_fg_batting_maximum_age(self) -> None:
         data = fg_batting_data(2019, maximum_age=20, max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data is not None
@@ -120,7 +122,7 @@ class TestFGBattingData:
         assert len(data.columns) == self.ALL_DATA_COLUMNS_COUNT
         assert len(data.index) == 2
 
-    def test_fg_batting_team(self, assert_frame_not_equal):
+    def test_fg_batting_team(self, assert_frame_not_equal: Callable[..., bool]) -> None:
         data_1 = fg_batting_data(2019, team='1', max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data_1 is not None
@@ -141,7 +143,7 @@ class TestFGBattingData:
 
         assert_frame_not_equal(data_1, data_2)
 
-    def test_fg_batting_position(self, assert_frame_not_equal):
+    def test_fg_batting_position(self, assert_frame_not_equal: Callable[..., bool]) -> None:
         data_1b = fg_batting_data(2019, position='1B', max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data_1b is not None
@@ -158,7 +160,7 @@ class TestFGBattingData:
 
         assert_frame_not_equal(data_1b, data_2b)
     
-    def test_fg_batting_data_max_results(self):
+    def test_fg_batting_data_max_results(self) -> None:
         season = 2019
 
         data = fg_batting_data(season)
