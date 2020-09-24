@@ -7,8 +7,7 @@ import numpy as np
 import pandas as pd
 import requests
 
-from .datahelpers import caching
-from .datasources import statcast as statcast_ds
+import pybaseball.datasources.statcast as statcast_ds
 
 from .utils import sanitize_date_range
 
@@ -36,20 +35,20 @@ def large_request(start_dt_date: date, end_dt_date: date, step: int, verbose: bo
     are date objects for first and last day of query, for doing date math a third date
     object (d) will be used to increment over time for the several intermediate queries.
     """
-
+    
     # Count failed requests. If > X, break
     error_counter = 0
 
     # A flag for passing over the success message of requests are failing
     no_success_msg_flag = False
-
+    
     dataframe_list = []
 
     d1 = start_dt_date
     d2 = end_dt_date
 
     print("This is a large query, it may take a moment to complete")
-
+    
     # Number of days per mini-query
     # (test this later to see how large I can make this without losing data)
 
@@ -108,7 +107,7 @@ def large_request(start_dt_date: date, end_dt_date: date, step: int, verbose: bo
 
                     # Flag for passing over the success message since this request failed
                     no_success_msg_flag = True
-
+                    
                     # Reset counter
                     error_counter = 0
                     break
@@ -119,7 +118,7 @@ def large_request(start_dt_date: date, end_dt_date: date, step: int, verbose: bo
                 print(f"Completed sub-query from {d1} to {d}")
             else:
                 no_success_msg_flag = False # if failed, reset this flag so message will send again next iteration
-
+        
         # Increment dates
         d1 = d + timedelta(days=1)
         d = d + timedelta(days=step+1)
