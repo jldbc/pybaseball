@@ -6,25 +6,45 @@ import pathlib
 import pickle
 import re
 import shutil
+import time
 import traceback
 from datetime import datetime, timedelta
 from enum import Enum, unique
 from typing import Any, Callable, Dict, Hashable, Iterable, Optional, Tuple, Union
 
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
 
 
 @unique
 class CacheType(Enum):
     CSV = 'csv'
+    CSV_BZ2 = 'csv.bz2'
     CSV_GZ = 'csv.gz'
+    CSV_XZ = 'csv.xz'
+    CSV_ZIP = 'csv.zip'
     EXCEL = 'xlsx'
     FEATHER = 'feather'
+    FEATHER_LZ4 = 'lz4.feather'
+    FEATHER_UNCOMPRESSED = 'uc.feather'
+    FEATHER_ZSTD = 'zstd.feather'
     JSON = 'json'
+    JSON_BZ2 = 'json.bz2'
+    JSON_GZ = 'json.gz'
+    JSON_XZ = 'json.xz'
+    JSON_ZIP = 'json.zip'
     PARQUET = 'parquet'
+    PARQUET_BROTLI = 'brotli.parquet'
+    PARQUET_GZ = 'gz.parquet'
+    PARQUET_SNAPPY = 'snappy.parquet'
+    PARQUET_FAST = 'fast.parquet'
+    PARQUET_FAST_BROTLI = 'fast.brotli.parquet'
+    PARQUET_FAST_GZ = 'fast.gz.parquet'
+    PARQUET_FAST_SNAPPY = 'fast.snappy.parquet'
     PICKLE = 'pickle'
+    PICKLE_BZIP = 'pickle.bzip'
+    PICKLE_GZ = 'pickle.gz'
+    PICKLE_XZ = 'pickle.xz'
+    PICKLE_ZIP = 'pickle.zip'
 
 
 # Splitting this out for testing with no side effects
@@ -46,11 +66,12 @@ class CacheConfig:
 
     # pylint: disable=too-many-arguments
     def __init__(self, enabled: bool = False, cache_directory: str = None, expiration: timedelta = None,
-                 cache_type: CacheType = None):
+                 cache_type: CacheType = None, profiling: bool = False):
         self.enabled = enabled
         self.cache_directory = cache_directory if cache_directory else CacheConfig.DEFAULT_CACHE_DIR
         self.expiration = expiration if expiration else CacheConfig.DEFAULT_EXPIRATION
         self.cache_type = cache_type if cache_type is not None else CacheType.CSV
+        self.profiling = profiling
 
         _mkdir(self.cache_directory)
 
@@ -61,6 +82,7 @@ class CacheConfig:
 # Cache is disabled by default
 cache_config = CacheConfig()
 
+_ProfiledCachedDataFrame = Union[pd.DataFrame, Tuple[pd.DataFrame, Optional[float], Optional[float], Optional[float]]]
 
 class dataframe_cache:  # pylint: disable=invalid-name
     MAX_ARGS_KEY_LENGTH = 256
@@ -150,12 +172,14 @@ class dataframe_cache:  # pylint: disable=invalid-name
         self.reset_index = reset_index
         _mkdir(self.cache_config.cache_directory)
 
-    def __call__(self, func: Callable[..., pd.DataFrame]) -> Callable:
-        def _cached(*args: Any, **kwargs: Any) -> pd.DataFrame:
+    def __call__(self, func: Callable[..., pd.DataFrame]) -> Callable[..., _ProfiledCachedDataFrame]:
+        def _cached(*args: Any, **kwargs: Any) -> _ProfiledCachedDataFrame:
             # Skip all this if caching is disabled
             if not self.cache_config.enabled:
                 return func(*args, **kwargs)
 
+            read_time = None
+            write_time = None
             filename = None
 
             try:
@@ -166,23 +190,40 @@ class dataframe_cache:  # pylint: disable=invalid-name
                     modified = datetime.fromtimestamp(os.path.getmtime(filename))
                     if (modified + self.cache_config.expiration) > datetime.now():
                         # Hasn't expired yet
-                        data = self.load(filename)
+                        if self.cache_config.profiling:
+                            start = time.time()
+                            data = self.load(filename)
+                            read_time = time.time() - start
+                        else:
+                            data = self.load(filename)
                         if self.reset_index:
                             data = data.reset_index(drop=True)
-                        return data
+                        if read_time:
+                            return data, read_time, write_time, os.path.getsize(filename)
+                        else:
+                            return data
             except:  # pylint: disable=broad-except
                 # If this fails, log it, and then go ahead and make the function call
                 # No need to crash the real work in this phase
                 for ex in traceback.format_exc().split('\n'):
+                    print(f"EXCEPTION: {ex}")
                     logging.debug(ex)
             result = func(*args, **kwargs)
 
             if filename and result is not None and isinstance(result, pd.DataFrame) and not result.empty:
                 if self.reset_index:
                     result = result.reset_index(drop=True)
-                self.save(result, filename)
+                if self.cache_config.profiling:
+                    start = time.time()
+                    self.save(result, str(filename))
+                    write_time = time.time() - start
+                else:
+                    self.save(result, filename)
 
-            return result
+            if write_time and filename:
+                return result, read_time, write_time, os.path.getsize(filename)
+            else:
+                return result
 
         if self.reset_cache:
             self.bust_cache(func)
@@ -198,17 +239,20 @@ class dataframe_cache:  # pylint: disable=invalid-name
         self.reset_cache = False
 
     def load(self, filename: str) -> pd.DataFrame:
-        if self.cache_config.cache_type in [CacheType.CSV, CacheType.CSV_GZ]:
+        if self.cache_config.cache_type in [CacheType.CSV, CacheType.CSV_BZ2, CacheType.CSV_GZ, CacheType.CSV_XZ, CacheType.CSV_ZIP]:
             data = pd.read_csv(filename)
         elif self.cache_config.cache_type == CacheType.EXCEL:
-            data = pd.read_excel(filename)
-        elif self.cache_config.cache_type == CacheType.FEATHER:
+            data = pd.read_excel(filename, engine='openpyxl')
+        elif self.cache_config.cache_type in [CacheType.FEATHER, CacheType.FEATHER_LZ4, CacheType.FEATHER_UNCOMPRESSED, CacheType.FEATHER_ZSTD]:
             data = pd.read_feather(filename)
-        elif self.cache_config.cache_type == CacheType.JSON:
+        elif self.cache_config.cache_type in [CacheType.JSON, CacheType.JSON_BZ2, CacheType.JSON_GZ, CacheType.JSON_XZ, CacheType.JSON_ZIP]:
             data = pd.read_json(filename)
-        elif self.cache_config.cache_type == CacheType.PARQUET:
-            data = pd.read_parquet(filename)
-        elif self.cache_config.cache_type == CacheType.PICKLE:
+        elif self.cache_config.cache_type in [CacheType.PARQUET, CacheType.PARQUET_BROTLI, CacheType.PARQUET_GZ, CacheType.PARQUET_SNAPPY, CacheType.PARQUET_FAST, CacheType.PARQUET_FAST_BROTLI, CacheType.PARQUET_FAST_GZ, CacheType.PARQUET_FAST_SNAPPY]:
+            engine = 'pyarrow'
+            if self.cache_config.cache_type in [CacheType.PARQUET_FAST, CacheType.PARQUET_FAST_BROTLI, CacheType.PARQUET_FAST_GZ, CacheType.PARQUET_FAST_SNAPPY]:
+                engine = 'fastparquet'
+            data = pd.read_parquet(filename, engine=engine)
+        elif self.cache_config.cache_type in [CacheType.PICKLE, CacheType.PICKLE_BZIP, CacheType.PICKLE_GZ, CacheType.PICKLE_XZ, CacheType.PICKLE_ZIP]:
             data = pd.read_pickle(filename)
         else:
             raise ValueError(f"cache_type of {self.cache_config.cache_type} is unsupported.")
@@ -220,26 +264,50 @@ class dataframe_cache:  # pylint: disable=invalid-name
         return data
 
     def save(self, data: pd.DataFrame, filename: str) -> None:
-        if self.cache_config.cache_type in [CacheType.CSV, CacheType.CSV_GZ]:
+        compression: Optional[str] = None
+        if self.cache_config.cache_type in [CacheType.CSV, CacheType.CSV_BZ2, CacheType.CSV_GZ, CacheType.CSV_XZ, CacheType.CSV_ZIP]:
             data.to_csv(filename)
         elif self.cache_config.cache_type == CacheType.EXCEL:
-            data.to_excel(filename)
-        elif self.cache_config.cache_type == CacheType.FEATHER:
+            data.to_excel(filename, engine='openpyxl')
+        elif self.cache_config.cache_type in [CacheType.FEATHER, CacheType.FEATHER_LZ4, CacheType.FEATHER_UNCOMPRESSED, CacheType.FEATHER_ZSTD]:
+            if self.cache_config.cache_type == CacheType.FEATHER_LZ4:
+                compression = 'lz4'
+            elif self.cache_config.cache_type == CacheType.FEATHER_UNCOMPRESSED:
+                compression = 'uncompressed'
+            elif self.cache_config.cache_type == CacheType.FEATHER_ZSTD:
+                compression = 'zstd'           
             # Have to reset_index otherwise you get a ValueError:
             # ValueError: feather does not support serializing a non-default index for the index; you can
-            # .reset_index() to make the index into column(s)
+            # .reset_index() to make the index into column(s)compression: Optional[str] = None
             data.reset_index(drop=True, inplace=True)
-            data.to_feather(filename)
-        elif self.cache_config.cache_type == CacheType.JSON:
+            data.to_feather(filename, compression=compression)
+        elif self.cache_config.cache_type  in [CacheType.JSON, CacheType.JSON_BZ2, CacheType.JSON_GZ, CacheType.JSON_XZ, CacheType.JSON_ZIP]:
             data.to_json(filename)
-        elif self.cache_config.cache_type == CacheType.PARQUET:
-            data.to_parquet(filename)
-        elif self.cache_config.cache_type == CacheType.PICKLE:
+        elif self.cache_config.cache_type in [CacheType.PARQUET, CacheType.PARQUET_BROTLI, CacheType.PARQUET_GZ, CacheType.PARQUET_SNAPPY, CacheType.PARQUET_FAST, CacheType.PARQUET_FAST_BROTLI, CacheType.PARQUET_FAST_GZ, CacheType.PARQUET_FAST_SNAPPY]:
+            engine = 'pyarrow'
+            if self.cache_config.cache_type in [CacheType.PARQUET_FAST, CacheType.PARQUET_FAST_BROTLI, CacheType.PARQUET_FAST_GZ, CacheType.PARQUET_FAST_SNAPPY]:
+                engine = 'fastparquet'
+            if self.cache_config.cache_type in [CacheType.PARQUET_BROTLI, CacheType.PARQUET_FAST_BROTLI]:
+                # compression = 'brotli'
+                # This should work according to
+                # However, getting:
+                # RuntimeError: Compression 'brotli' not available.  Options: ['GZIP', 'SNAPPY', 'UNCOMPRESSED']
+                # So we'll treat this like default Parquet for now.
+                pass
+            elif  self.cache_config.cache_type in [CacheType.PARQUET_GZ, CacheType.PARQUET_FAST_GZ]:
+                compression = 'gzip'
+            elif self.cache_config.cache_type in [CacheType.PARQUET_SNAPPY, CacheType.PARQUET_FAST_SNAPPY]:
+                compression = 'snappy'
+            data.to_parquet(filename, engine=engine, compression=compression)
+        elif self.cache_config.cache_type in [CacheType.PICKLE, CacheType.PICKLE_BZIP, CacheType.PICKLE_GZ, CacheType.PICKLE_XZ, CacheType.PICKLE_ZIP]:
             data.to_pickle(filename)
         else:
             raise ValueError(f"cache_type of {self.cache_config.cache_type} is unsupported.")
 
 
 def bust_cache() -> None:
-    _rmtree(cache_config.cache_directory)
+    try:
+        _rmtree(cache_config.cache_directory)
+    except:
+        pass
     _mkdir(cache_config.cache_directory)
