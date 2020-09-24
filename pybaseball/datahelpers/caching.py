@@ -20,6 +20,9 @@ import pyarrow.parquet as pq
 class CacheType(Enum):
     CSV = 'csv'
     CSV_GZ = 'csv.gz'
+    EXCEL = 'xlsx'
+    FEATHER = 'feather'
+    JSON = 'json'
     PARQUET = 'parquet'
     PICKLE = 'pickle'
 
@@ -141,9 +144,10 @@ class dataframe_cache:  # pylint: disable=invalid-name
     
     cache_config_override: Optional[CacheConfig] = None
 
-    def __init__(self, cache_config_override: Optional[CacheConfig] = None, reset_cache: bool = False):
+    def __init__(self, cache_config_override: Optional[CacheConfig] = None, reset_cache: bool = False, reset_index: bool = True):
         self.cache_config_override = cache_config_override
         self.reset_cache = reset_cache
+        self.reset_index = reset_index
         _mkdir(self.cache_config.cache_directory)
 
     def __call__(self, func: Callable[..., pd.DataFrame]) -> Callable:
@@ -162,7 +166,10 @@ class dataframe_cache:  # pylint: disable=invalid-name
                     modified = datetime.fromtimestamp(os.path.getmtime(filename))
                     if (modified + self.cache_config.expiration) > datetime.now():
                         # Hasn't expired yet
-                        return self.load(filename)
+                        data = self.load(filename)
+                        if self.reset_index:
+                            data = data.reset_index(drop=True)
+                        return data
             except:  # pylint: disable=broad-except
                 # If this fails, log it, and then go ahead and make the function call
                 # No need to crash the real work in this phase
@@ -171,6 +178,8 @@ class dataframe_cache:  # pylint: disable=invalid-name
             result = func(*args, **kwargs)
 
             if filename and result is not None and isinstance(result, pd.DataFrame) and not result.empty:
+                if self.reset_index:
+                    result = result.reset_index(drop=True)
                 self.save(result, filename)
 
             return result
@@ -191,11 +200,16 @@ class dataframe_cache:  # pylint: disable=invalid-name
     def load(self, filename: str) -> pd.DataFrame:
         if self.cache_config.cache_type in [CacheType.CSV, CacheType.CSV_GZ]:
             data = pd.read_csv(filename)
+        elif self.cache_config.cache_type == CacheType.EXCEL:
+            data = pd.read_excel(filename)
+        elif self.cache_config.cache_type == CacheType.FEATHER:
+            data = pd.read_feather(filename)
+        elif self.cache_config.cache_type == CacheType.JSON:
+            data = pd.read_json(filename)
         elif self.cache_config.cache_type == CacheType.PARQUET:
-            data = pq.read_table(filename).to_pandas()
+            data = pd.read_parquet(filename)
         elif self.cache_config.cache_type == CacheType.PICKLE:
-            with open(filename, 'rb') as data_pickled:
-                data = pickle.load(data_pickled)
+            data = pd.read_pickle(filename)
         else:
             raise ValueError(f"cache_type of {self.cache_config.cache_type} is unsupported.")
         data.drop(
@@ -208,11 +222,20 @@ class dataframe_cache:  # pylint: disable=invalid-name
     def save(self, data: pd.DataFrame, filename: str) -> None:
         if self.cache_config.cache_type in [CacheType.CSV, CacheType.CSV_GZ]:
             data.to_csv(filename)
+        elif self.cache_config.cache_type == CacheType.EXCEL:
+            data.to_excel(filename)
+        elif self.cache_config.cache_type == CacheType.FEATHER:
+            # Have to reset_index otherwise you get a ValueError:
+            # ValueError: feather does not support serializing a non-default index for the index; you can
+            # .reset_index() to make the index into column(s)
+            data.reset_index(drop=True, inplace=True)
+            data.to_feather(filename)
+        elif self.cache_config.cache_type == CacheType.JSON:
+            data.to_json(filename)
         elif self.cache_config.cache_type == CacheType.PARQUET:
-            pq.write_table(pa.Table.from_pandas(data), filename)
+            data.to_parquet(filename)
         elif self.cache_config.cache_type == CacheType.PICKLE:
-            with open(filename, 'wb') as data_pickled:
-                pickle.dump(data, data_pickled)
+            data.to_pickle(filename)
         else:
             raise ValueError(f"cache_type of {self.cache_config.cache_type} is unsupported.")
 
