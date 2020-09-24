@@ -191,9 +191,9 @@ class dataframe_cache:  # pylint: disable=invalid-name
                     if (modified + self.cache_config.expiration) > datetime.now():
                         # Hasn't expired yet
                         if self.cache_config.profiling:
-                            start = time.time()
+                            start = time.perf_counter()
                             data = self.load(filename)
-                            read_time = time.time() - start
+                            read_time = time.perf_counter() - start
                         else:
                             data = self.load(filename)
                         if self.reset_index:
@@ -214,9 +214,9 @@ class dataframe_cache:  # pylint: disable=invalid-name
                 if self.reset_index:
                     result = result.reset_index(drop=True)
                 if self.cache_config.profiling:
-                    start = time.time()
+                    start = time.perf_counter()
                     self.save(result, str(filename))
-                    write_time = time.time() - start
+                    write_time = time.perf_counter() - start
                 else:
                     self.save(result, filename)
 
