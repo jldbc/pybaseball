@@ -83,6 +83,7 @@ setup(
                       'pygithub>=1.51',
                       'altair>=4.0.0',
                       'scipy>=1.4.0',
+                      'openpyxl>=3.0.5',
                       ],
 
     # List additional groups of dependencies here (e.g. development
