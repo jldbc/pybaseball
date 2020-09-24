@@ -1,6 +1,6 @@
 from typing import Callable, Dict, Iterator, List, Union
 
-from lxml import etree
+import lxml
 import pandas as pd
 import requests
 
@@ -23,7 +23,7 @@ class HTMLTableProcessor:
             return f'//table[@class="{self.table_class}"]'
         return '//table'
 
-    def get_tabular_data_from_element(self, element: etree.Element, column_name_mapper: ColumnListMapperFunction = None,
+    def get_tabular_data_from_element(self, element: lxml.etree.Element, column_name_mapper: ColumnListMapperFunction = None,
                                       known_percentages: List[str] = []) -> pd.DataFrame:
         headings = element.xpath(self.headings_xpath)
 
@@ -45,7 +45,7 @@ class HTMLTableProcessor:
 
     def get_tabular_data_from_html(self, html: Union[str, bytes], column_name_mapper: ColumnListMapperFunction = None,
                                    known_percentages: List[str] = []) -> pd.DataFrame:
-        html_dom = etree.HTML(html)
+        html_dom = lxml.etree.HTML(html)
 
         return self.get_tabular_data_from_element(
             html_dom,
