@@ -336,7 +336,10 @@ class TestCacheWrapper:
 
         df_func.assert_called_once_with(1, 2, val1='a')
         load_mock.assert_not_called()
-        save_mock.assert_called_once_with(mock_data_1, expected_filename)
+
+        save_mock.assert_called_once()
+        pd.testing.assert_frame_equal(mock_data_1, save_mock.call_args[0][0])
+        assert expected_filename == save_mock.call_args[0][1]
 
     def test_call_cache_gets_uncached_data(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame,
                                            save_mock: MagicMock) -> None:
@@ -363,12 +366,17 @@ class TestCacheWrapper:
 
         df_func.assert_called_once_with(1, 2, val1='a')
         load_mock.assert_not_called()
-        save_mock.assert_called_once_with(mock_data_1, expected_filename)
+
+        save_mock.assert_called_once()
+        pd.testing.assert_frame_equal(mock_data_1, save_mock.call_args[0][0])
+        assert expected_filename == save_mock.call_args[0][1]
 
     def test_call_cache_resets_cache(self, monkeypatch: MonkeyPatch, remove: MagicMock) -> None:
         test_filename = 'df_func().csv'
         
-        mock_walk: List[Tuple[str, List[str], List[str]]] = [(caching.cache_config.cache_directory, [], [test_filename])]
+        mock_walk: List[Tuple[str, List[str], List[str]]] = [
+            (caching.cache_config.cache_directory, [], [test_filename])
+        ]
         monkeypatch.setattr(os, 'walk', MagicMock(return_value=(x for x in mock_walk)))
         
         df_func = MagicMock()
@@ -410,63 +418,30 @@ class TestCacheWrapper:
         load_mock.assert_not_called()
         save_mock.assert_not_called()
 
-    def test_load_csv(self, monkeypatch: MonkeyPatch) -> None:
-        read_csv_mock = MagicMock()
-        monkeypatch.setattr(pd, 'read_csv', read_csv_mock)
+    @pytest.mark.parametrize(
+        "cache_type, method", [
+            (caching.CacheType.CSV, 'read_csv'),
+            (caching.CacheType.CSV_GZ, 'read_csv'),
+            (caching.CacheType.EXCEL, 'read_excel'),
+            (caching.CacheType.FEATHER, 'read_feather'),
+            (caching.CacheType.JSON, 'read_json'),
+            (caching.CacheType.PARQUET, 'read_parquet'),
+            (caching.CacheType.PICKLE, 'read_pickle'),
+        ]
+    )
+    def test_load(self, monkeypatch: MonkeyPatch, cache_type: caching.CacheType, method: str) -> None:
+        read_mock = MagicMock()
+        monkeypatch.setattr(pd, method, read_mock)
 
         df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type=caching.CacheType.CSV)
+            cache_config_override=caching.CacheConfig(enabled=True, cache_type=cache_type)
         )
 
-        test_filename = 'test.csv'
+        test_filename = f'test.{df_cache.extension}'
 
         df_cache.load(test_filename)
 
-        read_csv_mock.assert_called_once_with(test_filename)
-
-    def test_load_csv_gz(self, monkeypatch: MonkeyPatch) -> None:
-        read_csv_mock = MagicMock()
-        monkeypatch.setattr(pd, 'read_csv', read_csv_mock)
-
-        df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type=caching.CacheType.CSV_GZ)
-        )
-
-        test_filename = 'test.csv.gz'
-
-        df_cache.load(test_filename)
-
-        read_csv_mock.assert_called_once_with(test_filename)
-
-    def test_load_parquet(self, monkeypatch: MonkeyPatch) -> None:
-        pq_read_table = MagicMock()
-        monkeypatch.setattr(pq, 'read_table', pq_read_table)
-
-        df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type=caching.CacheType.PARQUET)
-        )
-
-        test_filename = 'test.parquet'
-
-        df_cache.load(test_filename)
-
-        pq_read_table.assert_called_once_with(test_filename)
-
-    def test_load_pickle(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
-        pickle_load = MagicMock(return_value=mock_data_1)
-        monkeypatch.setattr(pickle, 'load', pickle_load)
-
-        df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type=caching.CacheType.PICKLE)
-        )
-        test_filename = 'test.pickle'
-
-        open_mock = mock_open(read_data=b'')
-        with patch('pybaseball.datahelpers.caching.open', open_mock):
-            df_cache.load(test_filename)
-
-        open_mock.assert_called_once_with(test_filename, 'rb')
-        pickle_load.assert_called()
+        read_mock.assert_called_once_with(test_filename)
 
     def test_load_invalid_cache_type(self, monkeypatch: MonkeyPatch) -> None:
         read_csv_mock = MagicMock()
@@ -482,64 +457,32 @@ class TestCacheWrapper:
             df_cache.load(test_filename)
         
         read_csv_mock.assert_not_called()
-
-    def test_save_csv(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
-        to_csv = MagicMock()
-        monkeypatch.setattr(mock_data_1, 'to_csv', to_csv)
+    
+    @pytest.mark.parametrize(
+        "cache_type, method", [
+            (caching.CacheType.CSV, 'to_csv'),
+            (caching.CacheType.CSV_GZ, 'to_csv'),
+            (caching.CacheType.EXCEL, 'to_excel'),
+            (caching.CacheType.FEATHER, 'to_feather'),
+            (caching.CacheType.JSON, 'to_json'),
+            (caching.CacheType.PARQUET, 'to_parquet'),
+            (caching.CacheType.PICKLE, 'to_pickle'),
+        ]
+    )
+    def test_save(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, cache_type: caching.CacheType,
+                  method: str) -> None:
+        to_method = MagicMock()
+        monkeypatch.setattr(mock_data_1, method, to_method)
 
         df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type=caching.CacheType.CSV)
+            cache_config_override=caching.CacheConfig(enabled=True, cache_type=cache_type)
         )
 
-        test_filename = 'test.csv'
+        test_filename = f'test.{df_cache.extension}'
 
         df_cache.save(mock_data_1, test_filename)
 
-        to_csv.assert_called_once_with(test_filename)
-
-    def test_save_csv_gz(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
-        to_csv = MagicMock()
-        monkeypatch.setattr(mock_data_1, 'to_csv', to_csv)
-
-        df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type=caching.CacheType.CSV_GZ)
-        )
-
-        test_filename = 'test.csv.gz'
-
-        df_cache.save(mock_data_1, test_filename)
-
-        to_csv.assert_called_once_with(test_filename)
-
-    def test_save_parquet(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
-        pq_write_table = MagicMock()
-        monkeypatch.setattr(pq, 'write_table', pq_write_table)
-
-        df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type=caching.CacheType.PARQUET)
-        )
-
-        test_filename = 'test.parquet'
-
-        df_cache.save(mock_data_1, test_filename)
-
-        pq_write_table.assert_called_once_with(pa.Table.from_pandas(mock_data_1), test_filename)
-
-    def test_save_pickle(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
-        pickle_dump = MagicMock(return_value=mock_data_1)
-        monkeypatch.setattr(pickle, 'dump', pickle_dump)
-
-        df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type=caching.CacheType.PICKLE)
-        )
-        test_filename = 'test.pickle'
-
-        open_mock = mock_open(read_data=b'')
-        with patch('pybaseball.datahelpers.caching.open', open_mock):
-            df_cache.save(mock_data_1, test_filename)
-
-        open_mock.assert_called_once_with(test_filename, 'wb')
-        pickle_dump.assert_called()
+        to_method.assert_called_once_with(test_filename)
 
     def test_save_invalid_cache_type(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
         pickle_dump = MagicMock()
