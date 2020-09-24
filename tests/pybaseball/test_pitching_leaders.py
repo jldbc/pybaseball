@@ -16,11 +16,7 @@ def _sample_processed_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('pitching_leaders.csv')
 
 
-def test_pitching_stats(
-    response_get_monkeypatch: Callable,
-    sample_html: str,
-    sample_processed_result: pd.DataFrame
-):
+def test_pitching_stats(response_get_monkeypatch: Callable, sample_html: str, sample_processed_result: pd.DataFrame):
     season = 2019
 
     response_get_monkeypatch(sample_html)

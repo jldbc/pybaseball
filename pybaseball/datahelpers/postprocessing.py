@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import Dict, List, Union
+from typing import List, Union
 
 import numpy as np
 import pandas as pd
@@ -25,7 +25,7 @@ def try_parse_dataframe(
 ) -> pd.DataFrame:
     values = [
         {column: try_parse(data[column][row_i], column) for column in data.columns}
-        for row_i in range(len(data))
+        for row_i in range(len(data)) 
     ]
 
     return pd.DataFrame(values)
