@@ -137,8 +137,6 @@ class TestFGBattingData:
         assert 'Team' not in data_2.columns
         assert len(data_2.index) == 4
 
-        print(data_1, '\n\n\n\n', data_2)
-
         assert_frame_not_equal(data_1, data_2)
 
     def test_fg_batting_position(self, assert_frame_not_equal):
