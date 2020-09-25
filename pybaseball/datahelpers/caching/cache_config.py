@@ -6,7 +6,7 @@ from .cache_type import CacheType
 from .file_utils import _mkdir
 
 class CacheConfig:
-    DEFAULT_CACHE_DIR = path.join(pathlib.Path.home(), '.pybaseball', 'cached_data')
+    DEFAULT_CACHE_DIR = path.join(pathlib.Path.home(), '.pybaseball', 'cache')
     DEFAULT_EXPIRATION = timedelta(hours=24)
 
     # pylint: disable=too-many-arguments
