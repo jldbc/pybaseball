@@ -231,7 +231,7 @@ caching.cache_config.enable()
 ```
 
 This will store a copy of the data returned for each DataFrame returning function call.
-This data will be stored in `~/.pybaseball/cached_data` (or `%USERPROFILE%\.pybaseball\cached_data` in Windows) by
+This data will be stored in `~/.pybaseball/cache` (or `%USERPROFILE%\.pybaseball\cache` in Windows) by
 default. This can be configured by modifying the config:
 
 ```python

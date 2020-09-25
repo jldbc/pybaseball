@@ -14,7 +14,7 @@
     caching.cache_config.enable(False)
     ```
     * If caching is ever enabled by default later, caching is purposefully disabled before all unit tests to prevent false results.
-* By default it will cache to the `.pybaseball/cached_data` folder in the user's home directory, so cache can be used across projects (directory will be created if not present).
+* By default it will cache to the `.pybaseball/cache` folder in the user's home directory, so cache can be used across projects (directory will be created if not present).
 * It supports the following cache storage options: CSV, GZipped CSV, Excel, Feather, JSON, Parquet, Pickle
     * Changing the storage mechanism:
     ```python
