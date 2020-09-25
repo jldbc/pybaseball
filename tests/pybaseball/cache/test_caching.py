@@ -116,7 +116,7 @@ class TestCacheWrapper:
         load_mock.assert_called_once_with(expected_filename)
         df_func.assert_not_called()
         save_mock.assert_not_called()
-        
+
         assert isinstance(result, pd.DataFrame)
 
         pd.testing.assert_frame_equal(result, mock_data_1)
@@ -130,7 +130,7 @@ class TestCacheWrapper:
 
         df_func = MagicMock(return_value=mock_data_1)
         df_func.__name__ = "df_func"
-        
+
         load_mock = MagicMock()
 
         df_cache = cache.dataframe_cache(cache_config_override=cache.CacheConfig(enabled=True))
@@ -160,7 +160,7 @@ class TestCacheWrapper:
 
         df_func = MagicMock(return_value=mock_data_1)
         df_func.__name__ = "df_func" # type: ignore
-        
+
         load_mock = MagicMock()
 
         df_cache = cache.dataframe_cache(cache_config_override=cache.CacheConfig(enabled=True))
@@ -186,12 +186,9 @@ class TestCacheWrapper:
 
     def test_call_cache_resets_cache(self, monkeypatch: MonkeyPatch, remove: MagicMock) -> None:
         test_filename = 'df_func().csv'
-        
-        mock_walk: List[Tuple[str, List[str], List[str]]] = [
-            (cache.cache_config.cache_directory, [], [test_filename])
-        ]
-        monkeypatch.setattr(os, 'walk', MagicMock(return_value=(x for x in mock_walk)))
-        
+
+        monkeypatch.setattr(os, 'listdir', MagicMock(return_value=[test_filename]))
+
         df_func = MagicMock()
         df_func.__name__ = 'df_func' # type: ignore
 
@@ -210,7 +207,7 @@ class TestCacheWrapper:
                                                                   save_mock: MagicMock) -> None:
         def _thrower(*args: Any, **kwargs: Any) -> bool:
             raise Exception
-     
+
 
         df_func = MagicMock(return_value=mock_data_1)
         df_func.__name__ = "df_func"
@@ -220,11 +217,11 @@ class TestCacheWrapper:
         df_cache = cache.dataframe_cache(cache_config_override=cache.CacheConfig(enabled=True))
         monkeypatch.setattr(df_cache, 'load', load_mock)
         monkeypatch.setattr(cache, 'get_func_hash', _thrower)
-    
+
         assert df_cache.cache_config.enabled == True
 
         wrapper = df_cache.__call__(df_func)
-    
+
         result = wrapper(*(1, 2), **{'val1': 'a'})
 
         assert isinstance(result, pd.DataFrame)
@@ -286,9 +283,9 @@ class TestCacheWrapper:
 
         with pytest.raises(ValueError):
             df_cache.load(test_filename)
-        
+
         read_csv_mock.assert_not_called()
-    
+
     @pytest.mark.parametrize(
         "cache_type, method, kwargs", [
             (cache.CacheType.CSV, 'to_csv', {}),
@@ -349,8 +346,8 @@ class TestCacheWrapper:
         pickle_dump.assert_not_called()
 
 
-def test_flush_cache(rmtree: MagicMock, mkdir: MagicMock) -> None:
-    cache.flush_cache()
+def test_flush(rmtree: MagicMock, mkdir: MagicMock) -> None:
+    cache.flush()
 
     assert rmtree.called_once_with(cache.cache_config.cache_directory)
     assert mkdir.called_once_with(cache.cache_config.cache_directory)

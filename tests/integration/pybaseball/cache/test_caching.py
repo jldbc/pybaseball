@@ -16,7 +16,7 @@ def test_cache(cache_type: pybaseball.cache.CacheType) -> None:
                                             cache_directory=_pytest_cache_directory)
     ):
         # Delete any existing data just in case
-        pybaseball.cache.flush_cache()
+        pybaseball.cache.flush()
 
         # Uncached read, cached write
         result, _, write_time, _ = pybaseball.batting_stats(2019) # type: ignore
@@ -29,4 +29,4 @@ def test_cache(cache_type: pybaseball.cache.CacheType) -> None:
         print(f"\n| {cache_type} | {write_time:.3f} | {read_time2:.3f} | {(file_size2/1000):.1f} KB |")
 
         # Cleanup
-        pybaseball.cache.flush_cache()
+        pybaseball.cache.flush()
