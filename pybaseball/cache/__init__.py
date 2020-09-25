@@ -97,13 +97,13 @@ class dataframe_cache:  # pylint: disable=invalid-name
                 return result
 
         if self.reset_cache:
-            self.flush_cache(func)
+            self.flush(func)
 
         return _cached
 
-    def flush_cache(self, func: Callable) -> None:
+    def flush(self, func: Callable) -> None:
         cache_files = [
-            x for x in os.walk(self.cache_config.cache_directory).__next__()[2] if x.startswith(f"{func.__name__}(")
+            x for x in os.listdir(self.cache_config.cache_directory) if x.startswith(f"{func.__name__}(")
         ]
         for cache_file in cache_files:
             _remove(os.path.join(self.cache_config.cache_directory, cache_file))
@@ -115,7 +115,7 @@ class dataframe_cache:  # pylint: disable=invalid-name
     def save(self, data: pd.DataFrame, filename: str) -> None:
         dataframe_utils.save(data, filename, self.cache_config.cache_type)
 
-def flush_cache() -> None:
+def flush() -> None:
     try:
         _rmtree(cache_config.cache_directory)
     except:

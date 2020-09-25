@@ -40,4 +40,4 @@ def _override_cache_directory(monkeypatch: MonkeyPatch) -> None:
         'cache_config',
         cache.CacheConfig(cache_directory=os.path.join(cache.CacheConfig().cache_directory, '.pytest'))
     )
-    cache.flush_cache()
+    cache.flush()
