@@ -16,7 +16,7 @@ def get_soup(start_dt, end_dt):
     if((start_dt is None) or (end_dt is None)):
         print('Error: a date range needs to be specified')
         return None
-    url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=p&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
+    url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&flush_cache=&type=p&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
     s = requests.get(url).content
     return BeautifulSoup(s, "lxml")
 

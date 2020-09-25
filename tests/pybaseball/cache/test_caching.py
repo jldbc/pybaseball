@@ -10,12 +10,12 @@ import pandas as pd
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
-from pybaseball.datahelpers import caching
+from pybaseball import cache
 
 @pytest.fixture(name='save_mock')
 def _save_mock(monkeypatch: MonkeyPatch) -> MagicMock:
     mock = MagicMock()
-    monkeypatch.setattr(caching.dataframe_cache, 'save', mock)
+    monkeypatch.setattr(cache.dataframe_cache, 'save', mock)
     return mock
 
 
@@ -30,32 +30,44 @@ def _mock_data_2() -> pd.DataFrame:
 
 
 class TestCacheWrapper:
+    def test_cache_enable(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setattr(cache, 'cache_config', cache.CacheConfig(enabled=False))
+        assert cache.cache_config.enabled == False
+        cache.enable()
+        assert cache.cache_config.enabled
+
+    def test_cache_disable(self, monkeypatch: MonkeyPatch) -> None:
+        monkeypatch.setattr(cache, 'cache_config', cache.CacheConfig(enabled=True))
+        assert cache.cache_config.enabled
+        cache.disable()
+        assert cache.cache_config.enabled == False
+
     def test_cache_config_override_default(self, mkdir: MagicMock) -> None:
-        df_cache = caching.dataframe_cache()
-        assert df_cache.cache_config == caching.cache_config
-        assert mkdir.called_once_with(caching.cache_config.cache_directory)
+        df_cache = cache.dataframe_cache()
+        assert df_cache.cache_config == cache.cache_config
+        assert mkdir.called_once_with(cache.cache_config.cache_directory)
 
     def test_cache_config_override_set(self, mkdir: MagicMock) -> None:
-        override = caching.CacheConfig(enabled=True, cache_directory='~/my_dir', expiration=timedelta(days=7),
-                                       cache_type=caching.CacheType.PICKLE)
-        df_cache = caching.dataframe_cache(cache_config_override=override)
+        override = cache.CacheConfig(enabled=True, cache_directory='~/my_dir', expiration=timedelta(days=7),
+                                       cache_type=cache.CacheType.PICKLE)
+        df_cache = cache.dataframe_cache(cache_config_override=override)
         assert df_cache.cache_config == override
         assert mkdir.called_once_with('~/my_dir')
 
     def test_cache_config_reset_cache_default(self) -> None:
-        df_cache = caching.dataframe_cache()
+        df_cache = cache.dataframe_cache()
         assert df_cache.reset_cache == False
 
     def test_cache_config_reset_cache_set(self) -> None:
-        df_cache = caching.dataframe_cache(reset_cache=True)
+        df_cache = cache.dataframe_cache(reset_cache=True)
         assert df_cache.reset_cache == True
 
     def test_extension(self) -> None:
-        assert caching.dataframe_cache().extension == caching.cache_config.cache_type.value
+        assert cache.dataframe_cache().extension == cache.cache_config.cache_type.value
 
-        for cache_type in caching.CacheType:
-            override = caching.CacheConfig(cache_type=cache_type)
-            df_cache = caching.dataframe_cache(cache_config_override=override)
+        for cache_type in cache.CacheType:
+            override = cache.CacheConfig(cache_type=cache_type)
+            df_cache = cache.dataframe_cache(cache_config_override=override)
 
             assert df_cache.extension == cache_type.value
 
@@ -64,7 +76,7 @@ class TestCacheWrapper:
 
         load_mock = MagicMock()
 
-        df_cache = caching.dataframe_cache()
+        df_cache = cache.dataframe_cache()
         monkeypatch.setattr(df_cache, 'load', load_mock)
 
         assert df_cache.cache_config.enabled == False
@@ -87,7 +99,7 @@ class TestCacheWrapper:
 
         load_mock = MagicMock(return_value=mock_data_1)
 
-        df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
+        df_cache = cache.dataframe_cache(cache_config_override=cache.CacheConfig(enabled=True))
         monkeypatch.setattr(df_cache, 'load', load_mock)
 
         assert df_cache.cache_config.enabled == True
@@ -98,7 +110,7 @@ class TestCacheWrapper:
 
         expected_filename = os.path.join(
             df_cache.cache_config.cache_directory,
-            caching.get_func_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
+            cache.get_func_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
         )
 
         load_mock.assert_called_once_with(expected_filename)
@@ -121,7 +133,7 @@ class TestCacheWrapper:
         
         load_mock = MagicMock()
 
-        df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
+        df_cache = cache.dataframe_cache(cache_config_override=cache.CacheConfig(enabled=True))
         monkeypatch.setattr(df_cache, 'load', load_mock)
 
         assert df_cache.cache_config.enabled == True
@@ -132,7 +144,7 @@ class TestCacheWrapper:
 
         expected_filename = os.path.join(
             df_cache.cache_config.cache_directory,
-            caching.get_func_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
+            cache.get_func_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
         )
 
         df_func.assert_called_once_with(1, 2, val1='a')
@@ -151,7 +163,7 @@ class TestCacheWrapper:
         
         load_mock = MagicMock()
 
-        df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
+        df_cache = cache.dataframe_cache(cache_config_override=cache.CacheConfig(enabled=True))
         monkeypatch.setattr(df_cache, 'load', load_mock)
 
         assert df_cache.cache_config.enabled == True
@@ -162,7 +174,7 @@ class TestCacheWrapper:
 
         expected_filename = os.path.join(
             df_cache.cache_config.cache_directory,
-            caching.get_func_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
+            cache.get_func_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
         )
 
         df_func.assert_called_once_with(1, 2, val1='a')
@@ -176,14 +188,14 @@ class TestCacheWrapper:
         test_filename = 'df_func().csv'
         
         mock_walk: List[Tuple[str, List[str], List[str]]] = [
-            (caching.cache_config.cache_directory, [], [test_filename])
+            (cache.cache_config.cache_directory, [], [test_filename])
         ]
         monkeypatch.setattr(os, 'walk', MagicMock(return_value=(x for x in mock_walk)))
         
         df_func = MagicMock()
         df_func.__name__ = 'df_func' # type: ignore
 
-        df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True), reset_cache=True)
+        df_cache = cache.dataframe_cache(cache_config_override=cache.CacheConfig(enabled=True), reset_cache=True)
 
         assert df_cache.cache_config.enabled == True
         assert df_cache.reset_cache == True
@@ -205,9 +217,9 @@ class TestCacheWrapper:
 
         load_mock = MagicMock()
 
-        df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
+        df_cache = cache.dataframe_cache(cache_config_override=cache.CacheConfig(enabled=True))
         monkeypatch.setattr(df_cache, 'load', load_mock)
-        monkeypatch.setattr(caching, 'get_func_hash', _thrower)
+        monkeypatch.setattr(cache, 'get_func_hash', _thrower)
     
         assert df_cache.cache_config.enabled == True
 
@@ -223,37 +235,37 @@ class TestCacheWrapper:
 
     @pytest.mark.parametrize(
         "cache_type, method, kwargs", [
-            (caching.CacheType.CSV, 'read_csv', {}),
-            (caching.CacheType.CSV_BZ2, 'read_csv', {}),
-            (caching.CacheType.CSV_GZ, 'read_csv', {}),
-            (caching.CacheType.CSV_XZ, 'read_csv', {}),
-            (caching.CacheType.CSV_ZIP, 'read_csv', {}),
-            (caching.CacheType.FEATHER, 'read_feather', {'compression': None}),
-            (caching.CacheType.FEATHER_LZ4, 'read_feather', {'compression': 'lz4'}),
-            (caching.CacheType.FEATHER_UNCOMPRESSED, 'read_feather', {'compression': 'uncompressed'}),
-            (caching.CacheType.FEATHER_ZSTD, 'read_feather', {'compression': 'zstd'}),
-            (caching.CacheType.JSON, 'read_json', {}),
-            (caching.CacheType.JSON_BZ2, 'read_json', {}),
-            (caching.CacheType.JSON_GZ, 'read_json', {}),
-            (caching.CacheType.JSON_XZ, 'read_json', {}),
-            (caching.CacheType.JSON_ZIP, 'read_json', {}),
-            (caching.CacheType.PARQUET, 'read_parquet', {'compression': None, 'engine': 'pyarrow'}),
-            (caching.CacheType.PARQUET_GZ, 'read_parquet', {'compression': 'gzip', 'engine': 'pyarrow'}),
-            (caching.CacheType.PARQUET_FAST, 'read_parquet', {'compression': None, 'engine': 'fastparquet'}),
-            (caching.CacheType.PARQUET_FAST_GZ, 'read_parquet', {'compression': 'gzip', 'engine': 'fastparquet'}),
-            (caching.CacheType.PICKLE, 'read_pickle', {}),
-            (caching.CacheType.PICKLE_BZIP, 'read_pickle', {}),
-            (caching.CacheType.PICKLE_GZ, 'read_pickle', {}),
-            (caching.CacheType.PICKLE_XZ, 'read_pickle', {}),
-            (caching.CacheType.PICKLE_ZIP, 'read_pickle', {}),
+            (cache.CacheType.CSV, 'read_csv', {}),
+            (cache.CacheType.CSV_BZ2, 'read_csv', {}),
+            (cache.CacheType.CSV_GZ, 'read_csv', {}),
+            (cache.CacheType.CSV_XZ, 'read_csv', {}),
+            (cache.CacheType.CSV_ZIP, 'read_csv', {}),
+            (cache.CacheType.FEATHER, 'read_feather', {'compression': None}),
+            (cache.CacheType.FEATHER_LZ4, 'read_feather', {'compression': 'lz4'}),
+            (cache.CacheType.FEATHER_UNCOMPRESSED, 'read_feather', {'compression': 'uncompressed'}),
+            (cache.CacheType.FEATHER_ZSTD, 'read_feather', {'compression': 'zstd'}),
+            (cache.CacheType.JSON, 'read_json', {}),
+            (cache.CacheType.JSON_BZ2, 'read_json', {}),
+            (cache.CacheType.JSON_GZ, 'read_json', {}),
+            (cache.CacheType.JSON_XZ, 'read_json', {}),
+            (cache.CacheType.JSON_ZIP, 'read_json', {}),
+            (cache.CacheType.PARQUET, 'read_parquet', {'compression': None, 'engine': 'pyarrow'}),
+            (cache.CacheType.PARQUET_GZ, 'read_parquet', {'compression': 'gzip', 'engine': 'pyarrow'}),
+            (cache.CacheType.PARQUET_FAST, 'read_parquet', {'compression': None, 'engine': 'fastparquet'}),
+            (cache.CacheType.PARQUET_FAST_GZ, 'read_parquet', {'compression': 'gzip', 'engine': 'fastparquet'}),
+            (cache.CacheType.PICKLE, 'read_pickle', {}),
+            (cache.CacheType.PICKLE_BZIP, 'read_pickle', {}),
+            (cache.CacheType.PICKLE_GZ, 'read_pickle', {}),
+            (cache.CacheType.PICKLE_XZ, 'read_pickle', {}),
+            (cache.CacheType.PICKLE_ZIP, 'read_pickle', {}),
         ]
     )
-    def test_load(self, monkeypatch: MonkeyPatch, cache_type: caching.CacheType, method: str, kwargs: Dict) -> None:
+    def test_load(self, monkeypatch: MonkeyPatch, cache_type: cache.CacheType, method: str, kwargs: Dict) -> None:
         read_mock = MagicMock()
         monkeypatch.setattr(pd, method, read_mock)
 
-        df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type=cache_type)
+        df_cache = cache.dataframe_cache(
+            cache_config_override=cache.CacheConfig(enabled=True, cache_type=cache_type)
         )
 
         test_filename = f'test.{df_cache.extension}'
@@ -266,8 +278,8 @@ class TestCacheWrapper:
         read_csv_mock = MagicMock()
         monkeypatch.setattr(pd, 'read_csv', read_csv_mock)
 
-        df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type="exe") # type: ignore
+        df_cache = cache.dataframe_cache(
+            cache_config_override=cache.CacheConfig(enabled=True, cache_type="exe") # type: ignore
         )
 
         test_filename = 'test.csv'
@@ -279,38 +291,38 @@ class TestCacheWrapper:
     
     @pytest.mark.parametrize(
         "cache_type, method, kwargs", [
-            (caching.CacheType.CSV, 'to_csv', {}),
-            (caching.CacheType.CSV_BZ2, 'to_csv', {}),
-            (caching.CacheType.CSV_GZ, 'to_csv', {}),
-            (caching.CacheType.CSV_XZ, 'to_csv', {}),
-            (caching.CacheType.CSV_ZIP, 'to_csv', {}),
-            (caching.CacheType.FEATHER, 'to_feather', {'compression': None}),
-            (caching.CacheType.FEATHER_LZ4, 'to_feather', {'compression': 'lz4'}),
-            (caching.CacheType.FEATHER_UNCOMPRESSED, 'to_feather', {'compression': 'uncompressed'}),
-            (caching.CacheType.FEATHER_ZSTD, 'to_feather', {'compression': 'zstd'}),
-            (caching.CacheType.JSON, 'to_json', {}),
-            (caching.CacheType.JSON_BZ2, 'to_json', {}),
-            (caching.CacheType.JSON_GZ, 'to_json', {}),
-            (caching.CacheType.JSON_XZ, 'to_json', {}),
-            (caching.CacheType.JSON_ZIP, 'to_json', {}),
-            (caching.CacheType.PARQUET, 'to_parquet', {'compression': None, 'engine': 'pyarrow'}),
-            (caching.CacheType.PARQUET_GZ, 'to_parquet', {'compression': 'gzip', 'engine': 'pyarrow'}),
-            (caching.CacheType.PARQUET_FAST, 'to_parquet', {'compression': None, 'engine': 'fastparquet'}),
-            (caching.CacheType.PARQUET_FAST_GZ, 'to_parquet', {'compression': 'gzip', 'engine': 'fastparquet'}),
-            (caching.CacheType.PICKLE, 'to_pickle', {}),
-            (caching.CacheType.PICKLE_BZIP, 'to_pickle', {}),
-            (caching.CacheType.PICKLE_GZ, 'to_pickle', {}),
-            (caching.CacheType.PICKLE_XZ, 'to_pickle', {}),
-            (caching.CacheType.PICKLE_ZIP, 'to_pickle', {}),
+            (cache.CacheType.CSV, 'to_csv', {}),
+            (cache.CacheType.CSV_BZ2, 'to_csv', {}),
+            (cache.CacheType.CSV_GZ, 'to_csv', {}),
+            (cache.CacheType.CSV_XZ, 'to_csv', {}),
+            (cache.CacheType.CSV_ZIP, 'to_csv', {}),
+            (cache.CacheType.FEATHER, 'to_feather', {'compression': None}),
+            (cache.CacheType.FEATHER_LZ4, 'to_feather', {'compression': 'lz4'}),
+            (cache.CacheType.FEATHER_UNCOMPRESSED, 'to_feather', {'compression': 'uncompressed'}),
+            (cache.CacheType.FEATHER_ZSTD, 'to_feather', {'compression': 'zstd'}),
+            (cache.CacheType.JSON, 'to_json', {}),
+            (cache.CacheType.JSON_BZ2, 'to_json', {}),
+            (cache.CacheType.JSON_GZ, 'to_json', {}),
+            (cache.CacheType.JSON_XZ, 'to_json', {}),
+            (cache.CacheType.JSON_ZIP, 'to_json', {}),
+            (cache.CacheType.PARQUET, 'to_parquet', {'compression': None, 'engine': 'pyarrow'}),
+            (cache.CacheType.PARQUET_GZ, 'to_parquet', {'compression': 'gzip', 'engine': 'pyarrow'}),
+            (cache.CacheType.PARQUET_FAST, 'to_parquet', {'compression': None, 'engine': 'fastparquet'}),
+            (cache.CacheType.PARQUET_FAST_GZ, 'to_parquet', {'compression': 'gzip', 'engine': 'fastparquet'}),
+            (cache.CacheType.PICKLE, 'to_pickle', {}),
+            (cache.CacheType.PICKLE_BZIP, 'to_pickle', {}),
+            (cache.CacheType.PICKLE_GZ, 'to_pickle', {}),
+            (cache.CacheType.PICKLE_XZ, 'to_pickle', {}),
+            (cache.CacheType.PICKLE_ZIP, 'to_pickle', {}),
         ]
     )
-    def test_save(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, cache_type: caching.CacheType,
+    def test_save(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, cache_type: cache.CacheType,
                   method: str, kwargs: Dict) -> None:
         to_method = MagicMock()
         monkeypatch.setattr(mock_data_1, method, to_method)
 
-        df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type=cache_type)
+        df_cache = cache.dataframe_cache(
+            cache_config_override=cache.CacheConfig(enabled=True, cache_type=cache_type)
         )
 
         test_filename = f'test.{df_cache.extension}'
@@ -323,13 +335,13 @@ class TestCacheWrapper:
         pickle_dump = MagicMock()
         monkeypatch.setattr(pickle, 'dump', pickle_dump)
 
-        df_cache = caching.dataframe_cache(
-            cache_config_override=caching.CacheConfig(enabled=True, cache_type="exe") # type: ignore
+        df_cache = cache.dataframe_cache(
+            cache_config_override=cache.CacheConfig(enabled=True, cache_type="exe") # type: ignore
         )
         test_filename = 'test.pickle'
 
         open_mock = mock_open(read_data=b'')
-        with patch('pybaseball.datahelpers.caching.open', open_mock):
+        with patch('pybaseball.cache.open', open_mock):
             with pytest.raises(ValueError):
                 df_cache.save(mock_data_1, test_filename)
 
@@ -337,8 +349,8 @@ class TestCacheWrapper:
         pickle_dump.assert_not_called()
 
 
-def test_bust_cache(rmtree: MagicMock, mkdir: MagicMock) -> None:
-    caching.bust_cache()
+def test_flush_cache(rmtree: MagicMock, mkdir: MagicMock) -> None:
+    cache.flush_cache()
 
-    assert rmtree.called_once_with(caching.cache_config.cache_directory)
-    assert mkdir.called_once_with(caching.cache_config.cache_directory)
+    assert rmtree.called_once_with(cache.cache_config.cache_directory)
+    assert mkdir.called_once_with(cache.cache_config.cache_directory)
