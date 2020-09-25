@@ -4,15 +4,14 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from . import cache
 from .datasources.fangraphs import fg_team_pitching_data
-from .datahelpers import caching
-
 
 # This is just a pass through for the new, more configurable function
 team_pitching = fg_team_pitching_data 
 
 
-@caching.dataframe_cache()
+@cache.dataframe_cache()
 def team_pitching_bref(team, start_season, end_season=None):
     """
     Get season-level Pitching Statistics for Specific Team (from Baseball-Reference)

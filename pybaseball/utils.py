@@ -1,14 +1,11 @@
 import datetime
 import io
 import zipfile
-from .datahelpers import caching
-import pandas as pd
-import requests
 
 import pandas as pd
 import requests
 
-from pybaseball.datahelpers import caching
+from . import cache
 
 NULLABLE_INT = pd.Int32Dtype()
 
@@ -72,7 +69,7 @@ def sanitize_input(start_dt, end_dt, player_id):
     validate_datestring(end_dt)
     return start_dt, end_dt, player_id
 
-@caching.dataframe_cache()
+@cache.dataframe_cache()
 def split_request(start_dt: str, end_dt: str, player_id: int, url: str) -> pd.DataFrame:
     """
     Splits Statcast queries to avoid request timeouts

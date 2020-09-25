@@ -7,13 +7,13 @@ import numpy as np
 import pandas as pd
 import requests
 
-from ..datahelpers import caching, postprocessing
-
+from .. import cache
+from ..datahelpers import postprocessing
 
 ROOT_URL = 'https://baseballsavant.mlb.com'
 
 
-@caching.dataframe_cache()
+@cache.dataframe_cache()
 def get_statcast_data_from_csv_url(
     url: str,
     null_replacement: Union[str, int, float, datetime] = np.nan,

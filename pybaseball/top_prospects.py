@@ -1,10 +1,10 @@
 import pandas as pd
 import requests
 
-from .datahelpers import caching
+from . import cache
 
 
-@caching.dataframe_cache()
+@cache.dataframe_cache()
 def top_prospects(teamName=None, playerType=None):
     teamUrl = "" if teamName == None else teamName.lower() + '/'
     url = f"https://www.mlb.com/{teamUrl}prospects/stats/top-prospects"

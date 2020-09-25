@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from .datahelpers import caching
+from . import cache
 
 
 def validate_datestring(date_text):
@@ -45,7 +45,7 @@ def get_soup(start_dt, end_dt):
     # if((start_dt is None) or (end_dt is None)):
     #    print('Error: a date range needs to be specified')
     #    return None
-    url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=b&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
+    url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&flush_cache=&type=b&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
     s = requests.get(url).content
     return BeautifulSoup(s, "lxml")
 
@@ -95,7 +95,7 @@ def batting_stats_range(start_dt=None, end_dt=None):
     return table
 
 
-@caching.dataframe_cache()
+@cache.dataframe_cache()
 def batting_stats_bref(season=None):
     """
     Get all batting stats for a set season. If no argument is supplied, gives
@@ -109,7 +109,7 @@ def batting_stats_bref(season=None):
     return(batting_stats_range(start_dt, end_dt))
 
 
-@caching.dataframe_cache()
+@cache.dataframe_cache()
 def bwar_bat(return_all=False):
     """
     Get data from war_daily_bat table. Returns WAR, its components, and a few other useful stats.

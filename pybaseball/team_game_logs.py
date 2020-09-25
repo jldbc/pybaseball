@@ -2,7 +2,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from .datahelpers import caching
+from . import cache
 
 _URL = "https://www.baseball-reference.com/teams/tgl.cgi?team={}&t={}&year={}"
 
@@ -36,7 +36,7 @@ def postprocess(data):
     return data.reset_index(drop=True)
 
 
-@caching.dataframe_cache()
+@cache.dataframe_cache()
 def team_game_logs(season, team, log_type="batting"):
     """
     Get Baseball Reference batting or pitching game logs for a team-season.

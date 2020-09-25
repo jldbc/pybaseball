@@ -6,7 +6,7 @@ from zipfile import ZipFile
 import pandas as pd
 import requests
 
-from .datahelpers import caching
+from . import cache
 
 url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
 base_string = "baseballdatabank-master/core"
@@ -18,7 +18,7 @@ def get_lahman_zip() -> Optional[ZipFile]:
     # If we already have the zip file, keep re-using that.
     # Making this a function since everything else will be re-using these lines
     global _handle
-    if path.exists(path.join(caching.cache_config.cache_directory, base_string)):
+    if path.exists(path.join(cache.cache_config.cache_directory, base_string)):
         _handle = None
     elif not _handle:
         s = requests.get(url, stream=True)
@@ -29,7 +29,7 @@ def download_lahman():
     # download entire lahman db to present working directory
     z = get_lahman_zip()
     if z is not None:
-        z.extractall(caching.cache_config.cache_directory)
+        z.extractall(cache.cache_config.cache_directory)
         z = get_lahman_zip()
         # this way we'll now start using the extracted zip directory
         # instead of the session ZipFile object
@@ -38,7 +38,7 @@ def _get_file(tablename: str, quotechar: str = "'") -> pd.DataFrame:
     z = get_lahman_zip()
     f = f'{base_string}/{tablename}'
     data = pd.read_csv(
-        f"{path.join(caching.cache_config.cache_directory, f)}" if z is None else z.open(f),
+        f"{path.join(cache.cache_config.cache_directory, f)}" if z is None else z.open(f),
         header=0,
         sep=',',
         quotechar=quotechar

@@ -1,10 +1,10 @@
 import io
+from typing import Optional
 
 import pandas as pd
-from typing import Optional
 import requests
 
-from .datahelpers import caching
+from . import cache
 from .utils import sanitize_input, split_request
 
 
@@ -28,7 +28,7 @@ def statcast_batter(start_dt: Optional[str] = None, end_dt: Optional[str] = None
     df = split_request(start_dt, end_dt, player_id, url)
     return df
 
-@caching.dataframe_cache()
+@cache.dataframe_cache()
 def statcast_batter_exitvelo_barrels(year: int, minBBE: str = "q") -> pd.DataFrame:
     url = f"https://baseballsavant.mlb.com/leaderboard/statcast?type=batter&year={year}&position=&team=&min={minBBE}&csv=true"
     res = requests.get(url, timeout=None).content

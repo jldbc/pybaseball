@@ -3,12 +3,12 @@ from typing import Any, Callable
 import pandas as pd
 import pytest
 
-from pybaseball.datahelpers import caching
+from pybaseball import cache
 
 @pytest.fixture(autouse=True)
 def _disable_cache() -> None:
-    # Always disable caching in tests
-    caching.cache_config.enable(False)
+    # Always disable cache in tests
+    cache.disable()
 
 @pytest.fixture(name="assert_frame_not_equal")
 def _assert_frame_not_equal() -> Callable:

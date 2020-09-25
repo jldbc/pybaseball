@@ -5,7 +5,8 @@ from unittest.mock import MagicMock
 
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
-from pybaseball.datahelpers import caching
+
+from pybaseball import cache
 
 
 # Autouse to prevent file system side effects
@@ -35,8 +36,8 @@ def _rmtree(monkeypatch: MonkeyPatch) -> MagicMock:
 @pytest.fixture(autouse=True)
 def _override_cache_directory(monkeypatch: MonkeyPatch) -> None:
     monkeypatch.setattr(
-        caching,
+        cache,
         'cache_config',
-        caching.CacheConfig(cache_directory=os.path.join(caching.CacheConfig().cache_directory, '.pytest'))
+        cache.CacheConfig(cache_directory=os.path.join(cache.CacheConfig().cache_directory, '.pytest'))
     )
-    caching.bust_cache()
+    cache.flush_cache()

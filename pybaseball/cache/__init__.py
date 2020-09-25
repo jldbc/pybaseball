@@ -16,6 +16,12 @@ from .func_utils import MAX_ARGS_KEY_LENGTH, get_func_hash, get_func_name, get_v
 # Cache is disabled by default
 cache_config = CacheConfig()
 
+def enable() -> None:
+    cache_config.enable(True)
+
+def disable() -> None:
+    cache_config.enable(False)
+
 _ProfiledCachedDataFrame = Union[pd.DataFrame, Tuple[pd.DataFrame, Optional[float], Optional[float], Optional[float]]]
 
 class dataframe_cache:  # pylint: disable=invalid-name
@@ -40,7 +46,7 @@ class dataframe_cache:  # pylint: disable=invalid-name
 
     def __call__(self, func: Callable[..., pd.DataFrame]) -> Callable[..., _ProfiledCachedDataFrame]:
         def _cached(*args: Any, **kwargs: Any) -> _ProfiledCachedDataFrame:
-            # Skip all this if caching is disabled
+            # Skip all this if cache is disabled
             if not self.cache_config.enabled:
                 return func(*args, **kwargs)
 
@@ -91,11 +97,11 @@ class dataframe_cache:  # pylint: disable=invalid-name
                 return result
 
         if self.reset_cache:
-            self.bust_cache(func)
+            self.flush_cache(func)
 
         return _cached
 
-    def bust_cache(self, func: Callable) -> None:
+    def flush_cache(self, func: Callable) -> None:
         cache_files = [
             x for x in os.walk(self.cache_config.cache_directory).__next__()[2] if x.startswith(f"{func.__name__}(")
         ]
@@ -109,7 +115,7 @@ class dataframe_cache:  # pylint: disable=invalid-name
     def save(self, data: pd.DataFrame, filename: str) -> None:
         dataframe_utils.save(data, filename, self.cache_config.cache_type)
 
-def bust_cache() -> None:
+def flush_cache() -> None:
     try:
         _rmtree(cache_config.cache_directory)
     except:

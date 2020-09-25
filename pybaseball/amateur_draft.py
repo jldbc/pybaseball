@@ -1,7 +1,7 @@
 import pandas as pd
 import requests
 
-from .datahelpers import caching
+from . import cache
 
 
 def get_draft_results(year, round):
@@ -10,7 +10,7 @@ def get_draft_results(year, round):
     draft_results = pd.read_html(res)
     return draft_results
 
-@caching.dataframe_cache()
+@cache.dataframe_cache()
 def amateur_draft(year, round, keep_stats=True):
     draft_results = get_draft_results(year, round)
     draft_results = pd.concat(draft_results)

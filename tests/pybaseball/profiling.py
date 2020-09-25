@@ -10,7 +10,7 @@ import argparse
 import numpy as np
 import requests
 
-from pybaseball import batting_stats, pitching_stats, team_batting, team_fielding, team_pitching, datahelpers
+from pybaseball import batting_stats, pitching_stats, team_batting, team_fielding, team_pitching, datahelpers, cache
 
 _ProfileRun = Tuple[Callable, Callable, int]
 
@@ -90,10 +90,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     if args.cache_enabled and args.cache_type is not None:
-        datahelpers.caching.bust_cache()
-        datahelpers.caching.cache_config = datahelpers.caching.CacheConfig(enabled=True, cache_type=datahelpers.caching.CacheType[args.cache_type])
+        cache.flush_cache()
+        cache.cache_config = cache.CacheConfig(enabled=True, cache_type=cache.CacheType[args.cache_type])
     else:
-        datahelpers.caching.cache_config.enable(False)
+        cache.disable()
 
     # Run
     profile(get_profile_suite(args.iterations))

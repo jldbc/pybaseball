@@ -4,7 +4,7 @@ import os
 import pandas as pd
 import requests
 
-from .datahelpers import caching
+from . import cache
 
 # dropped key_uuid. looks like a has we wouldn't need for anything.
 # TODO: allow for typos. String similarity?
@@ -12,10 +12,10 @@ from .datahelpers import caching
 url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
 
 def get_register_file():
-    return os.path.join(caching.cache_config.cache_directory, 'chadwick-register.csv')
+    return os.path.join(cache.cache_config.cache_directory, 'chadwick-register.csv')
 
 
-@caching.dataframe_cache()
+@cache.dataframe_cache()
 def chadwick_register(save: bool = False) -> pd.DataFrame:
     ''' Get the Chadwick register Database '''
 

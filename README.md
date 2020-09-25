@@ -217,17 +217,16 @@ This function returns a list of dataframes. Each dataframe is the standings for 
 
 # Caching
 
-To facilitate faster data retrieval for repeated calls, caching may be used to save a local copy of the requested data.
-By default caching is disabled so as to respect a user's potential desire to not have their hard drive space used
-without their permission. However, enabling caching is simple.
+To facilitate faster data retrieval for repeated calls, a local data cache may be used to save a local copy of the
+requested data. By default the cache is disabled so as to respect a user's potential desire to not have their hard drive
+space used without their permission. However, enabling the cache is simple.
 
-Caching can be turned on by including the caching module in the pybaseball.datahelpers submodule, and enabling the
-caching option like so:
+Cache can be turned on by including the pybaseball.cache module and enabling the cache option like so:
 
 ```python
-from pybaseball.datahelpers import caching
+from pybaseball import cache
 
-caching.cache_config.enable()
+cache.enable()
 ```
 
 This will store a copy of the data returned for each DataFrame returning function call.
@@ -235,9 +234,9 @@ This data will be stored in `~/.pybaseball/cache` (or `%USERPROFILE%\.pybaseball
 default. This can be configured by modifying the config:
 
 ```python
-from pybaseball.datahelpers import caching
+from pybaseball import cache
 
-caching.cache_config.cache_directory = '~/other_location'
+cache.cache_config.cache_directory = '~/other_location'
 ```
 
 The cache_config has many options that can be set or it can be replaced with a new CacheConfig object:
@@ -245,21 +244,21 @@ The cache_config has many options that can be set or it can be replaced with a n
 ```python
 from datetime import timedelta
 
-from pybaseball.datahelpers import caching
+from pybaseball import cache
 
-caching.cache_config = caching.CacheConfig(
+cache.cache_config = cache.CacheConfig(
    enabled=True,
    cache_directory='~/other_other_location',
    expiration=timedelta(days=7),
-   cache_type=caching.CacheType.CSV
+   cache_type=cache.CacheType.CSV
 )
 ```
 
 Each CacheConfig option is as follows:
-- `enabled` - bool - Whether caching should be enabled
+- `enabled` - bool - Whether cache should be enabled
 - `cache_directory` - str - The location to store the cached data. If it does not exist, it will be created.
 - `expiration` - datetime.timedelta - The timedelta after the cache file is created to expire it. Default = 24 hours.
-- `cache_type` - pybaseball.datahelpers.caching.CacheType - The method to use in storing the cache. Options:
+- `cache_type` - pybaseball.cache.CacheType - The method to use in storing the cache. Options:
   - `CacheType.CSV` - Cache is stored in pandas compatible CSV format files
   - `CacheType.CSV_GZ` - Cache is stored in pandas compatible GZip files with a compressed CSV file inside
   - `CacheType.FEATHER` - Cache is stored in Apache Arrow Feather format files: https://arrow.apache.org/docs/python/feather.html
