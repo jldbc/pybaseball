@@ -20,42 +20,23 @@
 | max_results      | int              | The maximum number of results to return. <br> Default = 1000000 (In effect, all results)
 
 
-## Individual Batting Stats
+#
 
 ```python
 from pybaseball.datasources import fangraphs
 
+# Individual Batting Stats
 fangraphs.fg_batting_data(2019)
-```
 
-## Individual Pitching Stats
-
-```python
-from pybaseball.datasources import fangraphs
-
+# Individual Pitching Stats
 fangraphs.fg_pitching_data(2019)
-```
 
-## Team Batting Stats
-
-```python
-from pybaseball.datasources import fangraphs
-
+# Team Batting Stats
 fangraphs.fg_team_batting_data(2019)
-```
 
-## Team Fielding Stats
-
-```python
-from pybaseball.datasources import fangraphs
-
+# Team Fielding Stats
 fangraphs.fg_team_fielding_data(2019)
-```
 
-## Team Pitching Stats
-
-```python
-from pybaseball.datasources import fangraphs
-
+# Team Pitching Stats
 fangraphs.fg_team_pitching_data(2019)
 ```
