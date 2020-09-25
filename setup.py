@@ -80,13 +80,10 @@ setup(
                       'requests>=2.18.1',
                       'lxml>=4.2.1',
                       'fastparquet>=0.4.1',
-                      'python-snappy>=0.5.4',
                       'pyarrow>=1.0.1',
                       'pygithub>=1.51',
                       'altair>=4.0.0',
                       'scipy>=1.4.0',
-                      'openpyxl>=3.0.5',
-                      'xlsxwriter>=1.3.6',
                       ],
 
     # List additional groups of dependencies here (e.g. development

@@ -7,46 +7,10 @@ from typing import Any, Dict, List, Tuple
 from unittest.mock import MagicMock, mock_open, patch
 
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
 
 from pybaseball.datahelpers import caching
-
-
-# Autouse to prevent file system side effects
-@pytest.fixture(autouse=True, name="mkdir")
-def _mkdir(monkeypatch: MonkeyPatch) -> MagicMock:
-    mock = MagicMock()
-    monkeypatch.setattr('pathlib.Path.mkdir', mock)
-    return mock
-
-
-# Autouse to prevent file system side effects
-@pytest.fixture(autouse=True, name="remove")
-def _remove(monkeypatch: MonkeyPatch) -> MagicMock:
-    mock = MagicMock()
-    monkeypatch.setattr(os, 'remove', mock)
-    return mock
-
-
-# Autouse to prevent file system side effects
-@pytest.fixture(autouse=True, name="rmtree")
-def _rmtree(monkeypatch: MonkeyPatch) -> MagicMock:
-    mock = MagicMock()
-    monkeypatch.setattr(shutil, 'rmtree', mock)
-    return mock
-
-# Autouse to prevent file system side effects
-@pytest.fixture(autouse=True)
-def _override_cache_directory(monkeypatch: MonkeyPatch) -> None:
-    monkeypatch.setattr(
-        caching,
-        'cache_config',
-        caching.CacheConfig(cache_directory=os.path.join(caching.CacheConfig().cache_directory, '.pytest'))
-    )
-    caching.bust_cache()
 
 @pytest.fixture(name='save_mock')
 def _save_mock(monkeypatch: MonkeyPatch) -> MagicMock:
@@ -65,173 +29,7 @@ def _mock_data_2() -> pd.DataFrame:
     return pd.DataFrame([[1, 2], [3, 4]], columns=['a', 'b'])
 
 
-class TestCacheConfig:
-    def test_not_enabled_default(self) -> None:
-        config = caching.CacheConfig()
-        assert config.enabled == False
-
-    def test_enabled_set(self) -> None:
-        config = caching.CacheConfig(enabled=True)
-        assert config.enabled == True
-
-    def test_enable(self) -> None:
-        config = caching.CacheConfig()
-        assert config.enabled == False
-
-        config.enable()
-        assert config.enabled == True
-
-        config.enable(False)
-        assert config.enabled == False
-
-    def test_cache_directory_default(self, mkdir: MagicMock) -> None:
-        config = caching.CacheConfig()
-        assert config.cache_directory == caching.CacheConfig.DEFAULT_CACHE_DIR
-        assert mkdir.called_once_with(caching.CacheConfig.DEFAULT_CACHE_DIR)
-
-    def test_cache_directory_set(self, mkdir: MagicMock) -> None:
-        my_dir: str = '~/my_dir'
-
-        config = caching.CacheConfig(cache_directory=my_dir)
-        assert config.cache_directory == my_dir
-        assert mkdir.called_once_with(my_dir)
-
-    def test_expiration_default(self) -> None:
-        config = caching.CacheConfig()
-        assert config.expiration == caching.CacheConfig.DEFAULT_EXPIRATION
-
-    def test_expiration_set(self) -> None:
-        my_expiration: timedelta = timedelta(days=365)
-
-        config = caching.CacheConfig(expiration=my_expiration)
-        assert config.expiration == my_expiration
-
-    def test_cache_type_default(self) -> None:
-        config = caching.CacheConfig()
-        assert config.cache_type == caching.CacheType.CSV
-
-    def test_cache_type_set(self) -> None:
-        config = caching.CacheConfig(cache_type=caching.CacheType.PARQUET)
-        assert config.cache_type == caching.CacheType.PARQUET
-
-
 class TestCacheWrapper:
-    def test_get_value_hash_str(self) -> None:
-        test_str = "TESTING"
-
-        assert caching.dataframe_cache._get_value_hash(test_str) == f"'{test_str}'"
-
-    def test_get_value_hash_str_no_designators(self) -> None:
-        test_str = "TESTING"
-
-        assert caching.dataframe_cache._get_value_hash(test_str, include_designators=False) == test_str
-
-    def test_get_value_hash_str_with_bad_chars(self) -> None:
-        test_str = "TESTING/"
-
-        assert caching.dataframe_cache._get_value_hash(test_str) == str(test_str.__hash__())
-
-    def test_get_value_hash_hashable(self) -> None:
-        test_float = 3.14159
-
-        assert caching.dataframe_cache._get_value_hash(test_float) == str(test_float.__hash__())
-
-    def test_get_value_hash_none(self) -> None:
-        test_value = None
-
-        assert caching.dataframe_cache._get_value_hash(test_value) == 'None'
-
-    def test_get_value_hash_list(self) -> None:
-        test_value = ['a', 'b']
-
-        assert caching.dataframe_cache._get_value_hash(test_value) == "['a', 'b']"
-
-    def test_get_value_hash_list_no_designators(self) -> None:
-        test_value = ['a', 'b']
-
-        assert caching.dataframe_cache._get_value_hash(test_value, include_designators=False) == "'a', 'b'"
-
-    def test_get_value_hash_tuple(self) -> None:
-        test_value = ('a', 'b')
-
-        assert caching.dataframe_cache._get_value_hash(test_value) == "('a', 'b')"
-
-    def test_get_value_hash_tuple_no_designators(self) -> None:
-        test_value = ('a', 'b')
-
-        assert caching.dataframe_cache._get_value_hash(test_value, include_designators=False) == "'a', 'b'"
-
-    def test_get_value_hash_dict(self) -> None:
-        test_value = {'a': 'foo', 'b': 'bar'}
-
-        assert caching.dataframe_cache._get_value_hash(test_value) == "{a='foo', b='bar'}"
-
-    def test_get_value_hash_dict_no_designators(self) -> None:
-        test_value = {'a': 'foo', 'b': 'bar'}
-
-        assert caching.dataframe_cache._get_value_hash(test_value, include_designators=False) == "a='foo', b='bar'"
-
-    def test_get_value_hash_non_hashable(self) -> None:
-        class NonHashable:
-            def __hash__(self) -> int:
-                raise NotImplementedError
-
-        with pytest.raises(ValueError):
-            print(caching.dataframe_cache._get_value_hash(NonHashable()))
-
-    def test_get_f_name_function(self) -> None:
-        def test_func() -> None:
-            pass
-
-        assert caching.dataframe_cache._get_f_name(test_func) == "test_func"
-
-    def test_get_f_name_class_method(self) -> None:
-        class test_class:
-            def test_func(self) -> None:
-                pass
-
-        assert caching.dataframe_cache._get_f_name(test_class().test_func) == "test_class.test_func"
-
-    def test_get_f_hash_no_params(self) -> None:
-        def test_func(*args: Any, **kwargs: Any) -> None:
-            pass
-
-        assert caching.dataframe_cache._get_f_hash(test_func, (), {}) == "test_func()"
-
-    def test_get_f_hash_with_args(self) -> None:
-        def test_func(*args: Any, **kwargs: Any) -> None:
-            pass
-
-        expected_hash = f"test_func('a', {(1).__hash__()})"
-
-        assert caching.dataframe_cache._get_f_hash(test_func, ('a', 1), {}) == expected_hash
-
-    def test_get_f_hash_with_kwargs(self) -> None:
-        def test_func(*args: Any, **kwargs: Any) -> None:
-            pass
-
-        expected_hash = f"test_func(val1={(1.5).__hash__()}, val2='b')"
-
-        assert caching.dataframe_cache._get_f_hash(test_func, (), {'val1': 1.5, 'val2': 'b'}) == expected_hash
-
-    def test_get_f_hash_with_args_and_kwargs(self) -> None:
-        def test_func(*args: Any, **kwargs: Any) -> None:
-            pass
-
-        expected_hash = f"test_func('a', {(1).__hash__()}, val1={(1.5).__hash__()}, val2='b')"
-
-        assert caching.dataframe_cache._get_f_hash(test_func, ('a', 1), {'val1': 1.5, 'val2': 'b'}) == expected_hash
-
-    def test_get_f_hash_long_path_windows(self) -> None:
-        def test_func(*args: Any, **kwargs: Any) -> None:
-            pass
-
-        expected_hash = "test_func(93ece9cbe326c434412e28b87d466bd08bc0f2e7db0770cff852e7b9f46240d8)"
-
-        long_kwargs = {f"val{str(x)}": x for x in range(caching.dataframe_cache.MAX_ARGS_KEY_LENGTH)}
-
-        assert caching.dataframe_cache._get_f_hash(test_func, ('a', 1), long_kwargs) == expected_hash
-
     def test_cache_config_override_default(self, mkdir: MagicMock) -> None:
         df_cache = caching.dataframe_cache()
         assert df_cache.cache_config == caching.cache_config
@@ -300,7 +98,7 @@ class TestCacheWrapper:
 
         expected_filename = os.path.join(
             df_cache.cache_config.cache_directory,
-            caching.dataframe_cache._get_f_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
+            caching.get_func_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
         )
 
         load_mock.assert_called_once_with(expected_filename)
@@ -334,7 +132,7 @@ class TestCacheWrapper:
 
         expected_filename = os.path.join(
             df_cache.cache_config.cache_directory,
-            caching.dataframe_cache._get_f_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
+            caching.get_func_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
         )
 
         df_func.assert_called_once_with(1, 2, val1='a')
@@ -364,7 +162,7 @@ class TestCacheWrapper:
 
         expected_filename = os.path.join(
             df_cache.cache_config.cache_directory,
-            caching.dataframe_cache._get_f_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
+            caching.get_func_hash(df_func, (1, 2), {'val1': 'a'}) + "." + df_cache.extension
         )
 
         df_func.assert_called_once_with(1, 2, val1='a')
@@ -409,7 +207,7 @@ class TestCacheWrapper:
 
         df_cache = caching.dataframe_cache(cache_config_override=caching.CacheConfig(enabled=True))
         monkeypatch.setattr(df_cache, 'load', load_mock)
-        monkeypatch.setattr(caching.dataframe_cache, '_get_f_hash', _thrower)
+        monkeypatch.setattr(caching, 'get_func_hash', _thrower)
     
         assert df_cache.cache_config.enabled == True
 
@@ -430,7 +228,6 @@ class TestCacheWrapper:
             (caching.CacheType.CSV_GZ, 'read_csv', {}),
             (caching.CacheType.CSV_XZ, 'read_csv', {}),
             (caching.CacheType.CSV_ZIP, 'read_csv', {}),
-            (caching.CacheType.EXCEL, 'read_excel', {'engine': 'openpyxl'}),
             (caching.CacheType.FEATHER, 'read_feather', {'compression': None}),
             (caching.CacheType.FEATHER_LZ4, 'read_feather', {'compression': 'lz4'}),
             (caching.CacheType.FEATHER_UNCOMPRESSED, 'read_feather', {'compression': 'uncompressed'}),
@@ -441,15 +238,9 @@ class TestCacheWrapper:
             (caching.CacheType.JSON_XZ, 'read_json', {}),
             (caching.CacheType.JSON_ZIP, 'read_json', {}),
             (caching.CacheType.PARQUET, 'read_parquet', {'compression': None, 'engine': 'pyarrow'}),
-            # (caching.CacheType.PARQUET_BROTLI, 'read_parquet', {'compression': 'brotli', 'engine': 'pyarrow'}),
-            (caching.CacheType.PARQUET_BROTLI, 'read_parquet', {'compression': None, 'engine': 'pyarrow'}),
             (caching.CacheType.PARQUET_GZ, 'read_parquet', {'compression': 'gzip', 'engine': 'pyarrow'}),
-            (caching.CacheType.PARQUET_SNAPPY, 'read_parquet', {'compression': 'snappy', 'engine': 'pyarrow'}),
             (caching.CacheType.PARQUET_FAST, 'read_parquet', {'compression': None, 'engine': 'fastparquet'}),
-            # (caching.CacheType.PARQUET_FAST_BROTLI, 'read_parquet', {'compression': 'brotli', 'engine': 'fastparquet'}),
-            (caching.CacheType.PARQUET_FAST_BROTLI, 'read_parquet', {'compression': None, 'engine': 'fastparquet'}),
             (caching.CacheType.PARQUET_FAST_GZ, 'read_parquet', {'compression': 'gzip', 'engine': 'fastparquet'}),
-            (caching.CacheType.PARQUET_FAST_SNAPPY, 'read_parquet', {'compression': 'snappy', 'engine': 'fastparquet'}),
             (caching.CacheType.PICKLE, 'read_pickle', {}),
             (caching.CacheType.PICKLE_BZIP, 'read_pickle', {}),
             (caching.CacheType.PICKLE_GZ, 'read_pickle', {}),
@@ -493,7 +284,6 @@ class TestCacheWrapper:
             (caching.CacheType.CSV_GZ, 'to_csv', {}),
             (caching.CacheType.CSV_XZ, 'to_csv', {}),
             (caching.CacheType.CSV_ZIP, 'to_csv', {}),
-            (caching.CacheType.EXCEL, 'to_excel', {'engine': 'xlsxwriter'}),
             (caching.CacheType.FEATHER, 'to_feather', {'compression': None}),
             (caching.CacheType.FEATHER_LZ4, 'to_feather', {'compression': 'lz4'}),
             (caching.CacheType.FEATHER_UNCOMPRESSED, 'to_feather', {'compression': 'uncompressed'}),
@@ -504,21 +294,14 @@ class TestCacheWrapper:
             (caching.CacheType.JSON_XZ, 'to_json', {}),
             (caching.CacheType.JSON_ZIP, 'to_json', {}),
             (caching.CacheType.PARQUET, 'to_parquet', {'compression': None, 'engine': 'pyarrow'}),
-            # (caching.CacheType.PARQUET_BROTLI, 'to_parquet', {'compression': 'brotli', 'engine': 'pyarrow'}),
-            (caching.CacheType.PARQUET_BROTLI, 'to_parquet', {'compression': None, 'engine': 'pyarrow'}),
             (caching.CacheType.PARQUET_GZ, 'to_parquet', {'compression': 'gzip', 'engine': 'pyarrow'}),
-            (caching.CacheType.PARQUET_SNAPPY, 'to_parquet', {'compression': 'snappy', 'engine': 'pyarrow'}),
             (caching.CacheType.PARQUET_FAST, 'to_parquet', {'compression': None, 'engine': 'fastparquet'}),
-            # (caching.CacheType.PARQUET_FAST_BROTLI, 'to_parquet', {'compression': 'brotli', 'engine': 'fastparquet'}),
-            (caching.CacheType.PARQUET_FAST_BROTLI, 'to_parquet', {'compression': None, 'engine': 'fastparquet'}),
             (caching.CacheType.PARQUET_FAST_GZ, 'to_parquet', {'compression': 'gzip', 'engine': 'fastparquet'}),
-            (caching.CacheType.PARQUET_FAST_SNAPPY, 'to_parquet', {'compression': 'snappy', 'engine': 'fastparquet'}),
             (caching.CacheType.PICKLE, 'to_pickle', {}),
             (caching.CacheType.PICKLE_BZIP, 'to_pickle', {}),
             (caching.CacheType.PICKLE_GZ, 'to_pickle', {}),
             (caching.CacheType.PICKLE_XZ, 'to_pickle', {}),
             (caching.CacheType.PICKLE_ZIP, 'to_pickle', {}),
-    
         ]
     )
     def test_save(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, cache_type: caching.CacheType,
