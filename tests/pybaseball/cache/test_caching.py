@@ -231,33 +231,13 @@ class TestCacheWrapper:
         save_mock.assert_not_called()
 
     @pytest.mark.parametrize(
-        "cache_type, method, kwargs", [
-            (cache.CacheType.CSV, 'read_csv', {}),
-            (cache.CacheType.CSV_BZ2, 'read_csv', {}),
-            (cache.CacheType.CSV_GZ, 'read_csv', {}),
-            (cache.CacheType.CSV_XZ, 'read_csv', {}),
-            (cache.CacheType.CSV_ZIP, 'read_csv', {}),
-            (cache.CacheType.FEATHER, 'read_feather', {'compression': None}),
-            (cache.CacheType.FEATHER_LZ4, 'read_feather', {'compression': 'lz4'}),
-            (cache.CacheType.FEATHER_UNCOMPRESSED, 'read_feather', {'compression': 'uncompressed'}),
-            (cache.CacheType.FEATHER_ZSTD, 'read_feather', {'compression': 'zstd'}),
-            (cache.CacheType.JSON, 'read_json', {}),
-            (cache.CacheType.JSON_BZ2, 'read_json', {}),
-            (cache.CacheType.JSON_GZ, 'read_json', {}),
-            (cache.CacheType.JSON_XZ, 'read_json', {}),
-            (cache.CacheType.JSON_ZIP, 'read_json', {}),
-            (cache.CacheType.PARQUET, 'read_parquet', {'compression': None, 'engine': 'pyarrow'}),
-            (cache.CacheType.PARQUET_GZ, 'read_parquet', {'compression': 'gzip', 'engine': 'pyarrow'}),
-            (cache.CacheType.PARQUET_FAST, 'read_parquet', {'compression': None, 'engine': 'fastparquet'}),
-            (cache.CacheType.PARQUET_FAST_GZ, 'read_parquet', {'compression': 'gzip', 'engine': 'fastparquet'}),
-            (cache.CacheType.PICKLE, 'read_pickle', {}),
-            (cache.CacheType.PICKLE_BZIP, 'read_pickle', {}),
-            (cache.CacheType.PICKLE_GZ, 'read_pickle', {}),
-            (cache.CacheType.PICKLE_XZ, 'read_pickle', {}),
-            (cache.CacheType.PICKLE_ZIP, 'read_pickle', {}),
+        "cache_type, method", [
+            (cache.CacheType.CSV, 'read_csv'),
+            (cache.CacheType.PARQUET, 'read_parquet'),
+            (cache.CacheType.PICKLE, 'read_pickle'),
         ]
     )
-    def test_load(self, monkeypatch: MonkeyPatch, cache_type: cache.CacheType, method: str, kwargs: Dict) -> None:
+    def test_load(self, monkeypatch: MonkeyPatch, cache_type: cache.CacheType, method: str) -> None:
         read_mock = MagicMock()
         monkeypatch.setattr(pd, method, read_mock)
 
@@ -269,7 +249,7 @@ class TestCacheWrapper:
 
         df_cache.load(test_filename)
 
-        assert read_mock.called_once_with(test_filename, **kwargs)
+        assert read_mock.called_once_with(test_filename)
 
     def test_load_invalid_cache_type(self, monkeypatch: MonkeyPatch) -> None:
         read_csv_mock = MagicMock()
@@ -287,34 +267,14 @@ class TestCacheWrapper:
         read_csv_mock.assert_not_called()
 
     @pytest.mark.parametrize(
-        "cache_type, method, kwargs", [
-            (cache.CacheType.CSV, 'to_csv', {}),
-            (cache.CacheType.CSV_BZ2, 'to_csv', {}),
-            (cache.CacheType.CSV_GZ, 'to_csv', {}),
-            (cache.CacheType.CSV_XZ, 'to_csv', {}),
-            (cache.CacheType.CSV_ZIP, 'to_csv', {}),
-            (cache.CacheType.FEATHER, 'to_feather', {'compression': None}),
-            (cache.CacheType.FEATHER_LZ4, 'to_feather', {'compression': 'lz4'}),
-            (cache.CacheType.FEATHER_UNCOMPRESSED, 'to_feather', {'compression': 'uncompressed'}),
-            (cache.CacheType.FEATHER_ZSTD, 'to_feather', {'compression': 'zstd'}),
-            (cache.CacheType.JSON, 'to_json', {}),
-            (cache.CacheType.JSON_BZ2, 'to_json', {}),
-            (cache.CacheType.JSON_GZ, 'to_json', {}),
-            (cache.CacheType.JSON_XZ, 'to_json', {}),
-            (cache.CacheType.JSON_ZIP, 'to_json', {}),
-            (cache.CacheType.PARQUET, 'to_parquet', {'compression': None, 'engine': 'pyarrow'}),
-            (cache.CacheType.PARQUET_GZ, 'to_parquet', {'compression': 'gzip', 'engine': 'pyarrow'}),
-            (cache.CacheType.PARQUET_FAST, 'to_parquet', {'compression': None, 'engine': 'fastparquet'}),
-            (cache.CacheType.PARQUET_FAST_GZ, 'to_parquet', {'compression': 'gzip', 'engine': 'fastparquet'}),
-            (cache.CacheType.PICKLE, 'to_pickle', {}),
-            (cache.CacheType.PICKLE_BZIP, 'to_pickle', {}),
-            (cache.CacheType.PICKLE_GZ, 'to_pickle', {}),
-            (cache.CacheType.PICKLE_XZ, 'to_pickle', {}),
-            (cache.CacheType.PICKLE_ZIP, 'to_pickle', {}),
+        "cache_type, method", [
+            (cache.CacheType.CSV, 'to_csv'),
+            (cache.CacheType.PARQUET, 'to_parquet'),
+            (cache.CacheType.PICKLE, 'to_pickle'),
         ]
     )
     def test_save(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, cache_type: cache.CacheType,
-                  method: str, kwargs: Dict) -> None:
+                  method: str) -> None:
         to_method = MagicMock()
         monkeypatch.setattr(mock_data_1, method, to_method)
 
@@ -326,7 +286,7 @@ class TestCacheWrapper:
 
         df_cache.save(mock_data_1, test_filename)
 
-        assert to_method.called_once_with(test_filename, **kwargs)
+        assert to_method.called_once_with(test_filename)
 
     def test_save_invalid_cache_type(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
         pickle_dump = MagicMock()

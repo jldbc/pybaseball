@@ -260,9 +260,6 @@ Each CacheConfig option is as follows:
 - `expiration` - datetime.timedelta - The timedelta after the cache file is created to expire it. Default = 24 hours.
 - `cache_type` - pybaseball.cache.CacheType - The method to use in storing the cache. Options:
   - `CacheType.CSV` - Cache is stored in pandas compatible CSV format files
-  - `CacheType.CSV_GZ` - Cache is stored in pandas compatible GZip files with a compressed CSV file inside
-  - `CacheType.FEATHER` - Cache is stored in Apache Arrow Feather format files: https://arrow.apache.org/docs/python/feather.html
-  - `CacheType.JSON` - Cache is stored in JSON format files
   - `CacheType.PARQUET` - Cache is stored in Apache Parquet format files: https://parquet.apache.org/
   - `CacheType.PICKLE` - Cache is stored as python pickle files
 
