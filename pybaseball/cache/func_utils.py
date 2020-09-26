@@ -3,21 +3,27 @@ import hashlib
 import re
 from typing import Callable, Dict, Hashable, Iterable, Optional, Tuple, Union
 
-MAX_ARGS_KEY_LENGTH = 256
+MAX_ARGS_KEY_LENGTH = 128
 
 def get_value_hash(value: Optional[Union[str, Dict, Hashable, Iterable]], include_designators: bool = True) -> str:
-    if value is None:
-        return 'None'
-
-    if isinstance(value, str):
+    def _strip_invalid(value: str) -> str:
         # Remove invalid filename characters
         stripped = copy.copy(value)
         stripped = str(stripped).strip().replace(' ', '_')
         stripped = re.sub(r'(?u)[^-\w.]', '', stripped)
+        stripped = stripped.replace("'", "\'")
+
+        return stripped
+
+    if value is None:
+        return 'None'
+
+    if isinstance(value, str):
+        stripped = _strip_invalid(value)
         if value == stripped:
             # If nothing got changed, then the value is safe
             if include_designators:
-                return f"'{value}'" if "'" not in value else f"\"{value}\""
+                return f"'{value}'"
             return f"{value}"
 
     if isinstance(value, tuple):
@@ -44,7 +50,7 @@ def get_value_hash(value: Optional[Union[str, Dict, Hashable, Iterable]], includ
     if hasattr(value, '__dict__'):
         dict_value = get_value_hash(value.__dict__)
         if hasattr(value, '__class__'):
-            return f"{value.__class__.__name__}({dict_value})"
+            return f"{_strip_invalid(value.__class__.__name__)}({dict_value})"
         else:
             return dict_value
 
