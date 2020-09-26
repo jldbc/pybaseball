@@ -1,16 +1,18 @@
+from datetime import datetime
+
 import numpy as np
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
+
 from pybaseball.utils import first_season_map
 
 # TODO: retrieve data for all teams? a full season's worth of results
 
 def get_soup(season, team):
     # get most recent year's schedule if year not specified
-    if(season is None):
-        season = datetime.datetime.today().strftime("%Y")
+    if season is None:
+        season = datetime.today().strftime("%Y")
     url = "http://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml".format(team, season)
     s=requests.get(url).content
     return BeautifulSoup(s, "lxml")
@@ -27,7 +29,7 @@ def get_table(soup,team):
     data.append(headings)
     table_body = table.find('tbody')
     rows = table_body.find_all('tr')
-    for row_index in range(len(rows)-1): #last row is a description of column meanings
+    for row_index in range(len(rows) - 1): #last row is a description of column meanings
         row = rows[row_index]
         try:
             cols = row.find_all('td')
@@ -56,7 +58,7 @@ def get_table(soup,team):
         except:
             # two cases will break the above: games that haven't happened yet, and BR's redundant mid-table headers
             # if future games, grab the scheduling info. Otherwise do nothing. 
-            if len(cols)>1:
+            if len(cols) > 1:
                 cols = [ele.text.strip() for ele in cols][0:5]
                 data.append([ele for ele in cols if ele])
     #convert to pandas dataframe. make first row the table's column names and reindex. 
@@ -72,7 +74,7 @@ def process_win_streak(data):
     Convert "+++"/"---" formatted win/loss streak column into a +/- integer column
     """
     #only do this if there are non-NANs in the column
-    if data['Streak'].count()>0:
+    if data['Streak'].count() > 0:
         data['Streak2'] = data['Streak'].str.len()
         data.loc[data['Streak'].str[0]=='-','Streak2'] = -data['Streak2']
         data['Streak'] = data['Streak2']
@@ -82,14 +84,14 @@ def process_win_streak(data):
 def make_numeric(data):
     # first remove commas from attendance values
     # skip if column is all NA (not sure if everyone kept records in the early days)
-    if data['Attendance'].count()>0:
+    if data['Attendance'].count() > 0:
         data['Attendance'] = data['Attendance'].str.replace(',','')
         #data[num_cols] = data[num_cols].astype(float)
     else:
         data['Attendance'] = np.nan
 
     # now make everything numeric
-    num_cols = ["R","RA","Inn","Rank","Attendance"]#,'Streak']
+    num_cols = ["R", "RA", "Inn", "Rank", "Attendance"]#,'Streak']
     data[num_cols] = data[num_cols].astype(float) #not int because of NaNs
     return data
 
