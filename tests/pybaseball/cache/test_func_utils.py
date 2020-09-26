@@ -124,7 +124,7 @@ class TestCacheFuncUtils:
         def test_func(*args: Any, **kwargs: Any) -> None:
             pass
 
-        expected_hash = "test_func(93ece9cbe326c434412e28b87d466bd08bc0f2e7db0770cff852e7b9f46240d8)"
+        expected_hash = "test_func(0b4d82a94a582127f46f0d5909eadbbda1dba436093eeec3feef29d36b9d0e02)"
 
         long_kwargs = {f"val{str(x)}": x for x in range(func_utils.MAX_ARGS_KEY_LENGTH)}
 
