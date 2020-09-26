@@ -20,15 +20,6 @@ def get_value_hash(value: Optional[Union[str, Dict, Hashable, Iterable]], includ
                 return f"'{value}'" if "'" not in value else f"\"{value}\""
             return f"{value}"
 
-    if isinstance(value, dict):
-        values = ', '.join([
-            f"{get_value_hash(key, include_designators=False)}={get_value_hash(value[key])}"
-            for key in value.keys()
-        ]).strip(', ')
-        if include_designators:
-            return "{" + values + "}"
-        return values
-
     if isinstance(value, tuple):
         values = ', '.join([f"{get_value_hash(sub_value)}" for sub_value in value]).strip(', ')
         if include_designators:
@@ -40,6 +31,22 @@ def get_value_hash(value: Optional[Union[str, Dict, Hashable, Iterable]], includ
         if include_designators:
             return f"[{values}]"
         return f"{values}"
+    
+    if isinstance(value, dict):
+        values = ', '.join([
+            f"{get_value_hash(key, include_designators=False)}={get_value_hash(value[key])}"
+            for key in value.keys()
+        ]).strip(', ')
+        if include_designators:
+            return "{" + values + "}"
+        return values
+
+    if hasattr(value, '__dict__'):
+        dict_value = get_value_hash(value.__dict__)
+        if hasattr(value, '__class__'):
+            return f"{value.__class__.__name__}({dict_value})"
+        else:
+            return dict_value
 
     try:
         return str(value.__hash__())

@@ -60,13 +60,22 @@ class TestCacheFuncUtils:
 
         assert func_utils.get_value_hash(test_value, include_designators=False) == "a='foo', b='bar'"
 
+    def test_get_value_hash_object_repeatable(self) -> None:
+        class A:
+            def __init__(self, x: int, y: str) -> None:
+                self.x = x
+                self.y = y
+
+        a1 = A(1, 'TEST')
+        a2 = A(1, 'TEST')
+
+        assert func_utils.get_value_hash(a1) == func_utils.get_value_hash(a2)
+
     def test_get_value_hash_non_hashable(self) -> None:
-        class NonHashable:
-            def __hash__(self) -> int:
-                raise NotImplementedError
+        non_hashable = set([1, 2, 3])
 
         with pytest.raises(ValueError):
-            print(func_utils.get_value_hash(NonHashable()))
+            print(func_utils.get_value_hash(non_hashable))
 
     def test_get_func_name_function(self) -> None:
         def test_func() -> None:
