@@ -1,7 +1,21 @@
-from get_daily_lineups_and_scores import download_url
+import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
 import bs4 as bs
 import pandas as pd
 import re
+
+def download_url(url):
+    """
+    Gets the content from the url specified
+    """
+    session = requests.Session()
+    retry = Retry(connect=3, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    resp=session.get(url)
+    return resp.content
 
 def get_split_soup(playerid, year=None, pitching_splits=False):
     """
@@ -100,8 +114,3 @@ def get_splits(playerid, year=None, player_info=False, pitching_splits=False):
         player_info_data=get_player_info(soup=soup)
         return data,player_info_data
         
-# print(get_batting_splits('bettsmo01'))#, year='2019'))
-# sd,pi=get_batting_splits('lestejo01', player_info=True, pitching_splits=True)
-# print(sd)
-# print(pi)
-print(get_splits('lestejo01'))
