@@ -1,24 +1,27 @@
+from typing import List, Tuple
+
+import numpy as np
+import pandas as pd
+
+from pybaseball.datahelpers.postprocessing import aggregate_by_season, augment_lahman_pitching
 from pybaseball.lahman import pitching
-from pybaseball.datahelpers.postprocessing import (
-    augment_lahman_pitching,
-    aggregate_by_season,
-)
+
 from .marcels_base import MarcelsProjectionsBase
 
 
 class MarcelProjectionsPitching(MarcelsProjectionsBase):
-    COMPUTED_METRICS = ["H", "HR", "ER", "BB", "SO", "HBP", "R"]
-    RECIPROCAL_AGE_METRICS = ["H", "HR", "ER", "BB", "HBP", "R"]
-    LEAGUE_AVG_PT = 134
-    METRIC_WEIGHTS = (3, 2, 1)
-    PT_WEIGHTS = (0.5, 0.1, 0)
-    REQUIRED_COLUMNS = ["IPouts"]
-    PLAYING_TIME_COLUMN = "IPouts"
+    COMPUTED_METRICS: List[str] = ["H", "HR", "ER", "BB", "SO", "HBP", "R"]
+    RECIPROCAL_AGE_METRICS: List[str] = ["H", "HR", "ER", "BB", "HBP", "R"]
+    LEAGUE_AVG_PT: float = 134
+    METRIC_WEIGHTS: Tuple[float, float, float] = (3, 2, 1)
+    PT_WEIGHTS: Tuple[float, float, float] = (0.5, 0.1, 0)
+    REQUIRED_COLUMNS: List[str] = ["IPouts"]
+    PLAYING_TIME_COLUMN: str = "IPouts"
 
-    def _load_data(self):
+    def _load_data(self) -> pd.DataFrame:
         return pitching()
 
-    def preprocess_data(self, stats_df):
+    def preprocess_data(self, stats_df: pd.DataFrame) -> pd.DataFrame:
         """
         preprocesses the data.
         :param stats_df: data frame like Lahman pitching
@@ -26,7 +29,7 @@ class MarcelProjectionsPitching(MarcelsProjectionsBase):
         """
         return aggregate_by_season(augment_lahman_pitching(stats_df))
 
-    def filter_non_representative_data(self, stats_df, primary_pos_df):
+    def filter_non_representative_data(self, stats_df: pd.DataFrame, primary_pos_df: pd.DataFrame) -> pd.DataFrame:
         """
         filter batters-as-pitchers. primary_pos_df is a data frame
         containing playerID, yearID, and primaryPos
@@ -41,7 +44,7 @@ class MarcelProjectionsPitching(MarcelsProjectionsBase):
             .drop("primaryPos", axis=1)
         )
 
-    def get_num_regression_pt(self, stats_df):
+    def get_num_regression_pt(self, stats_df: pd.DataFrame) -> np.ndarray:
         """
         gets the number of batters-faced for the regression component.
         computed as a function of fraction of games as a starter.

@@ -1,19 +1,16 @@
-import attr
 from functools import partial
-from scipy.integrate import RK45
+from typing import Tuple
+
+import attr
 import numpy as np
 import pandas as pd
+from scipy.integrate import RK45
+
+from pybaseball.analysis.trajectories.unit_conversions import RPM_TO_RAD_SEC
+from pybaseball.analysis.trajectories.utils import spin_components, unit_vector
 from pybaseball.datahelpers.postprocessing import check_between_zero_one
-from pybaseball.analysis.trajectories.utils import unit_vector, spin_components
-from pybaseball.analysis.trajectories.unit_conversions import (
-    RPM_TO_RAD_SEC,
-)
-from .parameters import (
-    BattedBallConstants,
-    DragForceCoefficients,
-    LiftForceCoefficients,
-    EnvironmentalParameters,
-)
+
+from .parameters import BattedBallConstants, DragForceCoefficients, EnvironmentalParameters, LiftForceCoefficients
 
 
 @attr.s(kw_only=True)
@@ -25,30 +22,31 @@ class BattedBallTrajectory:
 
     """
 
-    x0 = attr.ib(default=0, metadata={"units": "ft"})
-    y0 = attr.ib(default=2.0, metadata={"units": "ft"})
-    z0 = attr.ib(default=3.0, metadata={"units": "ft"})
-    spin = attr.ib(default=2675, metadata={"units": "revs_per_second"})
-    spin_phi = attr.ib(default=-18.5, metadata={"units": "degrees"})
-    drag_strength = attr.ib(default=1, validator=check_between_zero_one)
-    magnus_strength = attr.ib(default=1, validator=check_between_zero_one)
-    batted_ball_constants = attr.ib(default=BattedBallConstants())
-    drag_force_coefs = attr.ib(default=DragForceCoefficients())
-    lift_force_coefs = attr.ib(default=LiftForceCoefficients())
-    env_parameters = attr.ib(default=EnvironmentalParameters())
+    x0: float = attr.ib(default=0, metadata={"units": "ft"})
+    y0: float = attr.ib(default=2.0, metadata={"units": "ft"})
+    z0: float = attr.ib(default=3.0, metadata={"units": "ft"})
+    spin: float = attr.ib(default=2675, metadata={"units": "revs_per_second"})
+    spin_phi: float = attr.ib(default=-18.5, metadata={"units": "degrees"})
+    drag_strength: float = attr.ib(default=1, validator=check_between_zero_one)
+    magnus_strength: float = attr.ib(default=1, validator=check_between_zero_one)
+    batted_ball_constants: BattedBallConstants = attr.ib(default=BattedBallConstants())
+    drag_force_coefs: DragForceCoefficients = attr.ib(default=DragForceCoefficients())
+    lift_force_coefs: LiftForceCoefficients = attr.ib(default=LiftForceCoefficients())
+    env_parameters: EnvironmentalParameters = attr.ib(default=EnvironmentalParameters())
 
-    def __attrs_post_init__(self):
+    def __attrs_post_init__(self) -> None:
         self.initial_position = np.array((self.x0, self.y0, self.z0))
         self.pi_30 = RPM_TO_RAD_SEC
         self.c0 = (
             0.07182
             * self.env_parameters.air_density
-            * self.env_parameters.unit_conversions.KGM3_TO_LBFT3
+            * self.env_parameters.unit_conversions.KGM3_TO_LBFT3 # type: ignore
+            # TODO: https://github.com/python/mypy/issues/5439 Remove the ^ type: ignore after this is fixed in mypy
             * (5.125 / self.batted_ball_constants.mass)
             * (self.batted_ball_constants.circumference / 9.125) ** 2
         )
 
-    def omega_fun(self, t, spin):
+    def omega_fun(self, t: float, spin: float) -> float:
         """
         angular speed.
 
@@ -58,7 +56,7 @@ class BattedBallTrajectory:
         """
         return spin * self.pi_30
 
-    def s_fun(self, t, vw, spin):
+    def s_fun(self, t: float, vw: float, spin: float) -> float:
         """
         spin. computed as a function of `t`, the time,
         `vw` speed with respect to the wind, and `spin`, the initial spin
@@ -72,7 +70,7 @@ class BattedBallTrajectory:
         romega = self.batted_ball_constants.circumference * omega / (24 * np.pi)
         return (romega / vw) * np.exp(-t * vw / (self.lift_force_coefs.tau * 146.7))
 
-    def cl_fun(self, t, vw, spin):
+    def cl_fun(self, t: float, vw: float, spin: float) -> float:
         """
         coefficient of lift. computed as a function of `t`, the time,
         `vw` speed with respect to the wind, and `spin`, the spin
@@ -89,7 +87,7 @@ class BattedBallTrajectory:
             / (self.lift_force_coefs.cl0 + self.lift_force_coefs.cl1 * s)
         )
 
-    def cd_fun(self, t, vw, spin):
+    def cd_fun(self, t: float, vw: float, spin: float) -> float:
         """
         coefficient of drag. computed as a function of `t`, the time,
         `vw`, the speed with respect to the wind, and `spin`, the spin.
@@ -105,13 +103,13 @@ class BattedBallTrajectory:
 
     def get_trajectory(
         self,
-        initial_speed,
-        launch_angle,
-        launch_direction_angle,
-        initial_spin,
-        spin_angle,
-        delta_time=0.01,
-    ):
+        initial_speed: float,
+        launch_angle: float,
+        launch_direction_angle: float,
+        initial_spin: float,
+        spin_angle: float,
+        delta_time: float = 0.01,
+    ) -> pd.DataFrame:
         # TODO: make the return value a trajectory object
         """
         computes a batted ball trajectory. speed is in miles-per-hour,
@@ -128,8 +126,9 @@ class BattedBallTrajectory:
 
         initial_velocity = (
             initial_speed
-            * self.env_parameters.unit_conversions.MPH_TO_FTS
-            * unit_vector(launch_angle, launch_direction_angle)
+            * self.env_parameters.unit_conversions.MPH_TO_FTS # type: ignore
+            # TODO: https://github.com/python/mypy/issues/5439 Remove the ^ type: ignore after this is fixed in mypy
+            * unit_vector(np.float64(launch_angle), np.float64(launch_direction_angle))
         )
 
         initial_conditions = np.concatenate(
@@ -157,18 +156,19 @@ class BattedBallTrajectory:
             z = res[2]
             ans.append([rk_solution.t] + list(res))
         result_df = pd.DataFrame(np.array(ans).reshape(-1, 7))
-        result_df.columns = ["t", "x", "y", "z", "vx", "vy", "vz"]
+        result_df.columns = pd.Index(["t", "x", "y", "z", "vx", "vy", "vz"])
+
         return result_df
 
     def trajectory_fun(
         self,
-        t,
-        trajectory_vars,
-        spin=2500,
-        spin_angle=0,
-        launch_angle=0,
-        launch_direction_angle=0,
-    ):
+        t: float,
+        trajectory_vars: Tuple[float, float, float, float, float, float],
+        spin: float = 2500,
+        spin_angle: float = 0,
+        launch_angle: float = 0,
+        launch_direction_angle: float = 0,
+    ) -> np.ndarray:
         """
         function for computing the trajectory using the 4th-order Runge-Kutta method.
         trajectory vars are the 3 positions and 3 velocity components of the ball.

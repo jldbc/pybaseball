@@ -11,26 +11,30 @@ for batters the weights are 5, 4, 3 and for pitchers 3, 2, 1
 The original description of Marcels is in this post by Tom Tango
 http://www.tangotiger.net/archives/stud0346.shtml
 """
-from abc import ABC
 import sys
+from abc import ABC
+from typing import List, Optional, Tuple, Union
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 
 from pybaseball.datahelpers.transform import get_age, get_primary_position
 from pybaseball.lahman import fielding, people
+
 from .age_adjustment import age_adjustment
 
 
 class MarcelsProjectionsBase(ABC):
-    COMPUTED_METRICS = []
-    RECIPROCAL_AGE_METRICS = []
-    LEAGUE_AVG_PT = None
-    NUM_REGRESSION_PLAYING_TIME = None
-    METRIC_WEIGHTS = (5, 4, 3)
-    PT_WEIGHTS = (0.5, 0.1, 0)
+    COMPUTED_METRICS: List[str] = []
+    RECIPROCAL_AGE_METRICS: List[str] = []
+    LEAGUE_AVG_PT: Optional[float] = None
+    NUM_REGRESSION_PLAYING_TIME: Optional[float] = None
+    METRIC_WEIGHTS: Tuple[float, float, float] = (5, 4, 3)
+    PT_WEIGHTS: Tuple[float, float, float] = (0.5, 0.1, 0)
+    REQUIRED_COLUMNS: List[str] = []
+    PLAYING_TIME_COLUMN: Optional[str] = None
 
-    def __init__(self, stats_df=None, primary_pos_df=None):
+    def __init__(self, stats_df: pd.DataFrame = None, primary_pos_df: pd.DataFrame = None):
 
         self.stats_df = stats_df if stats_df is not None else self._load_data()
         self.validate_data(self.stats_df)
@@ -46,13 +50,16 @@ class MarcelsProjectionsBase(ABC):
         self.league_avg_pa = self.LEAGUE_AVG_PT
         self.people = people()
 
-    def _load_data(self):
-        NotImplemented
+    def _load_data(self) -> pd.DataFrame:
+        raise NotImplementedError
 
-    def preprocess_data(self, stats_df):
-        NotImplemented
+    def filter_non_representative_data(self, stats_df: pd.DataFrame, primary_pos_df: pd.DataFrame) -> pd.DataFrame:
+        raise NotImplementedError
 
-    def validate_data(self, stats_df):
+    def preprocess_data(self, stats_df: pd.DataFrame) -> pd.DataFrame:
+        raise NotImplementedError
+
+    def validate_data(self, stats_df: pd.DataFrame) -> None:
         missing_columns = []
         for required_column in self.REQUIRED_COLUMNS:
             if required_column not in stats_df.columns:
@@ -64,13 +71,13 @@ class MarcelsProjectionsBase(ABC):
 
     def compute_playing_time_projection(
         self,
-        metric_values,
-        pt_values,
-        metric_weights,
-        pt_weights,
-        seasonal_averages,
-        num_regression_pt,
-    ):
+        metric_values: np.ndarray,
+        pt_values: np.ndarray,
+        metric_weights: np.ndarray,
+        pt_weights: np.ndarray,
+        seasonal_averages: np.ndarray,
+        num_regression_pt: Union[float, np.ndarray],
+    ) -> np.ndarray:
         """
         computes playing time projection. `metric_values`, `metric_weights`, and
         `seasonal_averages` are not used but are included for consistency with
@@ -89,13 +96,13 @@ class MarcelsProjectionsBase(ABC):
 
     def compute_rate_projection(
         self,
-        metric_values,
-        pt_values,
-        metric_weights,
-        pt_weights,
-        seasonal_averages,
-        num_regression_pt,
-    ):
+        metric_values: np.ndarray,
+        pt_values: np.ndarray,
+        metric_weights: np.ndarray,
+        pt_weights: np.ndarray,
+        seasonal_averages: np.ndarray,
+        num_regression_pt: float,
+    ) -> np.ndarray:
         """
         computes rate projection. the length of the `x_values` and `x_weights`
         have to be the same. `pt_weights` is not used but is included for
@@ -128,16 +135,19 @@ class MarcelsProjectionsBase(ABC):
 
         return projection_numerator / projection_denominator
 
-    def metric_projection_detail(self, metric_name, projected_season):
+    def metric_projection_detail(self, metric_name: str, projected_season: int) -> pd.DataFrame:
         """
         returns the projection result for `metric_name`, including the
         detailed components separately. The use case for the details
         is primarily debugging
 
         :param metric_name: str
-        :param projected_season: it
+        :param projected_season: int
         :return: data frame
         """
+
+        assert self.PLAYING_TIME_COLUMN
+
         season = projected_season - 1
         playing_time_column = self.PLAYING_TIME_COLUMN
 
@@ -149,9 +159,7 @@ class MarcelsProjectionsBase(ABC):
         )
 
         seasonal_avg_df = (
-            self.seasonal_average(
-                stats_df, metric_name, playing_time_column=playing_time_column
-            )
+            self.seasonal_average(stats_df, metric_name, playing_time_column=playing_time_column)
             .reset_index()
             .loc[:, ["yearID", "seasonal_avg"]]
         )
@@ -210,6 +218,8 @@ class MarcelsProjectionsBase(ABC):
             .loc[:, "seasonal_avg"]
         )
 
+        assert self.LEAGUE_AVG_PT
+
         rate_projection = self.compute_rate_projection(
             metric_df.values,
             pa_df.values,
@@ -255,7 +265,7 @@ class MarcelsProjectionsBase(ABC):
             weighted_value=weighted_value,
         ).set_index(["playerID", "yearID"])
 
-    def metric_projection(self, metric_name, projected_season):
+    def metric_projection(self, metric_name: str, projected_season: int) -> pd.DataFrame:
         """
         returns the projection for `metric_name`.
 
@@ -275,7 +285,7 @@ class MarcelsProjectionsBase(ABC):
             .loc[:, [metric_name]]
         )
 
-    def projections(self, projected_season, computed_metrics=None):
+    def projections(self, projected_season: int, computed_metrics: List[str] = None) -> pd.DataFrame:
         """
         returns projections for all metrics in `computed_metrics`. If
         `computed_metrics` is None it uses the default set.
@@ -292,7 +302,7 @@ class MarcelsProjectionsBase(ABC):
         ]
         return pd.concat(projections, axis=1)
 
-    def seasonal_average(self, stats_df, metric_name, playing_time_column):
+    def seasonal_average(self, stats_df: pd.DataFrame, metric_name: str, playing_time_column: str) -> pd.DataFrame:
         """
         seasonal average rate of `metric_name`
 
@@ -309,10 +319,13 @@ class MarcelsProjectionsBase(ABC):
             )
         )
 
-    def get_num_regression_pt(self, stats_df):
+    def get_num_regression_pt(self, stats_df: pd.DataFrame) -> Union[float, np.ndarray]:
         """
 
         :param stats_df: data frame
         :return: float
         """
+
+        assert self.NUM_REGRESSION_PLAYING_TIME
+
         return self.NUM_REGRESSION_PLAYING_TIME

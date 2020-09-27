@@ -3,8 +3,7 @@ from functools import lru_cache
 from pybaseball.analysis.trajectories.unit_conversions import RPM_TO_RAD_SEC
 
 @lru_cache(maxsize=64)
-def spin_components(
-        spin: float, spin_angle: float, launch_angle: float, launch_direction_angle: float) -> np.array:
+def spin_components(spin: np.float64, spin_angle: np.float64, launch_angle: np.float64, launch_direction_angle: np.float64) -> np.ndarray:
     """
     given spin in revolutions per minute, spin angle in degrees,
     launch angles in degrees, 
@@ -35,7 +34,7 @@ def spin_components(
     return np.array((wx, wy, wz))
 
 
-def unit_vector(elevation_angle: float, azimuthal_angle: float) -> np.array:
+def unit_vector(elevation_angle: np.float64, azimuthal_angle: np.float64) -> np.ndarray:
     """
     Returns a 3-dimensional unit vector given the elevation and azimuthal angles.
     The angles must be specified in degrees.
