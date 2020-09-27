@@ -1,9 +1,9 @@
 import os
 import pathlib
-import pickle
 import shutil
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Tuple
+from typing_extensions import get_args # type: ignore
 from unittest.mock import MagicMock, mock_open, patch
 
 import pandas as pd
@@ -49,7 +49,7 @@ class TestCacheWrapper:
 
     def test_cache_config_override_set(self, mkdir: MagicMock) -> None:
         override = cache.CacheConfig(enabled=True, cache_directory='~/my_dir', expiration=timedelta(days=7),
-                                       cache_type=cache.CacheType.PICKLE)
+                                     cache_type='CSV')
         df_cache = cache.dataframe_cache(cache_config_override=override)
         assert df_cache.cache_config == override
         assert mkdir.called_once_with('~/my_dir')
@@ -63,13 +63,13 @@ class TestCacheWrapper:
         assert df_cache.reset_cache == True
 
     def test_extension(self) -> None:
-        assert cache.dataframe_cache().extension == cache.cache_config.cache_type.value
+        assert cache.dataframe_cache().extension == cache.cache_config.cache_type.lower()
 
-        for cache_type in cache.CacheType:
+        for cache_type in get_args(cache.CacheType):
             override = cache.CacheConfig(cache_type=cache_type)
             df_cache = cache.dataframe_cache(cache_config_override=override)
 
-            assert df_cache.extension == cache_type.value
+            assert df_cache.extension == cache_type.lower()
 
     def test_call_cache_disabled(self, monkeypatch: MonkeyPatch, save_mock: MagicMock) -> None:
         df_func = MagicMock(return_value=pd.DataFrame([1, 2], columns=['a']))
@@ -232,9 +232,8 @@ class TestCacheWrapper:
 
     @pytest.mark.parametrize(
         "cache_type, method", [
-            (cache.CacheType.CSV, 'read_csv'),
-            (cache.CacheType.PARQUET, 'read_parquet'),
-            (cache.CacheType.PICKLE, 'read_pickle'),
+            ('CSV', 'read_csv'),
+            ('PARQUET', 'read_parquet'),
         ]
     )
     def test_load(self, monkeypatch: MonkeyPatch, cache_type: cache.CacheType, method: str) -> None:
@@ -268,9 +267,8 @@ class TestCacheWrapper:
 
     @pytest.mark.parametrize(
         "cache_type, method", [
-            (cache.CacheType.CSV, 'to_csv'),
-            (cache.CacheType.PARQUET, 'to_parquet'),
-            (cache.CacheType.PICKLE, 'to_pickle'),
+            ('CSV', 'to_csv'),
+            ('PARQUET', 'to_parquet'),
         ]
     )
     def test_save(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, cache_type: cache.CacheType,
@@ -289,13 +287,10 @@ class TestCacheWrapper:
         assert to_method.called_once_with(test_filename)
 
     def test_save_invalid_cache_type(self, monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
-        pickle_dump = MagicMock()
-        monkeypatch.setattr(pickle, 'dump', pickle_dump)
-
         df_cache = cache.dataframe_cache(
             cache_config_override=cache.CacheConfig(enabled=True, cache_type="exe") # type: ignore
         )
-        test_filename = 'test.pickle'
+        test_filename = 'test.exe'
 
         open_mock = mock_open(read_data=b'')
         with patch('pybaseball.cache.open', open_mock):
@@ -303,7 +298,6 @@ class TestCacheWrapper:
                 df_cache.save(mock_data_1, test_filename)
 
         open_mock.assert_not_called()
-        pickle_dump.assert_not_called()
 
 
 def test_flush(rmtree: MagicMock, mkdir: MagicMock) -> None:
