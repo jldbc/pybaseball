@@ -11,14 +11,15 @@ for batters the weights are 5, 4, 3 and for pitchers 3, 2, 1
 The original description of Marcels is in this post by Tom Tango
 http://www.tangotiger.net/archives/stud0346.shtml
 """
+import sys
 from abc import ABC
 from typing import List, Optional, Tuple, Union
 
-import pandas as pd
 import numpy as np
-
+import pandas as pd
 from pybaseball.datahelpers.transform import get_age, get_primary_position
 from pybaseball.lahman import fielding, people
+
 from .age_adjustment import age_adjustment
 
 
