@@ -1,4 +1,5 @@
 from datetime import date, datetime, timedelta
+from unittest.mock import MagicMock, patch
 
 import pytest
 
@@ -52,15 +53,14 @@ def test_pitching_stats_bref() -> None:
     assert len(result.columns) == 40
     assert(len(result)) == 831
 
-
 def test_pitching_stats_bref_none() -> None:
-    result = league_pitching_stats.pitching_stats_bref(None)
+    pitching_stats_range_mock =  MagicMock()
+    this_year = date.today().year
 
-    assert result is not None
-    assert not result.empty
+    with patch('pybaseball.league_pitching_stats.pitching_stats_range', pitching_stats_range_mock):
+        league_pitching_stats.pitching_stats_bref(None)
 
-    assert len(result.columns) == 40
-    assert(len(result)) == 729
+    pitching_stats_range_mock.assert_called_once_with(f'{this_year}-03-01', f"{this_year}-11-01")
 
 
 def test_pitching_stats_bref_future() -> None:
