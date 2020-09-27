@@ -250,7 +250,7 @@ cache.cache_config = cache.CacheConfig(
    enabled=True,
    cache_directory='~/other_other_location',
    expiration=timedelta(days=7),
-   cache_type=cache.CacheType.CSV
+   cache_type='CSV',
 )
 ```
 
@@ -258,10 +258,9 @@ Each CacheConfig option is as follows:
 - `enabled` - bool - Whether cache should be enabled
 - `cache_directory` - str - The location to store the cached data. If it does not exist, it will be created.
 - `expiration` - datetime.timedelta - The timedelta after the cache file is created to expire it. Default = 24 hours.
-- `cache_type` - pybaseball.cache.CacheType - The method to use in storing the cache. Options:
-  - `CacheType.CSV` - Cache is stored in pandas compatible CSV format files
-  - `CacheType.PARQUET` - Cache is stored in Apache Parquet format files: https://parquet.apache.org/
-  - `CacheType.PICKLE` - Cache is stored as python pickle files
+- `cache_type` - str - The method to use in storing the cache. Options:
+  - `CSV` - Cache is stored in pandas compatible comma seperated values files
+  - `PARQUET` - Cache is stored in Apache Parquet format files: https://parquet.apache.org/
 
 
 # Complete Documentation

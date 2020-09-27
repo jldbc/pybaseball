@@ -8,8 +8,7 @@ from typing import Union, Optional, Tuple, Any, Callable
 import pandas as pd
 
 from . import dataframe_utils
-from .cache_config import CacheConfig
-from .cache_type import CacheType
+from .cache_config import CacheConfig, CacheType
 from .file_utils import _mkdir, _remove, _rmtree
 from .func_utils import MAX_ARGS_KEY_LENGTH, get_func_hash, get_func_name, get_value_hash
 
@@ -27,7 +26,7 @@ _ProfiledCachedDataFrame = Union[pd.DataFrame, Tuple[pd.DataFrame, Optional[floa
 class dataframe_cache:  # pylint: disable=invalid-name
     @property
     def extension(self) -> str:
-        return str(self.cache_config.cache_type.value)
+        return str(self.cache_config.cache_type.lower())
 
     @property
     def cache_config(self) -> CacheConfig:

@@ -15,12 +15,12 @@
     ```
     * If cache is ever enabled by default later, cache is purposefully disabled before all unit tests to prevent false results.
 * By default it will cache to the `.pybaseball/cache` folder in the user's home directory, so cache can be used across projects (directory will be created if not present).
-* It supports the following cache storage options: CSV, Parquet, Pickle
+* It supports the following cache storage options: 'CSV' or 'Parquet'
     * Changing the storage mechanism:
     ```python
     from pybaseball import cache
     
-    cache.cache_config = cache.CacheConfig(enabled=True, cache_type=cache.CacheType.CSV)
+    cache.cache_config = cache.CacheConfig(enabled=True, cache_type='CSV')
     * Default cache type is Parquet.
 * Expirations can be set on a cache, where cache files past a certain timedelata will be ignored/discarded:
     ```python

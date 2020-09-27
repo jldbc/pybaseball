@@ -93,7 +93,7 @@ if __name__ == "__main__":
 
     if args.cache_enabled and args.cache_type is not None:
         cache.flush()
-        cache.cache_config = cache.CacheConfig(enabled=True, cache_type=cache.CacheType[args.cache_type])
+        cache.cache_config = cache.CacheConfig(enabled=True, cache_type=args.cache_type)
     else:
         cache.disable()
 

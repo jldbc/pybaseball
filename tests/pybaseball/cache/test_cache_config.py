@@ -50,5 +50,5 @@ class TestCacheConfig:
         assert config.cache_type == cache.CacheConfig.DEFAULT_CACHE_TYPE
 
     def test_cache_type_set(self) -> None:
-        config = cache.CacheConfig(cache_type=cache.CacheType.PARQUET)
-        assert config.cache_type == cache.CacheType.PARQUET
+        config = cache.CacheConfig(cache_type='PARQUET')
+        assert config.cache_type == 'PARQUET'
