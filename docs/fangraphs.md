@@ -26,17 +26,17 @@
 import pybaseball
 
 # Individual Batting Stats
-pybaseball.fg_batting_data(2019)
+pybaseball.batting_stats(2019)
 
 # Individual Pitching Stats
-pybaseball.fg_pitching_data(2019)
+pybaseball.pitching_stats(2019)
 
 # Team Batting Stats
-pybaseball.fg_team_batting_data(2019)
+pybaseball.team_batting(2019)
 
 # Team Fielding Stats
-pybaseball.fg_team_fielding_data(2019)
+pybaseball.team_fielding(2019)
 
 # Team Pitching Stats
-pybaseball.fg_team_pitching_data(2019)
+pybaseball.team_pitching(2019)
 ```
