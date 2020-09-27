@@ -4,6 +4,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Comment
 
+from . import cache
+
 
 def get_soup(year):
     url = 'http://www.baseball-reference.com/leagues/MLB/{}-standings.shtml'.format(year)

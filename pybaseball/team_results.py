@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 
 from pybaseball.utils import first_season_map
 
+from . import cache
+
 # TODO: retrieve data for all teams? a full season's worth of results
 
 def get_soup(season, team):
