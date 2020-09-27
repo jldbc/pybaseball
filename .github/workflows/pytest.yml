@@ -22,7 +22,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .[test]
       - name: Run tests
-        run: pytest
+        run: pytest tests --doctest-modules --cov=pybaseball --cov-report term-missing
       - name: Run MyPy
         run: mypy .
         continue-on-error: true
