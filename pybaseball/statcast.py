@@ -9,41 +9,11 @@ import requests
 
 import pybaseball.datasources.statcast as statcast_ds
 
+from .utils import sanitize_date_range
+
 _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={game_pk}"
 _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&team={team}&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&"
-DATE_FORMAT = "%Y-%m-%d"
 
-def validate_datestring(date_text: Optional[str]) -> date:
-    try:
-        assert date_text
-        return datetime.strptime(date_text, DATE_FORMAT).date()
-    except (AssertionError, ValueError):
-        raise ValueError("Incorrect data format, should be YYYY-MM-DD")
-
-def sanitize_input(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[date, date]:
-    # If no dates are supplied, assume they want yesterday's data
-    # send a warning in case they wanted to specify
-    if start_dt is None and end_dt is None:
-        today = date.today()
-        start_dt = str(today - timedelta(1))
-        end_dt = str(today)
-
-        print('start_dt', start_dt)
-        print('end_dt', end_dt)
-
-        print(
-            "Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, try get_statcast(start_dt, end_dt)."
-        )
-    
-    # If only one date is supplied, assume they only want that day's stats
-    # query in this case is from date 1 to date 1
-    if start_dt is None:
-        start_dt = end_dt
-    if end_dt is None:
-        end_dt = start_dt
-    
-    # Now that both dates are not None, make sure they are valid date strings
-    return validate_datestring(start_dt), validate_datestring(end_dt)
 
 def small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> pd.DataFrame:
     data = statcast_ds.get_statcast_data_from_csv_url(
@@ -183,7 +153,7 @@ def statcast(start_dt: str = None, end_dt: str = None, team: str = None, verbose
     If no arguments are provided, this will return yesterday's statcast data. If one date is provided, it will return that date's statcast data.
     """
 
-    start_dt_date, end_dt_date = sanitize_input(start_dt, end_dt)
+    start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
 
     # 5 days or less -> a quick one-shot request.
     # Greater than 5 days -> break it into multiple smaller queries
