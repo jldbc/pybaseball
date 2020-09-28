@@ -9,7 +9,7 @@ Additionaly, player info can also be returned as a dictionary since the informat
 ## Arguments
 `playerid:` String. The player's bbref playerid. Example: Mike Trout is 'troutmi01'
 
-`year:` String. Optional. The year to get split stats for. Leaving this out will provide career split stats.
+`year:` Integer. Optional. The year to get split stats for. Leaving this out will provide career split stats.
 
 `player_info:` Boolean. Optional. If set to True, the get_splits function will return both the split stats dataframe and a dictionary of player info that contains player position, handedness, height, weight, and team
 
