@@ -2,15 +2,14 @@ import os
 import pathlib
 import shutil
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Tuple
-from typing_extensions import get_args # type: ignore
+from typing import Any, Dict, List, Tuple, cast
 from unittest.mock import MagicMock, mock_open, patch
 
 import pandas as pd
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
-
 from pybaseball import cache
+
 
 @pytest.fixture(name='save_mock')
 def _save_mock(monkeypatch: MonkeyPatch) -> MagicMock:
@@ -65,8 +64,8 @@ class TestCacheWrapper:
     def test_extension(self) -> None:
         assert cache.dataframe_cache().extension == cache.cache_config.cache_type.lower()
 
-        for cache_type in get_args(cache.CacheType):
-            override = cache.CacheConfig(cache_type=cache_type)
+        for cache_type in ['CSV', 'PARQUET']:
+            override = cache.CacheConfig(cache_type=cast(cache.CacheType, cache_type))
             df_cache = cache.dataframe_cache(cache_config_override=override)
 
             assert df_cache.extension == cache_type.lower()
