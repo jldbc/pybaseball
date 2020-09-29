@@ -2,14 +2,13 @@ from unittest.mock import patch
 from os import path
 import pandas as pd
 import pytest
-from typing_extensions import get_args # type: ignore
 
 import pybaseball
 
 _pytest_cache_directory = path.join(pybaseball.cache.cache_config.cache_directory, '.pytest')
 
 @pytest.mark.parametrize(
-    "cache_type", [(x) for x in get_args(pybaseball.cache.CacheType)]
+    "cache_type", [(x) for x in ['CSV', 'PARQUET']]
 )
 def test_cache(cache_type: pybaseball.cache.CacheType) -> None:
     cache_config = pybaseball.cache.CacheConfig(enabled=True, cache_type=cache_type, profiling=True,
