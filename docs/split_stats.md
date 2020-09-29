@@ -28,7 +28,5 @@ splits_dataframe, player_info_dict=get_splits('troutmi01', player_info=True)
 
 #find the pitching split stats for Jon Lester
 splits_dataframe=get_splits('lestejo01', pitching_splits=True)
-
-
 ```
 
