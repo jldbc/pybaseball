@@ -1,7 +1,7 @@
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from datahelpers import postprocessing
+from .datahelpers import postprocessing
 import bs4 as bs
 import pandas as pd
 import re
@@ -24,10 +24,7 @@ def get_split_soup(playerid: str, year: int = None, pitching_splits: bool = Fals
     """
     gets soup for the player splits. 
     """
-    if pitching_splits is True:
-        pitch_or_bat = 'p'
-    else:
-        pitch_or_bat = 'b'
+    pitch_or_bat = 'p' if pitching_splits else 'b'
     if year is None:  # provides scores from yesterday if date is not provided
         url = f"https://www.baseball-reference.com/players/split.fcgi?id={playerid}&year=Career&t={pitch_or_bat}"
     else:

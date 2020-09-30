@@ -1,4 +1,4 @@
-# Get Splits Stats 
+# Get Splits Stats
 
 `get_splits(playerid, year=None, player_info=False, pitching_splits=False)`
 
@@ -7,6 +7,7 @@ Split stats are returned as a multi-index dataframe by split category and split.
 Additionaly, player info can also be returned as a dictionary since the information is available without requiring a separate request to the baseball-reference page. 
 
 ## Arguments
+
 `playerid:` String. The player's bbref playerid. Example: Mike Trout is 'troutmi01'
 
 `year:` Integer. Optional. The year to get split stats for. Leaving this out will provide career split stats.
@@ -21,12 +22,11 @@ Additionaly, player info can also be returned as a dictionary since the informat
 from pybaseball import get_splits
 
 # find the split stats for Mike Trout
-splits_dataframe=get_splits('troutmi01')
+df = get_splits('troutmi01')
 
 #find the split stats and player info for Mike Trout
-splits_dataframe, player_info_dict=get_splits('troutmi01', player_info=True)
+df, player_info_dict = get_splits('troutmi01', player_info=True)
 
 #find the pitching split stats for Jon Lester
-splits_dataframe=get_splits('lestejo01', pitching_splits=True)
+df = get_splits('lestejo01', pitching_splits=True)
 ```
-
