@@ -1,12 +1,13 @@
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
+from datahelpers import postprocessing
 import bs4 as bs
 import pandas as pd
 import re
 
 
-def download_url(url):
+def download_url(url: str) -> bytes:
     """
     Gets the content from the url specified
     """
@@ -19,7 +20,7 @@ def download_url(url):
     return resp.content
 
 
-def get_split_soup(playerid, year=None, pitching_splits=False):
+def get_split_soup(playerid: str, year: int = None, pitching_splits: bool = False) -> bs.BeautifulSoup:
     """
     gets soup for the player splits. 
     """
@@ -37,7 +38,7 @@ def get_split_soup(playerid, year=None, pitching_splits=False):
     return soup
 
 
-def get_player_info(playerid=None, soup=None):
+def get_player_info(playerid: str = None, soup=None) -> dict:
     '''
     Returns a dictionary with player position, batting and throwing handedness, player height in inches, player weight, and current team from Baseball Reference. 
     '''
@@ -47,12 +48,15 @@ def get_player_info(playerid=None, soup=None):
     about_info = soup.find_all(
         "div", {"itemtype": "https://schema.org/Person"})
     info = [ele for ele in about_info]
+    # This for loop goes through the player bio section at the top of the splits page to find all of the <p> tags
     for i in range(len(info)):
         ptags = info[i].find_all('p')
         fv = []
+        # This loop goes through each of the <p> tags and finds all text between the tags including the <strong> tags.
         for j in range(len(ptags)):
             InfoRegex = re.compile(r'>(.*?)<', re.DOTALL)
             r = InfoRegex.findall(str(ptags[j]))
+            # This loop cleans up the text found in the outer loop and removes non alphanumeric characters.
             for k in range(len(r)):
                 pattern = re.compile('[\W_]+')
                 strings = pattern.sub(' ', r[k])
@@ -69,7 +73,7 @@ def get_player_info(playerid=None, soup=None):
     return player_info_data
 
 
-def get_splits(playerid, year=None, player_info=False, pitching_splits=False):
+def get_splits(playerid: str, year: int = None, player_info: bool = False, pitching_splits: bool = False) -> pd.DataFrame:
     """
     Returns a dataframe of all split stats for a given player.
     If player_info is True, this will also return a dictionary that includes player position, handedness, height, weight, position, and team
@@ -114,7 +118,10 @@ def get_splits(playerid, year=None, player_info=False, pitching_splits=False):
     data = data.reindex(data.index.drop(0))
     data = data.set_index(['Player ID', 'Split Type', 'Split'])
     data = data.drop(index=['Split'], level=2)
-    data = data.apply(pd.to_numeric, errors='coerce')
+    for col in data.columns:
+    for row in range(len(data)):
+        data.iloc[row][col] = postprocessing.try_parse(
+            data.iloc[row][col], col)
     data = data.dropna(axis=1, how='all')
     data['1B'] = data['H']-data['2B']-data['3B']-data['HR']
     data = data.loc[playerid]
