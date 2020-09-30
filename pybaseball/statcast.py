@@ -16,7 +16,7 @@ _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=
 
 
 def small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> pd.DataFrame:
-    data = statcast_ds.get_statcast_data_from_csv_url(
+    data: pd.DataFrame = statcast_ds.get_statcast_data_from_csv_url(
         _SC_SMALL_REQUEST.format(start_dt=str(start_dt), end_dt=str(end_dt), team=team if team else '')
     )
     if data is not None and not data.empty:
@@ -175,9 +175,11 @@ def statcast_single_game(game_pk: Union[str, int]) -> pd.DataFrame:
     game_pk : 6-digit integer MLB game ID to retrieve
     """
 
-    return statcast_ds.get_statcast_data_from_csv_url(
+    data: pd.DataFrame = statcast_ds.get_statcast_data_from_csv_url(
         _SC_SINGLE_GAME_REQUEST.format(game_pk=game_pk)
-    ).sort_values(
+    )
+
+    return data.sort_values(
         ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
         ascending=False
     )

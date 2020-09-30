@@ -1,11 +1,12 @@
-from datetime import timedelta, date, datetime
+from datetime import date, datetime, timedelta
 from typing import Callable
 
 import pandas as pd
 import pytest
 import requests
 
-from pybaseball.statcast import _SC_SINGLE_GAME_REQUEST, _SC_SMALL_REQUEST, statcast, statcast_single_game, sanitize_date_range
+from pybaseball.statcast import (_SC_SINGLE_GAME_REQUEST, _SC_SMALL_REQUEST, large_request, sanitize_date_range,
+                                 statcast, statcast_single_game)
 
 # For an explanation of this type, see the note on GetDataFrameCallable in tests/pybaseball/conftest.py
 from .conftest import GetDataFrameCallable
@@ -30,12 +31,8 @@ def single_game(get_data_file_dataframe: GetDataFrameCallable) -> pd.DataFrame:
     return get_data_file_dataframe('single_game_request.csv', parse_dates=[2])
 
 class TestStatcast:
-    def test_statcast(
-        self,
-        response_get_monkeypatch: Callable,
-        small_request_raw: str,
-        small_request: pd.DataFrame
-    ) -> None:
+    def test_statcast(self, response_get_monkeypatch: Callable, small_request_raw: str,
+                      small_request: pd.DataFrame) -> None:
         start_dt, end_dt = sanitize_date_range(None, None)
         response_get_monkeypatch(
             small_request_raw.encode('UTF-8'),
@@ -50,12 +47,8 @@ class TestStatcast:
 
         pd.testing.assert_frame_equal(statcast_result, small_request)
     
-    def test_statcast_team(
-        self,
-        response_get_monkeypatch: Callable,
-        small_request_raw: str,
-        small_request: pd.DataFrame
-    ) -> None:
+    def test_statcast_team(self, response_get_monkeypatch: Callable, small_request_raw: str,
+                           small_request: pd.DataFrame) -> None:
         start_dt, end_dt = sanitize_date_range(None, None)
         response_get_monkeypatch(
             small_request_raw.encode('UTF-8'),
@@ -70,12 +63,8 @@ class TestStatcast:
 
         pd.testing.assert_frame_equal(statcast_result, small_request)
 
-    def test_statcast_single_game_request(
-        self,
-        response_get_monkeypatch: Callable,
-        single_game_raw: str,
-        single_game: pd.DataFrame
-    ) -> None:
+    def test_statcast_single_game_request(self, response_get_monkeypatch: Callable, single_game_raw: str,
+                                          single_game: pd.DataFrame) -> None:
         game_pk = '631614'
 
         response_get_monkeypatch(
