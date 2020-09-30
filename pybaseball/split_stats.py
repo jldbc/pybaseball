@@ -119,9 +119,9 @@ def get_splits(playerid: str, year: int = None, player_info: bool = False, pitch
     data = data.set_index(['Player ID', 'Split Type', 'Split'])
     data = data.drop(index=['Split'], level=2)
     for col in data.columns:
-    for row in range(len(data)):
-        data.iloc[row][col] = postprocessing.try_parse(
-            data.iloc[row][col], col)
+        for row in range(len(data)):
+            data.iloc[row][col] = postprocessing.try_parse(
+                data.iloc[row][col], col)
     data = data.dropna(axis=1, how='all')
     data['1B'] = data['H']-data['2B']-data['3B']-data['HR']
     data = data.loc[playerid]
