@@ -12,7 +12,7 @@ from . import cache
 url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
 
 def get_register_file():
-    return os.path.join(cache.cache_config.cache_directory, 'chadwick-register.csv')
+    return os.path.join(cache.config.cache_directory, 'chadwick-register.csv')
 
 
 @cache.dataframe_cache()

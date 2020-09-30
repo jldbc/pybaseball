@@ -1,12 +1,18 @@
+import logging
 import os
+import pathlib
+import shutil
 import urllib.parse
-from typing import Callable, Dict, Generator, List, Union
+from typing import Any, Callable, Dict, Generator, List, Union
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
 import requests
 from _pytest.monkeypatch import MonkeyPatch
 from typing_extensions import Protocol
+
+from pybaseball import cache
 
 _ParseDates = Union[bool, List[int], List[str], List[List], Dict]
 
@@ -19,8 +25,26 @@ _ParseDates = Union[bool, List[int], List[str], List[List], Dict]
 # So in this instance we're defining that the type GetDataFrameCallable is a function that will
 # take the params defined in __call__ and the return type defined in __call__.
 # Further reading: https://docs.python.org/3/library/typing.html#typing.Protocol
+
+
 class GetDataFrameCallable(Protocol):
     def __call__(self, filename: str, parse_dates: _ParseDates = False) -> pd.DataFrame: ...
+
+
+# Autouse to prevent file system side effects
+@pytest.fixture(autouse=True, name="mkdir")
+def _mkdir(monkeypatch: MonkeyPatch, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect('pathlib.Path.mkdir'))
+    monkeypatch.setattr('pathlib.Path.mkdir', mock)
+    return mock
+
+
+# Autouse to prevent file system side effects
+@pytest.fixture(autouse=True, name="remove")
+def _remove(monkeypatch: MonkeyPatch, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect('os.remove'))
+    monkeypatch.setattr(os, 'remove', mock)
+    return mock
 
 
 @pytest.fixture()
@@ -31,6 +55,7 @@ def data_dir() -> str:
     this_dir = os.path.dirname(os.path.realpath(__file__))
     return os.path.join(this_dir, 'data')
 
+
 @pytest.fixture()
 def get_data_file_contents(data_dir: str) -> Callable:
     """
@@ -40,14 +65,15 @@ def get_data_file_contents(data_dir: str) -> Callable:
         """
             Get the str contents of a file in the tests data directory
 
-                
+
             ARGUMENTS:
             filename    : str : the name of the file within the tests data directory to get the contents of
         """
         with open(os.path.join(data_dir, filename)) as _file:
             return _file.read()
-    
+
     return get_contents
+
 
 @pytest.fixture()
 def get_data_file_dataframe(data_dir: str) -> GetDataFrameCallable:
@@ -58,13 +84,14 @@ def get_data_file_dataframe(data_dir: str) -> GetDataFrameCallable:
         """
             Get the DatFrame representation of the contents of a csv file in the tests data directory
 
-                
+
             ARGUMENTS:
             filename    : str : the name of the file within the tests data directory to load into a DataFrame
         """
         return pd.read_csv(os.path.join(data_dir, filename), index_col=0, parse_dates=parse_dates).reset_index(drop=True)
 
     return get_dataframe
+
 
 @pytest.fixture()
 def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
@@ -75,7 +102,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
         """
            Get the DatFrame representation of the contents of a csv file in the tests data directory
 
-                
+
             ARGUMENTS:
             result          : str            : the payload to return in the contents of the request.get call
             expected_url    : str (optional) : an expected_url to test the get call against
