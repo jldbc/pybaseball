@@ -53,10 +53,36 @@ def _override_cache_config(monkeypatch: MonkeyPatch, cache_config: cache.CacheCo
 
 from pybaseball import cache
 
+
+@pytest.fixture(name='logging_side_effect')
+def _logging_side_effect() -> Callable:
+    def _logger(name: str) -> Callable:
+        def _side_effect(*args: Any, **kwargs: Any) -> None:
+            logging.debug(f'Mock {name} => {args} {kwargs}')
+
+        return _side_effect
+
+    return _logger
+
+
+@pytest.fixture(name='cache_config')
+def _cache_config(logging_side_effect: Callable) -> cache.CacheConfig:
+    test_cache_directory = os.path.join(cache.CacheConfig.DEFAULT_CACHE_DIR, '.pytest')
+    return cache.CacheConfig(
+        enabled=False, cache_directory=test_cache_directory
+    )
+
+
 @pytest.fixture(autouse=True)
-def _disable_cache() -> None:
-    # Always disable cache in tests
-    cache.disable()
+def _override_cache_config(monkeypatch: MonkeyPatch, cache_config: cache.CacheConfig) -> None:
+    def _test_auto_load() -> cache.CacheConfig:
+        logging.debug('_test_auto_load')
+        return cache_config
+    cache.cache_config.autoload_cache = _test_auto_load
+    cache.cache_config.CacheConfig.save = MagicMock()  # type: ignore
+    cache.config = cache_config
+    cache.cache_record.cfg = cache_config
+
 
 @pytest.fixture(name="assert_frame_not_equal")
 def _assert_frame_not_equal() -> Callable:

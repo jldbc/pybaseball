@@ -12,6 +12,8 @@ import requests
 from _pytest.monkeypatch import MonkeyPatch
 from typing_extensions import Protocol
 
+from pybaseball import cache
+
 _ParseDates = Union[bool, List[int], List[str], List[List], Dict]
 
 # The Protocol class below is to be sure that we are passing the correct kind of Callable around in our tests.
@@ -63,13 +65,13 @@ def get_data_file_contents(data_dir: str) -> Callable:
         """
             Get the str contents of a file in the tests data directory
 
-                
+
             ARGUMENTS:
             filename    : str : the name of the file within the tests data directory to get the contents of
         """
         with open(os.path.join(data_dir, filename)) as _file:
             return _file.read()
-    
+
     return get_contents
 
 
@@ -82,7 +84,7 @@ def get_data_file_dataframe(data_dir: str) -> GetDataFrameCallable:
         """
             Get the DatFrame representation of the contents of a csv file in the tests data directory
 
-                
+
             ARGUMENTS:
             filename    : str : the name of the file within the tests data directory to load into a DataFrame
         """
@@ -100,7 +102,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
         """
            Get the DatFrame representation of the contents of a csv file in the tests data directory
 
-                
+
             ARGUMENTS:
             result          : str            : the payload to return in the contents of the request.get call
             expected_url    : str (optional) : an expected_url to test the get call against
