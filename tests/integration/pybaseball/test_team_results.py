@@ -16,7 +16,10 @@ def test_schedule_and_record(season: int, team: str) -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 19
+    assert list(result.columns) == [
+        'Date', 'Tm', 'Home_Away', 'Opp', 'W/L', 'R', 'RA', 'Inn', 'W-L', 'Rank', 'GB', 'Win',
+        'Loss', 'Save', 'Time', 'D/N', 'Attendance', 'cLI', 'Streak', 'Orig. Scheduled'
+    ]
     assert len(result) > 0
 
 @pytest.mark.parametrize(
