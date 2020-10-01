@@ -17,6 +17,7 @@ from typing import List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
+
 from pybaseball.datahelpers.transform import get_age, get_primary_position
 from pybaseball.lahman import fielding, people
 
