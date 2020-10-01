@@ -1,7 +1,8 @@
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from .datahelpers import postprocessing
+from datahelpers import postprocessing
+from typing import Dict, Optional, Tuple, Union
 import bs4 as bs
 import pandas as pd
 import re
@@ -20,7 +21,7 @@ def download_url(url: str) -> bytes:
     return resp.content
 
 
-def get_split_soup(playerid: str, year: int = None, pitching_splits: bool = False) -> bs.BeautifulSoup:
+def get_split_soup(playerid: str, year: Optional[int] = None, pitching_splits: bool = False) -> bs.BeautifulSoup:
     """
     gets soup for the player splits. 
     """
@@ -35,7 +36,7 @@ def get_split_soup(playerid: str, year: int = None, pitching_splits: bool = Fals
     return soup
 
 
-def get_player_info(playerid: str = None, soup=None) -> dict:
+def get_player_info(playerid: str, soup: bs.BeautifulSoup = None) -> Dict:
     '''
     Returns a dictionary with player position, batting and throwing handedness, player height in inches, player weight, and current team from Baseball Reference. 
     '''
@@ -70,7 +71,7 @@ def get_player_info(playerid: str = None, soup=None) -> dict:
     return player_info_data
 
 
-def get_splits(playerid: str, year: int = None, player_info: bool = False, pitching_splits: bool = False) -> pd.DataFrame:
+def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = False, pitching_splits: bool = False) -> Union[pd.DataFrame, Tuple[pd.DataFrame, Dict]]:
     """
     Returns a dataframe of all split stats for a given player.
     If player_info is True, this will also return a dictionary that includes player position, handedness, height, weight, position, and team
@@ -115,15 +116,12 @@ def get_splits(playerid: str, year: int = None, player_info: bool = False, pitch
     data = data.reindex(data.index.drop(0))
     data = data.set_index(['Player ID', 'Split Type', 'Split'])
     data = data.drop(index=['Split'], level=2)
-    for col in data.columns:
-        for row in range(len(data)):
-            data.iloc[row][col] = postprocessing.try_parse(
-                data.iloc[row][col], col)
+    data = data.apply(pd.to_numeric, errors='coerce')
     data = data.dropna(axis=1, how='all')
     data['1B'] = data['H']-data['2B']-data['3B']-data['HR']
     data = data.loc[playerid]
     if player_info == False:
         return data
     else:
-        player_info_data = get_player_info(soup=soup)
+        player_info_data = get_player_info(playerid=playerid, soup=soup)
         return data, player_info_data
