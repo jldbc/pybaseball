@@ -116,7 +116,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
     data = data.reindex(data.index.drop(0))
     data = data.set_index(['Player ID', 'Split Type', 'Split'])
     data = data.drop(index=['Split'], level=2)
-    data = data.apply(pd.to_numeric, errors='coerce')
+    data = data.apply(pd.to_numeric, errors='coerce').convert_dtypes()
     data = data.dropna(axis=1, how='all')
     data['1B'] = data['H']-data['2B']-data['3B']-data['HR']
     data = data.loc[playerid]
