@@ -18,23 +18,23 @@ class CacheConfig:
     DEFAULT_EXPIRATION = 7  # number of days to cache by default
     DEFAULT_CACHE_TYPE = 'parquet'
     CFG_FILENAME = 'cache_config.json'
+    PYBASEBALL_CACHE_ENV = 'PYBASEBALL_CACHE'
 
     # Use this and __new__ to make this a singleton. Only one ever exists.
     __INSTANCE__ = None
     # pylint: disable=too-many-arguments
 
-    def __new__(cls, enabled: bool = False, cache_directory: str = None, default_expiration: int = None,
+    def __new__(cls, enabled: bool = False, default_expiration: int = None,
                 cache_type: Optional[str] = None) -> 'CacheConfig':
         if not CacheConfig.__INSTANCE__:
             CacheConfig.__INSTANCE__ = super(CacheConfig, cls).__new__(cls)
 
-        CacheConfig.__INSTANCE__._set(enabled, cache_directory, default_expiration, cache_type)
+        CacheConfig.__INSTANCE__._set(enabled, default_expiration, cache_type)
         return CacheConfig.__INSTANCE__  # type: ignore
 
-    def _set(self, enabled: bool = False, cache_directory: str = None, default_expiration: int = None,
-             cache_type: Optional[str] = None) -> None:
+    def _set(self, enabled: bool = False, default_expiration: int = None, cache_type: Optional[str] = None) -> None:
         self.enabled = enabled
-        self.cache_directory = cache_directory or CacheConfig.DEFAULT_CACHE_DIR
+        self.cache_directory = os.environ.get(CacheConfig.PYBASEBALL_CACHE_ENV) or CacheConfig.DEFAULT_CACHE_DIR
         self.default_expiration = default_expiration or CacheConfig.DEFAULT_EXPIRATION
         if cache_type is not None:
             self.cache_type = cache_type.lower()
