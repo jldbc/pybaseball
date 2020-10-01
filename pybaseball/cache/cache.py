@@ -79,17 +79,18 @@ class df_cache:  # pylint: disable=invalid-name
 
                 logging.debug(f"No cache found. Calling {func_name} and caching it for future use.")
             except Exception as ex:
-                logging.error("Error trying to load a prior cache. Continuing.", exc_info=ex)
+                logging.warning("Error trying to load a prior cache. Continuing.", exc_info=ex)
 
             result = func(*args, **kwargs)
 
             try:
-                logging.debug(f"Saving cache for next time: data={func_data}, expires={self.expires}")
-                new_record = cache_record.CacheRecord(data=func_data, expires=self.expires)
-                new_record.save()
-                new_record.save_df(result)
+                if func_data:
+                    logging.debug(f"Saving cache for next time: data={func_data}, expires={self.expires}")
+                    new_record = cache_record.CacheRecord(data=func_data, expires=self.expires)
+                    new_record.save()
+                    new_record.save_df(result)
             except Exception as ex:
-                logging.error("Error trying to save results to the cache. Continuing.", exc_info=ex)
+                logging.warning("Error trying to save results to the cache. Continuing.", exc_info=ex)
 
             return result
 

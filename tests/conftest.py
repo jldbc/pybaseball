@@ -26,9 +26,9 @@ def _logging_side_effect() -> Callable:
 @pytest.fixture(name='cache_config')
 def _cache_config(logging_side_effect: Callable) -> cache.CacheConfig:
     test_cache_directory = os.path.join(cache.CacheConfig.DEFAULT_CACHE_DIR, '.pytest')
-    return cache.CacheConfig(
-        enabled=False, cache_directory=test_cache_directory
-    )
+    config = cache.CacheConfig(enabled=False)
+    config.cache_directory = test_cache_directory
+    return config
 
 
 @pytest.fixture(autouse=True)

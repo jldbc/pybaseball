@@ -33,9 +33,9 @@ def test_cache_directory_default(mkdir: MagicMock) -> None:
 
 def test_cache_directory_set(mkdir: MagicMock) -> None:
     my_dir: str = '~/my_dir'
-    config = cache.CacheConfig(cache_directory=my_dir)
+    cache.config.cache_directory = my_dir
 
-    assert config.cache_directory == my_dir
+    assert cache.config.cache_directory == my_dir
     assert mkdir.called_once_with(my_dir)
 
 
