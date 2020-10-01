@@ -3,6 +3,7 @@ import requests
 import datetime
 import io
 import zipfile
+from collections import namedtuple
 
 NULLABLE_INT = pd.Int32Dtype()
 
@@ -110,3 +111,58 @@ def get_text_file(url):
         s = f.text
 
     return s
+
+def flag_imputed_data(statcast_df):
+    """Function to flag possibly imputed data as a result of no-nulls approach (see: https://tht.fangraphs.com/43416-2/)
+       Note that this imputation only occured with TrackMan, not present in Hawk-Eye data (beyond 2020)
+    Args:
+        statcast_df (pd.DataFrame): Dataframe loaded via statcast.py, statcast_batter.py, or statcast_pitcher.py
+    Returns:
+        pd.DataFrame: Copy of original dataframe with "possible_imputation" flag
+    """
+
+    ParameterSet = namedtuple('ParameterSet',"ev angle bb_type")
+    impute_combinations = []
+
+    # pop-ups
+    impute_combinations.append(ParameterSet(ev=80, angle=69, bb_type="popup"))
+    impute_combinations.append(ParameterSet(ev=37, angle=62, bb_type="popup"))
+    impute_combinations.append(ParameterSet(ev=86, angle=67, bb_type="popup"))
+
+    # Flyout
+    impute_combinations.append(ParameterSet(ev=71.4, angle=36.0, bb_type="fly_ball"))
+    impute_combinations.append(ParameterSet(ev=89, angle=39, bb_type="fly_ball"))
+    impute_combinations.append(ParameterSet(ev=89.2, angle=39.3, bb_type="fly_ball"))
+    impute_combinations.append(ParameterSet(ev=97, angle=30.2, bb_type="fly_ball"))
+
+    # Line Drive
+    impute_combinations.append(ParameterSet(ev=90, angle=15, bb_type="line_drive"))
+    impute_combinations.append(ParameterSet(ev=90.4, angle=14.6, bb_type="line_drive"))
+    impute_combinations.append(ParameterSet(ev=91, angle=18, bb_type="line_drive"))
+    impute_combinations.append(ParameterSet(ev=91.1, angle=18.2, bb_type="line_drive"))
+    impute_combinations.append(ParameterSet(ev=98.8, angle=17.1, bb_type="line_drive"))
+
+    # Ground balls
+    impute_combinations.append(ParameterSet(ev=40, angle=-36, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=40, angle=-36, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=40, angle=-36, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=40, angle=-36, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=41, angle=-39, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=43, angle=-62, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=84, angle=-20, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=83, angle=-21, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=82.9, angle=-20.7, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=90, angle=-17, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=90.2, angle=-13.0, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=90.3, angle=-17.3, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=84.0, angle=-13.0, bb_type="ground_ball"))
+
+
+    df_return = statcast_df
+    df_return["possible_imputation"] = False
+    for param_set in impute_combinations:
+        bool_logic = (df_return["launch_speed"] == param_set.ev) & (df_return["launch_angle"] == param_set.angle) & (df_return["bb_type"] == param_set.bb_type)
+        df_return["possible_imputation"] = df_return["possible_imputation"] | bool_logic
+
+    return df_return
+
