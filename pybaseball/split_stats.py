@@ -1,7 +1,6 @@
 import requests
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
-from datahelpers import postprocessing
 from typing import Dict, Optional, Tuple, Union
 import bs4 as bs
 import pandas as pd
