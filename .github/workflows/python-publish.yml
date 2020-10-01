@@ -20,7 +20,6 @@ jobs:
         python-version: '3.x'
     - name: Install dependencies
       run: |
-        sudo apt-get install libsnappy-dev
         python -m pip install --upgrade pip
         pip install setuptools wheel twine
     - name: Build and publish
