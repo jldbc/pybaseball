@@ -12,8 +12,6 @@ import requests
 from _pytest.monkeypatch import MonkeyPatch
 from typing_extensions import Protocol
 
-from pybaseball import cache
-
 _ParseDates = Union[bool, List[int], List[str], List[List], Dict]
 
 # The Protocol class below is to be sure that we are passing the correct kind of Callable around in our tests.

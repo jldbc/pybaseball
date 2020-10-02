@@ -1,11 +1,10 @@
 import abc
+import functools
 import glob
 import os
 from typing import Any, Callable, Dict, Optional
-import functools
 
 import pandas as pd
-from pandas.core.frame import DataFrame
 
 from . import cache_record, func_utils
 from .cache_config import CacheConfig, autoload_cache
@@ -38,8 +37,9 @@ def flush() -> None:
         if record.expired:
             record.delete()
 
-
-class df_cache:  # pylint: disable=invalid-name
+ # pylint: disable=invalid-name
+ # pylint: disable=too-few-public-methods
+class df_cache:
     def __init__(self, expires: int = CacheConfig.DEFAULT_EXPIRATION):
         self.cache_config = config
         self.expires = expires
@@ -70,7 +70,7 @@ class df_cache:  # pylint: disable=invalid-name
             if arglist and isinstance(arglist[0], abc.ABC):  # remove the table classes when they're self
                 arglist = arglist[1:]
             return {'func': func_name, 'args': arglist, 'kwargs': kwargs}
-        except:
+        except:  # pylint: disable=bare-except
             return {}
 
     def _safe_load_func_cache(self, func_data: Dict) -> Optional[pd.DataFrame]:
@@ -86,7 +86,7 @@ class df_cache:  # pylint: disable=invalid-name
                     return record.load_df()
 
             return None
-        except:
+        except:  # pylint: disable=bare-except
             return None
 
     def _safe_save_func_cache(self, func_data: Dict, result: pd.DataFrame) -> None:
@@ -96,6 +96,6 @@ class df_cache:  # pylint: disable=invalid-name
                 new_record = cache_record.CacheRecord(data=func_data, expires=self.expires)
                 new_record.save()
                 new_record.save_df(result)
-        except:
+        except:  # pylint: disable=bare-except
             pass
-    
+

@@ -1,9 +1,6 @@
-import logging
 import os
 import pathlib
-from typing import Any, Optional, Text
-
-import pandas as pd
+from typing import Optional
 
 from . import file_utils
 from ..datahelpers import singleton
@@ -30,7 +27,6 @@ class CacheConfig(singleton.Singleton):
         file_utils.mkdir(self.cache_directory)
 
     def enable(self, enabled: bool = True) -> None:
-        logging.debug(f'CacheConfig.enable => {enabled}')
         self.enabled = enabled
         if self.enabled:
             file_utils.mkdir(self.cache_directory)
@@ -44,7 +40,6 @@ class CacheConfig(singleton.Singleton):
             'default_expiration': self.default_expiration,
             'cache_type': self.cache_type,
         }
-        logging.debug(f'Saving config: {data} to {os.path.join(self.cache_directory, CacheConfig.CFG_FILENAME)}')
         file_utils.safe_jsonify(self.cache_directory, CacheConfig.CFG_FILENAME, data)
 
 

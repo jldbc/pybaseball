@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
@@ -27,7 +27,7 @@ def test_load(monkeypatch: MonkeyPatch, cache_type: str, method: str) -> None:
 
     assert read_mock.called_once_with(test_filename)
 
-def test_load_invalid_cache_type(monkeypatch: MonkeyPatch) -> None:
+def test_load_invalid_cache_type() -> None:
     test_filename = 'test.exe'
 
     with pytest.raises(ValueError):
@@ -50,7 +50,7 @@ def test_save(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, cache_type: s
     assert to_method.called_once_with(test_filename)
 
 
-def test_save_invalid_cache_type(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> None:
+def test_save_invalid_cache_type(mock_data_1: pd.DataFrame) -> None:
     test_filename = 'test.exe'
 
     with pytest.raises(ValueError):

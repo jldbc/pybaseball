@@ -7,11 +7,6 @@ import requests
 
 from . import cache
 
-import pandas as pd
-import requests
-
-from . import cache
-
 NULLABLE_INT = pd.Int32Dtype()
 
 # dictionary containing team abbreviations and their first year in existance

@@ -1,17 +1,11 @@
-import os
-import pathlib
-import shutil
 from datetime import datetime, timedelta
-from typing import Any, Callable, Dict, List, Tuple, cast
+from typing import Callable
 from unittest.mock import MagicMock, patch
-import logging
 
 import pandas as pd
 import pytest
 from _pytest.monkeypatch import MonkeyPatch
-
 from pybaseball import cache
-import glob
 
 
 @pytest.fixture(name="mock_data_1")
@@ -46,7 +40,7 @@ def test_cache_enable() -> None:
         enable_mock.assert_called_once_with(True)
 
 
-def test_cache_disable(monkeypatch: MonkeyPatch) -> None:
+def test_cache_disable() -> None:
     enable_mock = MagicMock()
     with patch('pybaseball.cache.config.enable', enable_mock):
         cache.disable()
@@ -54,12 +48,12 @@ def test_cache_disable(monkeypatch: MonkeyPatch) -> None:
 
 
 @patch('pybaseball.cache.config.enabled', False)
-def test_call_cache_disabled(monkeypatch: MonkeyPatch, load_mock: MagicMock, save_mock: MagicMock) -> None:
+def test_call_cache_disabled(load_mock: MagicMock, save_mock: MagicMock) -> None:
     df_func = MagicMock(return_value=pd.DataFrame([1, 2], columns=['a']))
     df_func.__name__ = "df_func"
 
     df_cache = cache.dataframe_cache()
-    assert df_cache.cache_config.enabled == False
+    assert not df_cache.cache_config.enabled
 
     wrapper = df_cache.__call__(df_func)
     wrapper(*(1, 2), **{'val1': 'a'})
@@ -76,18 +70,18 @@ def test_call_cache_disabled(monkeypatch: MonkeyPatch, load_mock: MagicMock, sav
 @patch('pybaseball.cache.file_utils.load_json', MagicMock(
     return_value={
         'expires': '3000-01-01',
-        'func': 'df_func', 
+        'func': 'df_func',
         'args': [1, 2],
         'kwargs': {'val1': 'a'},
         'dataframe': 'cachefile.csv'
     }
 ))
-def test_call_cache_enabled_loads_cache(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, load_mock: MagicMock, save_mock: MagicMock) -> None:
+def test_call_cache_enabled_loads_cache(mock_data_1: pd.DataFrame, load_mock: MagicMock, save_mock: MagicMock) -> None:
     df_func = MagicMock()
     df_func.__name__ = "df_func"
 
     df_cache = cache.dataframe_cache()
-    assert df_cache.cache_config.enabled == True
+    assert df_cache.cache_config.enabled
 
     wrapper = df_cache.__call__(df_func)
     result = wrapper(*(1, 2), **{'val1': 'a'})
@@ -105,13 +99,15 @@ def test_call_cache_enabled_loads_cache(monkeypatch: MonkeyPatch, mock_data_1: p
 @patch('os.path.getmtime', MagicMock(return_value=datetime.now()-timedelta(days=7)).timestamp())
 @patch('pybaseball.cache.config.enabled', True)
 @patch('glob.glob', MagicMock(return_value=['1.cache_record.json']))
-@patch('pybaseball.cache.file_utils.load_json', MagicMock(return_value={'expires': '2020-01-01', 'filename': 'old_file.csv'}))
-def test_call_cache_ignores_expired(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, load_mock: MagicMock, save_mock: MagicMock) -> None:
+@patch('pybaseball.cache.file_utils.load_json', MagicMock(
+    return_value={'expires': '2020-01-01', 'filename': 'old_file.csv'}
+))
+def test_call_cache_ignores_expired(mock_data_1: pd.DataFrame, load_mock: MagicMock, save_mock: MagicMock) -> None:
     df_func = MagicMock(return_value=mock_data_1)
     df_func.__name__ = "df_func"
 
     df_cache = cache.dataframe_cache()
-    assert df_cache.cache_config.enabled == True
+    assert df_cache.cache_config.enabled
 
     wrapper = df_cache.__call__(df_func)
     wrapper(*(1, 2), **{'val1': 'a'})
@@ -125,15 +121,13 @@ def test_call_cache_ignores_expired(monkeypatch: MonkeyPatch, mock_data_1: pd.Da
 
 @patch('pybaseball.cache.config.enabled', True)
 @patch('glob.glob', MagicMock(return_value=[]))
-def test_call_cache_gets_uncached_data(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, load_mock: MagicMock,
-                                       save_mock: MagicMock) -> None:
-    monkeypatch.setattr(os.path, 'exists', MagicMock(return_value=False))
-
+@patch('os.path.exists', MagicMock(return_value=False))
+def test_call_cache_gets_uncached_data(mock_data_1: pd.DataFrame, load_mock: MagicMock, save_mock: MagicMock) -> None:
     df_func = MagicMock(return_value=mock_data_1)
     df_func.__name__ = "df_func"  # type: ignore
 
     df_cache = cache.dataframe_cache()
-    assert df_cache.cache_config.enabled == True
+    assert df_cache.cache_config.enabled
 
     wrapper = df_cache.__call__(df_func)
     wrapper(*(1, 2), **{'val1': 'a'})
@@ -146,15 +140,15 @@ def test_call_cache_gets_uncached_data(monkeypatch: MonkeyPatch, mock_data_1: pd
 
 
 @patch('pybaseball.cache.config.enabled', True)
-def test_call_cache_get_func_data_fails_silently(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, thrower: Callable,
-                                        load_mock: MagicMock, save_mock: MagicMock) -> None:
-    assert cache.config.enabled == True
+def test_call_cache_get_func_data_fails_silently(mock_data_1: pd.DataFrame, thrower: Callable, load_mock: MagicMock,
+                                                 save_mock: MagicMock) -> None:
+    assert cache.config.enabled
 
     df_func = MagicMock(return_value=mock_data_1)
     df_func.__name__ = "df_func"
 
     df_cache = cache.cache.df_cache()
-    assert df_cache.cache_config.enabled == True
+    assert df_cache.cache_config.enabled
 
     with patch('pybaseball.cache.func_utils.get_func_name', thrower):
         wrapper = df_cache.__call__(df_func)
@@ -168,15 +162,14 @@ def test_call_cache_get_func_data_fails_silently(monkeypatch: MonkeyPatch, mock_
 
 
 @patch('pybaseball.cache.config.enabled', True)
-def test_call_cache_load_fails_silently(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, thrower: Callable,
-                                        load_mock: MagicMock, save_mock: MagicMock) -> None:
-    assert cache.config.enabled == True
-
+def test_call_cache_load_fails_silently(mock_data_1: pd.DataFrame, thrower: Callable, load_mock: MagicMock,
+                                        save_mock: MagicMock) -> None:
+    assert cache.config.enabled
     df_func = MagicMock(return_value=mock_data_1)
     df_func.__name__ = "df_func"
 
     df_cache = cache.cache.df_cache()
-    assert df_cache.cache_config.enabled == True
+    assert df_cache.cache_config.enabled
 
     with patch('glob.glob', thrower):
         wrapper = df_cache.__call__(df_func)
@@ -190,15 +183,15 @@ def test_call_cache_load_fails_silently(monkeypatch: MonkeyPatch, mock_data_1: p
 
 
 @patch('pybaseball.cache.config.enabled', True)
-def test_call_cache_save_fails_silently(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, thrower: Callable,
-                                        empty_load_mock: MagicMock, save_mock: MagicMock) -> None:
-    assert cache.config.enabled == True
+def test_call_cache_save_fails_silently(mock_data_1: pd.DataFrame, thrower: Callable, empty_load_mock: MagicMock,
+                                        save_mock: MagicMock) -> None:
+    assert cache.config.enabled
 
     df_func = MagicMock(return_value=mock_data_1)
     df_func.__name__ = "df_func"
 
     df_cache = cache.cache.df_cache()
-    assert df_cache.cache_config.enabled == True
+    assert df_cache.cache_config.enabled
 
     with patch.object(cache.cache_record.CacheRecord, 'save', thrower):
         wrapper = df_cache.__call__(df_func)
@@ -214,14 +207,14 @@ def test_call_cache_save_fails_silently(monkeypatch: MonkeyPatch, mock_data_1: p
 def test_purge(remove: MagicMock) -> None:
     glob_result = ['1.cache_record.json', '2.cache_record.json']
     glob_mock = MagicMock(return_value=glob_result)
-    
+
     mock_cache_record = {'expires': '3000-01-01', 'filename': 'df_cache.parquet'}
     mock_load_json = MagicMock(return_value=mock_cache_record)
 
     with patch('glob.glob', glob_mock):
         with patch('pybaseball.cache.file_utils.load_json', mock_load_json):
             cache.purge()
-    
+
     assert glob_mock.called_once()
     assert mock_load_json.call_count == len(glob_result)
     assert remove.call_count == len(glob_result)
@@ -230,7 +223,7 @@ def test_purge(remove: MagicMock) -> None:
 def test_flush(remove: MagicMock) -> None:
     glob_result = ['1.cache_record.json', '2.cache_record.json']
     glob_mock = MagicMock(return_value=glob_result)
-    
+
     mock_cache_records = [
         {'expires': '2000-01-01', 'filename': 'df_cache.parquet'},
         {'expires': '3000-01-01', 'filename': 'df_cache2.parquet'},
@@ -240,7 +233,7 @@ def test_flush(remove: MagicMock) -> None:
     with patch('glob.glob', glob_mock):
         with patch('pybaseball.cache.file_utils.load_json', mock_load_json):
             cache.flush()
-    
+
     assert glob_mock.called_once()
     assert mock_load_json.call_count == len(glob_result)
     remove.assert_called_once()

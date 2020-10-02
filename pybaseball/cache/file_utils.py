@@ -1,10 +1,7 @@
 import json
 import os
 import pathlib
-import shutil
 from typing import Any, Dict, List, Union, cast
-
-import pandas as pd
 
 JSONData = Union[List[Any], Dict[str, Any]]
 
@@ -22,10 +19,10 @@ def remove(filename: str) -> None:
 def safe_jsonify(directory: str, filename: str, data: JSONData) -> None:
     mkdir(directory)
     fname = os.path.join(directory, filename)
-    with open(fname, 'w') as f:
-        json.dump(data, f)
+    with open(fname, 'w') as json_file:
+        json.dump(data, json_file)
 
 
 def load_json(filename: str) -> JSONData:
-    with open(filename) as f:
-        return cast(JSONData, json.load(f))
+    with open(filename) as json_file:
+        return cast(JSONData, json.load(json_file))

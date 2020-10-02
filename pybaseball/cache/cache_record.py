@@ -1,8 +1,6 @@
-import json
-import logging
 import os
 from datetime import date, datetime, timedelta
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, Optional, Union, cast
 
 import pandas as pd
 
@@ -14,7 +12,8 @@ DateOrNumDays = Union[date, int]
 
 
 class CacheRecord:
-    def __init__(self, filename: str = None, data: Optional[Dict[str, Any]] = None, expires: DateOrNumDays = cache_config.CacheConfig.DEFAULT_EXPIRATION):
+    def __init__(self, filename: str = None, data: Optional[Dict[str, Any]] = None,
+                 expires: DateOrNumDays = cache_config.CacheConfig.DEFAULT_EXPIRATION):
         ''' Create a new cache record. Loads from file if filename is provided, otherwise creates from data, expires '''
 
         if filename is None and data is None:
@@ -44,7 +43,6 @@ class CacheRecord:
 
     def save(self) -> None:
         ''' Store the cache record to disk '''
-        logging.debug(f'Saving cache_record {self.data} to {os.path.join(cfg.cache_directory, self.filename)}')
         file_utils.safe_jsonify(cfg.cache_directory, self.filename, self.data)
 
     @property
@@ -65,7 +63,6 @@ class CacheRecord:
 
     def supports(self, function_data: Dict) -> bool:
         ''' Check if this record matches the function data '''
-        logging.debug(f"{self.data} ?= {function_data}")
         for key in ('func', 'args', 'kwargs'):
             if self.data.get(key) != function_data.get(key):
                 return False

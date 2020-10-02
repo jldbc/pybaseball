@@ -10,23 +10,22 @@ from pybaseball.cache.cache_record import cfg
 
 def test_not_enabled_default() -> None:
     config = cache.CacheConfig()
-    assert config.enabled == False
+    assert not config.enabled
 
 
 def test_enabled_set() -> None:
     config = cache.CacheConfig(enabled=True)
-    assert config.enabled == True
-
+    assert config.enabled
 
 def test_enable() -> None:
     config = cache.CacheConfig()
-    assert config.enabled == False
+    assert not config.enabled
 
     config.enable()
-    assert config.enabled == True
+    assert config.enabled
 
     config.enable(False)
-    assert config.enabled == False
+    assert not config.enabled
 
 
 def test_cache_directory_default(mkdir: MagicMock) -> None:
@@ -75,7 +74,7 @@ def test_cache_config_singleton() -> None:
     assert new_config == cache.config
     assert new_config == cfg
 
-    assert cfg.enabled == False
+    assert not cfg.enabled
     assert cfg.default_expiration == 365
     assert cfg.cache_type == 'csv'
 
@@ -86,9 +85,11 @@ def test_cache_config_singleton() -> None:
 @patch('pybaseball.cache.file_utils.safe_jsonify', MagicMock())
 def test_cache_config_save() -> None:
     new_config = cache.CacheConfig(enabled=False, default_expiration=364, cache_type='csv')
+
+    # pylint: disable=protected-access
     new_config._save() # type: ignore
 
-    cast(MagicMock, file_utils.safe_jsonify).assert_called_once()
+    cast(MagicMock, file_utils.safe_jsonify).assert_called_once()  # pylint: disable=no-member
 
 @patch('os.path.isfile', MagicMock(return_value=True))
 @patch('pybaseball.cache.file_utils.load_json', MagicMock(
@@ -97,11 +98,12 @@ def test_cache_config_save() -> None:
 def test_autoload_cache() -> None:
     autoload_filename = os.path.join(cache.CacheConfig.DEFAULT_CACHE_DIR, cache.CacheConfig.CFG_FILENAME)
 
+    # pylint: disable=protected-access
     cache.cache_config._autoload_cache() # type: ignore
 
-    cast(MagicMock, os.path.isfile).assert_called_once_with(autoload_filename)
-    cast(MagicMock, cache.file_utils.load_json).assert_called_once_with(autoload_filename)
+    cast(MagicMock, os.path.isfile).assert_called_once_with(autoload_filename)  # pylint: disable=no-member
+    cast(MagicMock, cache.file_utils.load_json).assert_called_once_with(autoload_filename)  # pylint: disable=no-member
 
-    assert cache.config.enabled == False
+    assert not cache.config.enabled
     assert cache.config.default_expiration == 363
     assert cache.config.cache_type == 'csv'
