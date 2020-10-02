@@ -75,6 +75,13 @@ def test_cache_config_singleton() -> None:
     assert new_config == cache.config
     assert new_config == cfg
 
+    assert cfg.enabled == False
+    assert cfg.default_expiration == 365
+    assert cfg.cache_type == 'csv'
+
+    cache.config.cache_directory = '~/temp'
+    assert cfg.cache_directory == '~/temp'
+
 
 @patch('pybaseball.cache.file_utils.safe_jsonify', MagicMock())
 def test_cache_config_save() -> None:
