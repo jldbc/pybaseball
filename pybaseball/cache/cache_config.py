@@ -1,16 +1,11 @@
-import inspect
 import logging
 import os
 import pathlib
-from datetime import timedelta
-from typing import Any, Optional, Text, cast
+from typing import Any, Optional, Text
 
-# from typing_extensions import Literal
 import pandas as pd
 
 from . import file_utils
-
-# CacheType = Literal['csv', 'parquet']
 
 
 class CacheConfig:
@@ -39,7 +34,7 @@ class CacheConfig:
         if cache_type is not None:
             self.cache_type = cache_type.lower()
             if self.cache_type not in ('csv', 'parquet'):
-                raise ValueError(f"Invalid CacheType: {cache_type}")
+                raise ValueError(f"Invalid cache_type: {cache_type}")
         else:
             self.cache_type = CacheConfig.DEFAULT_CACHE_TYPE
 
