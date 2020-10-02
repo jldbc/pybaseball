@@ -121,7 +121,7 @@ def flag_imputed_data(statcast_df):
         pd.DataFrame: Copy of original dataframe with "possible_imputation" flag
     """
 
-    ParameterSet = namedtuple('ParameterSet',"ev angle bb_type")
+    ParameterSet = namedtuple('ParameterSet', ["ev", "angle", "bb_type"])
     impute_combinations = []
 
     # pop-ups
@@ -158,11 +158,10 @@ def flag_imputed_data(statcast_df):
     impute_combinations.append(ParameterSet(ev=84.0, angle=-13.0, bb_type="ground_ball"))
 
 
-    df_return = statcast_df
-    df_return["possible_imputation"] = False
-    for param_set in impute_combinations:
-        bool_logic = (df_return["launch_speed"] == param_set.ev) & (df_return["launch_angle"] == param_set.angle) & (df_return["bb_type"] == param_set.bb_type)
-        df_return["possible_imputation"] = df_return["possible_imputation"] | bool_logic
-
+    df_imputations = pd.DataFrame(data=impute_combinations)
+    df_imputations["possible_imputation"] = True
+    df_return = statcast_df.merge(df_imputations,
+                                  left_on=["launch_speed", "launch_angle", "bb_type"],
+                                  right_on=["ev", "angle", "bb_type"])
     return df_return
 
