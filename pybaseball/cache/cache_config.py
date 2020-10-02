@@ -27,7 +27,6 @@ class CacheConfig(singleton.Singleton):
         file_utils.mkdir(self.cache_directory)
 
     def enable(self, enabled: bool = True) -> None:
-        logging.debug(f'CacheConfig.enable => {enabled}')
         self.enabled = enabled
         if self.enabled:
             file_utils.mkdir(self.cache_directory)

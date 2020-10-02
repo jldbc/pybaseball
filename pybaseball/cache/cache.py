@@ -5,7 +5,6 @@ import os
 from typing import Any, Callable, Dict, Optional
 
 import pandas as pd
-from pandas.core.frame import DataFrame
 
 from . import cache_record, func_utils
 from .cache_config import CacheConfig, autoload_cache

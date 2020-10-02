@@ -3,11 +3,6 @@ import zipfile
 from datetime import date, datetime, timedelta
 from typing import Optional, Tuple
 
-import pandas as pd
-import requests
-
-from . import cache
-
 NULLABLE_INT = pd.Int32Dtype()
 DATE_FORMAT = "%Y-%m-%d"
 
