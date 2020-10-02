@@ -152,8 +152,10 @@ def flag_imputed_data(statcast_df):
     impute_combinations.append(ParameterSet(ev=84, angle=-20, bb_type="ground_ball"))
     impute_combinations.append(ParameterSet(ev=83, angle=-21, bb_type="ground_ball"))
     impute_combinations.append(ParameterSet(ev=82.9, angle=-20.7, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=82.9, angle=-21.0, bb_type="ground_ball"))
     impute_combinations.append(ParameterSet(ev=90, angle=-17, bb_type="ground_ball"))
     impute_combinations.append(ParameterSet(ev=90.2, angle=-13.0, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=90.3, angle=-17.0, bb_type="ground_ball"))
     impute_combinations.append(ParameterSet(ev=90.3, angle=-17.3, bb_type="ground_ball"))
     impute_combinations.append(ParameterSet(ev=84.0, angle=-13.0, bb_type="ground_ball"))
 
@@ -163,5 +165,7 @@ def flag_imputed_data(statcast_df):
     df_return = statcast_df.merge(df_imputations, how="left",
                                   left_on=["launch_speed", "launch_angle", "bb_type"],
                                   right_on=["ev", "angle", "bb_type"])
+    # Change NaNs to false for boolean consistency
+    df_return["possible_imputation"] = df_return["possible_imputation"].fillna(False)
     return df_return
 
