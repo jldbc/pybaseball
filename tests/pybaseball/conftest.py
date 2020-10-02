@@ -1,6 +1,7 @@
 import os
 import urllib.parse
-from typing import Callable, Dict, Generator, List, Union
+from typing import Callable, Dict, List, Union
+from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
@@ -21,6 +22,78 @@ _ParseDates = Union[bool, List[int], List[str], List[List], Dict]
 # Further reading: https://docs.python.org/3/library/typing.html#typing.Protocol
 class GetDataFrameCallable(Protocol):
     def __call__(self, filename: str, parse_dates: _ParseDates = False) -> pd.DataFrame: ...
+
+
+# Autouse to prevent integration tests sneaking into the unit tests
+@pytest.fixture(autouse=True)
+def _requests_prevent_delete(monkeypatch: MonkeyPatch, thrower: Callable, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect(f'requests.delete', after=thrower))
+    monkeypatch.setattr(requests, 'delete', mock)
+    return mock
+
+
+# Autouse to prevent integration tests sneaking into the unit tests
+@pytest.fixture(autouse=True)
+def _requests_prevent_get(monkeypatch: MonkeyPatch, thrower: Callable, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect(f'requests.get', after=thrower))
+    monkeypatch.setattr(requests, 'get', mock)
+    return mock
+
+
+# Autouse to prevent integration tests sneaking into the unit tests
+@pytest.fixture(autouse=True)
+def _requests_prevent_head(monkeypatch: MonkeyPatch, thrower: Callable, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect(f'requests.head', after=thrower))
+    monkeypatch.setattr(requests, 'head', mock)
+    return mock
+
+
+# Autouse to prevent integration tests sneaking into the unit tests
+@pytest.fixture(autouse=True)
+def _requests_prevent_options(monkeypatch: MonkeyPatch, thrower: Callable, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect(f'requests.options', after=thrower))
+    monkeypatch.setattr(requests, 'options', mock)
+    return mock
+
+
+# Autouse to prevent integration tests sneaking into the unit tests
+@pytest.fixture(autouse=True)
+def _requests_prevent_patch(monkeypatch: MonkeyPatch, thrower: Callable, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect(f'requests.patch', after=thrower))
+    monkeypatch.setattr(requests, 'patch', mock)
+    return mock
+
+
+# Autouse to prevent integration tests sneaking into the unit tests
+@pytest.fixture(autouse=True)
+def _requests_prevent_put(monkeypatch: MonkeyPatch, thrower: Callable, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect(f'requests.put', after=thrower))
+    monkeypatch.setattr(requests, 'put', mock)
+    return mock
+
+
+# Autouse to prevent integration tests sneaking into the unit tests
+@pytest.fixture(autouse=True)
+def _requests_prevent_post(monkeypatch: MonkeyPatch, thrower: Callable, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect(f'requests.post', after=thrower))
+    monkeypatch.setattr(requests, 'post', mock)
+    return mock
+
+
+# Autouse to prevent file system side effects
+@pytest.fixture(autouse=True, name="mkdir")
+def _mkdir(monkeypatch: MonkeyPatch, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect('pathlib.Path.mkdir'))
+    monkeypatch.setattr('pathlib.Path.mkdir', mock)
+    return mock
+
+
+# Autouse to prevent file system side effects
+@pytest.fixture(autouse=True, name="remove")
+def _remove(monkeypatch: MonkeyPatch, logging_side_effect: Callable) -> MagicMock:
+    mock = MagicMock(side_effect=logging_side_effect('os.remove'))
+    monkeypatch.setattr(os, 'remove', mock)
+    return mock
 
 
 @pytest.fixture()

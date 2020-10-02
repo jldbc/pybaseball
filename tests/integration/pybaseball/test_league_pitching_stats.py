@@ -37,3 +37,8 @@ def test_bwar_pitch_return_all() -> None:
 
     assert len(bwar_pitch_2019.columns) == 43
     assert(len(bwar_pitch_2019)) == 938
+
+
+def test_pitching_stats_bref_future() -> None:
+    with pytest.raises(IndexError):
+        league_pitching_stats.pitching_stats_bref(datetime.today().year + 1)
