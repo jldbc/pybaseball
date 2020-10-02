@@ -160,7 +160,7 @@ def flag_imputed_data(statcast_df):
 
     df_imputations = pd.DataFrame(data=impute_combinations)
     df_imputations["possible_imputation"] = True
-    df_return = statcast_df.merge(df_imputations,
+    df_return = statcast_df.merge(df_imputations, how="left",
                                   left_on=["launch_speed", "launch_angle", "bb_type"],
                                   right_on=["ev", "angle", "bb_type"])
     return df_return
