@@ -30,10 +30,10 @@ def get_table(soup: BeautifulSoup) -> pd.DataFrame:
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
         data.append([ele for ele in cols])
-    dataframe = pd.DataFrame(data)
-    dataframe = dataframe.rename(columns=dataframe.iloc[0])
-    dataframe = dataframe.reindex(dataframe.index.drop(0))
-    return dataframe
+    df = pd.DataFrame(data)
+    df = df.rename(columns=df.iloc[0])
+    df = df.reindex(df.index.drop(0))
+    return df
 
 
 def batting_stats_range(start_dt: Optional[str] = None, end_dt: Optional[str] = None) -> pd.DataFrame:
