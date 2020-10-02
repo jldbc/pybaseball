@@ -1,7 +1,11 @@
-from datetime import timedelta
-from unittest.mock import MagicMock
+import os
+from typing import cast
+from unittest.mock import MagicMock, patch
 
+import pytest
 from pybaseball import cache
+from pybaseball.cache import file_utils
+from pybaseball.cache.cache_record import cfg
 
 
 def test_not_enabled_default() -> None:
@@ -56,6 +60,41 @@ def test_cache_type_default() -> None:
     assert config.cache_type == cache.CacheConfig.DEFAULT_CACHE_TYPE
 
 
+def test_cache_type_invalid() -> None:
+    with pytest.raises(ValueError):
+        cache.CacheConfig(enabled=False, cache_type='exe')
+
+
 def test_cache_type_set() -> None:
     config = cache.CacheConfig(cache_type='parquet')
     assert config.cache_type == 'parquet'
+
+
+def test_cache_config_singleton() -> None:
+    new_config = cache.CacheConfig(enabled=False, default_expiration=365, cache_type='csv')
+    assert new_config == cache.config
+    assert new_config == cfg
+
+
+@patch('pybaseball.cache.file_utils.safe_jsonify', MagicMock())
+def test_cache_config_save() -> None:
+    new_config = cache.CacheConfig(enabled=False, default_expiration=364, cache_type='csv')
+    new_config._save() # type: ignore
+
+    cast(MagicMock, file_utils.safe_jsonify).assert_called_once()
+
+@patch('os.path.isfile', MagicMock(return_value=True))
+@patch('pybaseball.cache.file_utils.load_json', MagicMock(
+    return_value={'enabled': False, 'default_expiration': 363, 'cache_type': 'csv'}
+))
+def test_autoload_cache() -> None:
+    autoload_filename = os.path.join(cache.CacheConfig.DEFAULT_CACHE_DIR, cache.CacheConfig.CFG_FILENAME)
+
+    cache.cache_config._autoload_cache() # type: ignore
+
+    cast(MagicMock, os.path.isfile).assert_called_once_with(autoload_filename)
+    cast(MagicMock, cache.file_utils.load_json).assert_called_once_with(autoload_filename)
+
+    assert cache.config.enabled == False
+    assert cache.config.default_expiration == 363
+    assert cache.config.cache_type == 'csv'

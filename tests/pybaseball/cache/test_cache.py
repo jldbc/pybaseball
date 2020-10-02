@@ -19,6 +19,12 @@ def _mock_data_1() -> pd.DataFrame:
     return pd.DataFrame([1, 2], columns=['a'])
 
 
+@pytest.fixture(name='empty_load_mock')
+def _empty_load_mock(monkeypatch: MonkeyPatch) -> MagicMock:
+    load_mock = MagicMock(return_value=None)
+    monkeypatch.setattr(cache.dataframe_utils, 'load_df', load_mock)
+    return load_mock
+
 @pytest.fixture(name='load_mock')
 def _load_mock(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame) -> MagicMock:
     load_mock = MagicMock(return_value=mock_data_1)
@@ -140,15 +146,34 @@ def test_call_cache_gets_uncached_data(monkeypatch: MonkeyPatch, mock_data_1: pd
 
 
 @patch('pybaseball.cache.config.enabled', True)
-def test_call_cache_fails_silently(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, thrower: Callable,
-                                   save_mock: MagicMock) -> None:
+def test_call_cache_get_func_data_fails_silently(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, thrower: Callable,
+                                        load_mock: MagicMock, save_mock: MagicMock) -> None:
     assert cache.config.enabled == True
 
     df_func = MagicMock(return_value=mock_data_1)
     df_func.__name__ = "df_func"
 
-    load_mock = MagicMock()
-    monkeypatch.setattr(cache.dataframe_utils, 'load_df', load_mock)
+    df_cache = cache.cache.df_cache()
+    assert df_cache.cache_config.enabled == True
+
+    with patch('pybaseball.cache.func_utils.get_func_name', thrower):
+        wrapper = df_cache.__call__(df_func)
+        result = wrapper(*(1, 2), **{'val1': 'a'})
+
+    assert isinstance(result, pd.DataFrame)
+
+    pd.testing.assert_frame_equal(result, mock_data_1)
+    load_mock.assert_not_called()
+    save_mock.assert_not_called()
+
+
+@patch('pybaseball.cache.config.enabled', True)
+def test_call_cache_load_fails_silently(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, thrower: Callable,
+                                        load_mock: MagicMock, save_mock: MagicMock) -> None:
+    assert cache.config.enabled == True
+
+    df_func = MagicMock(return_value=mock_data_1)
+    df_func.__name__ = "df_func"
 
     df_cache = cache.cache.df_cache()
     assert df_cache.cache_config.enabled == True
@@ -161,6 +186,28 @@ def test_call_cache_fails_silently(monkeypatch: MonkeyPatch, mock_data_1: pd.Dat
 
     pd.testing.assert_frame_equal(result, mock_data_1)
     load_mock.assert_not_called()
+    save_mock.assert_called_once()
+
+
+@patch('pybaseball.cache.config.enabled', True)
+def test_call_cache_save_fails_silently(monkeypatch: MonkeyPatch, mock_data_1: pd.DataFrame, thrower: Callable,
+                                        empty_load_mock: MagicMock, save_mock: MagicMock) -> None:
+    assert cache.config.enabled == True
+
+    df_func = MagicMock(return_value=mock_data_1)
+    df_func.__name__ = "df_func"
+
+    df_cache = cache.cache.df_cache()
+    assert df_cache.cache_config.enabled == True
+
+    with patch.object(cache.cache_record.CacheRecord, 'save', thrower):
+        wrapper = df_cache.__call__(df_func)
+        result = wrapper(*(1, 2), **{'val1': 'a'})
+
+    assert isinstance(result, pd.DataFrame)
+
+    pd.testing.assert_frame_equal(result, mock_data_1)
+    empty_load_mock.assert_called_once()
     save_mock.assert_not_called()
 
 
@@ -178,3 +225,22 @@ def test_purge(remove: MagicMock) -> None:
     assert glob_mock.called_once()
     assert mock_load_json.call_count == len(glob_result)
     assert remove.call_count == len(glob_result)
+
+
+def test_flush(remove: MagicMock) -> None:
+    glob_result = ['1.cache_record.json', '2.cache_record.json']
+    glob_mock = MagicMock(return_value=glob_result)
+    
+    mock_cache_records = [
+        {'expires': '2000-01-01', 'filename': 'df_cache.parquet'},
+        {'expires': '3000-01-01', 'filename': 'df_cache2.parquet'},
+    ]
+    mock_load_json = MagicMock(side_effect=mock_cache_records)
+
+    with patch('glob.glob', glob_mock):
+        with patch('pybaseball.cache.file_utils.load_json', mock_load_json):
+            cache.flush()
+    
+    assert glob_mock.called_once()
+    assert mock_load_json.call_count == len(glob_result)
+    remove.assert_called_once()

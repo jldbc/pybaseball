@@ -1,7 +1,6 @@
+import copy
 import logging
 import os
-import pathlib
-import shutil
 from typing import Any, Callable
 from unittest.mock import MagicMock
 
@@ -36,7 +35,16 @@ def _override_cache_config(monkeypatch: MonkeyPatch, cache_config: cache.CacheCo
     def _test_auto_load() -> cache.CacheConfig:
         logging.debug('_test_auto_load')
         return cache_config
+    
+    # Copy this for when we want to test the autoload_cache function
+    if not hasattr(cache.cache_config, '_autoload_cache'):
+        cache.cache_config._autoload_cache = copy.copy(cache.cache_config.autoload_cache) # type: ignore
     cache.cache_config.autoload_cache = _test_auto_load
+
+    # Copy this for when we want to test the save function
+    if not hasattr(cache.cache_config.CacheConfig, '_save'):
+        cache.cache_config.CacheConfig._save = copy.copy(cache.cache_config.CacheConfig.save) # type: ignore
+
     cache.cache_config.CacheConfig.save = MagicMock()  # type: ignore
     cache.config = cache_config
     cache.cache_record.cfg = cache_config
