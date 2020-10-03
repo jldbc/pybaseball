@@ -1,12 +1,11 @@
 import pandas as pd
 import requests
 
-from . import cache
+_URL = "https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={round}&draft_type=junreg&query_type=year_round&"
 
-
-def get_draft_results(year, round):
-    url = f"https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={round}&draft_type=junreg&query_type=year_round&"
-    res = requests.get(url, timeout=None).content
+def get_draft_results(year, round): 
+    url = _URL.format(year=year, round=round)
+    res = requests.get(url, timeout=None).content 
     draft_results = pd.read_html(res)
     return draft_results
 
