@@ -22,7 +22,7 @@ def download_url(url: str) -> bytes:
 
 def get_split_soup(playerid: str, year: Optional[int] = None, pitching_splits: bool = False) -> bs.BeautifulSoup:
     """
-    gets soup for the player splits. 
+    gets soup for the player splits.
     """
     pitch_or_bat = 'p' if pitching_splits else 'b'
     if year is None:  # provides scores from yesterday if date is not provided
@@ -37,7 +37,7 @@ def get_split_soup(playerid: str, year: Optional[int] = None, pitching_splits: b
 
 def get_player_info(playerid: str, soup: bs.BeautifulSoup = None) -> Dict:
     '''
-    Returns a dictionary with player position, batting and throwing handedness, player height in inches, player weight, and current team from Baseball Reference. 
+    Returns a dictionary with player position, batting and throwing handedness, player height in inches, player weight, and current team from Baseball Reference.
     '''
 
     if not soup:
@@ -79,36 +79,63 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
     # the splits tables on the bbref site are all within an embedded comment. This finds all the comments
     comment = soup.find_all(text=lambda text: isinstance(text, bs.Comment))
     data = []
+    level_data = []
     for i in range(len(comment)):
         commentsoup = bs.BeautifulSoup(comment[i], 'lxml')
         split_tables = commentsoup.find_all(
             "div", {"class": "overthrow table_container"})
         splits = [ele for ele in split_tables]
         headings = []
+        level_headings = []
         for j in range(len(splits)):
-            if year == None:  # The bbref tables for career splits have one extra preceding th column labeled 'I' that is not used and is not in the single season records
-                headings = [th.get_text()
-                            for th in splits[j].find("tr").find_all("th")][1:]
-            else:
-                headings = [th.get_text()
-                            for th in splits[j].find("tr").find_all("th")][:]
-            headings.append('Split Type')
-            headings.append('Player ID')
-            # singles data isn't included in the tables so this appends the column header
-            headings.append('1B')
-            data.append(headings)
-            rows = splits[j].find_all('tr')
-            for row in rows:
+            split_type = splits[j].find_all('caption')[0].string.strip()
+            # two types of tables on bref, game level and non-game level
+            if split_type[-5:] == 'Level':
                 if year == None:  # The bbref tables for career splits have one extra preceding th column labeled 'I' that is not used and is not in the single season records
-                    cols = row.find_all('td')
+                    level_headings = [th.get_text()
+                                      for th in splits[j].find("tr").find_all("th")][1:]
                 else:
-                    cols = row.find_all(['th', 'td'])
-                cols = [ele.text.strip() for ele in cols]
-                split_type = splits[j].find_all('caption')[0].string.strip()
-                if split_type != "By Inning":  # bbref added three empty columns to the by inning tables that don't match the rest of the tables. Not including this split table in results
-                    cols.append(split_type)
-                    cols.append(playerid)
-                    data.append([ele for ele in cols])
+                    level_headings = [th.get_text()
+                                      for th in splits[j].find("tr").find_all("th")][:]
+                level_headings.append('Split Type')
+                level_headings.append('Player ID')
+                # singles data isn't included in the tables so this appends the column header
+                level_headings.append('1B')
+                level_data.append(level_headings)
+                rows = splits[j].find_all('tr')
+                for row in rows:
+                    if year == None:  # The bbref tables for career splits have one extra preceding th column labeled 'I' that is not used and is not in the single season records
+                        level_cols = row.find_all('td')
+                    else:
+                        level_cols = row.find_all(['th', 'td'])
+                    level_cols = [ele.text.strip() for ele in level_cols]
+                    if split_type != "By Inning":  # bbref added three empty columns to the by inning tables that don't match the rest of the tables. Not including this split table in results
+                        level_cols.append(split_type)
+                        level_cols.append(playerid)
+                        level_data.append([ele for ele in level_cols])
+            else:
+                if year == None:  # The bbref tables for career splits have one extra preceding th column labeled 'I' that is not used and is not in the single season records
+                    headings = [th.get_text()
+                                for th in splits[j].find("tr").find_all("th")][1:]
+                else:
+                    headings = [th.get_text()
+                                for th in splits[j].find("tr").find_all("th")][:]
+                headings.append('Split Type')
+                headings.append('Player ID')
+                # singles data isn't included in the tables so this appends the column header
+                headings.append('1B')
+                data.append(headings)
+                rows = splits[j].find_all('tr')
+                for row in rows:
+                    if year == None:  # The bbref tables for career splits have one extra preceding th column labeled 'I' that is not used and is not in the single season records
+                        cols = row.find_all('td')
+                    else:
+                        cols = row.find_all(['th', 'td'])
+                    cols = [ele.text.strip() for ele in cols]
+                    if split_type != "By Inning":  # bbref added three empty columns to the by inning tables that don't match the rest of the tables. Not including this split table in results
+                        cols.append(split_type)
+                        cols.append(playerid)
+                        data.append([ele for ele in cols])
 
     data = pd.DataFrame(data)
     data = data.rename(columns=data.iloc[0])
@@ -119,6 +146,17 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
     data = data.dropna(axis=1, how='all')
     data['1B'] = data['H']-data['2B']-data['3B']-data['HR']
     data = data.loc[playerid]
+    if pitching_splits is True:
+        level_data = pd.DataFrame(level_data)
+        level_data = level_data.rename(columns=level_data.iloc[0])
+        level_data = level_data.reindex(level_data.index.drop(0))
+        level_data = level_data.set_index(['Player ID', 'Split Type', 'Split'])
+        level_data = level_data.drop(index=['Split'], level=2)
+        level_data = level_data.apply(
+            pd.to_numeric, errors='coerce').convert_dtypes()
+        level_data = level_data.dropna(axis=1, how='all')
+        level_data = level_data.loc[playerid]
+        data = pd.concat([data, level_data])
     if player_info == False:
         return data
     else:
