@@ -167,5 +167,6 @@ def flag_imputed_data(statcast_df):
                                   right_on=["ev", "angle", "bb_type"])
     # Change NaNs to false for boolean consistency
     df_return["possible_imputation"] = df_return["possible_imputation"].fillna(False)
+    df_return = df_return.drop(["ev", "angle"], axis=1)
     return df_return
 
