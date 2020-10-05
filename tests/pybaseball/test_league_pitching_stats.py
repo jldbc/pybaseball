@@ -6,34 +6,6 @@ import pytest
 from pybaseball import league_pitching_stats
 
 
-def test_sanitize_input_none_none() -> None:
-    result1, result2 = league_pitching_stats.sanitize_input(None, None)
-    
-    assert datetime.strptime(result1, '%Y-%m-%d').date() == date.today() - timedelta(days=1)
-    assert datetime.strptime(result2, '%Y-%m-%d').date() == date.today()
-
-
-def test_sanitize_input_end_dt_none() -> None:
-    result1, result2 = league_pitching_stats.sanitize_input('2019-05-01', None)
-    
-    assert result1 == '2019-05-01'
-    assert result2 == result1
-
-
-def test_sanitize_input_start_dt_gt_end_dt() -> None:
-    result1, result2 = league_pitching_stats.sanitize_input('2019-07-01', '2019-06-01')
-
-    assert result1 == '2019-06-01'
-    assert result2 == '2019-07-01'
-
-
-def test_sanitize_input_start_dt_none() -> None:
-    result1, result2 = league_pitching_stats.sanitize_input(None, '2019-06-01')
-    
-    assert result2 == '2019-06-01'
-    assert result1 == result2
-
-
 def test_get_soup_none_none() -> None:
     result = league_pitching_stats.get_soup(None, None)
     assert result is None

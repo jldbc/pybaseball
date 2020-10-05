@@ -7,7 +7,7 @@ from pybaseball.datasources.fangraphs import fg_batting_data
 
 
 class TestFGBattingData:
-    ALL_DATA_COLUMNS_COUNT = 313
+    ALL_DATA_COLUMNS_COUNT = 314
     DEFAULT_MAX_RESULTS = 10
 
     def test_fg_batting_data(self) -> None:
@@ -53,7 +53,7 @@ class TestFGBattingData:
 
         assert data is not None
         assert not data.empty
-        assert len(data.columns) == 4
+        assert len(data.columns) == 5
         assert len(data.index) == self.DEFAULT_MAX_RESULTS
 
     def test_fg_batting_data_multiple_stat_columns(self) -> None:
@@ -61,7 +61,7 @@ class TestFGBattingData:
 
         assert data is not None
         assert not data.empty
-        assert len(data.columns) == 5
+        assert len(data.columns) == 6
         assert len(data.index) == self.DEFAULT_MAX_RESULTS
 
     def test_fg_batting_data_league(self, assert_frame_not_equal: Callable[..., bool]) -> None:

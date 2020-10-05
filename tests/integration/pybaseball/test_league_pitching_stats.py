@@ -5,6 +5,16 @@ import pytest
 from pybaseball import league_pitching_stats
 
 
+def test_get_soup_none_none() -> None:
+    result = league_pitching_stats.get_soup(None, None)
+    assert result is None
+
+
+def test_pitching_stats_range_start_dt_lt_2008() -> None:
+    with pytest.raises(ValueError):
+        league_pitching_stats.pitching_stats_range('2007-01-01', '2019-01-01')
+
+
 def test_pitching_stats_bref() -> None:
     result = league_pitching_stats.pitching_stats_bref(2019)
 

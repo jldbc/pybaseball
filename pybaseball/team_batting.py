@@ -4,12 +4,14 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from . import cache
 from .datasources.fangraphs import fg_team_batting_data
-
 
 # This is just a pass through for the new, more configurable function
 team_batting = fg_team_batting_data
 
+
+@cache.df_cache()
 def team_batting_bref(team, start_season, end_season=None):
     """
     Get season-level Batting Statistics for Specific Team (from Baseball-Reference)
