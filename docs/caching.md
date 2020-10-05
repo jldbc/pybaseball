@@ -22,6 +22,7 @@
     
     cache.enable()
     cache.config.cache_type='csv'
+    cache.save()
     ```
     * Default cache type is Parquet.
 * Cache directory can also be configured by setting the `PYBASEBALL_CACHE` environment variable to your desired cache directory.
