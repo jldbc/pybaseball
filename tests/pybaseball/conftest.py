@@ -55,7 +55,7 @@ def data_dir() -> str:
 
 
 @pytest.fixture()
-def get_data_file_contents(data_dir: str) -> Callable[[str], [str]]:
+def get_data_file_contents(data_dir: str) -> Callable[[str], str]:
     """
         Returns a function that will allow getting the contents of a file in the tests data directory easily
     """
