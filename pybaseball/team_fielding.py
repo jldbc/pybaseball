@@ -4,14 +4,15 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Comment
 
-from .datasources.fangraphs import fg_team_fielding_data
+from . import cache
 from .datahelpers import postprocessing
-
+from .datasources.fangraphs import fg_team_fielding_data
 
 # This is just a pass through for the new, more configurable function
 team_fielding = fg_team_fielding_data
 
 
+@cache.df_cache()
 def team_fielding_bref(team, start_season, end_season=None):
     """
     Get season-level Fielding Statistics for Specific Team (from Baseball-Reference)

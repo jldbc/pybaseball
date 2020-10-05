@@ -6,6 +6,8 @@ from typing import Optional, Tuple
 import pandas as pd
 import requests
 
+from . import cache
+
 NULLABLE_INT = pd.Int32Dtype()
 DATE_FORMAT = "%Y-%m-%d"
 
@@ -87,7 +89,7 @@ def sanitize_input(start_dt, end_dt, player_id):
     start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
     return str(start_dt_date), str(end_dt_date), player_id
 
-
+@cache.df_cache()
 def split_request(start_dt: str, end_dt: str, player_id: int, url: str) -> pd.DataFrame:
     """
     Splits Statcast queries to avoid request timeouts
@@ -121,6 +123,7 @@ def get_zip_file(url):
     with requests.get(url, stream=True) as f:
         z = zipfile.ZipFile(io.BytesIO(f.content))
     return z
+
 
 def get_text_file(url):
     """

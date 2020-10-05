@@ -1,9 +1,12 @@
-import requests	
-from zipfile import ZipFile	
-import os
-import pandas as pd
 from io import BytesIO
+from os import path
 from typing import Optional
+from zipfile import ZipFile
+
+import pandas as pd
+import requests
+
+from . import cache
 
 url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
 base_string = "baseballdatabank-master/core"
@@ -15,7 +18,7 @@ def get_lahman_zip() -> Optional[ZipFile]:
     # If we already have the zip file, keep re-using that.
     # Making this a function since everything else will be re-using these lines
     global _handle
-    if os.path.exists(base_string):
+    if path.exists(path.join(cache.config.cache_directory, base_string)):
         _handle = None
     elif not _handle:
         s = requests.get(url, stream=True)
@@ -26,7 +29,7 @@ def download_lahman():
     # download entire lahman db to present working directory
     z = get_lahman_zip()
     if z is not None:
-        z.extractall()
+        z.extractall(cache.config.cache_directory)
         z = get_lahman_zip()
         # this way we'll now start using the extracted zip directory
         # instead of the session ZipFile object
@@ -34,7 +37,12 @@ def download_lahman():
 def _get_file(tablename: str, quotechar: str = "'") -> pd.DataFrame:
     z = get_lahman_zip()
     f = f'{base_string}/{tablename}'
-    data = pd.read_csv(f if z is None else z.open(f), header=0, sep=',', quotechar=quotechar)
+    data = pd.read_csv(
+        f"{path.join(cache.config.cache_directory, f)}" if z is None else z.open(f),
+        header=0,
+        sep=',',
+        quotechar=quotechar
+    )
     return data
 
 

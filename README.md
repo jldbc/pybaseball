@@ -215,6 +215,20 @@ This function returns a list of dataframes. Each dataframe is the standings for 
 5      Cincinnati Reds   68  94  .420  35.5
 ```
 
+# Caching
+
+To facilitate faster data retrieval for repeated calls, a local data cache may be used to save a local copy of the
+requested data. By default the cache is disabled so as to respect a user's potential desire to not have their hard drive
+space used without their permission. However, enabling the cache is simple.
+
+Cache can be turned on by including the pybaseball.cache module and enabling the cache option like so:
+
+```python
+from pybaseball import cache
+
+cache.enable()
+```
+
 # Complete Documentation
 
 So far this has provided a basic overview of what this package can do and how you can use it. For full documentation on available functions and their arguments, see the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) folder. 
