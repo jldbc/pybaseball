@@ -1,5 +1,6 @@
 
 import logging
+import os
 from datetime import date
 from typing import Optional
 
@@ -7,6 +8,25 @@ import pandas as pd
 
 from . import lahman
 from .datasources import fangraphs
+from .datahelpers import postprocessing
+
+_DATA_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'fangraphs_teams.csv')
+
+
+def fangraphs_teams(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
+    if not os.path.exists(_DATA_FILENAME):
+        _generate_fangraphs_teams()
+
+    fg_team_data = pd.read_csv(_DATA_FILENAME, index_col=0)
+    
+    if season is not None:
+        fg_team_data = fg_team_data.query(f"yearID == {season}")
+
+    if league is not None and league.upper() != "ALL":
+        fg_team_data = fg_team_data.query(f"lgID == '{league.upper()}'")
+
+    return fg_team_data
+
 
 _known_cities = ['Altoona', 'Anaheim', 'Arizona', 'Atlanta', 'Baltimore', 'Boston', 'Brooklyn', 'Buffalo',
                  'California', 'Chicago', 'Cincinnati', 'Cleveland', 'Colorado', 'Detroit', 'Elizabeth', 'Florida',
@@ -17,6 +37,7 @@ _known_cities = ['Altoona', 'Anaheim', 'Arizona', 'Atlanta', 'Baltimore', 'Bosto
 
 _manual_matches = {'CPI': 'Browns/Stogies', 'ANA': 'Angels'}
 
+
 def _estimate_name(team_row: pd.DataFrame, column: str) -> str:
     if team_row['franchID'] in _manual_matches:
         return _manual_matches[team_row['franchID']]
@@ -26,30 +47,19 @@ def _estimate_name(team_row: pd.DataFrame, column: str) -> str:
 
     return estimate
 
-def fangraphs_teams(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
+
+def _generate_fangraphs_teams() -> pd.DataFrame:
     """
-    Get the team ids from Fangraphs, with their lahman match for joining Fangraphs data with other sources.
+    Creates a datafile with a map of Fangraphs team IDs to lahman data to be used by fangraphss_teams
 
-    Args:
-        season (Optional[int]): The season to get data for. If None, get teams from all seasons.
-                                Default = None
-        league (str)          : League to return data for: ALL, AL, FL, NL
-                                Default = ALL
-
-    Returns:
-        A pandas.DataFrame with columns for teamIDfg (int), yearID (int), teamID (str), franchID (str)
-        Where yearID is the season, teamID is the lahman team id and franchID is the lahman team franchise id
+    Should only need to be run when a team is added, removed, or moves to a new city.
     """
 
-    if season:
-        start_season = season
-        end_season = season
-    else:
-        start_season = 1871
-        end_season = date.today().year
+    start_season = 1871
+    end_season = date.today().year
 
     # Only getting AB to make payload small, and you have to specify at least one column
-    team_data = fangraphs.fg_team_batting_data(start_season, end_season, league, stat_columns=['AB'])
+    team_data = fangraphs.fg_team_batting_data(start_season, end_season, "ALL", stat_columns=['AB'])
 
     # Join the lahman data
     teams_franchises = lahman.teams().merge(lahman.teams_franchises(), how='left', on='franchID', suffixes=['', '.fr'])
@@ -99,10 +109,14 @@ def fangraphs_teams(season: Optional[int] = None, league: str = 'ALL') -> pd.Dat
         logging.warning('When trying to join Fangraphs data to lahman, found the following extraneous Fangraphs data',
                         extra=unjoined_team_data)
 
-    joined = joined[['yearID', 'teamIDfg', 'teamID', 'franchID']]
-    joined = joined.rename(columns={'teamIDfg': 'teamIDfg_float'})
-    joined['teamIDfg'] = joined['teamIDfg_float'].apply(lambda value: int(value))
-    joined = joined.drop(['teamIDfg_float'], axis=1).drop_duplicates()
-    joined = joined.sort_values(['yearID', 'teamIDfg'])
+    joined = joined[['yearID', 'teamIDfg', 'lgID', 'teamID', 'franchID']]
 
-    return joined.reset_index(drop=True)
+    joined = joined.assign(teamIDfg=joined['teamIDfg'].apply(lambda value: int(value)))
+    joined = joined.assign(yearID=joined['yearID'].apply(lambda value: int(value)))
+
+    joined = joined.sort_values(['yearID', 'teamIDfg']).drop_duplicates()
+    joined = joined.reset_index(drop=True)
+
+    joined.to_csv(_DATA_FILENAME)
+
+    return joined
