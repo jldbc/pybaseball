@@ -6,7 +6,7 @@ from typing import Optional, Tuple
 import pandas as pd
 import requests
 
-from .import cache
+from . import cache
 
 NULLABLE_INT = pd.Int32Dtype()
 DATE_FORMAT = "%Y-%m-%d"
@@ -47,6 +47,7 @@ def validate_datestring(date_text: Optional[str]) -> date:
     except (AssertionError, ValueError):
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
+
 def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[date, date]:
     # If no dates are supplied, assume they want yesterday's data
     # send a warning in case they wanted to specify
@@ -61,7 +62,7 @@ def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple
         print(
             "Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, try get_statcast(start_dt, end_dt)."
         )
-    
+
     # If only one date is supplied, assume they only want that day's stats
     # query in this case is from date 1 to date 1
     if start_dt is None:
@@ -75,9 +76,9 @@ def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple
     # If end date occurs before start date, swap them
     if end_dt_date < start_dt_date:
         start_dt_date, end_dt_date = end_dt_date, start_dt_date
-    
+
     # Now that both dates are not None, make sure they are valid date strings
-    return start_dt_date, end_dt_date 
+    return start_dt_date, end_dt_date
 
 
 def sanitize_input(start_dt, end_dt, player_id):
@@ -88,6 +89,7 @@ def sanitize_input(start_dt, end_dt, player_id):
     player_id = str(player_id)
     start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
     return str(start_dt_date), str(end_dt_date), player_id
+
 
 @cache.df_cache()
 def split_request(start_dt: str, end_dt: str, player_id: int, url: str) -> pd.DataFrame:
