@@ -20,7 +20,6 @@ def test_team_id_lookup_season() -> None:
     assert not result.empty
 
     assert len(result.columns) == 5
-    print(result)
     assert len(result) == 30
 
 def test_team_id_lookup_league() -> None:
@@ -42,6 +41,4 @@ def test_team_id_lookup_season_league() -> None:
     assert not result.empty
 
     assert len(result.columns) == 5
-    
-    print(result)
     assert len(result) == 15
