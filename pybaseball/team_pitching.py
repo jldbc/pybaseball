@@ -11,7 +11,7 @@ from .datasources.fangraphs import fg_team_pitching_data
 team_pitching = fg_team_pitching_data 
 
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def team_pitching_bref(team, start_season, end_season=None):
     """
     Get season-level Pitching Statistics for Specific Team (from Baseball-Reference)

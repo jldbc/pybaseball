@@ -97,7 +97,7 @@ def make_numeric(data):
     data[num_cols] = data[num_cols].astype(float) #not int because of NaNs
     return data
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def schedule_and_record(season=None, team=None):
     # retrieve html from baseball reference
     # sanatize input

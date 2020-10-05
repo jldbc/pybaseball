@@ -4,7 +4,6 @@ from typing import Any, Callable, Iterable, List, Optional, Type, Union
 
 import lxml
 import pandas as pd
-import requests
 
 from .. import cache
 from ..datahelpers import postprocessing
@@ -12,7 +11,7 @@ from ..datahelpers.column_mapper import BattingStatsColumnMapper, ColumnListMapp
 from ..enums.fangraphs import (FangraphsBattingStats, FangraphsFieldingStats, FangraphsLeague, FangraphsMonth,
                                FangraphsPitchingStats, FangraphsPositions, FangraphsStatColumn, FangraphsStatsCategory,
                                stat_list_from_str, stat_list_to_str)
-from .html_table_processor import HTMLTableProcessor
+from .html_table_processor import HTMLTableProcessor, RowIdFunction
 
 _FG_LEADERS_URL = "/leaders.aspx"
 
@@ -76,7 +75,7 @@ class FangraphsDataTable(ABC):
     def _validate(self, data: pd.DataFrame) -> pd.DataFrame:
         return data
 
-    @cache.dataframe_cache()
+    @cache.df_cache()
     def fetch(self, start_season: int, end_season: Optional[int] = None, league: str = 'ALL', ind: int = 1,
               stat_columns: Union[str, List[str]] = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
               month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,

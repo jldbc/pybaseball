@@ -72,7 +72,7 @@ def get_tables(soup, season):
     return datasets #returns a list of dataframes
 
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def standings(season=None):
     # get most recent standings if date not specified
     if season is None:

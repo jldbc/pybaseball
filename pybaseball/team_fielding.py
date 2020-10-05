@@ -12,7 +12,7 @@ from .datasources.fangraphs import fg_team_fielding_data
 team_fielding = fg_team_fielding_data
 
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def team_fielding_bref(team, start_season, end_season=None):
     """
     Get season-level Fielding Statistics for Specific Team (from Baseball-Reference)

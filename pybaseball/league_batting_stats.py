@@ -65,7 +65,7 @@ def batting_stats_range(start_dt: Optional[str] = None, end_dt: Optional[str] = 
     return table
 
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def batting_stats_bref(season: Optional[int] = None) -> pd.DataFrame:
     """
     Get all batting stats for a set season. If no argument is supplied, gives
@@ -78,7 +78,7 @@ def batting_stats_bref(season: Optional[int] = None) -> pd.DataFrame:
     return batting_stats_range(start_dt, end_dt)
 
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def bwar_bat(return_all: bool = False) -> pd.DataFrame:
     """
     Get data from war_daily_bat table. Returns WAR, its components, and a few other useful stats.

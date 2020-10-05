@@ -36,7 +36,7 @@ def postprocess(data):
     return data.reset_index(drop=True)
 
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def team_game_logs(season, team, log_type="batting"):
     """
     Get Baseball Reference batting or pitching game logs for a team-season.

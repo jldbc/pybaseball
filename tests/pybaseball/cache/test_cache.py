@@ -52,7 +52,7 @@ def test_call_cache_disabled(load_mock: MagicMock, save_mock: MagicMock) -> None
     df_func = MagicMock(return_value=pd.DataFrame([1, 2], columns=['a']))
     df_func.__name__ = "df_func"
 
-    df_cache = cache.dataframe_cache()
+    df_cache = cache.df_cache()
     assert not df_cache.cache_config.enabled
 
     wrapper = df_cache.__call__(df_func)
@@ -80,7 +80,7 @@ def test_call_cache_enabled_loads_cache(mock_data_1: pd.DataFrame, load_mock: Ma
     df_func = MagicMock()
     df_func.__name__ = "df_func"
 
-    df_cache = cache.dataframe_cache()
+    df_cache = cache.df_cache()
     assert df_cache.cache_config.enabled
 
     wrapper = df_cache.__call__(df_func)
@@ -106,7 +106,7 @@ def test_call_cache_ignores_expired(mock_data_1: pd.DataFrame, load_mock: MagicM
     df_func = MagicMock(return_value=mock_data_1)
     df_func.__name__ = "df_func"
 
-    df_cache = cache.dataframe_cache()
+    df_cache = cache.df_cache()
     assert df_cache.cache_config.enabled
 
     wrapper = df_cache.__call__(df_func)
@@ -126,7 +126,7 @@ def test_call_cache_gets_uncached_data(mock_data_1: pd.DataFrame, load_mock: Mag
     df_func = MagicMock(return_value=mock_data_1)
     df_func.__name__ = "df_func"  # type: ignore
 
-    df_cache = cache.dataframe_cache()
+    df_cache = cache.df_cache()
     assert df_cache.cache_config.enabled
 
     wrapper = df_cache.__call__(df_func)

@@ -4,7 +4,7 @@ import requests
 from . import cache
 
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def top_prospects(teamName=None, playerType=None):
     teamUrl = "" if teamName == None else teamName.lower() + '/'
     url = f"https://www.mlb.com/{teamUrl}prospects/stats/top-prospects"

@@ -89,7 +89,7 @@ def sanitize_input(start_dt, end_dt, player_id):
     start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
     return str(start_dt_date), str(end_dt_date), player_id
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def split_request(start_dt: str, end_dt: str, player_id: int, url: str) -> pd.DataFrame:
     """
     Splits Statcast queries to avoid request timeouts

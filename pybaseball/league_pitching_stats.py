@@ -38,7 +38,7 @@ def get_table(soup):
     return data
 
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def pitching_stats_range(start_dt=None, end_dt=None):
     """
     Get all pitching stats for a set time range. This can be the past week, the

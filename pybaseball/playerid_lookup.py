@@ -15,7 +15,7 @@ def get_register_file():
     return os.path.join(cache.config.cache_directory, 'chadwick-register.csv')
 
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def chadwick_register(save: bool = False) -> pd.DataFrame:
     ''' Get the Chadwick register Database '''
 

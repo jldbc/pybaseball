@@ -10,7 +10,7 @@ def get_draft_results(year, round):
     draft_results = pd.read_html(res)
     return draft_results
 
-@cache.dataframe_cache()
+@cache.df_cache()
 def amateur_draft(year, round, keep_stats=True):
     draft_results = get_draft_results(year, round)
     draft_results = pd.concat(draft_results)
