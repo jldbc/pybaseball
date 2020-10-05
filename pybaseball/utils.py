@@ -1,11 +1,14 @@
-import pandas as pd
-import requests
-import datetime
 import io
 import zipfile
 from collections import namedtuple
+from datetime import date, datetime, timedelta
+from typing import Optional, Tuple
+import pandas as pd
+import requests
+
 
 NULLABLE_INT = pd.Int32Dtype()
+DATE_FORMAT = "%Y-%m-%d"
 
 # dictionary containing team abbreviations and their first year in existance
 first_season_map = {'ALT': 1884, 'ANA': 1997, 'ARI': 1998, 'ATH': 1871,
@@ -36,11 +39,44 @@ first_season_map = {'ALT': 1884, 'ANA': 1997, 'ARI': 1998, 'ATH': 1871,
                     'WSN': 2005}
 
 
-def validate_datestring(date_text):
+def validate_datestring(date_text: Optional[str]) -> date:
     try:
-        datetime.datetime.strptime(date_text, '%Y-%m-%d')
-    except ValueError:
+        assert date_text
+        return datetime.strptime(date_text, DATE_FORMAT).date()
+    except (AssertionError, ValueError):
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+
+def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[date, date]:
+    # If no dates are supplied, assume they want yesterday's data
+    # send a warning in case they wanted to specify
+    if start_dt is None and end_dt is None:
+        today = date.today()
+        start_dt = str(today - timedelta(1))
+        end_dt = str(today)
+
+        print('start_dt', start_dt)
+        print('end_dt', end_dt)
+
+        print(
+            "Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, try get_statcast(start_dt, end_dt)."
+        )
+    
+    # If only one date is supplied, assume they only want that day's stats
+    # query in this case is from date 1 to date 1
+    if start_dt is None:
+        start_dt = end_dt
+    if end_dt is None:
+        end_dt = start_dt
+
+    start_dt_date = validate_datestring(start_dt)
+    end_dt_date = validate_datestring(end_dt)
+
+    # If end date occurs before start date, swap them
+    if end_dt_date < start_dt_date:
+        start_dt_date, end_dt_date = end_dt_date, start_dt_date
+    
+    # Now that both dates are not None, make sure they are valid date strings
+    return start_dt_date, end_dt_date 
 
 
 def sanitize_input(start_dt, end_dt, player_id):
@@ -49,48 +85,33 @@ def sanitize_input(start_dt, end_dt, player_id):
         raise ValueError("Player ID is required. If you need to find a player's id, try pybaseball.playerid_lookup(last_name, first_name) and use their key_mlbam. If you want statcast data for all players, try the statcast() function.")
     # this id should be a string to place inside a url
     player_id = str(player_id)
-    # if no dates are supplied, assume they want yesterday's data
-    # send a warning in case they wanted to specify
-    if start_dt is None and end_dt is None:
-        today = datetime.datetime.today()
-        start_dt = (today - datetime.timedelta(1)).strftime("%Y-%m-%d")
-        end_dt = today.strftime("%Y-%m-%d")
-        print("Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, try get_statcast(start_dt, end_dt).")
-    # if only one date is supplied, assume they only want that day's stats
-    # query in this case is from date 1 to date 1
-    if start_dt is None:
-        start_dt = end_dt
-    if end_dt is None:
-        end_dt = start_dt
-    # now that both dates are not None, make sure they are valid date strings
-    validate_datestring(start_dt)
-    validate_datestring(end_dt)
-    return start_dt, end_dt, player_id
+    start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
+    return str(start_dt_date), str(end_dt_date), player_id
 
 
 def split_request(start_dt: str, end_dt: str, player_id: int, url: str) -> pd.DataFrame:
     """
     Splits Statcast queries to avoid request timeouts
     """
-    current_dt = datetime.datetime.strptime(start_dt, '%Y-%m-%d')
-    end_dt_datetime = datetime.datetime.strptime(end_dt, '%Y-%m-%d')
+    current_dt = datetime.strptime(start_dt, '%Y-%m-%d')
+    end_dt_datetime = datetime.strptime(end_dt, '%Y-%m-%d')
     results = []  # list to hold data as it is returned
-    player_id = str(player_id)
+    player_id_str = str(player_id)
     print('Gathering Player Data')
     # break query into multiple requests
     while current_dt <= end_dt_datetime:
         remaining = end_dt_datetime - current_dt
         # increment date ranges by at most 60 days
-        delta = min(remaining, datetime.timedelta(days=2190))
+        delta = min(remaining, timedelta(days=2190))
         next_dt = current_dt + delta
         start_str = current_dt.strftime('%Y-%m-%d')
         end_str = next_dt.strftime('%Y-%m-%d')
         # retrieve data
-        data = requests.get(url.format(start_str, end_str, player_id))
+        data = requests.get(url.format(start_str, end_str, player_id_str))
         df = pd.read_csv(io.StringIO(data.text))
         # add data to list and increment current dates
         results.append(df)
-        current_dt = next_dt + datetime.timedelta(days=1)
+        current_dt = next_dt + timedelta(days=1)
     return pd.concat(results)
 
 

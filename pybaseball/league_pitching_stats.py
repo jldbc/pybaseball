@@ -5,37 +5,7 @@ import io
 from bs4 import BeautifulSoup
 import datetime
 
-def validate_datestring(date_text):
-    try:
-        datetime.datetime.strptime(date_text, '%Y-%m-%d')
-    except ValueError:
-        raise ValueError("Incorrect data format, should be YYYY-MM-DD")
-
-def sanitize_input(start_dt, end_dt):
-    # if no dates are supplied, assume they want yesterday's data
-    # send a warning in case they wanted to specify
-    if start_dt is None and end_dt is None:
-        today = datetime.datetime.today()
-        start_dt = (today - datetime.timedelta(1)).strftime("%Y-%m-%d")
-        end_dt = today.strftime("%Y-%m-%d")
-        print("Warning: no date range supplied. Returning yesterday's data. For a different date range, try pitching_stats_range(start_dt, end_dt) or pitching_stats(season).")
-
-    #if only one date is supplied, assume they only want that day's stats
-    #query in this case is from date 1 to date 1
-    if start_dt is None:
-        start_dt = end_dt
-    if end_dt is None:
-        end_dt = start_dt
-    #if end date occurs before start date, swap them 
-    if end_dt < start_dt:
-        temp = start_dt
-        start_dt = end_dt
-        end_dt = temp
-        
-    # now that both dates are not None, make sure they are valid date strings
-    validate_datestring(start_dt)
-    validate_datestring(end_dt)
-    return start_dt, end_dt
+from .utils import sanitize_date_range
 
 def get_soup(start_dt, end_dt):
     # get most recent standings if date not specified
@@ -71,10 +41,10 @@ def pitching_stats_range(start_dt=None, end_dt=None):
     format. 
     """
     # ensure valid date strings, perform necessary processing for query
-    start_dt, end_dt = sanitize_input(start_dt, end_dt)
-    if datetime.datetime.strptime(start_dt, "%Y-%m-%d").year < 2008:
+    start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
+    if start_dt_date.year < 2008:
         raise ValueError("Year must be 2008 or later")
-    if datetime.datetime.strptime(end_dt, "%Y-%m-%d").year < 2008:
+    if end_dt_date.year < 2008:
         raise ValueError("Year must be 2008 or later")
     # retrieve html from baseball reference
     soup = get_soup(start_dt, end_dt)
