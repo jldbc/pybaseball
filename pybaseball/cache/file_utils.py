@@ -6,9 +6,6 @@ from typing import Any, Dict, List, Union, cast
 JSONData = Union[List[Any], Dict[str, Any]]
 
 
-JSONData = Union[List[Any], Dict[str, Any]]
-
-
 # Splitting this out for testing with no side effects
 def mkdir(directory: str) -> None:
     return pathlib.Path(directory).mkdir(parents=True, exist_ok=True)
