@@ -63,9 +63,9 @@ def get_player_info(playerid: str, soup: bs.BeautifulSoup = None) -> Dict:
         'Position': fv[1],
         'Bats': fv[3],
         'Throws': fv[5],
-        'Height': int(fv[6].split(' ')[0])*12+int(fv[6].split(' ')[1]),
-        'Weight': int(fv[7][0:3]),
-        'Team': fv[10]
+        # 'Height': int(fv[6].split(' ')[0])*12+int(fv[6].split(' ')[1]), # Commented out because I determined that Pablo Sandoval has some weird formatting that ruins this. Uncomment for ht, wt of most players. 
+        # 'Weight': int(fv[7][0:3]),
+        # 'Team': fv[10]
     }
     return player_info_data
 
@@ -146,7 +146,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
     data = data.dropna(axis=1, how='all')
     data['1B'] = data['H']-data['2B']-data['3B']-data['HR']
     data = data.loc[playerid]
-    if pitching_splits is True:
+    if pitching_splits is True: # Returns Game Level tables as a second dataframe for pitching splits
         level_data = pd.DataFrame(level_data)
         level_data = level_data.rename(columns=level_data.iloc[0])
         level_data = level_data.reindex(level_data.index.drop(0))
@@ -156,9 +156,9 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
             pd.to_numeric, errors='coerce').convert_dtypes()
         level_data = level_data.dropna(axis=1, how='all')
         level_data = level_data.loc[playerid]
-        data = pd.concat([data, level_data])
+        # data = pd.concat([data, level_data])
     if player_info == False:
-        return data
+        return data, level_data if 'level_data' in locals() else None
     else:
         player_info_data = get_player_info(playerid=playerid, soup=soup)
-        return data, player_info_data
+        return data, player_info_data, level_data if 'level_data' in locals() else None
