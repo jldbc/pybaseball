@@ -1,11 +1,12 @@
-from datetime import date, datetime
 import io
+from datetime import date
 from typing import Optional
 
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
+from . import cache
 from .utils import sanitize_date_range
 
 
@@ -30,10 +31,10 @@ def get_table(soup: BeautifulSoup) -> pd.DataFrame:
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
         data.append([ele for ele in cols])
-    dataframe = pd.DataFrame(data)
-    dataframe = dataframe.rename(columns=dataframe.iloc[0])
-    dataframe = dataframe.reindex(dataframe.index.drop(0))
-    return dataframe
+    df = pd.DataFrame(data)
+    df = df.rename(columns=df.iloc[0])
+    df = df.reindex(df.index.drop(0))
+    return df
 
 
 def batting_stats_range(start_dt: Optional[str] = None, end_dt: Optional[str] = None) -> pd.DataFrame:
@@ -64,6 +65,7 @@ def batting_stats_range(start_dt: Optional[str] = None, end_dt: Optional[str] = 
     return table
 
 
+@cache.df_cache()
 def batting_stats_bref(season: Optional[int] = None) -> pd.DataFrame:
     """
     Get all batting stats for a set season. If no argument is supplied, gives
@@ -76,10 +78,11 @@ def batting_stats_bref(season: Optional[int] = None) -> pd.DataFrame:
     return batting_stats_range(start_dt, end_dt)
 
 
+@cache.df_cache()
 def bwar_bat(return_all: bool = False) -> pd.DataFrame:
     """
-    Get data from war_daily_bat table. Returns WAR, its components, and a few other useful stats. 
-    To get all fields from this table, supply argument return_all=True.  
+    Get data from war_daily_bat table. Returns WAR, its components, and a few other useful stats.
+    To get all fields from this table, supply argument return_all=True.
     """
     url = "http://www.baseball-reference.com/data/war_daily_bat.txt"
     s = requests.get(url).content

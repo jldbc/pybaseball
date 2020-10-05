@@ -1,7 +1,11 @@
 import pandas as pd
 import requests
 
-def top_prospects(teamName=None, playerType=None): 
+from . import cache
+
+
+@cache.df_cache()
+def top_prospects(teamName=None, playerType=None):
     teamUrl = "" if teamName == None else teamName.lower() + '/'
     url = f"https://www.mlb.com/{teamUrl}prospects/stats/top-prospects"
     res = requests.get(url, timeout=None).content
@@ -12,12 +16,13 @@ def top_prospects(teamName=None, playerType=None):
     elif playerType == "pitchers":
         topPitchingProspects = postprocess(prospectList[1])
         return topPitchingProspects
-    elif playerType == None: 
+    elif playerType == None:
         topProspects = pd.concat(prospectList)
         topProspects.sort_values(by=['Rk'], inplace = True)
         topProspects = postprocess(topProspects)
-        return topProspects 
-        
+        return topProspects
+
+
 def postprocess(prospectList):
     prospectList = prospectList.drop(list(prospectList.filter(regex = 'Tm|Unnamed:*')), axis = 1)
     return prospectList

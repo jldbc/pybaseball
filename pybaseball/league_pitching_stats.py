@@ -1,11 +1,14 @@
-import requests
-import pandas as pd
-import numpy as np
-import io
-from bs4 import BeautifulSoup
 import datetime
+import io
 
+import numpy as np
+import pandas as pd
+import requests
+from bs4 import BeautifulSoup
+
+from . import cache
 from .utils import sanitize_date_range
+
 
 def get_soup(start_dt, end_dt):
     # get most recent standings if date not specified
@@ -34,11 +37,12 @@ def get_table(soup):
     return data
 
 
+@cache.df_cache()
 def pitching_stats_range(start_dt=None, end_dt=None):
     """
-    Get all pitching stats for a set time range. This can be the past week, the 
-    month of August, anything. Just supply the start and end date in YYYY-MM-DD 
-    format. 
+    Get all pitching stats for a set time range. This can be the past week, the
+    month of August, anything. Just supply the start and end date in YYYY-MM-DD
+    format.
     """
     # ensure valid date strings, perform necessary processing for query
     start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
@@ -67,21 +71,21 @@ def pitching_stats_range(start_dt=None, end_dt=None):
 
 def pitching_stats_bref(season=None):
     """
-    Get all pitching stats for a set season. If no argument is supplied, gives stats for 
-    current season to date. 
+    Get all pitching stats for a set season. If no argument is supplied, gives stats for
+    current season to date.
     """
     if season is None:
         season = datetime.datetime.today().strftime("%Y")
     season = str(season)
     start_dt = season + '-03-01' #opening day is always late march or early april
-    end_dt = season + '-11-01' #season is definitely over by November 
+    end_dt = season + '-11-01' #season is definitely over by November
     return(pitching_stats_range(start_dt, end_dt))
 
 
 def bwar_pitch(return_all=False):
     """
-    Get data from war_daily_pitch table. Returns WAR, its components, and a few other useful stats. 
-    To get all fields from this table, supply argument return_all=True.  
+    Get data from war_daily_pitch table. Returns WAR, its components, and a few other useful stats.
+    To get all fields from this table, supply argument return_all=True.
     """
     url = "http://www.baseball-reference.com/data/war_daily_pitch.txt"
     s = requests.get(url).content

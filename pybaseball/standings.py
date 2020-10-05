@@ -4,6 +4,8 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup, Comment
 
+from . import cache
+
 
 def get_soup(year):
     url = 'http://www.baseball-reference.com/leagues/MLB/{}-standings.shtml'.format(year)
@@ -69,6 +71,8 @@ def get_tables(soup, season):
         datasets[idx] = pd.DataFrame(datasets[idx])
     return datasets #returns a list of dataframes
 
+
+@cache.df_cache()
 def standings(season=None):
     # get most recent standings if date not specified
     if season is None:
