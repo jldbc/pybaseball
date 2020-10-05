@@ -119,7 +119,6 @@ def plot_bb_profile(df: pd.DataFrame, parameter: Optional[str] = "launch_angle")
     """
 
     bb_types = df["bb_type"].dropna().unique()
-    fig = plt.figure(dpi=300)
     
     for bb_type in bb_types:
         df_skimmed = df[df.bb_type == bb_type]
@@ -127,4 +126,3 @@ def plot_bb_profile(df: pd.DataFrame, parameter: Optional[str] = "launch_angle")
         plt.hist(df_skimmed[parameter], bins=bins, alpha=0.5, label=bb_type.replace("_"," ").capitalize())
         plt.tick_params(labelsize=12)
 
-    return plt.gcf()
