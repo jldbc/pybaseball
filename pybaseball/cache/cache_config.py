@@ -38,7 +38,7 @@ class CacheConfig(singleton.Singleton):
         data = {
             'enabled': self.enabled,
             'default_expiration': self.default_expiration,
-            'cache_type': self.cache_type,
+            'cache_type': self.cache_type.lower(), # in case of "Parquet" or "CSV", ensures a uniform filename.
         }
         file_utils.safe_jsonify(self.cache_directory, CacheConfig.CFG_FILENAME, data)
 
