@@ -7,8 +7,9 @@ import requests
 from bs4 import BeautifulSoup
 
 from . import cache
-from .utils import sanitize_date_range
 
+
+from .utils import sanitize_date_range
 
 def get_soup(start_dt, end_dt):
     # get most recent standings if date not specified
