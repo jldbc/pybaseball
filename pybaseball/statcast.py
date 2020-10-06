@@ -12,9 +12,9 @@ _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={g
 _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&team={team}&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&"
 
 
-def _chunk_small_request(current_start_date: date, current_end_date: date, team: Optional[str],
-                         verbose: bool, max_retries: int = 3) -> Optional[pd.DataFrame]:
-    data = small_request(current_start_date, current_end_date, team=team)
+def _chunk_small_request(start_date: date, end_date: date, team: Optional[str], verbose: bool,
+                         max_retries: int = 3) -> Optional[pd.DataFrame]:
+    data = small_request(start_date, end_date, team=team)
 
     # Append to list of dataframes if not empty or failed
     # (failed requests have one row saying "Error: Query Timeout")
@@ -30,7 +30,7 @@ def _chunk_small_request(current_start_date: date, current_end_date: date, team:
     unsuccessful_msg_flag = False
     dataframe_list: List[pd.DataFrame] = []
     while not retry_success:
-        data = small_request(current_start_date, current_end_date, team=team)
+        data = small_request(start_date, end_date, team=team)
 
         if not data.empty:
             return data
@@ -43,23 +43,23 @@ def _chunk_small_request(current_start_date: date, current_end_date: date, team:
         # This request is probably too large. Cut a day off of this request
         # and make that its own separate request. For each, append to
         # dataframe list if successful, skip and print error message if failed.
-        tmp_end = current_end_date - timedelta(days=1)
-        smaller_data_1 = small_request(current_start_date, tmp_end, team=team)
-        smaller_data_2 = small_request(current_end_date, current_end_date, team=team)
+        tmp_end = end_date - timedelta(days=1)
+        smaller_data_1 = small_request(start_date, tmp_end, team=team)
+        smaller_data_2 = small_request(end_date, end_date, team=team)
 
         if not smaller_data_1.empty:
             dataframe_list.append(smaller_data_1)
-            print(f"Completed sub-query from {current_start_date} to {tmp_end}")
+            print(f"Completed sub-query from {start_date} to {tmp_end}")
             retry_success = True
         else:
-            print(f"Query unsuccessful for data from {current_end_date} to {tmp_end}. Skipping these dates.")
+            print(f"Query unsuccessful for data from {end_date} to {tmp_end}. Skipping these dates.")
 
         if not smaller_data_2.empty:
             dataframe_list.append(smaller_data_2)
-            print(f"Completed sub-query from {current_end_date} to {current_end_date}")
+            print(f"Completed sub-query from {end_date} to {end_date}")
             retry_success = True
         else:
-            print(f"Query unsuccessful for data from {current_end_date} to {current_end_date}. Skipping these dates.")
+            print(f"Query unsuccessful for data from {end_date} to {end_date}. Skipping these dates.")
 
         # Flag for passing over the success message since this request failed
         unsuccessful_msg_flag = not retry_success
@@ -69,7 +69,7 @@ def _chunk_small_request(current_start_date: date, current_end_date: date, team:
         break
 
     if verbose and not unsuccessful_msg_flag:
-        print(f"Completed sub-query from {current_start_date} to {current_end_date}")
+        print(f"Completed sub-query from {start_date} to {end_date}")
 
     if dataframe_list:
         return pd.concat(dataframe_list, axis=0)
@@ -90,7 +90,7 @@ def small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> p
     return data
 
 
-def large_request(start_dt_date: date, end_dt_date: date, step: int, verbose: bool,
+def large_request(start_date: date, end_date: date, step: int, verbose: bool,
                   team: Optional[str] = None) -> pd.DataFrame:
     """
     Break start and end date into smaller increments, collecting all data in small chunks
@@ -101,30 +101,30 @@ def large_request(start_dt_date: date, end_dt_date: date, step: int, verbose: bo
 
     dataframe_list = []
 
-    current_start_date = start_dt_date
+    subq_start = start_date
 
     print("This is a large query, it may take a moment to complete")
 
     # While intermediate query end_dt <= global query end_dt, keep looping
-    current_end_date = current_start_date + timedelta(days=step)
-    while current_end_date <= end_dt_date:
+    subq_end = subq_start + timedelta(days=step)
+    while subq_end <= end_date:
         # Dates before 3/15 and after 11/15 will always be offseason.
         # If these dates are detected, check if the next season is within the user's query.
         # If yes, fast-forward to the next season to avoid empty requests
         # If no, break the loop. all useful data has been pulled.
-        if (current_end_date.month == 3 and current_end_date.day < 15) or current_end_date.month <= 2:
+        if (subq_end.month == 3 and subq_end.day < 15) or subq_end.month <= 2:
             print('Skipping offseason dates')
-            current_start_date = current_start_date.replace(month=3, day=15)
-            current_end_date = current_start_date + timedelta(days=step+1)
-        elif (current_start_date.month == 11 and current_start_date.day > 14) or current_start_date.month > 11:
-            if end_dt_date.year > current_end_date.year:
+            subq_start = subq_start.replace(month=3, day=15)
+            subq_end = subq_start + timedelta(days=step+1)
+        elif (subq_start.month == 11 and subq_start.day > 14) or subq_start.month > 11:
+            if end_date.year > subq_end.year:
                 print('Skipping offseason dates')
-                current_start_date = current_start_date.replace(month=3, day=15, year=current_start_date.year+1)
-                current_end_date = current_start_date + timedelta(days=step+1)
+                subq_start = subq_start.replace(month=3, day=15, year=subq_start.year+1)
+                subq_end = subq_start + timedelta(days=step+1)
             else:
                 break
 
-        data = _chunk_small_request(current_start_date, current_end_date, team=team, verbose=verbose)
+        data = _chunk_small_request(subq_start, subq_end, team=team, verbose=verbose)
 
         # Append to list of dataframes if not empty or failed
         # (failed requests have one row saying "Error: Query Timeout")
@@ -132,19 +132,19 @@ def large_request(start_dt_date: date, end_dt_date: date, step: int, verbose: bo
             dataframe_list.append(data)
 
         # Increment dates
-        current_start_date = current_end_date + timedelta(days=1)
-        current_end_date = current_end_date + timedelta(days=step+1)
+        subq_start = subq_end + timedelta(days=1)
+        subq_end = subq_end + timedelta(days=step+1)
 
     # If start date > end date after being incremented,
     # the loop captured each date's data
-    if current_start_date <= end_dt_date:
+    if subq_start <= end_date:
         # If start date <= end date, then there are a few leftover dates to grab data for.
         # start_dt from the earlier loop will work,
         # but instead of d we now want the original end_dt
-        data = small_request(current_start_date, end_dt_date, team=team)
+        data = small_request(subq_start, end_date, team=team)
         dataframe_list.append(data)
         if verbose:
-            print(f"Completed sub-query from {current_start_date} to {end_dt_date}")
+            print(f"Completed sub-query from {subq_start} to {end_date}")
 
     # Concatenate all dataframes into final result set
     final_data = pd.concat(dataframe_list, axis=0)
