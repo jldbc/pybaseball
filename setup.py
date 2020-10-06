@@ -79,6 +79,7 @@ setup(
                       'beautifulsoup4>=4.4.0',
                       'requests>=2.18.1',
                       'lxml>=4.2.1',
+                      'pyarrow>=1.0.1',
                       'pygithub>=1.51',
                       'altair>=4.0.0',
                       'scipy>=1.4.0',

@@ -7,6 +7,8 @@ from bs4 import BeautifulSoup
 
 from pybaseball.utils import first_season_map
 
+from . import cache
+
 # TODO: retrieve data for all teams? a full season's worth of results
 
 def get_soup(season, team):
@@ -50,7 +52,7 @@ def get_table(soup,team):
                 cols[16].string = "Unknown"
             if cols[15].text=="":
                 cols[15].string = "Unknown"
-            if cols[17].text == "": 
+            if cols[17].text == "":
                 cols[17].string = "Unknown" # Unknown if attendance data is missing
 
             cols = [ele.text.strip() for ele in cols]
@@ -61,7 +63,7 @@ def get_table(soup,team):
             if len(cols) > 1:
                 cols = [ele.text.strip() for ele in cols][0:5]
                 data.append([ele for ele in cols if ele])
-    #convert to pandas dataframe. make first row the table's column names and reindex. 
+    #convert to pandas dataframe. make first row the table's column names and reindex.
     data = pd.DataFrame(data)
     data = data.rename(columns=data.iloc[0])
     data = data.reindex(data.index.drop(0))
@@ -95,6 +97,7 @@ def make_numeric(data):
     data[num_cols] = data[num_cols].astype(float) #not int because of NaNs
     return data
 
+@cache.df_cache()
 def schedule_and_record(season=None, team=None):
     # retrieve html from baseball reference
     # sanatize input

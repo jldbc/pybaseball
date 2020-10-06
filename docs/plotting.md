@@ -80,6 +80,7 @@ votto_data = statcast_batter('2019-08-01', '2019-10-01', 458015)
 aquino_data = statcast_batter('2019-08-01', '2019-10-01', 606157)
 data = pd.concat([votto_data, aquino_data])
 home_data = data[data['home_team'] == 'CIN']
+spraychart(home_data, 'reds', title='Joey Votto vs. Aristedes Aquino', colorby='player')
 ```
 ![Multiplayer Spraychart](multiplayer_spraychart.png)
 
@@ -107,3 +108,4 @@ plt.show()
 ```
 
 ![](plot_bb_profile_example.png)
+
