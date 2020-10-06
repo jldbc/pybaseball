@@ -14,7 +14,7 @@ from pybaseball import cache
 def _logging_side_effect() -> Callable:
     def _logger(name: str, after: Optional[Callable] = None) -> Callable:
         def _side_effect(*args: Any, **kwargs: Any) -> Optional[Any]:
-            logging.debug(f'Mock {name} => {args} {kwargs}')  # pylint: disable=logging-fstring-interpolation
+            logging.debug(f'Mock {name} => {args} {kwargs}')
             if after is not None:
                 return after(*args, **kwargs)
 
