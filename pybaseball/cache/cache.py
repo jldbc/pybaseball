@@ -90,7 +90,6 @@ class df_cache:
             return None
 
     def _safe_save_func_cache(self, func_data: Dict, result: pd.DataFrame) -> None:
-        print('_safe_save_func_cache', self.cache_config.enabled, func_data, result)
         try:
             if self.cache_config.enabled and func_data:
                 new_record = cache_record.CacheRecord(data=func_data, expires=self.expires)
