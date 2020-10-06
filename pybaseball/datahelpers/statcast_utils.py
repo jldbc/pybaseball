@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from typing import Optional
 
-def add_spray_angle(df: pd.DataFrame, adjusted: Optional[bool] = False):
+def add_spray_angle(df: pd.DataFrame, adjusted: bool = False) -> pd.DataFrame:
     """Adds spray angle and adjusted spray angle to StatCast DataFrames
     - Spray angle is the raw left-right angle of the hit
     - Adjusted spray angle flips the sign for left handed batters, making it a push/pull angle
