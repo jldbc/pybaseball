@@ -31,6 +31,7 @@ df = df[~df["bb_type"].isna()]
 df = add_spray_angle(df)
 print("Spray Angle:")
 print(df["spray_angle"][0:5])
+df = add_spray_angle(df, adjusted=True)
 print("Adjusted Spray Angle:")
 print(df["adj_spray_angle"][0:5])
 ```
