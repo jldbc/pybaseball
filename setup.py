@@ -82,7 +82,7 @@ setup(
                       'pygithub>=1.51',
                       'altair>=4.0.0',
                       'scipy>=1.4.0',
-                      'matplotlib>=3.3.0'
+                      'matplotlib>=2.0.0'
                       ],
 
     # List additional groups of dependencies here (e.g. development
