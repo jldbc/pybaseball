@@ -107,15 +107,12 @@ def spraychart(data, team_stadium, title='', tooltips=[], size=100,
     return plot
 
 
-def plot_bb_profile(df: pd.DataFrame, parameter: Optional[str] = "launch_angle") -> plt.figure:
+def plot_bb_profile(df: pd.DataFrame, parameter: Optional[str] = "launch_angle"):
     """Plots a given StatCast parameter split by bb_type
 
     Args:
         df (pd.DataFrame): StatCast pd.DataFrame (retrieved through statcast, statcast_batter, etc)
         parameter (Optional[str], optional): Parameter to plot. Defaults to "launch_angle".
-    Returns:
-        plt.figure: Matplotlib figure of the parameter split by bb_type 
-                    (no labels, legends, etc. to allow for user customization)
     """
 
     bb_types = df["bb_type"].dropna().unique()
