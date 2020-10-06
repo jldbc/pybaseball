@@ -1,2 +1,3 @@
 include *.rst *.txt LICENSE
-include pybaseball/mlbstadiums.csv
+include pybaseball/data/fangraphs_teams.csv
+include pybaseball/data/mlbstadiums.csv

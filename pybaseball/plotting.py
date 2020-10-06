@@ -5,7 +5,7 @@ from pathlib import Path
 
 CUR_PATH = Path(__file__).resolve().parent
 STADIUM_COORDS = pd.read_csv(
-    Path(CUR_PATH, 'mlbstadiums.csv'), index_col=0
+    Path(CUR_PATH, 'data', 'mlbstadiums.csv'), index_col=0
 )
 # transform over x axis
 STADIUM_COORDS['y'] *= -1
@@ -50,7 +50,7 @@ def spraychart(data, team_stadium, title='', tooltips=[], size=100,
     tooltips: list of variables in data to include as tooltips
     size: size of marks on plot
     colorby: which category to color the mark with. Events or player name.
-           must be 'events' or 'name'
+           must be 'events' or 'player'
     legend_title: optional title for the legend
     width: width of plot
     height: height of plot
