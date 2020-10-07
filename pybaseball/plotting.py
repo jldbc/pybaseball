@@ -1,11 +1,15 @@
 import altair as alt
 import pandas as pd
 from pathlib import Path
+import matplotlib.pyplot as plt
+import numpy as np
+from typing import Optional, Tuple
+import pandas as pd
 
 
 CUR_PATH = Path(__file__).resolve().parent
 STADIUM_COORDS = pd.read_csv(
-    Path(CUR_PATH, 'mlbstadiums.csv'), index_col=0
+    Path(CUR_PATH, 'data', 'mlbstadiums.csv'), index_col=0
 )
 # transform over x axis
 STADIUM_COORDS['y'] *= -1
@@ -50,7 +54,7 @@ def spraychart(data, team_stadium, title='', tooltips=[], size=100,
     tooltips: list of variables in data to include as tooltips
     size: size of marks on plot
     colorby: which category to color the mark with. Events or player name.
-           must be 'events' or 'name'
+           must be 'events' or 'player'
     legend_title: optional title for the legend
     width: width of plot
     height: height of plot
@@ -101,3 +105,21 @@ def spraychart(data, team_stadium, title='', tooltips=[], size=100,
     del sub_data
 
     return plot
+
+
+def plot_bb_profile(df: pd.DataFrame, parameter: Optional[str] = "launch_angle"):
+    """Plots a given StatCast parameter split by bb_type
+
+    Args:
+        df (pd.DataFrame): StatCast pd.DataFrame (retrieved through statcast, statcast_batter, etc)
+        parameter (Optional[str], optional): Parameter to plot. Defaults to "launch_angle".
+    """
+
+    bb_types = df["bb_type"].dropna().unique()
+    
+    for bb_type in bb_types:
+        df_skimmed = df[df.bb_type == bb_type]
+        bins = np.arange(df_skimmed[parameter].min(), df_skimmed[parameter].max(), 2)
+        plt.hist(df_skimmed[parameter], bins=bins, alpha=0.5, label=bb_type.replace("_"," ").capitalize())
+        plt.tick_params(labelsize=12)
+

@@ -39,6 +39,8 @@ Plot the outline of a specified team's stadium using MLBAM coordinates
 * `white_sox`
 * `yankees`
 
+---
+
 `spraychart(data, team_stadium, title='', tooltips=[], size=100, colorby='events', legend_title='', width=500, height=500)`
 
 ## Arguments
@@ -78,5 +80,32 @@ votto_data = statcast_batter('2019-08-01', '2019-10-01', 458015)
 aquino_data = statcast_batter('2019-08-01', '2019-10-01', 606157)
 data = pd.concat([votto_data, aquino_data])
 home_data = data[data['home_team'] == 'CIN']
+spraychart(home_data, 'reds', title='Joey Votto vs. Aristedes Aquino', colorby='player')
 ```
 ![Multiplayer Spraychart](multiplayer_spraychart.png)
+
+---
+
+`plot_bb_profile(df: pd.DataFrame, parameter: Optional[str] = "launch_angle")`
+
+Plots a given StatCast parameter split by bb type.
+
+## Arguments
+df (pd.DataFrame): StatCast pd.DataFrame (retrieved through statcast, statcast_batter, etc)
+
+parameter (Optional[str], optional): Parameter to plot. Defaults to "launch_angle".
+
+## Example
+
+```
+from pybaseball.plotting import plot_bb_profile
+from pybaseball import statcast
+import matplotlib.pyplot as plt
+
+df = statcast("2018-05-01","2018-05-04")
+plot_bb_profile(df, parameter="launch_angle")
+plt.show()
+```
+
+![](plot_bb_profile_example.png)
+

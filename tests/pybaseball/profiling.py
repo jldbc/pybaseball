@@ -4,12 +4,15 @@ import io
 import os
 import pstats
 import sys
-from typing import Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Optional, Tuple
+import argparse
 
 import numpy as np
 import requests
 
-from pybaseball import batting_stats, pitching_stats, team_batting, team_fielding, team_pitching
+from pybaseball import batting_stats, pitching_stats, team_batting, team_fielding, team_pitching, datahelpers, cache
+
+_ProfileRun = Tuple[Callable, Callable, int]
 
 ITERATIONS = 10
 
@@ -19,7 +22,7 @@ def mock_requests_get(html: str):
             self.content = content.encode('utf-8')
             self.status_code = 200
 
-    def fake_get(url: str, timeout: Optional[int] = None):
+    def fake_get(*args: Any, **kwargs: Any) -> DummyResponse:
         return DummyResponse(html)
 
     requests.get = fake_get # type: ignore
@@ -60,17 +63,17 @@ def profile_team_fielding():
 def profile_team_pitching():
     team_pitching(2019)
 
+def get_profile_suite(iterations: int = ITERATIONS) -> List[_ProfileRun]:
+    return [
+        (requests_get_setup('batting_leaders.html'), profile_batting_stats, iterations),
+        (requests_get_setup('pitching_leaders.html'), profile_pitching_stats, iterations),
+        (requests_get_setup('team_batting.html'), profile_team_batting, iterations),
+        (requests_get_setup('team_fielding.html'), profile_team_fielding, iterations),
+        (requests_get_setup('team_pitching.html'), profile_team_pitching, iterations)
+    ]
 
-profile_suite: List[Tuple[Callable, Callable, int]] = [
-    (requests_get_setup('batting_leaders.html'), profile_batting_stats, ITERATIONS),
-    (requests_get_setup('pitching_leaders.html'), profile_pitching_stats, ITERATIONS),
-    (requests_get_setup('team_batting.html'), profile_team_batting, ITERATIONS),
-    (requests_get_setup('team_fielding.html'), profile_team_fielding, ITERATIONS),
-    (requests_get_setup('team_pitching.html'), profile_team_pitching, ITERATIONS)
-]
 
-
-def profile(suite : List[Tuple[Callable, Callable, int]]):
+def profile(suite : List[_ProfileRun]):
     for setup, func, iterations in suite:
         setup()
         [func() for x in range(iterations)]
@@ -80,8 +83,20 @@ if __name__ == "__main__":
     profiler = cProfile.Profile()
     profiler.enable()
 
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--cache-enabled', action='store_true', default=False)
+    parser.add_argument('--cache-type', default=None)
+    parser.add_argument('--iterations', default=ITERATIONS, type=int)
+    args = parser.parse_args()
+
+    if args.cache_enabled and args.cache_type is not None:
+        cache.flush()
+        cache.config = cache.CacheConfig(enabled=True, cache_type=args.cache_type)
+    else:
+        cache.disable()
+
     # Run
-    profile(profile_suite)
+    profile(get_profile_suite(args.iterations))
 
     # Print stats
     profiler.disable()

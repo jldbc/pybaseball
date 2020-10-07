@@ -6,10 +6,8 @@ from typing import Optional, Tuple
 import pandas as pd
 import requests
 
-<<<<<<< HEAD
 from . import cache
-=======
->>>>>>> 8c26843ce51285db1abe919886dd92d6ec69805c
+
 
 NULLABLE_INT = pd.Int32Dtype()
 DATE_FORMAT = "%Y-%m-%d"

@@ -1,19 +1,26 @@
-import pandas as pd
-import requests
 import io
 import os
+
+import pandas as pd
+import requests
+
+from . import cache
 
 # dropped key_uuid. looks like a has we wouldn't need for anything.
 # TODO: allow for typos. String similarity?
 
 url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
-register_file = 'chadwick-register.csv'
 
+def get_register_file():
+    return os.path.join(cache.config.cache_directory, 'chadwick-register.csv')
+
+
+@cache.df_cache()
 def chadwick_register(save: bool = False) -> pd.DataFrame:
     ''' Get the Chadwick register Database '''
 
-    if os.path.exists(register_file):
-        table = pd.read_csv(register_file)
+    if os.path.exists(get_register_file()):
+        table = pd.read_csv(get_register_file())
         return table
 
     print('Gathering player lookup table. This may take a moment.')
@@ -33,8 +40,8 @@ def chadwick_register(save: bool = False) -> pd.DataFrame:
     table = table[cols_to_keep]
 
     if save:
-        table.to_csv(register_file, index=False)
-    
+        table.to_csv(get_register_file(), index=False)
+
     return table
 
 
