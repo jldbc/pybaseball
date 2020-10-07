@@ -136,7 +136,7 @@ def get_text_file(url):
 
     return s
 
-def flag_imputed_data(statcast_df):
+def flag_imputed_data(statcast_df: pd.DataFrame) -> pd.DataFrame:
     """Function to flag possibly imputed data as a result of no-nulls approach (see: https://tht.fangraphs.com/43416-2/)
        For derivation of values see pybaseball/EXAMPLES/imputed_derivation.ipynb
        Note that this imputation only occured with TrackMan, not present in Hawk-Eye data (beyond 2020)
