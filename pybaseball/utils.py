@@ -6,6 +6,10 @@ from typing import Optional, Tuple
 import pandas as pd
 import requests
 
+<<<<<<< HEAD
+from . import cache
+=======
+>>>>>>> 8c26843ce51285db1abe919886dd92d6ec69805c
 
 NULLABLE_INT = pd.Int32Dtype()
 DATE_FORMAT = "%Y-%m-%d"
@@ -88,7 +92,7 @@ def sanitize_input(start_dt, end_dt, player_id):
     start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
     return str(start_dt_date), str(end_dt_date), player_id
 
-
+@cache.df_cache()
 def split_request(start_dt: str, end_dt: str, player_id: int, url: str) -> pd.DataFrame:
     """
     Splits Statcast queries to avoid request timeouts
@@ -123,6 +127,7 @@ def get_zip_file(url):
         z = zipfile.ZipFile(io.BytesIO(f.content))
     return z
 
+
 def get_text_file(url):
     """
     Get raw github file from provided URL
@@ -135,6 +140,7 @@ def get_text_file(url):
 
 def flag_imputed_data(statcast_df):
     """Function to flag possibly imputed data as a result of no-nulls approach (see: https://tht.fangraphs.com/43416-2/)
+       For derivation of values see pybaseball/EXAMPLES/imputed_derivation.ipynb
        Note that this imputation only occured with TrackMan, not present in Hawk-Eye data (beyond 2020)
     Args:
         statcast_df (pd.DataFrame): Dataframe loaded via statcast.py, statcast_batter.py, or statcast_pitcher.py
@@ -146,39 +152,19 @@ def flag_imputed_data(statcast_df):
     impute_combinations = []
 
     # pop-ups
-    impute_combinations.append(ParameterSet(ev=80, angle=69, bb_type="popup"))
-    impute_combinations.append(ParameterSet(ev=37, angle=62, bb_type="popup"))
-    impute_combinations.append(ParameterSet(ev=86, angle=67, bb_type="popup"))
+    impute_combinations.append(ParameterSet(ev=80.0, angle=69.0, bb_type="popup"))
 
     # Flyout
-    impute_combinations.append(ParameterSet(ev=71.4, angle=36.0, bb_type="fly_ball"))
-    impute_combinations.append(ParameterSet(ev=89, angle=39, bb_type="fly_ball"))
-    impute_combinations.append(ParameterSet(ev=89.2, angle=39.3, bb_type="fly_ball"))
-    impute_combinations.append(ParameterSet(ev=97, angle=30.2, bb_type="fly_ball"))
+    impute_combinations.append(ParameterSet(ev=89.2, angle=39.0, bb_type="fly_ball"))
+    impute_combinations.append(ParameterSet(ev=102.8, angle=30.0, bb_type="fly_ball"))
 
     # Line Drive
-    impute_combinations.append(ParameterSet(ev=90, angle=15, bb_type="line_drive"))
-    impute_combinations.append(ParameterSet(ev=90.4, angle=14.6, bb_type="line_drive"))
-    impute_combinations.append(ParameterSet(ev=91, angle=18, bb_type="line_drive"))
-    impute_combinations.append(ParameterSet(ev=91.1, angle=18.2, bb_type="line_drive"))
-    impute_combinations.append(ParameterSet(ev=98.8, angle=17.1, bb_type="line_drive"))
+    impute_combinations.append(ParameterSet(ev=90.4, angle=15.0, bb_type="line_drive"))
+    impute_combinations.append(ParameterSet(ev=91.1, angle=18.0, bb_type="line_drive"))
 
     # Ground balls
-    impute_combinations.append(ParameterSet(ev=40, angle=-36, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=40, angle=-36, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=40, angle=-36, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=40, angle=-36, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=41, angle=-39, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=43, angle=-62, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=84, angle=-20, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=83, angle=-21, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=82.9, angle=-20.7, bb_type="ground_ball"))
     impute_combinations.append(ParameterSet(ev=82.9, angle=-21.0, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=90, angle=-17, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=90.2, angle=-13.0, bb_type="ground_ball"))
     impute_combinations.append(ParameterSet(ev=90.3, angle=-17.0, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=90.3, angle=-17.3, bb_type="ground_ball"))
-    impute_combinations.append(ParameterSet(ev=84.0, angle=-13.0, bb_type="ground_ball"))
 
 
     df_imputations = pd.DataFrame(data=impute_combinations)
