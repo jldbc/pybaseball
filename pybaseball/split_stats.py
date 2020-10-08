@@ -157,8 +157,14 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
         level_data = level_data.dropna(axis=1, how='all')
         level_data = level_data.loc[playerid]
         # data = pd.concat([data, level_data])
-    if player_info == False:
-        return data, level_data if 'level_data' in locals() else None
+    if player_info is False:
+        if pitching_splits is True:
+            return data, level_data
+        else: 
+            return data
     else:
         player_info_data = get_player_info(playerid=playerid, soup=soup)
-        return data, player_info_data, level_data if 'level_data' in locals() else None
+        if pitching_splits is True:
+            return data, player_info_data, level_data
+        else:
+            return data, player_info_data
