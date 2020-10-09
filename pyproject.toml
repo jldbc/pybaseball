@@ -1,0 +1,8 @@
+[tool.pylint.pep8]
+'max-line-length' = 120
+
+[tool.pylint.'MESSAGES CONTROL']
+disable = [
+    "logging-fstring-interpolation",
+    "missing-module-docstring"
+]

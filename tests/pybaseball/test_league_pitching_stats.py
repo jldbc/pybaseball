@@ -16,11 +16,6 @@ def test_pitching_stats_range_start_dt_lt_2008() -> None:
         league_pitching_stats.pitching_stats_range('2007-01-01', '2019-01-01')
 
 
-def test_pitching_stats_bref_future() -> None:
-    with pytest.raises(IndexError):
-        league_pitching_stats.pitching_stats_bref(datetime.today().year + 1)
-
-
 def test_pitching_stats_bref_bad_year() -> None:
     with pytest.raises(ValueError):
         league_pitching_stats.pitching_stats_bref('NOT A YEAR')
