@@ -1,12 +1,13 @@
 import io
 import zipfile
+from collections import namedtuple
 from datetime import date, datetime, timedelta
 from typing import Optional, Tuple
-
 import pandas as pd
 import requests
 
 from . import cache
+
 
 NULLABLE_INT = pd.Int32Dtype()
 DATE_FORMAT = "%Y-%m-%d"
@@ -134,3 +135,43 @@ def get_text_file(url):
         s = f.text
 
     return s
+
+def flag_imputed_data(statcast_df: pd.DataFrame) -> pd.DataFrame:
+    """Function to flag possibly imputed data as a result of no-nulls approach (see: https://tht.fangraphs.com/43416-2/)
+       For derivation of values see pybaseball/EXAMPLES/imputed_derivation.ipynb
+       Note that this imputation only occured with TrackMan, not present in Hawk-Eye data (beyond 2020)
+    Args:
+        statcast_df (pd.DataFrame): Dataframe loaded via statcast.py, statcast_batter.py, or statcast_pitcher.py
+    Returns:
+        pd.DataFrame: Copy of original dataframe with "possible_imputation" flag
+    """
+
+    ParameterSet = namedtuple('ParameterSet', ["ev", "angle", "bb_type"])
+    impute_combinations = []
+
+    # pop-ups
+    impute_combinations.append(ParameterSet(ev=80.0, angle=69.0, bb_type="popup"))
+
+    # Flyout
+    impute_combinations.append(ParameterSet(ev=89.2, angle=39.0, bb_type="fly_ball"))
+    impute_combinations.append(ParameterSet(ev=102.8, angle=30.0, bb_type="fly_ball"))
+
+    # Line Drive
+    impute_combinations.append(ParameterSet(ev=90.4, angle=15.0, bb_type="line_drive"))
+    impute_combinations.append(ParameterSet(ev=91.1, angle=18.0, bb_type="line_drive"))
+
+    # Ground balls
+    impute_combinations.append(ParameterSet(ev=82.9, angle=-21.0, bb_type="ground_ball"))
+    impute_combinations.append(ParameterSet(ev=90.3, angle=-17.0, bb_type="ground_ball"))
+
+
+    df_imputations = pd.DataFrame(data=impute_combinations)
+    df_imputations["possible_imputation"] = True
+    df_return = statcast_df.merge(df_imputations, how="left",
+                                  left_on=["launch_speed", "launch_angle", "bb_type"],
+                                  right_on=["ev", "angle", "bb_type"])
+    # Change NaNs to false for boolean consistency
+    df_return["possible_imputation"] = df_return["possible_imputation"].fillna(False)
+    df_return = df_return.drop(["ev", "angle"], axis=1)
+    return df_return
+
