@@ -16,6 +16,7 @@ def _sample_html(get_data_file_contents: Callable) -> str:
 def _sample_processed_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('team_batting.csv')
 
+
 def test_team_batting(response_get_monkeypatch: Callable, sample_html: str, sample_processed_result: pd.DataFrame):
     season = 2019
 
@@ -23,4 +24,4 @@ def test_team_batting(response_get_monkeypatch: Callable, sample_html: str, samp
 
     team_batting_result = team_batting(season).reset_index(drop=True)
 
-    pd.testing.assert_frame_equal(team_batting_result, sample_processed_result)
+    pd.testing.assert_frame_equal(team_batting_result, sample_processed_result, check_dtype=False)

@@ -139,7 +139,7 @@ def get_data_file_dataframe(data_dir: str) -> GetDataFrameCallable:
             ARGUMENTS:
             filename    : str : the name of the file within the tests data directory to load into a DataFrame
         """
-        return pd.read_csv(os.path.join(data_dir, filename), index_col=0, parse_dates=parse_dates).reset_index(drop=True)
+        return pd.read_csv(os.path.join(data_dir, filename), index_col=0, parse_dates=parse_dates).reset_index(drop=True).convert_dtypes(convert_string=False)
 
     return get_dataframe
 

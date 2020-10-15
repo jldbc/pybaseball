@@ -33,7 +33,7 @@ def test_amateur_draft(response_get_monkeypatch: Callable, sample_html: str,
     assert result is not None
     assert not result.empty
 
-    pd.testing.assert_frame_equal(result, sample_processed_result)
+    pd.testing.assert_frame_equal(result, sample_processed_result, check_dtype=False)
 
 
 def test_amateur_draft_no_stats(response_get_monkeypatch: Callable, sample_html: str,
@@ -46,4 +46,4 @@ def test_amateur_draft_no_stats(response_get_monkeypatch: Callable, sample_html:
     assert result is not None
     assert not result.empty
 
-    pd.testing.assert_frame_equal(result, sample_processed_result_no_stats)
+    pd.testing.assert_frame_equal(result, sample_processed_result_no_stats, check_dtype=False)

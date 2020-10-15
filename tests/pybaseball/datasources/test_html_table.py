@@ -76,7 +76,7 @@ class TestHTMLTableProcessor:
             known_percentages=['Percentage']
         ).reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(sample_processed_result, actual_result)
+        pd.testing.assert_frame_equal(sample_processed_result, actual_result, check_dtype=False)
 
     def test_get_table_element(self, html_table_processor: HTMLTableProcessor, sample_html: str,
                                sample_processed_result: pd.DataFrame) -> None:
@@ -87,7 +87,7 @@ class TestHTMLTableProcessor:
             known_percentages=['Percentage']
         ).reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(sample_processed_result, actual_result)
+        pd.testing.assert_frame_equal(sample_processed_result, actual_result, check_dtype=False)
 
     def test_get_table_url(self, html_table_processor: HTMLTableProcessor, sample_html: str, sample_processed_result: pd.DataFrame,
                            response_get_monkeypatch: Callable) -> None:
@@ -98,7 +98,7 @@ class TestHTMLTableProcessor:
             known_percentages=['Percentage']
         ).reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(sample_processed_result, actual_result)
+        pd.testing.assert_frame_equal(sample_processed_result, actual_result, check_dtype=False)
 
     def test_get_table_options(self, html_table_processor: HTMLTableProcessor, sample_html: str, sample_processed_result: pd.DataFrame,
                            response_get_monkeypatch: Callable) -> None:
@@ -110,4 +110,4 @@ class TestHTMLTableProcessor:
             known_percentages=['Percentage']
         ).reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(sample_processed_result, actual_result)
+        pd.testing.assert_frame_equal(sample_processed_result, actual_result, check_dtype=False)
