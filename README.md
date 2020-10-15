@@ -1,5 +1,9 @@
 # pybaseball
 
+**2.1.1 Hotfix: October 15, 2020**
+
+-  Fix statcast perf regression
+
 **2.1.0 Release: October 14, 2020**
 
 ## Release Notes
