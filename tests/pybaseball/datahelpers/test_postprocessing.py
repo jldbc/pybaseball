@@ -57,20 +57,20 @@ class TestPostProcessing:
     def test_try_parse_dataframe(self):
         raw_data = pd.DataFrame(
             [
-                ['1', 'TBR', '2019-01-01', '0.5', '40%', 8],
-                ['2', 'NYY', '2019-02-01', '0.6', '20%', 'null']
+                ['1', 'TBR', '2019-01-01', '0.5', '40%', 8, '1048576'],
+                ['2', 'NYY', '2019-02-01', '0.6', '20%', 'null', '4294967296']
             ],
-            columns=['id', 'team', 'dt', 'rate', 'chance', 'wins']
+            columns=['id', 'team', 'dt', 'rate', 'chance', 'wins', 'long_number']
         )
 
         processed_data = postprocessing.try_parse_dataframe(raw_data)
 
         expected_data = pd.DataFrame(
             [
-                [1, 'TBR', np.datetime64('2019-01-01'), 0.5, 0.4, 8],
-                [2, 'NYY', np.datetime64('2019-02-01'), 0.6, 0.2, np.nan]
+                [1, 'TBR', np.datetime64('2019-01-01'), 0.5, 0.4, 8,      1048576   ],
+                [2, 'NYY', np.datetime64('2019-02-01'), 0.6, 0.2, np.nan, 4294967296],
             ],
-            columns=['id', 'team', 'dt', 'rate', 'chance', 'wins']
+            columns=['id', 'team', 'dt', 'rate', 'chance', 'wins', 'long_number']
         ).convert_dtypes(convert_string=False)
 
         pd.testing.assert_frame_equal(processed_data, expected_data, check_dtype=False)
