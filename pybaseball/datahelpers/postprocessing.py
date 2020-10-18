@@ -41,9 +41,7 @@ def try_parse_dataframe(
         first_value = data_copy[column].loc[first_value_index]
 
         if str(first_value).endswith('%') or column.endswith('%') or column in known_percentages:
-            column_pos = data_copy.columns.get_loc(column)
-            for row in range(rows):
-                data_copy.iat[row, column_pos] = try_parse_percentage(data_copy.iat[row, column_pos])
+            data_copy[column] = data_copy[column].astype(str).str.replace("%", "").astype(float) / 100.0
         else:
             # Doing it this way as just applying pd.to_datetime on
             #the whole dataframe just tries to gobble up ints/floats as timestamps
@@ -53,7 +51,7 @@ def try_parse_dataframe(
                     data_copy[column] = data_copy[column].convert_dtypes(convert_string=False)
                     break
 
-    return data_copy.convert_dtypes(convert_string=False)
+    return data_copy
 
 
 def try_parse(
