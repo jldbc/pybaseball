@@ -16,15 +16,12 @@ def main():
     _ = statcast(START_DATE, END_DATE)
     end_time = time.time()
     query_time = end_time-start_time
+    diagnostic_messages = f"query took {query_time: .1f} seconds which is", f"threshold of {time_threshold: .1f}\n"
     if query_time > time_threshold:
-        sys.stderr.write("query took {:.2f} seconds "
-                         "which is greater than threshold of {:.2f}".format(query_time, time_threshold)
-                         )
+        sys.stderr.write("{0} greater than {1}".format(*diagnostic_messages))
         sys.exit(1)
     else:
-        sys.stdout.write("query took {:.2f} seconds "
-                         "which is less than threshold of {:.2f}".format(query_time, time_threshold)
-                         )
+        sys.stdout.write("{0} less than {1}".format(*diagnostic_messages))
 
 if __name__=='__main__':
     main()
