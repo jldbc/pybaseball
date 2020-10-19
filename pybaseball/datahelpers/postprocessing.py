@@ -21,13 +21,16 @@ date_formats = [
 
 def try_parse_dataframe(
     data: pd.DataFrame,
+    parse_numerics: bool = True,
     null_replacement: Union[str, int, float, datetime] = np.nan,
     known_percentages: List[str] = []
 ) -> pd.DataFrame:
     data_copy = data.copy()
-    data_copy = coalesce_nulls(data_copy, null_replacement)
-    data_copy = data_copy.apply(pd.to_numeric, errors='ignore', downcast='signed').convert_dtypes(convert_string=False)
 
+    if parse_numerics:
+        data_copy = coalesce_nulls(data_copy, null_replacement)
+        data_copy = data_copy.apply(pd.to_numeric, errors='ignore', downcast='signed').convert_dtypes(convert_string=False)
+    
     string_columns = [dtype_tuple[0] for dtype_tuple in data_copy.dtypes.items() if str(dtype_tuple[1]) in ["object", "string"]]
     for column in string_columns:
         # Only check the first value of the column and test that;
