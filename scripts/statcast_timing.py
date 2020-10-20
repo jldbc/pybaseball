@@ -23,7 +23,7 @@ def main():
     end_time = time.time()
     query_time = end_time-start_time
     threshold_exceeded = query_time > args.time_threshold
-    print(f"query took {query_time: .1f} (expected less than {args.time_threshold: .1f})")
+    print(f"query took {query_time: .1f} seconds (expected less than {args.time_threshold: .1f})")
     sys.exit(int(threshold_exceeded))
 
 if __name__=='__main__':
