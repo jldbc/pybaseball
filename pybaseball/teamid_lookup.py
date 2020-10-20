@@ -1,4 +1,3 @@
-
 import logging
 import os
 from datetime import date
@@ -8,17 +7,16 @@ import pandas as pd
 
 from . import lahman
 from .datasources import fangraphs
-from .datahelpers import postprocessing
 
 _DATA_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'fangraphs_teams.csv')
 
 
-def fangraphs_teams(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
+def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
     if not os.path.exists(_DATA_FILENAME):
-        _generate_fangraphs_teams()
+        _generate_teams()
 
     fg_team_data = pd.read_csv(_DATA_FILENAME, index_col=0)
-    
+
     if season is not None:
         fg_team_data = fg_team_data.query(f"yearID == {season}")
 
@@ -48,7 +46,7 @@ def _estimate_name(team_row: pd.DataFrame, column: str) -> str:
     return estimate
 
 
-def _generate_fangraphs_teams() -> pd.DataFrame:
+def _generate_teams() -> pd.DataFrame:
     """
     Creates a datafile with a map of Fangraphs team IDs to lahman data to be used by fangraphss_teams
 
@@ -97,7 +95,7 @@ def _generate_fangraphs_teams() -> pd.DataFrame:
                                 right_on=['Season', 'teamIDfg'], suffixes=['', '_y'])
 
     unjoined_teams_franchises = outer_joined.query('Season_y.isnull()').drop(team_data.columns, axis=1,
-                                                   errors='ignore')
+                                                                             errors='ignore')
 
     if not unjoined_teams_franchises.empty:
         logging.warning('When trying to join FG data to lahman, found the following extraneous lahman data',
@@ -109,14 +107,17 @@ def _generate_fangraphs_teams() -> pd.DataFrame:
         logging.warning('When trying to join Fangraphs data to lahman, found the following extraneous Fangraphs data',
                         extra=unjoined_team_data)
 
-    joined = joined[['yearID', 'teamIDfg', 'lgID', 'teamID', 'franchID']]
+    joined = joined[['yearID', 'lgID', 'teamID', 'franchID', 'teamIDfg', 'teamIDBR', 'teamIDretro']]
 
-    joined = joined.assign(teamIDfg=joined['teamIDfg'].apply(lambda value: int(value)))
-    joined = joined.assign(yearID=joined['yearID'].apply(lambda value: int(value)))
+    joined = joined.assign(teamIDfg=joined['teamIDfg'].apply(int))
+    joined = joined.assign(yearID=joined['yearID'].apply(int))
 
-    joined = joined.sort_values(['yearID', 'teamIDfg']).drop_duplicates()
+    joined = joined.sort_values(['yearID', 'lgID', 'teamID', 'franchID']).drop_duplicates()
     joined = joined.reset_index(drop=True)
 
     joined.to_csv(_DATA_FILENAME)
 
     return joined
+
+# For backwards API compatibility
+fangraphs_teams = team_ids
