@@ -5,9 +5,9 @@ import pandas as pd
 import requests
 
 from . import cache
+from .analysis.string_similarity import levenshtein
 
 # dropped key_uuid. looks like a has we wouldn't need for anything.
-# TODO: allow for typos. String similarity?
 
 url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
 
@@ -52,7 +52,22 @@ def get_lookup_table(save=False):
     table['name_first'] = table['name_first'].str.lower()
     return table
 
+def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
+    """Calculates similarity of first and last name provided with all players in player_table
 
+    Args:
+        last (str): Provided last name
+        first (str): Provided first name
+        player_table (pd.DataFrame): Chadwich player table including names
+
+    Returns:
+        pd.DataFrame: player table with levenshtein distance added
+    """
+    player_table["lastname_dist"] = player_table.dropna().apply(lambda row : levenshtein(row["name_last"], last),axis=1)
+    player_table["firstname_dist"] = player_table.dropna().apply(lambda row : levenshtein(row["name_first"],first),axis=1)
+    player_table["total_dist"] = player_table["lastname_dist"] + player_table["firstname_dist"]    
+    return player_table
+    
 def playerid_lookup(last=None, first=None, player_list=None):
     # force input strings to lowercase
     if last:
@@ -83,6 +98,24 @@ def playerid_lookup(last=None, first=None, player_list=None):
         results = table.loc[(table['name_last'] == last) & (table['name_first'] == first)]
 
     results = results.reset_index(drop=True)
+
+    if len(results) == 0:
+        similarity_df = name_similarity(last=last, first=first, player_table=table)
+        minimum_distance = similarity_df[similarity_df["total_dist"] == similarity_df["total_dist"].min()]
+
+        # If there's only one similar name, return that
+        if len(minimum_distance) == 1:
+            suggested_first = minimum_distance["name_first"].iloc[0].capitalize()
+            suggested_last = minimum_distance["name_last"].iloc[0].capitalize()
+            raise ValueError(f"Player not found! Did you mean {suggested_first} {suggested_last}?")
+        # If 2, we can say both
+        elif len(minimum_distance) == 2:
+            suggested_first = (minimum_distance["name_first"].iloc[0].capitalize(), minimum_distance["name_first"].iloc[1].capitalize())
+            suggested_last = (minimum_distance["name_last"].iloc[0].capitalize(), minimum_distance["name_last"].iloc[1].capitalize())
+            raise ValueError(f"Player not found! Perhaps you meant {suggested_first[0]} {suggested_last[0]} or {suggested_first[1]} {suggested_last[1]}?")
+        # Don't return names if more than 2 suugestions
+        else:
+            raise ValueError("Player not found! Please try again with a valid player name")
 
     return results
 
