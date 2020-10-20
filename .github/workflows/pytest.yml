@@ -24,7 +24,7 @@ jobs:
       - name: Run tests
         run: pytest tests --doctest-modules --cov=pybaseball --cov-report term-missing
       - name: Timing test
-        logout-minutes: 2
+        timeout-minutes: 2
         run: python -m scripts.statcast_timing
       - name: Run MyPy
         run: mypy .
