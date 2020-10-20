@@ -1,5 +1,4 @@
 import numpy as np
-import numpy
 
 def levenshtein(seq1: str, seq2: str) -> np.int64:
     """Gets the Levenshtein distance between 2 strings
