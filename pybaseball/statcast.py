@@ -14,6 +14,7 @@ _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={g
 _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&team={team}&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&"
 _MAX_SC_RESULTS = 40000
 
+
 @cache.df_cache(expires=365)
 def small_request(start_dt: date, end_dt: date, team: Optional[str] = None, verbose: bool = False) -> pd.DataFrame:
     data = statcast_ds.get_statcast_data_from_csv_url(
@@ -26,18 +27,21 @@ def small_request(start_dt: date, end_dt: date, team: Optional[str] = None, verb
         )
         if verbose:
             print(f"Completed sub-query from {start_dt} to {end_dt} ({len(data)} results)")
-        
 
     return data
 
+
+_OVERSIZE_WARNING = '''
+That's a nice request you got there. It'd be a shame if something were to happen to it.
+We strongly recommend that you enable caching before running this. It's as simple as `pybaseball.cache.enable()`.
+Since the Statcast requests can take a *really* long time to run, if something were to happen, like: a disconnect;
+gremlins; computer repair by associates of Rudy Giuliani, electromagnetic interference from metal trash cans; etc.;
+you could lose a lot of progress. Enabling caching will allow you to immediately recover all the successful
+subqueries if that happens.'''
+
 def check_warning(start_dt: date, end_dt: date) -> None:
     if not cache.config.enabled and (end_dt - start_dt).days >= 42:
-        warnings.warn(
-            '''That's a nice request you got there. It'd be a shame if something were to happen to it.
-            We strongly recommend that you enable caching before running this. It's as simple as `pybaseball.cache.enable()`.
-            Since the Statcast requests can take a really long time to run, if something happens, like a disconnect,
-            gremlins, electronic interference from banging on metal trash cans, etc., you could lose a lot of progress. Enabling
-            caching will allow you to immediately recover all the successful subqueries in such an event.''')
+        warnings.warn(_OVERSIZE_WARNING)
 
 
 def large_request(start_dt: date, end_dt: date, step: int, verbose: bool,
