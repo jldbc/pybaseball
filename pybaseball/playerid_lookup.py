@@ -70,7 +70,19 @@ def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.Dat
     matched_names = matched_names.rename(columns={0:"name_first", 1:"name_last"})
     return matched_names
     
-def playerid_lookup(last=None, first=None, player_list=None, search=False):
+def playerid_lookup(last: str = None, first: str = None, player_list: list = None, search: bool = False) -> pd.DataFrame:
+    """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
+
+    Args:
+        last (str, optional): Player's last name. Defaults to None.
+        first (str, optional): Player's first name. Defaults to None.
+        player_list (list, optional): List of players to seach for (comma delimited). Defaults to None.
+        search (bool, optional): In case of typos, returns players with names close to input. Defaults to False.
+
+    Returns:
+        pd.DataFrame: DataFrame of playerIDs, name, years played
+    """
+
     # force input strings to lowercase
     if last:
         last = last.lower()
