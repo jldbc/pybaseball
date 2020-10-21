@@ -5,7 +5,8 @@ import pandas as pd
 import requests
 
 from . import cache
-from .analysis.string_similarity import levenshtein
+from fuzzywuzzy import process
+import pdb
 
 # dropped key_uuid. looks like a has we wouldn't need for anything.
 
@@ -58,17 +59,19 @@ def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.Dat
     Args:
         last (str): Provided last name
         first (str): Provided first name
-        player_table (pd.DataFrame): Chadwich player table including names
+        player_table (pd.DataFrame): Chadwick player table including names
 
     Returns:
-        pd.DataFrame: player table with levenshtein distance added
+        pd.DataFrame: 5 nearest matches from fuzzywuzzy.process
     """
-    player_table["lastname_dist"] = player_table.dropna().apply(lambda row : levenshtein(row["name_last"], last),axis=1)
-    player_table["firstname_dist"] = player_table.dropna().apply(lambda row : levenshtein(row["name_first"],first),axis=1)
-    player_table["total_dist"] = player_table["lastname_dist"] + player_table["firstname_dist"]    
-    return player_table
+    filled_df = player_table.fillna("")
+    chadwick_names = filled_df["name_first"] + " " + filled_df["name_last"]
+    fuzzy_matches = pd.DataFrame(process.extract(f"{first} {last}", chadwick_names, limit=5))
+    matched_names = fuzzy_matches[0].str.split(expand=True)
+    matched_names = matched_names.rename(columns={0:"name_first", 1:"name_last"})
+    return matched_names
     
-def playerid_lookup(last=None, first=None, player_list=None):
+def playerid_lookup(last=None, first=None, player_list=None, search=False):
     # force input strings to lowercase
     if last:
         last = last.lower()
@@ -99,23 +102,11 @@ def playerid_lookup(last=None, first=None, player_list=None):
 
     results = results.reset_index(drop=True)
 
-    if len(results) == 0:
-        similarity_df = name_similarity(last=last, first=first, player_table=table)
-        minimum_distance = similarity_df[similarity_df["total_dist"] == similarity_df["total_dist"].min()]
-
-        # If there's only one similar name, return that
-        if len(minimum_distance) == 1:
-            suggested_first = minimum_distance["name_first"].iloc[0].capitalize()
-            suggested_last = minimum_distance["name_last"].iloc[0].capitalize()
-            raise ValueError(f"Player not found! Did you mean {suggested_first} {suggested_last}?")
-        # If 2, we can say both
-        elif len(minimum_distance) == 2:
-            suggested_first = (minimum_distance["name_first"].iloc[0].capitalize(), minimum_distance["name_first"].iloc[1].capitalize())
-            suggested_last = (minimum_distance["name_last"].iloc[0].capitalize(), minimum_distance["name_last"].iloc[1].capitalize())
-            raise ValueError(f"Player not found! Perhaps you meant {suggested_first[0]} {suggested_last[0]} or {suggested_first[1]} {suggested_last[1]}?")
-        # Don't return names if more than 2 suugestions
-        else:
-            raise ValueError("Player not found! Please try again with a valid player name")
+    # If no matches, return 5 closest names
+    if len(results) == 0 and search:
+        print("No identically matched names found! Returning the 5 most similar names.")
+        similar_names_df = name_similarity(last=last, first=first, player_table=table)
+        results = similar_names_df.merge(table, left_on=["name_last", "name_first"], right_on=["name_last","name_first"], how="left")
 
     return results
 
