@@ -35,7 +35,7 @@ _OVERSIZE_WARNING = '''
 That's a nice request you got there. It'd be a shame if something were to happen to it.
 We strongly recommend that you enable caching before running this. It's as simple as `pybaseball.cache.enable()`.
 Since the Statcast requests can take a *really* long time to run, if something were to happen, like: a disconnect;
-gremlins; computer repair by associates of Rudy Giuliani, electromagnetic interference from metal trash cans; etc.;
+gremlins; computer repair by associates of Rudy Giuliani; electromagnetic interference from metal trash cans; etc.;
 you could lose a lot of progress. Enabling caching will allow you to immediately recover all the successful
 subqueries if that happens.'''
 
