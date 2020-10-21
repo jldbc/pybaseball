@@ -2,7 +2,7 @@ import io
 import zipfile
 from collections import namedtuple
 from datetime import date, datetime, timedelta
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Iterator
 import pandas as pd
 import requests
 
@@ -47,6 +47,32 @@ def validate_datestring(date_text: Optional[str]) -> date:
         return datetime.strptime(date_text, DATE_FORMAT).date()
     except (AssertionError, ValueError):
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+
+def date_range(start: date, stop: date, step: int, verbose: bool = True) -> Iterator[Tuple[date, date]]:
+    '''
+    Iterate over dates. Skip the offseason dates. Returns a pair of dates for beginning and end of each segment.
+    Range is inclusive of the stop date.
+    If verbose is enabled, it will print a message if it skips offseason dates.
+    '''
+
+    low = start
+
+    while low <= stop:
+        if (low.month, low.day) <= (3, 15):
+            low = low.replace(month=3, day=15)
+            if verbose:
+                print('Skipping offseason dates')
+        elif (low.month, low.day) >= (11, 15):
+            low = low.replace(month=3, day=15, year=low.year + 1)
+            if verbose:
+                print('Skipping offseason dates')
+
+        if low > stop:
+            return
+        hi = min(low + timedelta(step - 1), stop)
+        yield low, hi
+        low += timedelta(days=step)
+
 
 def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[date, date]:
     # If no dates are supplied, assume they want yesterday's data
