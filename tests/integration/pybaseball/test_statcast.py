@@ -20,17 +20,6 @@ def test_small_request() -> None:
     assert len(result) == 4556
 
 
-def test_small_request_auto_chunking() -> None:
-    start_dt, end_dt = sanitize_date_range('2019-06-01', '2019-06-15')
-    result = small_request(start_dt, end_dt)
-
-    assert result is not None
-    assert not result.empty
-
-    assert len(result.columns) == 89
-    assert len(result) > _MAX_SC_RESULTS
-
-
 def test_statcast() -> None:
     result = statcast('2019-05-01', '2019-05-04')
 
