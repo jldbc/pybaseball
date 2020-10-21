@@ -25,4 +25,4 @@ def test_batting_stats(response_get_monkeypatch: Callable, sample_html: str,
 
     batting_stats_result = batting_stats(season).reset_index(drop=True)
 
-    pd.testing.assert_frame_equal(batting_stats_result, sample_processed_result)
+    pd.testing.assert_frame_equal(batting_stats_result, sample_processed_result, check_dtype=False)

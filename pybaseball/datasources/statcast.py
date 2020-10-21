@@ -35,6 +35,7 @@ def get_statcast_data_from_csv(
     data = pd.read_csv(io.StringIO(csv_content))
     return postprocessing.try_parse_dataframe(
         data,
+        parse_numerics=False,
         null_replacement=null_replacement,
         known_percentages=known_percentages
     )

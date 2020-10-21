@@ -24,4 +24,4 @@ def test_team_pitching(response_get_monkeypatch: Callable, sample_html: str, sam
 
     team_pitching_result = team_pitching(season).reset_index(drop=True)
 
-    pd.testing.assert_frame_equal(team_pitching_result, sample_processed_result)
+    pd.testing.assert_frame_equal(team_pitching_result, sample_processed_result, check_dtype=False)
