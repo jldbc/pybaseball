@@ -23,6 +23,9 @@ jobs:
           pip install -e .[test]
       - name: Run tests
         run: pytest tests --doctest-modules --cov=pybaseball --cov-report term-missing
+      - name: Timing test
+        timeout-minutes: 2
+        run: python -m scripts.statcast_timing
       - name: Run MyPy
         run: mypy .
         continue-on-error: true
