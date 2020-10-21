@@ -6,7 +6,6 @@ import requests
 
 from . import cache
 from fuzzywuzzy import process
-import pdb
 
 # dropped key_uuid. looks like a has we wouldn't need for anything.
 
