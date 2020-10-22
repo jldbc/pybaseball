@@ -5,7 +5,6 @@ import multiprocessing
 import pandas as pd
 from pybaseball.utils import date_range
 from pybaseball import statcast
-from pybaseball import cache as pybaseball_cache
 
 NUM_THREADS = 8
 RESULTS_FILE = "statcast_dates.csv"
@@ -27,7 +26,7 @@ def initialize_file():
 def get_records_count(date_str):
     print("doing", date_str)
     df = statcast(date_str, date_str)
-    return (date_str, len(df))
+    return date_str, len(df)
 
 
 def get_dates(min_year, max_year):
@@ -82,9 +81,12 @@ def analyze_records(records):
         print(ana_df.head(1))
 
     records = records.assign(year=lambda row: pd.to_datetime(row.date).dt.year)
-    result = records.query("num_records > 0").groupby("year").agg({"date": ["min", "max"]})
+    result = (
+        records.query("num_records > 0").groupby("year").agg({"date": ["min", "max"]})
+    )
     result.columns = ["min_valid_date", "max_valid_date"]
     return result
+
 
 def main():
     args = _parse_args()
@@ -95,6 +97,7 @@ def main():
     valid_dates = analyze_records(date_records)
     valid_dates.to_json("statcast_valid_dates.json", orient="index")
     print(valid_dates)
+
 
 if __name__ == "__main__":
     initialize_file()
