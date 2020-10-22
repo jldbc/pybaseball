@@ -5,13 +5,13 @@ from unittest.mock import MagicMock, patch
 import pandas as pd
 
 import pybaseball
-from pybaseball.statcast import _MAX_SC_RESULTS, large_request, small_request, statcast, statcast_single_game
+from pybaseball.statcast import _small_request, _handle_request, statcast, statcast_single_game
 from pybaseball.utils import sanitize_date_range
 
 
 def test_small_request() -> None:
     start_dt, end_dt = sanitize_date_range('2019-06-01', None)
-    result = small_request(start_dt, end_dt)
+    result = _small_request(start_dt, end_dt)
 
     assert result is not None
     assert not result.empty
@@ -52,9 +52,9 @@ def test_statcast_chunking() -> None:
     assert len(result) == len(day_results_dataframe)
 
 
-def test_large_request_pre_season() -> None:
+def test_handle_request_pre_season() -> None:
     start_dt, end_dt = sanitize_date_range('2019-03-01', '2019-03-22')
-    result = large_request(start_dt, end_dt, step=1, verbose=False)
+    result = _handle_request(start_dt, end_dt, step=1, verbose=False)
 
     assert result is not None
     assert not result.empty
@@ -63,9 +63,9 @@ def test_large_request_pre_season() -> None:
     assert len(result) == 689
 
 
-def test_large_request_post_season() -> None:
+def test_handle_request_post_season() -> None:
     start_dt, end_dt = sanitize_date_range('2018-11-14', '2019-03-22')
-    result = large_request(start_dt, end_dt, step=1, verbose=False)
+    result = _handle_request(start_dt, end_dt, step=1, verbose=False)
 
     assert result is not None
     assert not result.empty
@@ -74,9 +74,9 @@ def test_large_request_post_season() -> None:
     assert len(result) == 689
 
 
-def test_large_request_post_season_same_year() -> None:
+def test_handle_request_post_season_same_year() -> None:
     start_dt, end_dt = sanitize_date_range('2018-11-14', '2018-11-30')
-    result = large_request(start_dt, end_dt, step=1, verbose=False)
+    result = _handle_request(start_dt, end_dt, step=1, verbose=False)
 
     assert result is not None
     assert result.empty
