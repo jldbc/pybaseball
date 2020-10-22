@@ -16,7 +16,7 @@ _MAX_SC_RESULTS = 40000
 
 
 @cache.df_cache(expires=365)
-def small_request(start_dt: date, end_dt: date, team: Optional[str] = None, verbose: bool = False) -> pd.DataFrame:
+def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None, verbose: bool = False) -> pd.DataFrame:
     data = statcast_ds.get_statcast_data_from_csv_url(
         _SC_SMALL_REQUEST.format(start_dt=str(start_dt), end_dt=str(end_dt), team=team if team else '')
     )
@@ -39,18 +39,18 @@ gremlins; computer repair by associates of Rudy Giuliani; electromagnetic interf
 you could lose a lot of progress. Enabling caching will allow you to immediately recover all the successful
 subqueries if that happens.'''
 
-def check_warning(start_dt: date, end_dt: date) -> None:
+def _check_warning(start_dt: date, end_dt: date) -> None:
     if not cache.config.enabled and (end_dt - start_dt).days >= 42:
         warnings.warn(_OVERSIZE_WARNING)
 
 
-def large_request(start_dt: date, end_dt: date, step: int, verbose: bool,
+def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
                   team: Optional[str] = None) -> pd.DataFrame:
     """
     Fulfill the request in sensible increments.
     """
 
-    check_warning(start_dt, end_dt)
+    _check_warning(start_dt, end_dt)
 
     dataframe_list = []
 
@@ -58,7 +58,7 @@ def large_request(start_dt: date, end_dt: date, step: int, verbose: bool,
         print("This is a large query, it may take a moment to complete")
 
     for subq_start, subq_end in date_range(start_dt, end_dt, step, verbose):
-        data = small_request(subq_start, subq_end, team=team, verbose=verbose)
+        data = _small_request(subq_start, subq_end, team=team, verbose=verbose)
 
         # Append to list of dataframes if not empty or failed
         # (failed requests have one row saying "Error: Query Timeout")
@@ -95,7 +95,7 @@ def statcast(start_dt: str = None, end_dt: str = None, team: str = None, verbose
     # 7 seems to be the largest number of days that will guarantee no dropped rows.
     small_query_threshold = 7
 
-    return large_request(start_dt_date, end_dt_date, step=small_query_threshold, verbose=verbose, team=team)
+    return _handle_request(start_dt_date, end_dt_date, step=small_query_threshold, verbose=verbose, team=team)
 
 
 def statcast_single_game(game_pk: Union[str, int]) -> pd.DataFrame:
