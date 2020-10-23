@@ -25,7 +25,7 @@ def test_playerid_lookup_phonetic_yastrzemski() -> None:
     yastrzemski_df = playerid_lookup("yastremsky", "mike", search=True)
     assert yastrzemski_df["name_last"][0] == "yastrzemski"
 
-def test_playerid_lookup_phonetic_yastrzemski() -> None:
+def test_playerid_lookup_phonetic_bogarts() -> None:
     """Test phonetically tougher names with reasonable guesses (use-case)"""
     # Xander Bogaerts
     bogaerts_df = playerid_lookup("bogarts", "zander", search=True)
