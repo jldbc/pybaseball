@@ -130,7 +130,7 @@ class player_search_client:
 
         return results
 
-    def reverse_lookup(self, player_ids: List[str], key_type=None) -> pd.DataFrame:
+    def reverse_lookup(self, player_ids: List[str], key_type: str = 'mlbam') -> pd.DataFrame:
         """Retrieve a table of player information given a list of player ids
 
         :param player_ids: list of player ids
@@ -147,13 +147,10 @@ class player_search_client:
             'fangraphs',
         )
 
-        if not key_type:
-            key_type = key_types[0]  # default is "mlbam" if key_type not provided
-        elif key_type not in key_types:
-            raise ValueError('[Key Type: {}] Invalid; Key Type must be one of "{}"'.format(
-                key_type, '", "'.join(key_types)))
+        if key_type not in key_types:
+            raise ValueError(f'[Key Type: {key_type}] Invalid; Key Type must be one of {key_types}')
 
-        key = 'key_{}'.format(key_type)
+        key = f'key_{key_type}'
 
         results = self.table[self.table[key].isin(player_ids)]
         results = results.reset_index(drop=True)
