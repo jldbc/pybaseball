@@ -6,7 +6,7 @@ import pandas as pd
 
 import pybaseball.datasources.statcast as statcast_ds
 
-from .utils import sanitize_date_range, date_range
+from .utils import sanitize_date_range, statcast_date_range
 from . import cache
 
 _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={game_pk}"
@@ -57,7 +57,7 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
     if verbose:
         print("This is a large query, it may take a moment to complete")
 
-    for subq_start, subq_end in date_range(start_dt, end_dt, step, verbose):
+    for subq_start, subq_end in statcast_date_range(start_dt, end_dt, step, verbose):
         data = _small_request(subq_start, subq_end, team=team, verbose=verbose)
 
         # Append to list of dataframes if not empty or failed
