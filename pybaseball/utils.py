@@ -101,14 +101,14 @@ def statcast_date_range(start: date, stop: date, step: int, verbose: bool = True
     low = start
 
     while low <= stop:
-        year_start, year_end = STATCAST_VALID_DATES.get(low.year,
+        season_start, season_end = STATCAST_VALID_DATES.get(low.year,
                                                      (low.replace(month=3, day=15), low.replace(month=11, day=15))
                                                      )
-        if low < year_start:
-            low = year_start
+        if low < season_start:
+            low = season_start
             if verbose:
                 print('Skipping offseason dates')
-        elif low > year_end:
+        elif low > season_end:
             low, _ = STATCAST_VALID_DATES.get(low.year+1, (date(month=3, day=15, year=low.year + 1), None))
             if verbose:
                 print('Skipping offseason dates')
