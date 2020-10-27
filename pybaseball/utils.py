@@ -40,6 +40,22 @@ first_season_map = {'ALT': 1884, 'ANA': 1997, 'ARI': 1998, 'ATH': 1871,
                     'WIL': 1884, 'WOR': 1880, 'WSA': 1961, 'WSH': 1901,
                     'WSN': 2005}
 
+STATCAST_VALID_DATES = {
+    2008: {'min_valid_date': date(2008, 3,25), 'max_valid_date': date(2008,10,27)},
+    2009: {'min_valid_date': date(2009, 4, 5), 'max_valid_date': date(2009,11, 4)},
+    2010: {'min_valid_date': date(2010, 4, 4), 'max_valid_date': date(2010,11, 1)},
+    2011: {'min_valid_date': date(2011, 3,31), 'max_valid_date': date(2011,10,28)},
+    2012: {'min_valid_date': date(2012, 3,28), 'max_valid_date': date(2012,10,28)},
+    2013: {'min_valid_date': date(2013, 3,31), 'max_valid_date': date(2013,10,30)},
+    2014: {'min_valid_date': date(2014, 3,22), 'max_valid_date': date(2014,10,29)},
+    2015: {'min_valid_date': date(2015, 4, 5), 'max_valid_date': date(2015,11, 1)},
+    2016: {'min_valid_date': date(2016, 4, 3), 'max_valid_date': date(2016,11, 2)},
+    2017: {'min_valid_date': date(2017, 4, 2), 'max_valid_date': date(2017,11, 1)},
+    2018: {'min_valid_date': date(2018, 3,29), 'max_valid_date': date(2018,10,28)},
+    2019: {'min_valid_date': date(2019, 3,20), 'max_valid_date': date(2019,10,30)},
+    2020: {'min_valid_date': date(2020, 7,23), 'max_valid_date': date(2020,10,28)}
+}
+
 
 def validate_datestring(date_text: Optional[str]) -> date:
     try:
