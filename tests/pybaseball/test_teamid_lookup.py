@@ -1,8 +1,8 @@
-from pybaseball.teamid_lookup import fangraphs_teams
+from pybaseball.teamid_lookup import team_ids
 
 
 def test_team_id_lookup_all() -> None:
-    result = fangraphs_teams()
+    result = team_ids()
 
     assert result is not None
     assert not result.empty
@@ -10,20 +10,22 @@ def test_team_id_lookup_all() -> None:
     # Remove newer results to ensure we get the count right
     result = result.query('yearID <= 2019')
 
-    assert len(result.columns) == 5
+    assert len(result.columns) == 7
     assert len(result) == 2943
 
+
 def test_team_id_lookup_season() -> None:
-    result = fangraphs_teams(2019)
+    result = team_ids(2019)
 
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 5
+    assert len(result.columns) == 7
     assert len(result) == 30
 
+
 def test_team_id_lookup_league() -> None:
-    result = fangraphs_teams(league='AL')
+    result = team_ids(league='AL')
 
     assert result is not None
     assert not result.empty
@@ -31,14 +33,15 @@ def test_team_id_lookup_league() -> None:
     # Remove newer results to ensure we get the count right
     result = result.query('yearID <= 2019')
 
-    assert len(result.columns) == 5
+    assert len(result.columns) == 7
     assert len(result) == 1265
 
+
 def test_team_id_lookup_season_league() -> None:
-    result = fangraphs_teams(2019, 'NL')
+    result = team_ids(2019, 'NL')
 
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 5
+    assert len(result.columns) == 7
     assert len(result) == 15
