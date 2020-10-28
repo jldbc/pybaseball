@@ -87,7 +87,7 @@ class _PlayerSearchClient:
         Args:
             last (str, required): Player's last name.
             first (str, optional): Player's first name. Defaults to None.
-            search (bool, optional): In case of typos, returns players with names close to input. Defaults to False.
+            fuzzy (bool, optional): In case of typos, returns players with names close to input. Defaults to False.
 
         Returns:
             pd.DataFrame: DataFrame of playerIDs, name, years played
@@ -116,7 +116,13 @@ class _PlayerSearchClient:
 
     def search_list(self, player_list: List[Tuple[str, str]]) -> pd.DataFrame:
         '''
-        Search a list of players. Should be given as (last, first) tuples.
+        Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a list of players.
+
+        Args:
+            player_list: List of (last, first) tupels.
+
+        Returns:
+            pd.DataFrame: DataFrame of playerIDs, name, years played
         ''' 
         results = pd.DataFrame()
 
@@ -161,10 +167,29 @@ def _get_client() -> _PlayerSearchClient:
     return _client
 
 def playerid_lookup(last: str, first: str = None, fuzzy: bool = False) -> pd.DataFrame:
+    """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
+
+    Args:
+        last (str, required): Player's last name.
+        first (str, optional): Player's first name. Defaults to None.
+        fuzzy (bool, optional): In case of typos, returns players with names close to input. Defaults to False.
+
+    Returns:
+        pd.DataFrame: DataFrame of playerIDs, name, years played
+    """
     client = _get_client()
     return client.search(last, first, fuzzy)
 
 def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
+    '''
+    Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a list of players.
+
+    Args:
+        player_list: List of (last, first) tupels.
+
+    Returns:
+        pd.DataFrame: DataFrame of playerIDs, name, years played
+    ''' 
     client = _get_client()
     return client.search_list(player_list)
 
