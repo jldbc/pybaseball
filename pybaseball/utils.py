@@ -2,7 +2,7 @@ import io
 import zipfile
 from collections import namedtuple
 from datetime import date, datetime, timedelta
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Iterator
 import pandas as pd
 import requests
 
@@ -41,19 +41,19 @@ first_season_map = {'ALT': 1884, 'ANA': 1997, 'ARI': 1998, 'ATH': 1871,
                     'WSN': 2005}
 
 STATCAST_VALID_DATES = {
-    2008: {'min_valid_date': date(2008, 3,25), 'max_valid_date': date(2008,10,27)},
-    2009: {'min_valid_date': date(2009, 4, 5), 'max_valid_date': date(2009,11, 4)},
-    2010: {'min_valid_date': date(2010, 4, 4), 'max_valid_date': date(2010,11, 1)},
-    2011: {'min_valid_date': date(2011, 3,31), 'max_valid_date': date(2011,10,28)},
-    2012: {'min_valid_date': date(2012, 3,28), 'max_valid_date': date(2012,10,28)},
-    2013: {'min_valid_date': date(2013, 3,31), 'max_valid_date': date(2013,10,30)},
-    2014: {'min_valid_date': date(2014, 3,22), 'max_valid_date': date(2014,10,29)},
-    2015: {'min_valid_date': date(2015, 4, 5), 'max_valid_date': date(2015,11, 1)},
-    2016: {'min_valid_date': date(2016, 4, 3), 'max_valid_date': date(2016,11, 2)},
-    2017: {'min_valid_date': date(2017, 4, 2), 'max_valid_date': date(2017,11, 1)},
-    2018: {'min_valid_date': date(2018, 3,29), 'max_valid_date': date(2018,10,28)},
-    2019: {'min_valid_date': date(2019, 3,20), 'max_valid_date': date(2019,10,30)},
-    2020: {'min_valid_date': date(2020, 7,23), 'max_valid_date': date(2020,10,28)}
+    2008: (date(2008, 3, 25), date(2008, 10, 27)),
+    2009: (date(2009, 4, 5), date(2009, 11, 4)),
+    2010: (date(2010, 4, 4), date(2010, 11, 1)),
+    2011: (date(2011, 3, 31), date(2011, 10, 28)),
+    2012: (date(2012, 3, 28), date(2012, 10, 28)),
+    2013: (date(2013, 3, 31), date(2013, 10, 30)),
+    2014: (date(2014, 3, 22), date(2014, 10, 29)),
+    2015: (date(2015, 4, 5), date(2015, 11, 1)),
+    2016: (date(2016, 4, 3), date(2016, 11, 2)),
+    2017: (date(2017, 4, 2), date(2017, 11, 1)),
+    2018: (date(2018, 3, 29), date(2018, 10, 28)),
+    2019: (date(2019, 3, 20), date(2019, 10, 30)),
+    2020: (date(2020, 7, 23), date(2020, 10, 27))
 }
 
 
@@ -63,6 +63,62 @@ def validate_datestring(date_text: Optional[str]) -> date:
         return datetime.strptime(date_text, DATE_FORMAT).date()
     except (AssertionError, ValueError):
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+
+
+def date_range(start: date, stop: date, step: int, verbose: bool = True) -> Iterator[Tuple[date, date]]:
+    '''
+    Iterate over dates. Skip the offseason dates. Returns a pair of dates for beginning and end of each segment.
+    Range is inclusive of the stop date.
+    If verbose is enabled, it will print a message if it skips offseason dates.
+    '''
+
+    low = start
+
+    while low <= stop:
+        if (low.month, low.day) < (3, 15):
+            low = low.replace(month=3, day=15)
+            if verbose:
+                print('Skipping offseason dates')
+        elif (low.month, low.day) > (11, 15):
+            low = low.replace(month=3, day=15, year=low.year + 1)
+            if verbose:
+                print('Skipping offseason dates')
+
+        if low > stop:
+            return
+        hi = min(low + timedelta(step - 1), stop)
+        yield low, hi
+        low += timedelta(days=step)
+
+
+def statcast_date_range(start: date, stop: date, step: int, verbose: bool = True) -> Iterator[Tuple[date, date]]:
+    '''
+    Iterate over dates. Skip the offseason dates. Returns a pair of dates for beginning and end of each segment.
+    Range is inclusive of the stop date.
+    If verbose is enabled, it will print a message if it skips offseason dates.
+    This version is Statcast specific, relying on skipping predefined dates from STATCAST_VALID_DATES.
+    '''
+    low = start
+
+    while low <= stop:
+        season_start, season_end = STATCAST_VALID_DATES.get(low.year,
+                                                     (low.replace(month=3, day=15), low.replace(month=11, day=15))
+                                                     )
+        if low < season_start:
+            low = season_start
+            if verbose:
+                print('Skipping offseason dates')
+        elif low > season_end:
+            low, _ = STATCAST_VALID_DATES.get(low.year+1, (date(month=3, day=15, year=low.year + 1), None))
+            if verbose:
+                print('Skipping offseason dates')
+
+        if low > stop:
+            return
+        hi = min(low + timedelta(step - 1), stop)
+        yield low, hi
+        low += timedelta(days=step)
+
 
 def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[date, date]:
     # If no dates are supplied, assume they want yesterday's data
@@ -78,7 +134,7 @@ def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple
         print(
             "Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, try get_statcast(start_dt, end_dt)."
         )
-    
+
     # If only one date is supplied, assume they only want that day's stats
     # query in this case is from date 1 to date 1
     if start_dt is None:
@@ -92,9 +148,9 @@ def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple
     # If end date occurs before start date, swap them
     if end_dt_date < start_dt_date:
         start_dt_date, end_dt_date = end_dt_date, start_dt_date
-    
+
     # Now that both dates are not None, make sure they are valid date strings
-    return start_dt_date, end_dt_date 
+    return start_dt_date, end_dt_date
 
 
 def sanitize_input(start_dt, end_dt, player_id):
@@ -105,6 +161,7 @@ def sanitize_input(start_dt, end_dt, player_id):
     player_id = str(player_id)
     start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
     return str(start_dt_date), str(end_dt_date), player_id
+
 
 @cache.df_cache()
 def split_request(start_dt: str, end_dt: str, player_id: int, url: str) -> pd.DataFrame:
@@ -152,6 +209,7 @@ def get_text_file(url):
 
     return s
 
+
 def flag_imputed_data(statcast_df: pd.DataFrame) -> pd.DataFrame:
     """Function to flag possibly imputed data as a result of no-nulls approach (see: https://tht.fangraphs.com/43416-2/)
        For derivation of values see pybaseball/EXAMPLES/imputed_derivation.ipynb
@@ -180,7 +238,6 @@ def flag_imputed_data(statcast_df: pd.DataFrame) -> pd.DataFrame:
     impute_combinations.append(ParameterSet(ev=82.9, angle=-21.0, bb_type="ground_ball"))
     impute_combinations.append(ParameterSet(ev=90.3, angle=-17.0, bb_type="ground_ball"))
 
-
     df_imputations = pd.DataFrame(data=impute_combinations)
     df_imputations["possible_imputation"] = True
     df_return = statcast_df.merge(df_imputations, how="left",
@@ -190,4 +247,3 @@ def flag_imputed_data(statcast_df: pd.DataFrame) -> pd.DataFrame:
     df_return["possible_imputation"] = df_return["possible_imputation"].fillna(False)
     df_return = df_return.drop(["ev", "angle"], axis=1)
     return df_return
-
