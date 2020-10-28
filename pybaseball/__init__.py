@@ -1,7 +1,7 @@
 import pybaseball.utils
-from .playerid_lookup import playerid_reverse_lookup, playerid_lookup  # THESE ARE DEPRECATED, AND ONLY THROW WARNINGS!
+from .playerid_lookup import playerid_reverse_lookup
+from .playerid_lookup import playerid_lookup
 from .playerid_lookup import chadwick_register
-from .playerid_lookup import player_search_client
 from .teamid_lookup import fangraphs_teams
 from .statcast import statcast, statcast_single_game
 from .statcast_pitcher import statcast_pitcher

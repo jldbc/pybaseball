@@ -1,7 +1,7 @@
 import io
 import os
 
-from typing import List
+from typing import List, Tuple
 
 import pandas as pd
 import requests
@@ -12,6 +12,8 @@ from . import cache
 # dropped key_uuid. looks like a has we wouldn't need for anything.
 
 url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
+
+_client = None
 
 
 def get_register_file():
@@ -75,17 +77,16 @@ def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.Dat
     return matched_names
 
 
-class player_search_client:
+class _PlayerSearchClient:
     def __init__(self) -> None:
         self.table = get_lookup_table()
 
-    def search(self, last: str = None, first: str = None, player_list: List[str] = None, fuzzy: bool = False) -> pd.DataFrame:
+    def search(self, last: str, first: str = None, fuzzy: bool = False) -> pd.DataFrame:
         """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
 
         Args:
-            last (str, optional): Player's last name. Defaults to None.
+            last (str, required): Player's last name.
             first (str, optional): Player's first name. Defaults to None.
-            player_list (list, optional): List of players to seach for (comma delimited). Defaults to None.
             search (bool, optional): In case of typos, returns players with names close to input. Defaults to False.
 
         Returns:
@@ -93,26 +94,8 @@ class player_search_client:
         """
 
         # force input strings to lowercase
-        if last:
-            last = last.lower()
-        if first:
-            first = first.lower()
-
-        # if player_list has a value, then the user is passing in a list of players
-        # the list of players may be comma delimited for last, first, or just last
-        if player_list:
-            player_counter = 1
-            for player in player_list:
-                last = player.split(",")[0].strip()
-                first = None
-                if (len(player.split(",")) > 1):
-                    first = player.split(",")[1].strip()
-                if (player_counter == 1):
-                    results = self.search(last, first)
-                else:
-                    results = results.append(self.search(last, first), ignore_index=True)
-                player_counter += 1
-            return results
+        last = last.lower()
+        first = first.lower() if first else None
 
         if first is None:
             results = self.table.loc[self.table['name_last'] == last]
@@ -129,6 +112,19 @@ class player_search_client:
                                              "name_last", "name_first"], how="left")
 
         return results
+
+
+    def search_list(self, player_list: List[Tuple[str, str]]) -> pd.DataFrame:
+        '''
+        Search a list of players. Should be given as (last, first) tuples.
+        ''' 
+        results = pd.DataFrame()
+
+        for last, first in player_list:
+            results = results.append(self.search(last, first), ignore_index=True)
+        
+        return results
+
 
     def reverse_lookup(self, player_ids: List[str], key_type: str = 'mlbam') -> pd.DataFrame:
         """Retrieve a table of player information given a list of player ids
@@ -157,9 +153,30 @@ class player_search_client:
 
         return results
 
-# These errors will be removed in a later version
-def playerid_lookup(*args, **kwargs) -> None:
-    raise RuntimeError("This function has been removed in favor of the player_search_client usage")
 
-def playerid_reverse_lookup(*args, **kwargs) -> None:
-    raise RuntimeError("This function has been removed in favor of the player_search_client usage")
+def _get_client() -> _PlayerSearchClient:
+    global _client
+    if _client is None:
+        _client = _PlayerSearchClient()
+    return _client
+
+def playerid_lookup(last: str, first: str = None, fuzzy: bool = False) -> pd.DataFrame:
+    client = _get_client()
+    return client.search(last, first, fuzzy)
+
+def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
+    client = _get_client()
+    return client.search_list(player_list)
+
+def playerid_reverse_lookup(player_ids: List[str], key_type: str = 'mlbam') -> pd.DataFrame:
+    """Retrieve a table of player information given a list of player ids
+
+    :param player_ids: list of player ids
+    :type player_ids: list
+    :param key_type: name of the key type being looked up (one of "mlbam", "retro", "bbref", or "fangraphs")
+    :type key_type: str
+
+    :rtype: :class:`pandas.core.frame.DataFrame`
+    """
+    client = _get_client()
+    return client.reverse_lookup(player_ids, key_type)
