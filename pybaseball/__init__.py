@@ -1,5 +1,6 @@
 import pybaseball.utils
 from .playerid_lookup import playerid_reverse_lookup
+from .playerid_lookup import player_search_list
 from .playerid_lookup import playerid_lookup
 from .playerid_lookup import chadwick_register
 from .teamid_lookup import fangraphs_teams
