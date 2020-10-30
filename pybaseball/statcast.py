@@ -54,7 +54,7 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
 
     dataframe_list = []
 
-    if verbose:
+    if verbose and (end_dt - start_dt).days > 7:
         print("This is a large query, it may take a moment to complete")
 
     for subq_start, subq_end in statcast_date_range(start_dt, end_dt, step, verbose):
