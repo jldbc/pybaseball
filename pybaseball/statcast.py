@@ -1,13 +1,14 @@
-from datetime import date, timedelta
-from typing import List, Optional, Union
+import concurrent.futures
 import warnings
+from datetime import date
+from typing import Optional, Union
 
 import pandas as pd
 
 import pybaseball.datasources.statcast as statcast_ds
 
-from .utils import sanitize_date_range, statcast_date_range
 from . import cache
+from .utils import sanitize_date_range, statcast_date_range
 
 _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={game_pk}"
 # pylint: disable=line-too-long
@@ -39,35 +40,38 @@ gremlins; computer repair by associates of Rudy Giuliani; electromagnetic interf
 you could lose a lot of progress. Enabling caching will allow you to immediately recover all the successful
 subqueries if that happens.'''
 
+
 def _check_warning(start_dt: date, end_dt: date) -> None:
     if not cache.config.enabled and (end_dt - start_dt).days >= 42:
         warnings.warn(_OVERSIZE_WARNING)
 
 
 def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
-                  team: Optional[str] = None) -> pd.DataFrame:
+                    team: Optional[str] = None) -> pd.DataFrame:
     """
     Fulfill the request in sensible increments.
     """
 
     _check_warning(start_dt, end_dt)
 
-    dataframe_list = []
-
     if verbose:
         print("This is a large query, it may take a moment to complete")
 
-    for subq_start, subq_end in statcast_date_range(start_dt, end_dt, step, verbose):
-        data = _small_request(subq_start, subq_end, team=team, verbose=verbose)
+    dataframe_list = []
 
-        # Append to list of dataframes if not empty or failed
-        # (failed requests have one row saying "Error: Query Timeout")
-        if data is not None and not data.empty:
-            dataframe_list.append(data)
+    with concurrent.futures.ProcessPoolExecutor() as executor:
+        futures = {executor.submit(_small_request, subq_start, subq_end, team=team, verbose=verbose)
+                   for subq_start, subq_end in statcast_date_range(start_dt, end_dt, step, verbose)}
+        for future in concurrent.futures.as_completed(futures):
+            dataframe_list.append(future.result())
 
     # Concatenate all dataframes into final result set
     if dataframe_list:
         final_data = pd.concat(dataframe_list, axis=0).convert_dtypes(convert_string=False)
+        final_data = final_data.sort_values(
+            ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
+            ascending=False
+        )
     else:
         final_data = pd.DataFrame()
     return final_data
@@ -88,14 +92,7 @@ def statcast(start_dt: str = None, end_dt: str = None, team: str = None, verbose
 
     start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
 
-    # small_query_threshold days or less -> a quick one-shot request.
-    # this is handled by the iterator in large_request just doing the one thingy otherwise.
-    # Greater than small_query_threshold days -> break it into multiple smaller queries
-    # The reason 7 is chosen here is because statcast will return at most 40000 rows.
-    # 7 seems to be the largest number of days that will guarantee no dropped rows.
-    small_query_threshold = 7
-
-    return _handle_request(start_dt_date, end_dt_date, step=small_query_threshold, verbose=verbose, team=team)
+    return _handle_request(start_dt_date, end_dt_date, 1, verbose=verbose, team=team)
 
 
 def statcast_single_game(game_pk: Union[str, int]) -> pd.DataFrame:
