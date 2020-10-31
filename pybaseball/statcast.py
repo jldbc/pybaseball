@@ -4,6 +4,7 @@ from datetime import date
 from typing import Optional, Union
 
 import pandas as pd
+from tqdm import tqdm
 
 import pybaseball.datasources.statcast as statcast_ds
 
@@ -55,15 +56,18 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
     _check_warning(start_dt, end_dt)
 
     if verbose:
-        print("This is a large query, it may take a moment to complete")
+        print("This is a large query, it may take a moment to complete\n", flush=True)
 
     dataframe_list = []
+    date_range = list(statcast_date_range(start_dt, end_dt, step, verbose))
 
-    with concurrent.futures.ProcessPoolExecutor() as executor:
-        futures = {executor.submit(_small_request, subq_start, subq_end, team=team, verbose=verbose)
-                   for subq_start, subq_end in statcast_date_range(start_dt, end_dt, step, verbose)}
-        for future in concurrent.futures.as_completed(futures):
-            dataframe_list.append(future.result())
+    with tqdm(total=len(date_range)) as progress:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            futures = {executor.submit(_small_request, subq_start, subq_end, team=team, verbose=verbose)
+                    for subq_start, subq_end in date_range}
+            for future in concurrent.futures.as_completed(futures):
+                dataframe_list.append(future.result())
+                progress.update(1)
 
     # Concatenate all dataframes into final result set
     if dataframe_list:
