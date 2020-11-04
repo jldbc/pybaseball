@@ -54,7 +54,7 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
     _check_warning(start_dt, end_dt)
 
     if verbose:
-        print("This is a large query, it may take a moment to complete\n", flush=True)
+        print("This is a large query, it may take a moment to complete", flush=True)
 
     dataframe_list = []
     date_range = list(statcast_date_range(start_dt, end_dt, step, verbose))
