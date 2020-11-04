@@ -18,7 +18,7 @@ _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=
 
 
 @cache.df_cache(expires=365)
-def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None, verbose: bool = False) -> pd.DataFrame:
+def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> pd.DataFrame:
     data = statcast_ds.get_statcast_data_from_csv_url(
         _SC_SMALL_REQUEST.format(start_dt=str(start_dt), end_dt=str(end_dt), team=team if team else '')
     )
@@ -27,8 +27,6 @@ def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None, ver
             ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
             ascending=False
         )
-        if verbose:
-            print(f"Completed sub-query from {start_dt} to {end_dt} ({len(data)} results)")
 
     return data
 
@@ -63,7 +61,7 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
 
     with tqdm(total=len(date_range)) as progress:
         with concurrent.futures.ProcessPoolExecutor() as executor:
-            futures = {executor.submit(_small_request, subq_start, subq_end, team=team, verbose=verbose)
+            futures = {executor.submit(_small_request, subq_start, subq_end, team=team)
                     for subq_start, subq_end in date_range}
             for future in concurrent.futures.as_completed(futures):
                 dataframe_list.append(future.result())
