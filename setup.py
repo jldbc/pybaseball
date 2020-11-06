@@ -1,8 +1,9 @@
 # Always prefer setuptools over distutils
-from setuptools import setup, find_packages
 # To use a consistent encoding
 from codecs import open
 from os import path
+
+from setuptools import find_packages, setup
 
 here = path.abspath(path.dirname(__file__))
 
@@ -83,7 +84,8 @@ setup(
                       'pygithub>=1.51',
                       'altair>=4.0.0',
                       'scipy>=1.4.0',
-                      'matplotlib>=2.0.0'
+                      'matplotlib>=2.0.0',
+                      'tqdm>=4.50.0',
                       ],
 
     # List additional groups of dependencies here (e.g. development
@@ -95,6 +97,7 @@ setup(
         'test': ['pytest>=6.0.2',
                  'mypy>=0.782',
                  'pytest-cov>=2.10.1',
+                 'pytest-xdist>=2.1.0',
                  ],
     },
 

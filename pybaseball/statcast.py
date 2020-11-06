@@ -1,13 +1,15 @@
-from datetime import date, timedelta
-from typing import List, Optional, Union
+import concurrent.futures
 import warnings
+from datetime import date
+from typing import Optional, Union
 
 import pandas as pd
+from tqdm import tqdm
 
 import pybaseball.datasources.statcast as statcast_ds
 
-from .utils import sanitize_date_range, statcast_date_range
 from . import cache
+from .utils import sanitize_date_range, statcast_date_range
 
 _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={game_pk}"
 # pylint: disable=line-too-long
@@ -16,7 +18,7 @@ _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=
 
 
 @cache.df_cache(expires=365)
-def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None, verbose: bool = False) -> pd.DataFrame:
+def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> pd.DataFrame:
     data = statcast_ds.get_statcast_data_from_csv_url(
         _SC_SMALL_REQUEST.format(start_dt=str(start_dt), end_dt=str(end_dt), team=team if team else '')
     )
@@ -25,8 +27,6 @@ def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None, ver
             ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
             ascending=False
         )
-        if verbose:
-            print(f"Completed sub-query from {start_dt} to {end_dt} ({len(data)} results)")
 
     return data
 
@@ -39,35 +39,41 @@ gremlins; computer repair by associates of Rudy Giuliani; electromagnetic interf
 you could lose a lot of progress. Enabling caching will allow you to immediately recover all the successful
 subqueries if that happens.'''
 
+
 def _check_warning(start_dt: date, end_dt: date) -> None:
     if not cache.config.enabled and (end_dt - start_dt).days >= 42:
         warnings.warn(_OVERSIZE_WARNING)
 
 
 def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
-                  team: Optional[str] = None) -> pd.DataFrame:
+                    team: Optional[str] = None) -> pd.DataFrame:
     """
     Fulfill the request in sensible increments.
     """
 
     _check_warning(start_dt, end_dt)
 
-    dataframe_list = []
-
     if verbose:
-        print("This is a large query, it may take a moment to complete")
+        print("This is a large query, it may take a moment to complete", flush=True)
 
-    for subq_start, subq_end in statcast_date_range(start_dt, end_dt, step, verbose):
-        data = _small_request(subq_start, subq_end, team=team, verbose=verbose)
+    dataframe_list = []
+    date_range = list(statcast_date_range(start_dt, end_dt, step, verbose))
 
-        # Append to list of dataframes if not empty or failed
-        # (failed requests have one row saying "Error: Query Timeout")
-        if data is not None and not data.empty:
-            dataframe_list.append(data)
+    with tqdm(total=len(date_range)) as progress:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
+            futures = {executor.submit(_small_request, subq_start, subq_end, team=team)
+                    for subq_start, subq_end in date_range}
+            for future in concurrent.futures.as_completed(futures):
+                dataframe_list.append(future.result())
+                progress.update(1)
 
     # Concatenate all dataframes into final result set
     if dataframe_list:
         final_data = pd.concat(dataframe_list, axis=0).convert_dtypes(convert_string=False)
+        final_data = final_data.sort_values(
+            ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
+            ascending=False
+        )
     else:
         final_data = pd.DataFrame()
     return final_data
@@ -88,14 +94,7 @@ def statcast(start_dt: str = None, end_dt: str = None, team: str = None, verbose
 
     start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
 
-    # small_query_threshold days or less -> a quick one-shot request.
-    # this is handled by the iterator in large_request just doing the one thingy otherwise.
-    # Greater than small_query_threshold days -> break it into multiple smaller queries
-    # The reason 7 is chosen here is because statcast will return at most 40000 rows.
-    # 7 seems to be the largest number of days that will guarantee no dropped rows.
-    small_query_threshold = 7
-
-    return _handle_request(start_dt_date, end_dt_date, step=small_query_threshold, verbose=verbose, team=team)
+    return _handle_request(start_dt_date, end_dt_date, 1, verbose=verbose, team=team)
 
 
 def statcast_single_game(game_pk: Union[str, int]) -> pd.DataFrame:
