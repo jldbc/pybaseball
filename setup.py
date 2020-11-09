@@ -85,6 +85,7 @@ setup(
                       'altair>=4.0.0',
                       'scipy>=1.4.0',
                       'matplotlib>=2.0.0',
+                      'fuzzywuzzy[speedup]>=0.15.0',
                       'tqdm>=4.50.0',
                       ],
 

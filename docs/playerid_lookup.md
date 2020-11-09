@@ -1,15 +1,17 @@
 # Player ID Lookup
 
-`playerid_lookup(last, first=None)`
+## Single Player Lookup
+
+`playerid_lookup(last, first=None, fuzzy=False)`
 
 Look up a player's MLBAM, Retrosheet, FanGraphs, and Baseball Reference ID by name.
 
 ## Arguments
-`last:` String. Optional. The player's last name. Case insensitive.
+`last:` String. The player's last name. Case insensitive.
 
 `first:` String. Optional. The player's first name. Case insensitive.
 
-`player_list:` List. Optional. A list of last names or last names comma first name. Case insensitive.
+`fuzzy:` Boolean. Optional. Search for inexact name matches, the 5 closest will be returned.
 
 Providing last name only will return all available id data for players with that last name (this will return several rows for a common last name like Jones, for example.) If multiple players exist for a (last name, first name) pair, you can figure out who's who by seeing their first and last years of play in the fields `mlb_played_first` and `mlb_played_last`.
 
@@ -26,9 +28,31 @@ data = playerid_lookup('jones')
 # only return the ids of chipper jones (returns one row)
 data = playerid_lookup('jones','chipper')
 
-# return Tony Gwynns and Keith Hernandezs (returns four rows)
-players = ["gwynn, tony", "hernandez, keith"]
-data = playerid_lookup(player_list = players)
+# Will return all players named Pedro Martinez (returns *2* rows)
+data = playerid_lookup("martinez", "pedro", fuzzy=True)
 
+# Will return the 5 closest names to "yadi molina" (returns 5 rows)
+# First row will be Yadier Molina
+data = playerid_lookup("molina", "yadi", fuzzy=True)
 ```
 
+## List Lookup
+
+`player_search_list(player_list)`
+
+Look up a list of player ID's by name, return a data frame of all players
+
+`player_list:` List. A list of tuples, of the form `(last, first)`. Case Insensitive.
+
+Sources are the same as those used in the above `playerid_lookup` function. Queries for this function must be exact name matches.
+
+## Examples of valid queries
+
+```python
+
+from pybaseball import player_search_list
+
+# Will return the ids for both Lou Brock and Chipper Jones (returns 2 rows)
+data = player_search_list([("brock","lou"), ("jones","chipper")])
+
+```
