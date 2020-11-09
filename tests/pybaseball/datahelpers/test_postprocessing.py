@@ -7,8 +7,8 @@ import pytest
 from pybaseball.datahelpers import postprocessing
 
 
-@pytest.fixture()
-def sample_unprocessed_result():
+@pytest.fixture(name='sample_unprocessed_result')
+def _sample_unprocessed_result():
     return pd.DataFrame(
         [
             ['TBR', '1', '2', '50 %', '8'],
@@ -21,10 +21,11 @@ def sample_unprocessed_result():
 class TestPostProcessing:
     def test_try_parse_short_date(self):
         assert postprocessing.try_parse('2020-09-04', 'game_dt') == datetime(year=2020, month=9, day=4)
-        
+
     def test_try_parse_long_date(self):
-        assert postprocessing.try_parse('2020-09-03T05:40:30.210Z', 'game_dt') == datetime(year=2020, month=9, day=3, hour=5, minute=40, second=30, microsecond=210000)
-    
+        expected_datetime = datetime(year=2020, month=9, day=3, hour=5, minute=40, second=30, microsecond=210000)
+        assert postprocessing.try_parse('2020-09-03T05:40:30.210Z', 'game_dt') == expected_datetime
+
     def test_try_parse_date_nonstr(self):
         dt = datetime(year=2020, month=9, day=4)
         assert postprocessing.try_parse(dt, 'game_dt') == dt
@@ -56,23 +57,23 @@ class TestPostProcessing:
     def test_try_parse_dataframe(self):
         raw_data = pd.DataFrame(
             [
-                ['1', 'TBR', '2019-01-01', '0.5', '40%', 8],
-                ['2', 'NYY', '2019-02-01', '0.6', '20%', 'null']
+                ['1', 'TBR', '2019-01-01', '0.5', '40%', 8, '1048576'],
+                ['2', 'NYY', '2019-02-01', '0.6', '20%', 'null', '4294967296']
             ],
-            columns=['id', 'team', 'dt', 'rate', 'chance', 'wins']
+            columns=['id', 'team', 'dt', 'rate', 'chance', 'wins', 'long_number']
         )
 
         processed_data = postprocessing.try_parse_dataframe(raw_data)
 
         expected_data = pd.DataFrame(
             [
-                [1, 'TBR', np.datetime64('2019-01-01'), 0.5, 0.4, 8],
-                [2, 'NYY', np.datetime64('2019-02-01'), 0.6, 0.2, np.nan]
+                [1, 'TBR', np.datetime64('2019-01-01'), 0.5, 0.4, 8,      1048576   ],
+                [2, 'NYY', np.datetime64('2019-02-01'), 0.6, 0.2, np.nan, 4294967296],
             ],
-            columns=['id', 'team', 'dt', 'rate', 'chance', 'wins']
-        )
+            columns=['id', 'team', 'dt', 'rate', 'chance', 'wins', 'long_number']
+        ).convert_dtypes(convert_string=False)
 
-        pd.testing.assert_frame_equal(processed_data, expected_data)
+        pd.testing.assert_frame_equal(processed_data, expected_data, check_dtype=False)
 
     def test_coalesce_nulls(self, sample_unprocessed_result):
         expected_result = pd.DataFrame(

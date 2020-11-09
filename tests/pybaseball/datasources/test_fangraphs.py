@@ -93,7 +93,7 @@ class TestDatasourceFangraphs:
 
         batting_stats_result = fg_batting_data(season).reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(batting_stats_result, test_batting_stats_result)
+        pd.testing.assert_frame_equal(batting_stats_result, test_batting_stats_result, check_dtype=False)
     def test_batting_stats_custom_types(self, response_get_monkeypatch: Callable, test_batting_stats_html: str,
                            test_batting_stats_result: pd.DataFrame) -> None:
         season = 2019
@@ -125,7 +125,7 @@ class TestDatasourceFangraphs:
 
         batting_stats_result = fg_batting_data(season, stat_columns='WAR').reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(batting_stats_result, test_batting_stats_result)
+        pd.testing.assert_frame_equal(batting_stats_result, test_batting_stats_result, check_dtype=False)
 
     def test_pitching_stats(self, response_get_monkeypatch: Callable, test_pitching_stats_html: str,
                             test_pitching_stats_result: pd.DataFrame) -> None:
@@ -158,7 +158,7 @@ class TestDatasourceFangraphs:
 
         pitching_stats_result = fg_pitching_data(season).reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(pitching_stats_result, test_pitching_stats_result)
+        pd.testing.assert_frame_equal(pitching_stats_result, test_pitching_stats_result, check_dtype=False)
 
     def test_pitching_stats_custom_types(self, response_get_monkeypatch: Callable, test_pitching_stats_html: str,
                             test_pitching_stats_result: pd.DataFrame) -> None:
@@ -191,7 +191,7 @@ class TestDatasourceFangraphs:
 
         pitching_stats_result = fg_pitching_data(season, stat_columns='ERA_MINUS').reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(pitching_stats_result, test_pitching_stats_result)
+        pd.testing.assert_frame_equal(pitching_stats_result, test_pitching_stats_result, check_dtype=False)
 
     def test_team_batting(self, response_get_monkeypatch: Callable, test_team_batting_html: str,
                           test_team_batting_result: pd.DataFrame) -> None:
@@ -224,7 +224,7 @@ class TestDatasourceFangraphs:
 
         team_batting_result = fg_team_batting_data(season).reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(team_batting_result, test_team_batting_result)
+        pd.testing.assert_frame_equal(team_batting_result, test_team_batting_result, check_dtype=False)
 
     def test_team_batting_custom_types(self, response_get_monkeypatch: Callable, test_team_batting_html: str,
                           test_team_batting_result: pd.DataFrame) -> None:
@@ -257,7 +257,7 @@ class TestDatasourceFangraphs:
 
         team_batting_result = fg_team_batting_data(season, stat_columns='HOME_RUNS').reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(team_batting_result, test_team_batting_result)
+        pd.testing.assert_frame_equal(team_batting_result, test_team_batting_result, check_dtype=False)
 
 
     def test_team_fielding(self, response_get_monkeypatch: Callable, test_team_fielding_html: str,
@@ -291,7 +291,7 @@ class TestDatasourceFangraphs:
 
         team_fielding_result = fg_team_fielding_data(season).reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(team_fielding_result, test_team_fielding_result)
+        pd.testing.assert_frame_equal(team_fielding_result, test_team_fielding_result, check_dtype=False)
 
 
     def test_team_fielding_custom_types(self, response_get_monkeypatch: Callable, test_team_fielding_html: str,
@@ -325,7 +325,7 @@ class TestDatasourceFangraphs:
 
         team_fielding_result = fg_team_fielding_data(season, stat_columns='ULTIMATE_ZONE_RATING').reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(team_fielding_result, test_team_fielding_result)
+        pd.testing.assert_frame_equal(team_fielding_result, test_team_fielding_result, check_dtype=False)
 
 
     def test_team_pitching(self, response_get_monkeypatch: Callable, test_team_pitching_html: str,
@@ -358,7 +358,7 @@ class TestDatasourceFangraphs:
 
         team_pitching_result = fg_team_pitching_data(season).reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(team_pitching_result, test_team_pitching_result)
+        pd.testing.assert_frame_equal(team_pitching_result, test_team_pitching_result, check_dtype=False)
 
 
     def test_team_pitching_custom_types(self, response_get_monkeypatch: Callable, test_team_pitching_html: str,
@@ -391,4 +391,4 @@ class TestDatasourceFangraphs:
 
         team_pitching_result = fg_team_pitching_data(season, stat_columns='WINS').reset_index(drop=True)
 
-        pd.testing.assert_frame_equal(team_pitching_result, test_team_pitching_result)
+        pd.testing.assert_frame_equal(team_pitching_result, test_team_pitching_result, check_dtype=False)
