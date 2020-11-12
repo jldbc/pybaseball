@@ -77,10 +77,9 @@ def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.Dat
     chadwick_names = filled_df["name_first"] + " " + filled_df["name_last"]
     fuzzy_matches = pd.DataFrame(process.extract(
         f"{first} {last}", chadwick_names, limit=5))
-    matched_names = fuzzy_matches[0].str.split(expand=True)
-    matched_names = matched_names.rename(
-        columns={0: "name_first", 1: "name_last"})
-    return matched_names
+    fuzzy_indices = fuzzy_matches[2].tolist()
+
+    return fuzzy_indices
 
 
 class _PlayerSearchClient:
@@ -117,8 +116,7 @@ class _PlayerSearchClient:
                 "No identically matched names found! Returning the 5 most similar names.")
             similar_names_df = name_similarity(
                 last=last, first=first, player_table=self.table)
-            results = similar_names_df.merge(self.table, left_on=["name_last", "name_first"], right_on=[
-                                             "name_last", "name_first"], how="left")
+            results = self.table.iloc[similar_names_df].reset_index(drop=True)
 
         return results
 
