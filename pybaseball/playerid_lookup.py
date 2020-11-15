@@ -30,20 +30,16 @@ def chadwick_register(save: bool = False) -> pd.DataFrame:
 
     print('Gathering player lookup table. This may take a moment.')
     s = requests.get(url).content
-    mlb_only_cols = ['key_retro', 'key_bbref',
-                     'key_fangraphs', 'mlb_played_first', 'mlb_played_last']
+    mlb_only_cols = ['key_retro', 'key_bbref', 'key_fangraphs', 'mlb_played_first', 'mlb_played_last']
     cols_to_keep = ['name_last', 'name_first', 'key_mlbam'] + mlb_only_cols
     table = pd.read_csv(io.StringIO(s.decode('utf-8')), usecols=cols_to_keep)
 
-    # Keep only the major league rows
-    table.dropna(how='all', subset=mlb_only_cols, inplace=True)
+    table.dropna(how='all', subset=mlb_only_cols, inplace=True)  # Keep only the major league rows
     table.reset_index(inplace=True, drop=True)
 
-    table[['key_mlbam', 'key_fangraphs']] = table[[
-        'key_mlbam', 'key_fangraphs']].fillna(-1)
+    table[['key_mlbam', 'key_fangraphs']] = table[['key_mlbam', 'key_fangraphs']].fillna(-1)
     # originally returned as floats which is wrong
-    table[['key_mlbam', 'key_fangraphs']] = table[[
-        'key_mlbam', 'key_fangraphs']].astype(int)
+    table[['key_mlbam', 'key_fangraphs']] = table[['key_mlbam', 'key_fangraphs']].astype(int)
 
     # Reorder the columns to the right order
     table = table[cols_to_keep]
@@ -62,7 +58,7 @@ def get_lookup_table(save=False):
     return table
 
 
-def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
+def get_closest_names_df(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
     """Calculates similarity of first and last name provided with all players in player_table
 
     Args:
@@ -75,11 +71,10 @@ def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.Dat
     """
     filled_df = player_table.fillna("")
     chadwick_names = filled_df["name_first"] + " " + filled_df["name_last"]
-    fuzzy_matches = pd.DataFrame(process.extract(
-        f"{first} {last}", chadwick_names, limit=5))
+    fuzzy_matches = pd.DataFrame(process.extract(f"{first} {last}", chadwick_names, limit=5))
     fuzzy_indices = fuzzy_matches[2].tolist()
 
-    return fuzzy_indices
+    return filled_df.iloc[fuzzy_indices].reset_index(drop=True)
 
 
 class _PlayerSearchClient:
@@ -105,20 +100,16 @@ class _PlayerSearchClient:
         if first is None:
             results = self.table.loc[self.table['name_last'] == last]
         else:
-            results = self.table.loc[(self.table['name_last'] == last) & (
-                self.table['name_first'] == first)]
+            results = self.table.loc[(self.table['name_last'] == last) & (self.table['name_first'] == first)]
 
         results = results.reset_index(drop=True)
 
         # If no matches, return 5 closest names
         if len(results) == 0 and fuzzy:
-            print(
-                "No identically matched names found! Returning the 5 most similar names.")
-            similar_names_df = name_similarity(
-                last=last, first=first, player_table=self.table)
-            results = self.table.iloc[similar_names_df].reset_index(drop=True)
+            print("No identically matched names found! Returning the 5 most similar names.")
+            
+        return get_closest_names_df(last=last, first=first, player_table=self.table)
 
-        return results
 
     def search_list(self, player_list: List[Tuple[str, str]]) -> pd.DataFrame:
         '''
@@ -129,14 +120,14 @@ class _PlayerSearchClient:
 
         Returns:
             pd.DataFrame: DataFrame of playerIDs, name, years played
-        '''
+        ''' 
         results = pd.DataFrame()
 
         for last, first in player_list:
-            results = results.append(self.search(
-                last, first), ignore_index=True)
-
+            results = results.append(self.search(last, first), ignore_index=True)
+        
         return results
+
 
     def reverse_lookup(self, player_ids: List[str], key_type: str = 'mlbam') -> pd.DataFrame:
         """Retrieve a table of player information given a list of player ids
@@ -156,8 +147,7 @@ class _PlayerSearchClient:
         )
 
         if key_type not in key_types:
-            raise ValueError(
-                f'[Key Type: {key_type}] Invalid; Key Type must be one of {key_types}')
+            raise ValueError(f'[Key Type: {key_type}] Invalid; Key Type must be one of {key_types}')
 
         key = f'key_{key_type}'
 
@@ -173,7 +163,6 @@ def _get_client() -> _PlayerSearchClient:
         _client = _PlayerSearchClient()
     return _client
 
-
 def playerid_lookup(last: str, first: str = None, fuzzy: bool = False) -> pd.DataFrame:
     """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
 
@@ -188,7 +177,6 @@ def playerid_lookup(last: str, first: str = None, fuzzy: bool = False) -> pd.Dat
     client = _get_client()
     return client.search(last, first, fuzzy)
 
-
 def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
     '''
     Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a list of players.
@@ -198,10 +186,9 @@ def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: DataFrame of playerIDs, name, years played
-    '''
+    ''' 
     client = _get_client()
     return client.search_list(player_list)
-
 
 def playerid_reverse_lookup(player_ids: List[str], key_type: str = 'mlbam') -> pd.DataFrame:
     """Retrieve a table of player information given a list of player ids
