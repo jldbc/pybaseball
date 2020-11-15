@@ -58,12 +58,14 @@ def get_lookup_table(save=False):
     return table
 
 
-def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
+def get_closest_names_df(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
     """Calculates similarity of first and last name provided with all players in player_table
+
     Args:
         last (str): Provided last name
         first (str): Provided first name
         player_table (pd.DataFrame): Chadwick player table including names
+
     Returns:
         pd.DataFrame: 5 nearest matches from fuzzywuzzy.process
     """
@@ -72,7 +74,7 @@ def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.Dat
     fuzzy_matches = pd.DataFrame(process.extract(f"{first} {last}", chadwick_names, limit=5))
     fuzzy_indices = fuzzy_matches[2].tolist()
 
-    return fuzzy_indices
+    return filled_df.iloc[fuzzy_indices].reset_index(drop=True)
 
 
 class _PlayerSearchClient:
@@ -81,10 +83,12 @@ class _PlayerSearchClient:
 
     def search(self, last: str, first: str = None, fuzzy: bool = False) -> pd.DataFrame:
         """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
+
         Args:
             last (str, required): Player's last name.
             first (str, optional): Player's first name. Defaults to None.
             fuzzy (bool, optional): In case of typos, returns players with names close to input. Defaults to False.
+
         Returns:
             pd.DataFrame: DataFrame of playerIDs, name, years played
         """
@@ -103,17 +107,17 @@ class _PlayerSearchClient:
         # If no matches, return 5 closest names
         if len(results) == 0 and fuzzy:
             print("No identically matched names found! Returning the 5 most similar names.")
-            similar_names_df = name_similarity(last=last, first=first, player_table=self.table)
-            results = self.table.iloc[similar_names_df].reset_index(drop=True)
-
-        return results
+            
+        return get_closest_names_df(last=last, first=first, player_table=self.table)
 
 
     def search_list(self, player_list: List[Tuple[str, str]]) -> pd.DataFrame:
         '''
         Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a list of players.
+
         Args:
             player_list: List of (last, first) tupels.
+
         Returns:
             pd.DataFrame: DataFrame of playerIDs, name, years played
         ''' 
@@ -127,10 +131,12 @@ class _PlayerSearchClient:
 
     def reverse_lookup(self, player_ids: List[str], key_type: str = 'mlbam') -> pd.DataFrame:
         """Retrieve a table of player information given a list of player ids
+
         :param player_ids: list of player ids
         :type player_ids: list
         :param key_type: name of the key type being looked up (one of "mlbam", "retro", "bbref", or "fangraphs")
         :type key_type: str
+
         :rtype: :class:`pandas.core.frame.DataFrame`
         """
         key_types = (
@@ -159,10 +165,12 @@ def _get_client() -> _PlayerSearchClient:
 
 def playerid_lookup(last: str, first: str = None, fuzzy: bool = False) -> pd.DataFrame:
     """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
+
     Args:
         last (str, required): Player's last name.
         first (str, optional): Player's first name. Defaults to None.
         fuzzy (bool, optional): In case of typos, returns players with names close to input. Defaults to False.
+
     Returns:
         pd.DataFrame: DataFrame of playerIDs, name, years played
     """
@@ -172,8 +180,10 @@ def playerid_lookup(last: str, first: str = None, fuzzy: bool = False) -> pd.Dat
 def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
     '''
     Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a list of players.
+
     Args:
         player_list: List of (last, first) tupels.
+
     Returns:
         pd.DataFrame: DataFrame of playerIDs, name, years played
     ''' 
@@ -182,10 +192,12 @@ def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
 
 def playerid_reverse_lookup(player_ids: List[str], key_type: str = 'mlbam') -> pd.DataFrame:
     """Retrieve a table of player information given a list of player ids
+
     :param player_ids: list of player ids
     :type player_ids: list
     :param key_type: name of the key type being looked up (one of "mlbam", "retro", "bbref", or "fangraphs")
     :type key_type: str
+
     :rtype: :class:`pandas.core.frame.DataFrame`
     """
     client = _get_client()
