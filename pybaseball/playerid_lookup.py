@@ -107,8 +107,9 @@ class _PlayerSearchClient:
         # If no matches, return 5 closest names
         if len(results) == 0 and fuzzy:
             print("No identically matched names found! Returning the 5 most similar names.")
+            results=get_closest_names_df(last=last, first=first, player_table=self.table)
             
-        return get_closest_names_df(last=last, first=first, player_table=self.table)
+        return results
 
 
     def search_list(self, player_list: List[Tuple[str, str]]) -> pd.DataFrame:
