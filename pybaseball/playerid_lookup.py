@@ -58,7 +58,7 @@ def get_lookup_table(save=False):
     return table
 
 
-def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
+def get_closest_names(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
     """Calculates similarity of first and last name provided with all players in player_table
 
     Args:
@@ -72,9 +72,9 @@ def name_similarity(last: str, first: str, player_table: pd.DataFrame) -> pd.Dat
     filled_df = player_table.fillna("")
     chadwick_names = filled_df["name_first"] + " " + filled_df["name_last"]
     fuzzy_matches = pd.DataFrame(process.extract(f"{first} {last}", chadwick_names, limit=5))
-    matched_names = fuzzy_matches[0].str.split(expand=True)
-    matched_names = matched_names.rename(columns={0: "name_first", 1: "name_last"})
-    return matched_names
+    fuzzy_indices = fuzzy_matches[2].tolist()
+
+    return filled_df.iloc[fuzzy_indices].reset_index(drop=True)
 
 
 class _PlayerSearchClient:
@@ -107,10 +107,8 @@ class _PlayerSearchClient:
         # If no matches, return 5 closest names
         if len(results) == 0 and fuzzy:
             print("No identically matched names found! Returning the 5 most similar names.")
-            similar_names_df = name_similarity(last=last, first=first, player_table=self.table)
-            results = similar_names_df.merge(self.table, left_on=["name_last", "name_first"], right_on=[
-                                             "name_last", "name_first"], how="left")
-
+            results=get_closest_names(last=last, first=first, player_table=self.table)
+            
         return results
 
 
