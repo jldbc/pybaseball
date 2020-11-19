@@ -58,7 +58,7 @@ def get_lookup_table(save=False):
     return table
 
 
-def get_closest_names_df(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
+def get_closest_names(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
     """Calculates similarity of first and last name provided with all players in player_table
 
     Args:
@@ -107,7 +107,7 @@ class _PlayerSearchClient:
         # If no matches, return 5 closest names
         if len(results) == 0 and fuzzy:
             print("No identically matched names found! Returning the 5 most similar names.")
-            results=get_closest_names_df(last=last, first=first, player_table=self.table)
+            results=get_closest_names(last=last, first=first, player_table=self.table)
             
         return results
 
