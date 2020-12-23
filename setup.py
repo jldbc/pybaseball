@@ -87,6 +87,7 @@ setup(
                       'matplotlib>=2.0.0',
                       'fuzzywuzzy[speedup]>=0.15.0',
                       'tqdm>=4.50.0',
+                      'altair-saver'
                       ],
 
     # List additional groups of dependencies here (e.g. development

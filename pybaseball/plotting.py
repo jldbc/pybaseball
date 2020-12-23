@@ -91,13 +91,14 @@ def spraychart(data, team_stadium, title='', tooltips=[], size=100,
     scatter = alt.Chart(sub_data, title=_title).mark_circle(size=size).encode(
         x=alt.X('hc_x:Q', axis=None, scale=alt.Scale(zero=True)),
         y=alt.Y('y:Q', axis=None, scale=alt.Scale(zero=True)),
-        tooltip=tooltips,
         color=alt.Color(
             color_label, legend=alt.Legend(title=legend_title)
         )
     ).transform_calculate(
         y='datum.hc_y * -1'
     )
+    if tooltips:
+        scatter = scatter.encode(tooltip=tooltips)
 
     plot = alt.layer(base, scatter).resolve_scale(color='independent')
     plot.width = width
