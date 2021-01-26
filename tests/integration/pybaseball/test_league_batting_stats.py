@@ -1,8 +1,7 @@
-from datetime import datetime
-
 import pytest
 
 from pybaseball import league_batting_stats
+from pybaseball.utils import most_recent_season
 
 
 def test_batting_stats_bref() -> None:
@@ -17,7 +16,7 @@ def test_batting_stats_bref() -> None:
 
 def test_batting_stats_bref_future() -> None:
     with pytest.raises(IndexError):
-        league_batting_stats.batting_stats_bref(datetime.today().year + 1)
+        league_batting_stats.batting_stats_bref(most_recent_season() + 1)
 
 
 def test_batting_stats_bref_bad_year() -> None:

@@ -1,9 +1,8 @@
-from pybaseball.utils import first_season_map
-from datetime import datetime
 import pytest
-from pybaseball.team_results import schedule_and_record, get_soup
-import json
-from typing import Dict, List
+
+from pybaseball.team_results import get_soup, schedule_and_record
+from pybaseball.utils import first_season_map, most_recent_season
+
 
 @pytest.mark.parametrize(
     "season, team", [
@@ -42,7 +41,7 @@ def test_schedule_and_record_after_existence() -> None:
         
 def test_schedule_and_record_future() -> None:
     with pytest.raises(ValueError):
-        schedule_and_record(datetime.today().year + 1, 'TBR')
+        schedule_and_record(most_recent_season() + 1, 'TBR')
         
 def test_get_soup_none_season() -> None:
     result = get_soup(None, 'TBR')

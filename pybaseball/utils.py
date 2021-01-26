@@ -64,8 +64,19 @@ def validate_datestring(date_text: Optional[str]) -> date:
     except (AssertionError, ValueError):
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
+def most_recent_season() -> int:
+    '''
+    Find the most recent season.
+    
+    Will be either this year (if the season has started or just ended)
+    or last year (if the season has not yet started).
+    '''
 
-def date_range(start: date, stop: date, step: int, verbose: bool = True) -> Iterator[Tuple[date, date]]:
+    dates = list(date_range((datetime.today() - timedelta(weeks=52)).date(), datetime.today().date(), verbose=False))
+    return dates[-1][0].year
+
+
+def date_range(start: date, stop: date, step: int = 1, verbose: bool = True) -> Iterator[Tuple[date, date]]:
     '''
     Iterate over dates. Skip the offseason dates. Returns a pair of dates for beginning and end of each segment.
     Range is inclusive of the stop date.

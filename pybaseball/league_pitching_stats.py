@@ -1,4 +1,3 @@
-import datetime
 import io
 
 import numpy as np
@@ -7,9 +6,8 @@ import requests
 from bs4 import BeautifulSoup
 
 from . import cache
+from .utils import most_recent_season, sanitize_date_range
 
-
-from .utils import sanitize_date_range
 
 def get_soup(start_dt, end_dt):
     # get most recent standings if date not specified
@@ -76,7 +74,7 @@ def pitching_stats_bref(season=None):
     current season to date.
     """
     if season is None:
-        season = datetime.datetime.today().strftime("%Y")
+        season = most_recent_season()
     season = str(season)
     start_dt = season + '-03-01' #opening day is always late march or early april
     end_dt = season + '-11-01' #season is definitely over by November

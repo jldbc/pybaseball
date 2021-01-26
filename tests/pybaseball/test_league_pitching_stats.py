@@ -1,9 +1,9 @@
-from datetime import date, datetime, timedelta
 from unittest.mock import MagicMock, patch
 
 import pytest
 
 from pybaseball import league_pitching_stats
+from pybaseball.utils import most_recent_season
 
 
 def test_get_soup_none_none() -> None:
@@ -23,7 +23,7 @@ def test_pitching_stats_bref_bad_year() -> None:
 
 def test_pitching_stats_bref_none() -> None:
     pitching_stats_range_mock =  MagicMock()
-    this_year = date.today().year
+    this_year = most_recent_season()
 
     with patch('pybaseball.league_pitching_stats.pitching_stats_range', pitching_stats_range_mock):
         league_pitching_stats.pitching_stats_bref(None)

@@ -7,6 +7,7 @@ import pandas as pd
 
 from . import lahman
 from .datasources import fangraphs
+from .utils import most_recent_season
 
 _DATA_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'fangraphs_teams.csv')
 
@@ -54,7 +55,7 @@ def _generate_teams() -> pd.DataFrame:
     """
 
     start_season = 1871
-    end_season = date.today().year
+    end_season = most_recent_season()
 
     # Only getting AB to make payload small, and you have to specify at least one column
     team_data = fangraphs.fg_team_batting_data(start_season, end_season, "ALL", stat_columns=['AB'])
