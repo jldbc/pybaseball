@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 from bs4 import BeautifulSoup
 
-from pybaseball.utils import first_season_map
+from pybaseball.utils import first_season_map, most_recent_season
 
 from . import cache
 
@@ -14,7 +14,7 @@ from . import cache
 def get_soup(season, team):
     # get most recent year's schedule if year not specified
     if season is None:
-        season = datetime.today().strftime("%Y")
+        season = most_recent_season()
     url = "http://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml".format(team, season)
     s=requests.get(url).content
     return BeautifulSoup(s, "lxml")

@@ -1,9 +1,7 @@
-from datetime import date, datetime, timedelta
-
 import pytest
 
 from pybaseball import league_pitching_stats
-
+from pybaseball.utils import most_recent_season
 
 def test_get_soup_none_none() -> None:
     result = league_pitching_stats.get_soup(None, None)
@@ -51,4 +49,4 @@ def test_bwar_pitch_return_all() -> None:
 
 def test_pitching_stats_bref_future() -> None:
     with pytest.raises(IndexError):
-        league_pitching_stats.pitching_stats_bref(datetime.today().year + 1)
+        league_pitching_stats.pitching_stats_bref(most_recent_season() + 1)

@@ -1,13 +1,14 @@
+import functools
 import io
 import zipfile
 from collections import namedtuple
 from datetime import date, datetime, timedelta
-from typing import Optional, Tuple, Iterator
+from typing import Iterator, Optional, Tuple
+
 import pandas as pd
 import requests
 
 from . import cache
-
 
 NULLABLE_INT = pd.Int32Dtype()
 DATE_FORMAT = "%Y-%m-%d"
@@ -65,7 +66,27 @@ def validate_datestring(date_text: Optional[str]) -> date:
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
 
-def date_range(start: date, stop: date, step: int, verbose: bool = True) -> Iterator[Tuple[date, date]]:
+@functools.lru_cache()
+def most_recent_season() -> int:
+    '''
+    Find the most recent season.
+
+    Will be either this year (if the season has started or just ended)
+    or last year (if the season has not yet started).
+    '''
+
+    # Get the past year of season dates
+    recent_season_dates = date_range(
+        (datetime.today() - timedelta(weeks=52)).date(),  # From one year ago
+        datetime.today().date(),  # To today
+        verbose=False,
+    )
+
+    # Grab the last entry as the most recent game date, the year of which is the most recent season
+    return list(recent_season_dates)[-1][0].year
+
+
+def date_range(start: date, stop: date, step: int = 1, verbose: bool = True) -> Iterator[Tuple[date, date]]:
     '''
     Iterate over dates. Skip the offseason dates. Returns a pair of dates for beginning and end of each segment.
     Range is inclusive of the stop date.

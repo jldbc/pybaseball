@@ -7,7 +7,7 @@ import requests
 from bs4 import BeautifulSoup
 
 from . import cache
-from .utils import sanitize_date_range
+from .utils import most_recent_season, sanitize_date_range
 
 
 def get_soup(start_dt: date, end_dt: date) -> BeautifulSoup:
@@ -72,7 +72,7 @@ def batting_stats_bref(season: Optional[int] = None) -> pd.DataFrame:
     stats for current season to date.
     """
     if season is None:
-        season = date.today().year
+        season = most_recent_season()
     start_dt = f'{season}-03-01' #opening day is always late march or early april
     end_dt = f'{season}-11-01' #season is definitely over by November
     return batting_stats_range(start_dt, end_dt)

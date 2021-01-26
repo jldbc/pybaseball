@@ -1,5 +1,6 @@
 from pybaseball import amateur_draft
-from datetime import date
+from pybaseball.utils import most_recent_season
+
 
 def test_amateur_draft() -> None:
     result = amateur_draft(2019, 1)
@@ -22,7 +23,7 @@ def test_amateur_draft_no_stats() -> None:
 
 
 def test_amateur_draft_future() -> None:
-    result = amateur_draft(date.today().year + 1, 1, keep_stats=False)
+    result = amateur_draft(most_recent_season() + 1, 1, keep_stats=False)
 
     assert result is not None
     assert not result.empty

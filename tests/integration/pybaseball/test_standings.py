@@ -1,14 +1,15 @@
-from datetime import datetime
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import pandas as pd
 import pytest
 
 from pybaseball.standings import standings
+from pybaseball.utils import most_recent_season
+
 
 def get_division_counts_by_season(season: Optional[int]) -> int:
     if season is None:
-        season = datetime.today().year
+        season = most_recent_season()
 
     if season >= 1994:
         return 6
@@ -18,7 +19,7 @@ def get_division_counts_by_season(season: Optional[int]) -> int:
 
 class TestBRefStandings:
     @pytest.mark.parametrize(
-        "season", [(x) for x in range(1871, datetime.today().year + 1)] + [(None)] # type: ignore
+        "season", [(x) for x in range(1871, most_recent_season() + 1)] + [(None)] # type: ignore
     )
     def test_standings(self, season: Optional[int]) -> None:
         standings_list = standings(season)
@@ -39,7 +40,7 @@ class TestBRefStandings:
             standings(season)
 
     def test_standings_future(self) -> None:
-        season = datetime.today().year + 1
+        season = most_recent_season() + 1
 
         standings_list = standings(season)
 
