@@ -5,7 +5,7 @@ from typing import List, Tuple
 
 import pandas as pd
 import requests
-from fuzzywuzzy import process
+from rapidfuzz import process
 
 from . import cache
 
@@ -67,7 +67,7 @@ def get_closest_names(last: str, first: str, player_table: pd.DataFrame) -> pd.D
         player_table (pd.DataFrame): Chadwick player table including names
 
     Returns:
-        pd.DataFrame: 5 nearest matches from fuzzywuzzy.process
+        pd.DataFrame: 5 nearest matches from rapidfuzz.process
     """
     filled_df = player_table.fillna("")
     chadwick_names = filled_df["name_first"] + " " + filled_df["name_last"]
