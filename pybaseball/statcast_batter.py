@@ -33,5 +33,19 @@ def statcast_batter_exitvelo_barrels(year: int, minBBE: str = "q") -> pd.DataFra
     url = f"https://baseballsavant.mlb.com/leaderboard/statcast?type=batter&year={year}&position=&team=&min={minBBE}&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
-
     return data
+
+@cache.df_cache()
+def statcast_batter_expected_stats(year: int, minPA: str = "q") -> pd.DataFrame:
+    url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=batter&year={year}&position=&team=&min={minPA}&csv=true"
+    res = requests.get(url, timeout=None).content
+    data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    return data
+
+@cache.df_cache()
+def statcast_batter_percentile_ranks(year: int) -> pd.DataFrame:
+    url = f"https://baseballsavant.mlb.com/leaderboard/percentile-rankings?type=batter&year={year}&position=&team=&csv=true"
+    res = requests.get(url, timeout=None).content
+    data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    # URL returns a null player with player id 999999, which we want to drop
+    return data.loc[data.player_name.notna()].reset_index(drop=True)
