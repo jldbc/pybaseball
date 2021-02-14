@@ -1,6 +1,12 @@
 import pandas as pd
 
-from pybaseball.statcast_batter import statcast_batter, statcast_batter_exitvelo_barrels, statcast_batter_expected_stats, statcast_batter_percentile_ranks, statcast_batter_pitch_arsenal
+from pybaseball.statcast_batter import (
+    statcast_batter,
+    statcast_batter_exitvelo_barrels,
+    statcast_batter_expected_stats,
+    statcast_batter_percentile_ranks,
+    statcast_batter_pitch_arsenal
+)
 
 
 def test_statcast_batter_exitvelo_barrels() -> None:
