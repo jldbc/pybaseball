@@ -49,3 +49,10 @@ def statcast_batter_percentile_ranks(year: int) -> pd.DataFrame:
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     # URL returns a null player with player id 999999, which we want to drop
     return data.loc[data.player_name.notna()].reset_index(drop=True)
+
+@cache.df_cache()
+def statcast_batter_pitch_arsenal(year: int, minPA: str = "q") -> pd.DataFrame:
+    url = f"https://baseballsavant.mlb.com/leaderboard/pitch-arsenal-stats?type=batter&pitchType=&year={year}&team=&min={minPA}&csv=true"
+    res = requests.get(url, timeout=None).content
+    data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    return data
