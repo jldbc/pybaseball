@@ -1,5 +1,5 @@
 import io
-from typing import Optional
+from typing import Optional, Union
 
 import pandas as pd
 import requests
@@ -29,14 +29,14 @@ def statcast_batter(start_dt: Optional[str] = None, end_dt: Optional[str] = None
     return df
 
 @cache.df_cache()
-def statcast_batter_exitvelo_barrels(year: int, minBBE: str = "q") -> pd.DataFrame:
+def statcast_batter_exitvelo_barrels(year: int, minBBE: Union[int, str] = "q") -> pd.DataFrame:
     url = f"https://baseballsavant.mlb.com/leaderboard/statcast?type=batter&year={year}&position=&team=&min={minBBE}&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     return data
 
 @cache.df_cache()
-def statcast_batter_expected_stats(year: int, minPA: str = "q") -> pd.DataFrame:
+def statcast_batter_expected_stats(year: int, minPA: Union[int, str] = "q") -> pd.DataFrame:
     url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=batter&year={year}&position=&team=&min={minPA}&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
