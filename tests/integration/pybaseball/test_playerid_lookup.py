@@ -59,4 +59,8 @@ def test_playerid_lookup_hyphenated_name() -> None:
     falefa_df = playerid_lookup("Kiner Falefa", "isiah", fuzzy=True)
     assert falefa_df["name_last"][0] == "kiner-falefa"
     assert falefa_df["name_first"][0] == "isiah"
-    
+
+def test_playerid_lookup_garbage() -> None:
+    """Test non-player string"""
+    no_match = playerid_lookup("abcxyz", "xyzabc", fuzzy=True)
+    assert len(no_match) == 5
