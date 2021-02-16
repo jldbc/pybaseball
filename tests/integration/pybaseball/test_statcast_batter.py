@@ -4,13 +4,13 @@ from pybaseball.statcast_batter import statcast_batter, statcast_batter_exitvelo
 
 
 def test_statcast_batter_exitvelo_barrels() -> None:
-    result: pd.DataFrame = statcast_batter_exitvelo_barrels(2019)
+    result: pd.DataFrame = statcast_batter_exitvelo_barrels(2019, 250)
 
     assert result is not None
     assert not result.empty
 
     assert len(result.columns) == 19
-    assert len(result) == 135
+    assert len(result) == 175
 
 
 def test_statcast_batter() -> None:
