@@ -9,10 +9,7 @@ import numpy as np
 import pandas as pd
 
 CUR_PATH = Path(__file__).resolve().parent
-STADIUM_COORDS = pd.read_csv(
-    Path(CUR_PATH, 'data', 'mlbstadiums.csv'),
-    index_col=0
-)
+STADIUM_COORDS = pd.read_csv(Path(CUR_PATH, 'data', 'mlbstadiums.csv'), index_col=0)
 
 # transform over x axis
 STADIUM_COORDS['y'] *= -1
