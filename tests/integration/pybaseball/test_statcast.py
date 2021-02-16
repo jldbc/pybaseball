@@ -3,6 +3,7 @@ from typing import cast
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
+import pytest
 
 import pybaseball
 from pybaseball.statcast import _small_request, _handle_request, statcast, statcast_single_game
@@ -63,6 +64,7 @@ def test_handle_request_pre_season() -> None:
     assert len(result) == 689
 
 
+@pytest.mark.filterwarnings("ignore:That's a nice request you got there")
 def test_handle_request_post_season() -> None:
     start_dt, end_dt = sanitize_date_range('2018-11-14', '2019-03-22')
     result = _handle_request(start_dt, end_dt, step=1, verbose=False)

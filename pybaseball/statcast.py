@@ -31,8 +31,7 @@ def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> 
     return data
 
 
-_OVERSIZE_WARNING = '''
-That's a nice request you got there. It'd be a shame if something were to happen to it.
+_OVERSIZE_WARNING = '''That's a nice request you got there. It'd be a shame if something were to happen to it.
 We strongly recommend that you enable caching before running this. It's as simple as `pybaseball.cache.enable()`.
 Since the Statcast requests can take a *really* long time to run, if something were to happen, like: a disconnect;
 gremlins; computer repair by associates of Rudy Giuliani; electromagnetic interference from metal trash cans; etc.;
@@ -62,7 +61,7 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
     with tqdm(total=len(date_range)) as progress:
         with concurrent.futures.ProcessPoolExecutor() as executor:
             futures = {executor.submit(_small_request, subq_start, subq_end, team=team)
-                    for subq_start, subq_end in date_range}
+                       for subq_start, subq_end in date_range}
             for future in concurrent.futures.as_completed(futures):
                 dataframe_list.append(future.result())
                 progress.update(1)
