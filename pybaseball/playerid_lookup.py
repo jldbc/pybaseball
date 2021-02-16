@@ -1,3 +1,4 @@
+from difflib import get_close_matches
 import io
 import os
 
@@ -5,11 +6,8 @@ from typing import List, Tuple
 
 import pandas as pd
 import requests
-from fuzzywuzzy import process
 
 from . import cache
-
-# dropped key_uuid. looks like a has we wouldn't need for anything.
 
 url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
 
@@ -67,14 +65,13 @@ def get_closest_names(last: str, first: str, player_table: pd.DataFrame) -> pd.D
         player_table (pd.DataFrame): Chadwick player table including names
 
     Returns:
-        pd.DataFrame: 5 nearest matches from fuzzywuzzy.process
+        pd.DataFrame: 5 nearest matches from difflib.get_close_matches
     """
-    filled_df = player_table.fillna("")
-    chadwick_names = filled_df["name_first"] + " " + filled_df["name_last"]
-    fuzzy_matches = pd.DataFrame(process.extract(f"{first} {last}", chadwick_names, limit=5))
-    fuzzy_indices = fuzzy_matches[2].tolist()
-
-    return filled_df.iloc[fuzzy_indices].reset_index(drop=True)
+    filled_df = player_table.fillna("").assign(chadwick_name=lambda row: row.name_first + " " + row.name_last)
+    fuzzy_matches = pd.DataFrame(
+        get_close_matches(f"{first} {last}", filled_df.chadwick_name, n=5, cutoff=0)
+    ).rename({0: "chadwick_name"}, axis=1)
+    return fuzzy_matches.merge(filled_df, on="chadwick_name").drop("chadwick_name", axis=1)
 
 
 class _PlayerSearchClient:
