@@ -10,7 +10,7 @@ def test_statcast_batter_exitvelo_barrels() -> None:
     assert not result.empty
 
     assert len(result.columns) == 19
-    assert len(result) == 135
+    assert len(result) == 103
 
 
 def test_statcast_batter() -> None:
