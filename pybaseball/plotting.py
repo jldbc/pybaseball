@@ -19,9 +19,9 @@ STADIUM_COORDS['y'] *= -1
 
 # Use altair if available for backwards compatibility, else use pyplot
 try:
+    import altair as alt
     import warnings
 
-    import altair as alt
     _ALTAIR_ENABLED = True
     _ALTAIR_WARNING = """
         Altair functionality is deprecated and will be removed in a future version.
