@@ -1,8 +1,18 @@
+[tool.autopep8]
+max_line_length = 120
+ignore=["E265"]
+
 [tool.pylint.pep8]
 'max-line-length' = 120
 
+[tool.pylint.BASIC]
+# Good variable names which should always be accepted, separated by a comma.
+good-names=["i", "j", "k", "ex", "_", "df"]
+
 [tool.pylint.'MESSAGES CONTROL']
 disable = [
+    "dangerous-default-value",
     "logging-fstring-interpolation",
     "missing-module-docstring"
 ]
+
