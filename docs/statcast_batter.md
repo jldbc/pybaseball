@@ -49,3 +49,58 @@ data = statcast_batter_exitvelo_barrels(2019)
 # get data for batters with a minimum of 100 batted ball events in 2019
 data = statcast_batter_exitvelo_barrels(2019, 100)
 ```
+# Statcast Batter Expected Stats
+`statcast_batter_expected_stats(year, minPA=[qualified])`
+
+This function retrieves expected stats based on quality of batted ball contact in a given year.
+
+## Arguments
+`year:` The year for which you wish to retrieve expected stats data. Format: YYYY.
+
+`minPA:` The minimum number of plate appearances for each player. If a player falls below this threshold, they will be excluded from the results. If no value is specified, only qualified batters will be returned.
+
+## Examples of Valid Queries
+```python
+from pybaseball import statcast_batter_expected_stats
+
+# get data for all qualified batters in 2019
+data = statcast_batter_expected_stats(2019)
+
+# get data for batters with a minimum of 150 plate appearances in 2019
+data = statcast_batter_expected_stats(2019, 150)
+```
+# Statcast Batter Percentile Ranks
+`statcast_batter_percentile_ranks(year)`
+
+This function retrieves percentile ranks for each player in a given year, including batters with 2.1 PA per team game and 1.25 for pitchers.
+
+## Arguments
+`year:` The year for which you wish to retrieve percentile data. Format: YYYY.
+
+## Examples of Valid Queries
+```python
+from pybaseball import statcast_batter_percentile_ranks
+
+# get data for all qualified batters in 2019
+data = statcast_batter_percentile_ranks(2019)
+```
+# Statcast Batter Pitch Arsenal
+`statcast_batter_pitch_arsenal(year, minPA=25)`
+
+This function retrieves outcome data for batters split by the pitch type in a given year.
+
+## Arguments:
+`year:` The year for which you wish to retrieve pitch arsenal data. Format: YYYY.
+
+`minPA:` The minimum number of plate appearances for each player. If a player falls below this threshold, they will be excluded from the results. If no value is specified, the default number of plate appearances is 25.
+
+## Examples of Valid Queries
+```python
+from pybaseball import statcast_batter_pitch_arsenal
+
+# get data for all qualified batters in 2019
+data = statcast_batter_pitch_arsenal(2019)
+
+# get data for batters with a minimum of 100 plate appearances in 2019
+data = statcast_batter_pitch_arsenal(2019, 100)
+```
