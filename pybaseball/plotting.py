@@ -27,7 +27,7 @@ try:
 except ImportError:
     _ALTAIR_ENABLED = False
 
-    # Needed so we can still user altair datatypes for now in our func definitions
+    # Needed so we can still use altair datatypes for now in our func definitions
     class FakeAltair():  # pylint: disable=too-few-public-methods
         Chart = Any
         LayerChart = Any
