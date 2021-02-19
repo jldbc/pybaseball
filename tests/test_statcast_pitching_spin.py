@@ -45,8 +45,8 @@ class TestStatcastPitchingSpinCalcs(unittest.TestCase):
 			test_frame = func(test_frame)
 
 			for column in columns:
-				left = test_frame.loc[0:2, [column]]
-				right = target_frame.loc[0:2, [column]]
+				left = test_frame.loc[:, [column]]
+				right = target_frame.loc[:, [column]]
 				assert_frame_equal(left, right, check_dtype=False)
 
 
@@ -62,10 +62,10 @@ class TestStatcastPitchingSpinCalcs(unittest.TestCase):
 
 		"""
 		# Import the rubric
-		template_data = pd.read_csv('tests/statcast_spin/live_Darvish_July2019_test.csv').iloc[0:2, :]
+		template_data = pd.read_csv('tests/statcast_spin/live_Darvish_Feb2021_test.csv')
 
 		# Run the method in question
-		df = spin.statcast_pitcher_spin(start_dt='2019-07-01', end_dt='2019-07-31', player_id=506433).iloc[0:2, :]
+		df = spin.statcast_pitcher_spin(start_dt='2019-07-01', end_dt='2019-07-31', player_id=506433)
 
 		# Columns needed to be checked
 		target_columns = ['Mx', 'Mz', 'phi', 'theta']
