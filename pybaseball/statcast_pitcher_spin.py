@@ -11,7 +11,7 @@ from pybaseball import statcast_pitcher
 import pandas as pd
 import numpy as np
 
-K = .005153  # Environmental Constant
+K = .005383  # Environmental Constant
 DISTANCE_FROM_HOME_TO_MOUND = 60.5
 DISTANCE_TO_PLATE_AT_VELOCITY_CAPTURE = 50
 Y_VALUE_AT_FINAL_MEASUREMENT = 17/12
@@ -157,12 +157,12 @@ def find_spin_factor(df):
 
 
 def find_transverse_spin(df):
-    df['spinT'] = (78.92*df['S']*df['vbar']).round(1)
+    df['spinT'] = (78.92*df['S']*df['vbar'])
     return df
 
 
 def find_spin_efficiency(df):
-    df['spin eff'] = special_round(df['spinT']/df['release_spin_rate'], 2)
+    df['spin eff'] = df['spinT']/df['release_spin_rate']
     return df
 
 
@@ -177,25 +177,6 @@ def find_theta(df):
 
 
 # HELPERS
-def special_round(series, digit):
-    """Manual rounding function for pd.Series
-
-    pd.round has errors rounding with floating point numbers in some cases. 
-    This function is a workaround for those cases.
-
-    series = (pd.Series) series to be rounded
-    digit = (int) what number of digits to be rounded
-
-    Returns the rounded pd.series
-    """
-
-    series = series * 10**digit
-    series = np.where(series >= 0, series + .5, series - .5)
-    series = series.astype('int64').astype('float64')
-    series = series / 10**digit
-    return series
-
-
 def time_duration(s, v, acc, adj, forward):
     """
         Finds flight time given an original position, velocity, accelaration, and target position.
