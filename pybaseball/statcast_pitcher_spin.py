@@ -1,7 +1,7 @@
 """Statcast Pitcher Spin
 
 These calculations are based on the work by Prof. Alan Nathan of the University
-of Illinois. 
+of Illinois.
 
 Article: http://baseball.physics.illinois.edu/trackman/SpinAxis.pdf
 Excel Workbook: http://baseball.physics.illinois.edu/trackman/MovementSpinEfficiencyTemplate-v2.xlsx
@@ -95,10 +95,6 @@ def find_average_velocity_components(df):
     df['vxbar'] = (2*df['vxR'] + df['ax']*df['tf'])/2
     df['vybar'] = (2*df['vyR'] + df['ay']*df['tf'])/2
     df['vzbar'] = (2*df['vzR'] + df['az']*df['tf'])/2
-
-    df['vxbar'] = df['vxbar']
-    df['vybar'] = df['vybar']
-    df['vzbar'] = df['vzbar']
     return df
 
 
