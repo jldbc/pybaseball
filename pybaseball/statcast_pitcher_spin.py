@@ -172,46 +172,7 @@ def find_theta(df):
     return df
 
 
-def find_lift_coefficient(df):
-    df['Cl'] = (df['amag']/(K*df['vbar']**2)).round(SIG_DIG)
-    return df
-
-def find_spin_factor(df):
-    df['S'] = (0.4*df['Cl']/(1-2.32*df['Cl'])).round(SIG_DIG)
-    return df
-
-def find_transverse_spin(df):
-    df['spinT'] = (78.92*df['S']*df['vbar']).round(1)
-    return df
-
-def find_spin_efficiency(df):
-    df['spin eff'] = special_round(df['spinT']/df['release_spin_rate'], 2)
-    return df
-
-def find_theta(df):
-    df['theta'] = df['spin eff'].where((df['spin eff'] >=-1.0) & (df['spin eff']<=1.0), np.nan)
-    df['theta'] = df['theta'].where(df['theta'].isna(), np.arccos(df['theta'])*180/np.pi).round(0)
-    return df
-
 # HELPERS
-def special_round(series, digit):
-    """Manual rounding function for pd.Series
-
-    pd.round has errors rounding with floating point numbers in some cases. 
-    This function is a workaround for those cases.
-
-    series = (pd.Series) series to be rounded
-    digit = (int) what number of digits to be rounded
-
-    Returns the rounded pd.series
-    """
-
-    series = series * 10**digit
-    series = np.where(series >= 0, series + .5, series - .5)
-    series = series.astype('int64').astype('float64')
-    series = series / 10**digit
-    return series
-
 def time_duration(s, v, acc, adj, forward):
     """
         Finds flight time given an original position, velocity, accelaration, and target position.
