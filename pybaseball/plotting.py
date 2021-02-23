@@ -22,7 +22,7 @@ try:
     _ALTAIR_ENABLED = True
     _ALTAIR_WARNING = """
         Altair functionality is deprecated and will be removed in a future version.
-        Use pyplot functions instead or remove altair the altair library to prevent autodetection.
+        Use pyplot functions instead or remove the altair library to prevent autodetection.
     """
 except ImportError:
     _ALTAIR_ENABLED = False
