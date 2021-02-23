@@ -27,12 +27,7 @@ try:
 except ImportError:
     _ALTAIR_ENABLED = False
 
-    # Needed so we can still use altair datatypes for now in our func definitions
-    class FakeAltair():  # pylint: disable=too-few-public-methods
-        Chart = Any
-        LayerChart = Any
-
-    alt = FakeAltair()
+    from .datahelpers import mock_altair as alt
 
 
 def plot_stadium_altair(team: str) -> alt.Chart:
