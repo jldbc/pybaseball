@@ -13,6 +13,7 @@ good-names=["i", "j", "k", "ex", "_", "df"]
 disable = [
     "dangerous-default-value",
     "logging-fstring-interpolation",
+    "missing-function-docstring",
     "missing-module-docstring"
 ]
 

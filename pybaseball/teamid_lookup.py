@@ -1,13 +1,13 @@
 import logging
 import os
-from typing import Optional, Tuple, Dict, Set
+from typing import Dict, Optional, Set, Tuple
 
 import pandas as pd
+from fuzzywuzzy import process
 
 from . import lahman
 from .datasources import fangraphs
 from .utils import most_recent_season
-from fuzzywuzzy import process
 
 _DATA_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'fangraphs_teams.csv')
 
@@ -25,6 +25,7 @@ def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
         fg_team_data = fg_team_data.query(f"lgID == '{league.upper()}'")
 
     return fg_team_data
+
 
 # (teamID, franchID): teamIDfg
 _manual_matches: Dict[Tuple[str, str], int] = {
@@ -48,7 +49,8 @@ _manual_matches: Dict[Tuple[str, str], int] = {
     ('WS4', 'NAT'): 1050,
 }
 
-def _front_loaded_scorer(s1: str, s2: str, force_ascii: bool=True, full_process: bool=True) -> int:
+
+def _front_loaded_scorer(str_1: str, str_2: str, force_ascii: bool = True, full_process: bool = True) -> int:
     '''
         A fuzzywuzzy scorer based on fuzzywuzzy's default_scorer.
 
@@ -61,19 +63,20 @@ def _front_loaded_scorer(s1: str, s2: str, force_ascii: bool=True, full_process:
         So, in this scorer 'LSA' would match to 'BSA' with a score of 84, while 'BSN' would match at 59.
     '''
 
-    if len(s1) == 1 or len(s2) == 1:
-        return int(process.default_scorer(s1, s2, force_ascii, full_process))
-    
-    full_score = process.default_scorer(s1, s2, force_ascii, full_process)
-    front_score = process.default_scorer(s1[:-1], s2[:-1], force_ascii, full_process)
+    if len(str_1) == 1 or len(str_2) == 1:
+        return int(process.default_scorer(str_1, str_2, force_ascii, full_process))
+
+    full_score = process.default_scorer(str_1, str_2, force_ascii, full_process)
+    front_score = process.default_scorer(str_1[:-1], str_2[:-1], force_ascii, full_process)
 
     return round((full_score + front_score) / 2)
 
+
 def _fuzzy_match_team(lahman_row: pd.Series, fg_data: pd.DataFrame, min_score: int = 51) -> Optional[str]:
     columns_to_check = ['franchID', 'teamID', 'teamIDBR']
-    
+
     choices: Set[str] = set(fg_data[fg_data['Season'] == lahman_row.yearID]['Team'].values)
-    
+
     if len(choices) == 0:
         return None
 
@@ -84,6 +87,7 @@ def _fuzzy_match_team(lahman_row: pd.Series, fg_data: pd.DataFrame, min_score: i
     scores_list = [(key, round(value / len(columns_to_check))) for key, value in scores.items()]
     choice, score = sorted(scores_list, key=lambda x: x[1], reverse=True)[0]
     return choice if score >= min_score else None
+
 
 def _generate_teams() -> pd.DataFrame:
     """
@@ -96,12 +100,12 @@ def _generate_teams() -> pd.DataFrame:
     end_season = most_recent_season()
 
     lahman_columns = ['yearID', 'lgID', 'teamID', 'franchID', 'divID', 'name', 'teamIDBR', 'teamIDlahman45',
-                      'teamIDretro', 'AB']
+                      'teamIDretro']
 
     lahman_teams = lahman.teams()[lahman_columns]
 
     # Only getting AB to make payload small, and you have to specify at least one column
-    fg_team_data = fangraphs.fg_team_batting_data(start_season, end_season, "ALL", stat_columns=['AB']).rename(columns=lambda x: x if x not in lahman_columns else f'{x}_fg')
+    fg_team_data = fangraphs.fg_team_batting_data(start_season, end_season, "ALL", stat_columns=['AB'])
 
     fg_columns = list(fg_team_data.columns.values)
 
@@ -109,7 +113,10 @@ def _generate_teams() -> pd.DataFrame:
 
     unjoined_lahman_teams = lahman_teams.copy(deep=True)
 
-    unjoined_lahman_teams['manual_teamid'] = unjoined_lahman_teams.apply(lambda row: _manual_matches.get((row.teamID, row.franchID)), axis=1)
+    unjoined_lahman_teams['manual_teamid'] = unjoined_lahman_teams.apply(
+        lambda row: _manual_matches.get((row.teamID, row.franchID)),
+        axis=1
+    )
 
     lahman_columns += ['manual_teamid']
 
@@ -129,8 +136,10 @@ def _generate_teams() -> pd.DataFrame:
         found = outer_joined.query("not Season.isnull() and not yearID.isnull()")
         joined = pd.concat([joined, found]) if (joined is not None) else found
 
-        # My kingdom for an xor function 
-        unjoined = outer_joined.query('(yearID.isnull() or Season.isnull()) and not (yearID.isnull() and Season.isnull())')
+        # My kingdom for an xor function
+        unjoined = outer_joined.query(
+            '(yearID.isnull() or Season.isnull()) and not (yearID.isnull() and Season.isnull())'
+        )
 
         unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(labels=fg_columns, axis=1)
         unjoined_team_data = unjoined.query('yearID.isnull()').drop(labels=lahman_columns, axis=1)
@@ -147,7 +156,7 @@ def _generate_teams() -> pd.DataFrame:
     # Clean up the data
     joined = pd.concat([joined, outer_joined.query("not Season.isnull() and not yearID.isnull()")])
 
-    # My kingdom for an xor function 
+    # My kingdom for an xor function
     unjoined = outer_joined.query('(yearID.isnull() or Season.isnull()) and not (yearID.isnull() and Season.isnull())')
 
     unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(unjoined_team_data.columns.values, axis=1)
@@ -168,10 +177,9 @@ def _generate_teams() -> pd.DataFrame:
             unjoined_team_data
         )
         error_state = True
-    
+
     if error_state:
         raise Exception("Extraneous data was not matched. Aborting.")
-    
 
     joined = joined[['yearID', 'lgID', 'teamID', 'franchID', 'teamIDfg', 'teamIDBR', 'teamIDretro']]
 
@@ -184,6 +192,7 @@ def _generate_teams() -> pd.DataFrame:
     joined.to_csv(_DATA_FILENAME)
 
     return joined
+
 
 # For backwards API compatibility
 fangraphs_teams = team_ids
