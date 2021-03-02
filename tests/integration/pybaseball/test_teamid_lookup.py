@@ -16,6 +16,6 @@ def test_generate_fangraphs_teams() -> None:
         result = result.query('yearID <= 2019')
 
         assert len(result.columns) == 7
-        assert len(result) == 2943
+        assert len(result) == 2925
 
         to_csv_mock.assert_called_once_with(_DATA_FILENAME)
