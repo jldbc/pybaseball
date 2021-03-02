@@ -1,9 +1,11 @@
 import logging
 import os
-from typing import Dict, Optional, Set, Tuple
+import re
+from difflib import SequenceMatcher
+from typing import Dict, List, Optional, Set
 
+import numpy as np
 import pandas as pd
-from fuzzywuzzy import process
 
 from . import lahman
 from .datasources import fangraphs
@@ -27,64 +29,56 @@ def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
     return fg_team_data
 
 
-# (teamID, franchID): teamIDfg
-_manual_matches: Dict[Tuple[str, str], int] = {
-    ('BL4', 'MAR'): 1046,
-    ('BLA', 'NYY'): 9,
-    ('BLF', 'BLT'): 1007,
-    ('BR1', 'ECK'): 1032,
-    ('BR4', 'BRG'): 1012,
-    ('BRF', 'BTT'): 1014,
-    ('BLU', 'BLU'): 1008,
-    ('CHP', 'CHP'): 1022,
-    ('CHU', 'CPI'): 1030,
-    ('FW1', 'KEK'): 1042,
-    ('MLA', 'BAL'): 2,
-    ('ML1', 'ATL'): 16,
-    ('SL5', 'SLM'): 1072,
-    ('SLU', 'SLM'): 1072,
-    ('WS1', 'MIN'): 8,
-    ('WS2', 'TEX'): 13,
-    ('WS3', 'OLY'): 1057,
-    ('WS4', 'NAT'): 1050,
+# franchID: teamIDfg
+_manual_matches: Dict[str, int] = {
+    'BLT': 1007,
+    'BLU': 1008,
+    'BTT': 1014,
+    'CEN': 1019,
+    'CHP': 1022,
+    'CPI': 1030,
+    'NYY': 9,
+    'SLM': 1072,
 }
 
 
-def _front_loaded_scorer(str_1: str, str_2: str, force_ascii: bool = True, full_process: bool = True) -> int:
+def _front_loaded_ratio(str_1: str, str_2: str) -> float:
     '''
-        A fuzzywuzzy scorer based on fuzzywuzzy's default_scorer.
+        A difflib ration based on difflint's SequenceMatcher ration.
 
         It gives higher weight to a name that starts the same.
 
         For example:
 
-        In the default_scorer 'LSA' and 'BSN' both match to 'BSA' with a score of 67.
+        In the default ratio, 'LSA' and 'BSN' both match to 'BSA' with a score of 67.
         However, for team names, the first letter or two are almost always the city, which is likely to be the same.
-        So, in this scorer 'LSA' would match to 'BSA' with a score of 84, while 'BSN' would match at 59.
+        So, in this scorer 'LSA' would match to 'BSA' with a score of 83, while 'BSN' would match at 58.
     '''
 
+    full_score = SequenceMatcher(a=str_1, b=str_2).ratio()
     if len(str_1) == 1 or len(str_2) == 1:
-        return int(process.default_scorer(str_1, str_2, force_ascii, full_process))
+        return full_score
 
-    full_score = process.default_scorer(str_1, str_2, force_ascii, full_process)
-    front_score = process.default_scorer(str_1[:-1], str_2[:-1], force_ascii, full_process)
+    front_score = SequenceMatcher(a=str_1[:-1], b=str_2[:-1]).ratio()
 
-    return round((full_score + front_score) / 2)
+    return (full_score + front_score) / 2
 
 
-def _fuzzy_match_team(lahman_row: pd.Series, fg_data: pd.DataFrame, min_score: int = 51) -> Optional[str]:
-    columns_to_check = ['franchID', 'teamID', 'teamIDBR']
+def _get_close_team_matches(lahman_row: pd.Series, fg_data: pd.DataFrame, min_score: int = 50) -> Optional[str]:
+    columns_to_check = ['franchID', 'teamID', 'teamIDBR', 'initials', 'city_start', 'name_start']
+    best_of = 3
 
     choices: Set[str] = set(fg_data[fg_data['Season'] == lahman_row.yearID]['Team'].values)
 
     if len(choices) == 0:
         return None
 
-    scores = {choice: 0 for choice in choices}
+    scores: Dict[str, List[float]] = {choice: [] for choice in choices}
     for join_column in columns_to_check:
         for choice in choices:
-            scores[choice] += _front_loaded_scorer(lahman_row[join_column], choice)
-    scores_list = [(key, round(value / len(columns_to_check))) for key, value in scores.items()]
+            scores[choice].append(_front_loaded_ratio(lahman_row[join_column], choice) * 100)
+    scores = {key: sorted(value, reverse=True)[:best_of] for key, value in scores.items()}
+    scores_list = [(key, round(np.mean(value))) for key, value in scores.items()]
     choice, score = sorted(scores_list, key=lambda x: x[1], reverse=True)[0]
     return choice if score >= min_score else None
 
@@ -114,15 +108,36 @@ def _generate_teams() -> pd.DataFrame:
     unjoined_lahman_teams = lahman_teams.copy(deep=True)
 
     unjoined_lahman_teams['manual_teamid'] = unjoined_lahman_teams.apply(
-        lambda row: _manual_matches.get((row.teamID, row.franchID)),
+        lambda row: _manual_matches.get(row.franchID, -1),
         axis=1
     )
 
     lahman_columns += ['manual_teamid']
 
+    unjoined_lahman_teams['initials'] = unjoined_lahman_teams.apply(
+        lambda row: re.sub(r'[^A-Z]', '', row['name']),
+        axis=1
+    )
+
+    lahman_columns += ['initials']
+
+    unjoined_lahman_teams['city_start'] = unjoined_lahman_teams.apply(
+        lambda row: row['name'][:3].upper(),
+        axis=1
+    )
+
+    lahman_columns += ['city_start']
+
+    unjoined_lahman_teams['name_start'] = unjoined_lahman_teams.apply(
+        lambda row: row['name'].split(' ')[-1][:3].upper(),
+        axis=1
+    )
+
+    lahman_columns += ['name_start']
+
     joined = None
 
-    for join_column in ['manual_teamid', 'teamID', 'franchID', 'teamIDBR']:
+    for join_column in ['manual_teamid', 'teamID', 'franchID', 'teamIDBR', 'initials', 'city_start', 'name_start']:
         if join_column == 'manual_teamid':
             outer_joined = unjoined_lahman_teams.merge(unjoined_team_data, how='outer',
                                                        left_on=['yearID', join_column],
@@ -144,13 +159,13 @@ def _generate_teams() -> pd.DataFrame:
         unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(labels=fg_columns, axis=1)
         unjoined_team_data = unjoined.query('yearID.isnull()').drop(labels=lahman_columns, axis=1)
 
-    # Try to fuzzy match the rest
-    unjoined_lahman_teams['fuzzy_match'] = unjoined_lahman_teams.apply(
-        lambda row: _fuzzy_match_team(row, unjoined_team_data),
+    # Try to close match the rest
+    unjoined_lahman_teams['close_match'] = unjoined_lahman_teams.apply(
+        lambda row: _get_close_team_matches(row, unjoined_team_data),
         axis=1
     )
 
-    outer_joined = unjoined_lahman_teams.merge(unjoined_team_data, how='outer', left_on=['yearID', 'fuzzy_match'],
+    outer_joined = unjoined_lahman_teams.merge(unjoined_team_data, how='outer', left_on=['yearID', 'close_match'],
                                                right_on=['Season', 'Team'])
 
     # Clean up the data
@@ -165,16 +180,18 @@ def _generate_teams() -> pd.DataFrame:
     error_state = False
 
     if not unjoined_lahman_teams.empty:
-        logging.warning('When trying to join lahman data to Fangraphs, found %s rows of extraneous lahman data: %s',
-                        len(unjoined_lahman_teams.index),
-                        unjoined_lahman_teams)
+        logging.warning(
+            'When trying to join lahman data to Fangraphs, found %s rows of extraneous lahman data: %s',
+            len(unjoined_lahman_teams.index),
+            unjoined_lahman_teams.sort_values(['yearID', 'lgID', 'teamID', 'franchID'])
+        )
         error_state = True
 
     if not unjoined_team_data.empty:
         logging.warning(
             'When trying to join Fangraphs data to lahman, found %s rows of extraneous Fangraphs data: %s',
             len(unjoined_team_data.index),
-            unjoined_team_data
+            unjoined_team_data.sort_values(['Season', 'Team'])
         )
         error_state = True
 
