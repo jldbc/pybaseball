@@ -33,10 +33,13 @@ def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
 _manual_matches: Dict[str, int] = {
     'BLT': 1007,
     'BLU': 1008,
+    'BRG': 1012,
     'BTT': 1014,
     'CEN': 1019,
     'CHP': 1022,
     'CPI': 1030,
+    'ECK': 1032,
+    'MAR': 1046,
     'NYY': 9,
     'SLM': 1072,
 }
@@ -55,10 +58,14 @@ def _front_loaded_ratio(str_1: str, str_2: str) -> float:
         So, in this scorer 'LSA' would match to 'BSA' with a score of 83, while 'BSN' would match at 58.
     '''
 
-    full_score = SequenceMatcher(a=str_1, b=str_2).ratio()
-    if len(str_1) == 1 or len(str_2) == 1:
-        return full_score
+    if len(str_1) != 3 or len(str_2) != 3:
+        logging.warn(
+            "This ratio is intended for 3 length string comparison (such as a lahman teamID, franchID, or teamIDBR."
+            "Returning 0 for non-compliant string(s)."
+        )
+        return 0.0
 
+    full_score = SequenceMatcher(a=str_1, b=str_2).ratio()
     front_score = SequenceMatcher(a=str_1[:-1], b=str_2[:-1]).ratio()
 
     return (full_score + front_score) / 2
@@ -103,7 +110,7 @@ def _generate_teams() -> pd.DataFrame:
 
     fg_columns = list(fg_team_data.columns.values)
 
-    unjoined_team_data = fg_team_data.copy(deep=True)
+    unjoined_fangraphs_teams = fg_team_data.copy(deep=True)
 
     unjoined_lahman_teams = lahman_teams.copy(deep=True)
 
@@ -139,11 +146,11 @@ def _generate_teams() -> pd.DataFrame:
 
     for join_column in ['manual_teamid', 'teamID', 'franchID', 'teamIDBR', 'initials', 'city_start', 'name_start']:
         if join_column == 'manual_teamid':
-            outer_joined = unjoined_lahman_teams.merge(unjoined_team_data, how='outer',
+            outer_joined = unjoined_lahman_teams.merge(unjoined_fangraphs_teams, how='outer',
                                                        left_on=['yearID', join_column],
                                                        right_on=['Season', 'teamIDfg'])
         else:
-            outer_joined = unjoined_lahman_teams.merge(unjoined_team_data, how='outer',
+            outer_joined = unjoined_lahman_teams.merge(unjoined_fangraphs_teams, how='outer',
                                                        left_on=['yearID', join_column],
                                                        right_on=['Season', 'Team'])
 
@@ -152,30 +159,27 @@ def _generate_teams() -> pd.DataFrame:
         joined = pd.concat([joined, found]) if (joined is not None) else found
 
         # My kingdom for an xor function
-        unjoined = outer_joined.query(
-            '(yearID.isnull() or Season.isnull()) and not (yearID.isnull() and Season.isnull())'
-        )
+        unjoined = outer_joined.query('yearID.isnull() or Season.isnull()')
 
         unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(labels=fg_columns, axis=1)
-        unjoined_team_data = unjoined.query('yearID.isnull()').drop(labels=lahman_columns, axis=1)
+        unjoined_fangraphs_teams = unjoined.query('yearID.isnull()').drop(labels=lahman_columns, axis=1)
 
     # Try to close match the rest
     unjoined_lahman_teams['close_match'] = unjoined_lahman_teams.apply(
-        lambda row: _get_close_team_matches(row, unjoined_team_data),
+        lambda row: _get_close_team_matches(row, unjoined_fangraphs_teams),
         axis=1
     )
 
-    outer_joined = unjoined_lahman_teams.merge(unjoined_team_data, how='outer', left_on=['yearID', 'close_match'],
+    outer_joined = unjoined_lahman_teams.merge(unjoined_fangraphs_teams, how='outer', left_on=['yearID', 'close_match'],
                                                right_on=['Season', 'Team'])
 
     # Clean up the data
     joined = pd.concat([joined, outer_joined.query("not Season.isnull() and not yearID.isnull()")])
 
-    # My kingdom for an xor function
     unjoined = outer_joined.query('(yearID.isnull() or Season.isnull()) and not (yearID.isnull() and Season.isnull())')
 
-    unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(unjoined_team_data.columns.values, axis=1)
-    unjoined_team_data = unjoined.query('yearID.isnull()').drop(unjoined_lahman_teams.columns, axis=1)
+    unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(unjoined_fangraphs_teams.columns.values, axis=1)
+    unjoined_fangraphs_teams = unjoined.query('yearID.isnull()').drop(unjoined_lahman_teams.columns, axis=1)
 
     error_state = False
 
@@ -187,11 +191,11 @@ def _generate_teams() -> pd.DataFrame:
         )
         error_state = True
 
-    if not unjoined_team_data.empty:
+    if not unjoined_fangraphs_teams.empty:
         logging.warning(
             'When trying to join Fangraphs data to lahman, found %s rows of extraneous Fangraphs data: %s',
-            len(unjoined_team_data.index),
-            unjoined_team_data.sort_values(['Season', 'Team'])
+            len(unjoined_fangraphs_teams.index),
+            unjoined_fangraphs_teams.sort_values(['Season', 'Team'])
         )
         error_state = True
 
