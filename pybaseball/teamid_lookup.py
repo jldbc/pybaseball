@@ -12,7 +12,8 @@ from .datasources import fangraphs
 from .utils import most_recent_season
 
 _DATA_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'fangraphs_teams.csv')
-
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
+logging.basicConfig(level=LOG_LEVEL)
 
 def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
     if not os.path.exists(_DATA_FILENAME):
@@ -72,7 +73,7 @@ def _front_loaded_ratio(str_1: str, str_2: str) -> float:
 
 
 def _get_close_team_matches(lahman_row: pd.Series, fg_data: pd.DataFrame, min_score: int = 50) -> Optional[str]:
-    columns_to_check = ['franchID', 'teamID', 'teamIDBR', 'initials', 'city_start', 'name_start']
+    columns_to_check = ['franchID', 'teamID', 'teamIDBR', 'initials', 'city_start']
     best_of = 3
 
     choices: Set[str] = set(fg_data[fg_data['Season'] == lahman_row.yearID]['Team'].values)
@@ -83,7 +84,9 @@ def _get_close_team_matches(lahman_row: pd.Series, fg_data: pd.DataFrame, min_sc
     scores: Dict[str, List[float]] = {choice: [] for choice in choices}
     for join_column in columns_to_check:
         for choice in choices:
-            scores[choice].append(_front_loaded_ratio(lahman_row[join_column], choice) * 100)
+            scores[choice].append(
+                _front_loaded_ratio(lahman_row[join_column], choice) * 100 if len(lahman_row[join_column]) == 3 else 0.0
+            )
     scores = {key: sorted(value, reverse=True)[:best_of] for key, value in scores.items()}
     scores_list = [(key, round(np.mean(value))) for key, value in scores.items()]
     choice, score = sorted(scores_list, key=lambda x: x[1], reverse=True)[0]
@@ -135,16 +138,10 @@ def _generate_teams() -> pd.DataFrame:
 
     lahman_columns += ['city_start']
 
-    unjoined_lahman_teams['name_start'] = unjoined_lahman_teams.apply(
-        lambda row: row['name'].split(' ')[-1][:3].upper(),
-        axis=1
-    )
+    joined: pd.DataFrame = None
 
-    lahman_columns += ['name_start']
-
-    joined = None
-
-    for join_column in ['manual_teamid', 'teamID', 'franchID', 'teamIDBR', 'initials', 'city_start', 'name_start']:
+    for join_column in ['manual_teamid', 'teamID', 'franchID', 'teamIDBR', 'initials', 'city_start']:
+        joined_count = len(joined.index) if (joined is not None) else 0
         if join_column == 'manual_teamid':
             outer_joined = unjoined_lahman_teams.merge(unjoined_fangraphs_teams, how='outer',
                                                        left_on=['yearID', join_column],
@@ -164,6 +161,10 @@ def _generate_teams() -> pd.DataFrame:
         unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(labels=fg_columns, axis=1)
         unjoined_fangraphs_teams = unjoined.query('yearID.isnull()').drop(labels=lahman_columns, axis=1)
 
+        logging.info("Matched %s teams off of %s. %s teams remaining to match.", len(joined.index) - joined_count, join_column, len(unjoined_lahman_teams.index))
+
+    joined_count = len(joined.index) if (joined is not None) else 0
+
     # Try to close match the rest
     unjoined_lahman_teams['close_match'] = unjoined_lahman_teams.apply(
         lambda row: _get_close_team_matches(row, unjoined_fangraphs_teams),
@@ -180,6 +181,8 @@ def _generate_teams() -> pd.DataFrame:
 
     unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(unjoined_fangraphs_teams.columns.values, axis=1)
     unjoined_fangraphs_teams = unjoined.query('yearID.isnull()').drop(unjoined_lahman_teams.columns, axis=1)
+
+    logging.info("Matched %s teams off of close match. %s teams remaining to match.", len(joined.index) - joined_count, len(unjoined_lahman_teams.index))
 
     error_state = False
 
