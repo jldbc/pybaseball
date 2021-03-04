@@ -31,6 +31,9 @@ mypy:
 test:
 	pytest $(TEST_RUN_AGAINST) $(TEST_FLAGS) --doctest-modules --cov=pybaseball --cov-report term-missing
 
+# The test-github-actions is here to allow any local developer to test the GitHub actions on their code
+# before pushing and creating a PR. Just install act from https://github.com/nektos/act and run
+# make test-github-actions
 ACT_EXISTS := $(shell act --help 2> /dev/null)
 
 ifeq ($(ACT_EXISTS),)
