@@ -1,6 +1,6 @@
 import re
 from datetime import datetime
-from typing import Any, List, Union
+from typing import Any, List, Union, Optional
 
 import attr
 import numpy as np
@@ -24,7 +24,7 @@ def try_parse_dataframe(
     data: pd.DataFrame,
     parse_numerics: bool = True,
     null_replacement: Union[str, int, float, datetime] = np.nan,
-    known_percentages: List[str] = []
+    known_percentages: Optional[List[str]] = None
 ) -> pd.DataFrame:
     data_copy = data.copy()
 
@@ -48,7 +48,8 @@ def try_parse_dataframe(
             continue
         first_value = data_copy[column].loc[first_value_index]
 
-        if str(first_value).endswith('%') or column.endswith('%') or column in known_percentages:
+        if str(first_value).endswith('%') or column.endswith('%') or \
+                (known_percentages is not None and column in known_percentages):
             data_copy[column] = data_copy[column].astype(str).str.replace("%", "").astype(float) / 100.0
         else:
             # Doing it this way as just applying pd.to_datetime on
@@ -67,7 +68,7 @@ def try_parse(
     value: Union[None, str, int, datetime, float],
     column_name: str,
     null_replacement: Union[str, int, float, datetime] = np.nan,
-    known_percentages: List[str] = []
+    known_percentages: Optional[List[str]] = None
 ) -> Union[str, int, float, datetime]:
     if value is None:
         return null_replacement
@@ -89,7 +90,10 @@ def try_parse(
 
     # Is it an float or an int (including percetages)?
     try:
-        percentage = (value.endswith('%') or column_name.endswith('%') or column_name in known_percentages)
+        percentage = (
+            value.endswith('%') or column_name.endswith('%') or \
+            (known_percentages is not None and  column_name in known_percentages)
+        )
         if percentage:
             return try_parse_percentage(value)
 

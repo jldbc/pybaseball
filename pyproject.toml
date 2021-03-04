@@ -11,8 +11,8 @@ good-names=["i", "j", "k", "ex", "_", "df"]
 
 [tool.pylint.'MESSAGES CONTROL']
 disable = [
-    "dangerous-default-value",
     "logging-fstring-interpolation",
+    "missing-class-docstring",
     "missing-function-docstring",
     "missing-module-docstring"
 ]
