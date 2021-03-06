@@ -62,7 +62,7 @@ def test_statcast_pitcher_arsenal_stats() -> None:
 	assert len(result) == 1769
 
 def test_statcast_pitcher_pitch_movement() -> None:
-	minP = 200
+	minP = 250
 	result: pd.DataFrame = statcast_pitcher_pitch_movement(2019, minP=minP)
 
 	assert result is not None
