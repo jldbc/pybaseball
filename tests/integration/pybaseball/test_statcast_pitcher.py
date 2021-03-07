@@ -22,14 +22,15 @@ def test_statcast_pitcher() -> None:
     assert len(result) == 1982
 
 def test_statcast_pitcher_exitvelo_barrels() -> None:
-	minBBE = 100
-	result: pd.DataFrame = statcast_pitcher_exitvelo_barrels(2019, minBBE=minBBE)
+	min_bbe = 100
+	result: pd.DataFrame = statcast_pitcher_exitvelo_barrels(2019, minBBE=min_bbe)
 
 	assert result is not None
 	assert not result.empty
 
 	assert len(result.columns) == 19
-	assert len(result) == 432
+	assert len(result) > 0
+    assert len(result[result['attempts'] < min_bbe]) == 0
 
 def test_statcast_pitchers_expected_stats() -> None:
 	minPA = 100
