@@ -1,8 +1,10 @@
 import logging
 import os
-from datetime import date
-from typing import Optional
+import re
+from difflib import SequenceMatcher
+from typing import Dict, List, Optional, Set
 
+import numpy as np
 import pandas as pd
 
 from . import lahman
@@ -10,7 +12,8 @@ from .datasources import fangraphs
 from .utils import most_recent_season
 
 _DATA_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'fangraphs_teams.csv')
-
+LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
+logging.basicConfig(level=LOG_LEVEL)
 
 def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
     if not os.path.exists(_DATA_FILENAME):
@@ -27,24 +30,67 @@ def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
     return fg_team_data
 
 
-_known_cities = ['Altoona', 'Anaheim', 'Arizona', 'Atlanta', 'Baltimore', 'Boston', 'Brooklyn', 'Buffalo',
-                 'California', 'Chicago', 'Cincinnati', 'Cleveland', 'Colorado', 'Detroit', 'Elizabeth', 'Florida',
-                 'Fort Wayne', 'Hartford', 'Houston', 'Indianapolis', 'Kansas City', 'Los Angeles', 'Milwaukee',
-                 'Minnesota', 'Montreal', 'New York', 'Newark', 'Oakland', 'Philadelphia', 'Pittsburg',
-                 'Pittsburgh', 'Richmond', 'San Diego', 'San Francisco', 'Seattle', 'St. Louis', 'St. Paul',
-                 'Syracuse', 'Tampa Bay', 'Texas', 'Toronto', 'Troy', 'Washington', 'Washington', 'Wilmington']
+# franchID: teamIDfg
+_manual_matches: Dict[str, int] = {
+    'BLT': 1007,
+    'BLU': 1008,
+    'BRG': 1012,
+    'BTT': 1014,
+    'CEN': 1019,
+    'CHP': 1022,
+    'CPI': 1030,
+    'ECK': 1032,
+    'MAR': 1046,
+    'NYY': 9,
+    'SLM': 1072,
+}
 
-_manual_matches = {'CPI': 'Browns/Stogies', 'ANA': 'Angels'}
+
+def _front_loaded_ratio(str_1: str, str_2: str) -> float:
+    '''
+        A difflib ration based on difflint's SequenceMatcher ration.
+
+        It gives higher weight to a name that starts the same.
+
+        For example:
+
+        In the default ratio, 'LSA' and 'BSN' both match to 'BSA' with a score of 67.
+        However, for team names, the first letter or two are almost always the city, which is likely to be the same.
+        So, in this scorer 'LSA' would match to 'BSA' with a score of 83, while 'BSN' would match at 58.
+    '''
+
+    if len(str_1) != 3 or len(str_2) != 3:
+        logging.warn(
+            "This ratio is intended for 3 length string comparison (such as a lahman teamID, franchID, or teamIDBR."
+            "Returning 0 for non-compliant string(s)."
+        )
+        return 0.0
+
+    full_score = SequenceMatcher(a=str_1, b=str_2).ratio()
+    front_score = SequenceMatcher(a=str_1[:-1], b=str_2[:-1]).ratio()
+
+    return (full_score + front_score) / 2
 
 
-def _estimate_name(team_row: pd.DataFrame, column: str) -> str:
-    if team_row['franchID'] in _manual_matches:
-        return _manual_matches[team_row['franchID']]
-    estimate = str(team_row[column])
-    for city in _known_cities + [str(team_row['city'])]:
-        estimate = estimate.replace(f'{city} ', '') if estimate.startswith(city) else estimate
+def _get_close_team_matches(lahman_row: pd.Series, fg_data: pd.DataFrame, min_score: int = 50) -> Optional[str]:
+    columns_to_check = ['franchID', 'teamID', 'teamIDBR', 'initials', 'city_start']
+    best_of = 3
 
-    return estimate
+    choices: Set[str] = set(fg_data[fg_data['Season'] == lahman_row.yearID]['Team'].values)
+
+    if len(choices) == 0:
+        return None
+
+    scores: Dict[str, List[float]] = {choice: [] for choice in choices}
+    for join_column in columns_to_check:
+        for choice in choices:
+            scores[choice].append(
+                _front_loaded_ratio(lahman_row[join_column], choice) * 100 if len(lahman_row[join_column]) == 3 else 0.0
+            )
+    scores = {key: sorted(value, reverse=True)[:best_of] for key, value in scores.items()}
+    scores_list = [(key, round(np.mean(value))) for key, value in scores.items()]
+    choice, score = sorted(scores_list, key=lambda x: x[1], reverse=True)[0]
+    return choice if score >= min_score else None
 
 
 def _generate_teams() -> pd.DataFrame:
@@ -57,56 +103,107 @@ def _generate_teams() -> pd.DataFrame:
     start_season = 1871
     end_season = most_recent_season()
 
+    lahman_columns = ['yearID', 'lgID', 'teamID', 'franchID', 'divID', 'name', 'teamIDBR', 'teamIDlahman45',
+                      'teamIDretro']
+
+    lahman_teams = lahman.teams()[lahman_columns]
+
     # Only getting AB to make payload small, and you have to specify at least one column
-    team_data = fangraphs.fg_team_batting_data(start_season, end_season, "ALL", stat_columns=['AB'])
+    fg_team_data = fangraphs.fg_team_batting_data(start_season, end_season, "ALL", stat_columns=['AB'])
 
-    # Join the lahman data
-    teams_franchises = lahman.teams().merge(lahman.teams_franchises(), how='left', on='franchID', suffixes=['', '.fr'])
-    teams_franchises = teams_franchises.merge(lahman.parks(), how='left', left_on='park', right_on='park.name',
-                                              suffixes=['', '.p'])
+    fg_columns = list(fg_team_data.columns.values)
 
-    # Drop lahman data down to just what we need
-    teams_franchises = teams_franchises[
-        ['yearID', 'lgID', 'teamID', 'franchID', 'divID', 'name', 'park', 'teamIDBR', 'teamIDlahman45', 'teamIDretro',
-         'franchName', 'city', 'state']
-    ]
+    unjoined_fangraphs_teams = fg_team_data.copy(deep=True)
 
-    # Try to guess the name Fangraphs would use
-    teams_franchises['possibleName'] = teams_franchises.apply(lambda row: _estimate_name(row, 'name'), axis=1)
-    teams_franchises['possibleFranchName'] = teams_franchises.apply(lambda row: _estimate_name(row, 'franchName'),
-                                                                    axis=1)
+    unjoined_lahman_teams = lahman_teams.copy(deep=True)
 
-    # Join up the data by team name, and look for what is still without a match
-    outer_joined = teams_franchises.merge(team_data, how='outer', left_on=['yearID', 'possibleName'],
-                                          right_on=['Season', 'Team'])
-    unjoined_teams_franchises = outer_joined.query('Season.isnull()').drop(team_data.columns, axis=1)
-    unjoined_team_data = outer_joined.query('yearID.isnull()').drop(teams_franchises.columns, axis=1)
+    unjoined_lahman_teams['manual_teamid'] = unjoined_lahman_teams.apply(
+        lambda row: _manual_matches.get(row.franchID, -1),
+        axis=1
+    )
 
-    # Take all the unmatched data and try to join off franchise name, instead of team name
-    inner_joined = teams_franchises.merge(team_data, how='inner', left_on=['yearID', 'possibleName'],
-                                          right_on=['Season', 'Team'])
-    franch_inner_joined = unjoined_teams_franchises.merge(unjoined_team_data, how='inner',
-                                                          left_on=['yearID', 'possibleFranchName'],
-                                                          right_on=['Season', 'Team'])
+    lahman_columns += ['manual_teamid']
+
+    unjoined_lahman_teams['initials'] = unjoined_lahman_teams.apply(
+        lambda row: re.sub(r'[^A-Z]', '', row['name']),
+        axis=1
+    )
+
+    lahman_columns += ['initials']
+
+    unjoined_lahman_teams['city_start'] = unjoined_lahman_teams.apply(
+        lambda row: row['name'][:3].upper(),
+        axis=1
+    )
+
+    lahman_columns += ['city_start']
+
+    joined: pd.DataFrame = None
+
+    for join_column in ['manual_teamid', 'teamID', 'franchID', 'teamIDBR', 'initials', 'city_start']:
+        joined_count = len(joined.index) if (joined is not None) else 0
+        if join_column == 'manual_teamid':
+            outer_joined = unjoined_lahman_teams.merge(unjoined_fangraphs_teams, how='outer',
+                                                       left_on=['yearID', join_column],
+                                                       right_on=['Season', 'teamIDfg'])
+        else:
+            outer_joined = unjoined_lahman_teams.merge(unjoined_fangraphs_teams, how='outer',
+                                                       left_on=['yearID', join_column],
+                                                       right_on=['Season', 'Team'])
+
+        # Clean up the data
+        found = outer_joined.query("not Season.isnull() and not yearID.isnull()")
+        joined = pd.concat([joined, found]) if (joined is not None) else found
+
+        # My kingdom for an xor function
+        unjoined = outer_joined.query('yearID.isnull() or Season.isnull()')
+
+        unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(labels=fg_columns, axis=1)
+        unjoined_fangraphs_teams = unjoined.query('yearID.isnull()').drop(labels=lahman_columns, axis=1)
+
+        logging.info("Matched %s teams off of %s. %s teams remaining to match.", len(joined.index) - joined_count, join_column, len(unjoined_lahman_teams.index))
+
+    joined_count = len(joined.index) if (joined is not None) else 0
+
+    # Try to close match the rest
+    unjoined_lahman_teams['close_match'] = unjoined_lahman_teams.apply(
+        lambda row: _get_close_team_matches(row, unjoined_fangraphs_teams),
+        axis=1
+    )
+
+    outer_joined = unjoined_lahman_teams.merge(unjoined_fangraphs_teams, how='outer', left_on=['yearID', 'close_match'],
+                                               right_on=['Season', 'Team'])
 
     # Clean up the data
-    joined = pd.concat([inner_joined, franch_inner_joined])
+    joined = pd.concat([joined, outer_joined.query("not Season.isnull() and not yearID.isnull()")])
 
-    outer_joined = joined.merge(team_data, how='outer', left_on=['yearID', 'teamIDfg'],
-                                right_on=['Season', 'teamIDfg'], suffixes=['', '_y'])
+    unjoined = outer_joined.query('(yearID.isnull() or Season.isnull()) and not (yearID.isnull() and Season.isnull())')
 
-    unjoined_teams_franchises = outer_joined.query('Season_y.isnull()').drop(team_data.columns, axis=1,
-                                                                             errors='ignore')
+    unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(unjoined_fangraphs_teams.columns.values, axis=1)
+    unjoined_fangraphs_teams = unjoined.query('yearID.isnull()').drop(unjoined_lahman_teams.columns, axis=1)
 
-    if not unjoined_teams_franchises.empty:
-        logging.warning('When trying to join FG data to lahman, found the following extraneous lahman data',
-                        extra=unjoined_teams_franchises)
+    logging.info("Matched %s teams off of close match. %s teams remaining to match.", len(joined.index) - joined_count, len(unjoined_lahman_teams.index))
 
-    unjoined_team_data = outer_joined.query('yearID.isnull()').drop(teams_franchises.columns, axis=1, errors='ignore')
+    error_state = False
 
-    if not unjoined_team_data.empty:
-        logging.warning('When trying to join Fangraphs data to lahman, found the following extraneous Fangraphs data',
-                        extra=unjoined_team_data)
+    if not unjoined_lahman_teams.empty:
+        logging.warning(
+            'When trying to join lahman data to Fangraphs, found %s rows of extraneous lahman data: %s',
+            len(unjoined_lahman_teams.index),
+            unjoined_lahman_teams.sort_values(['yearID', 'lgID', 'teamID', 'franchID'])
+        )
+        error_state = True
+
+    if not unjoined_fangraphs_teams.empty:
+        logging.warning(
+            'When trying to join Fangraphs data to lahman, found %s rows of extraneous Fangraphs data: %s',
+            len(unjoined_fangraphs_teams.index),
+            unjoined_fangraphs_teams.sort_values(['Season', 'Team'])
+        )
+        error_state = True
+
+    if error_state:
+        raise Exception("Extraneous data was not matched. Aborting.")
 
     joined = joined[['yearID', 'lgID', 'teamID', 'franchID', 'teamIDfg', 'teamIDBR', 'teamIDretro']]
 
@@ -119,6 +216,7 @@ def _generate_teams() -> pd.DataFrame:
     joined.to_csv(_DATA_FILENAME)
 
     return joined
+
 
 # For backwards API compatibility
 fangraphs_teams = team_ids

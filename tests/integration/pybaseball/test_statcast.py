@@ -1,11 +1,9 @@
 from datetime import date, timedelta
-from typing import cast
-from unittest.mock import MagicMock, patch
 
 import pandas as pd
+import pytest
 
-import pybaseball
-from pybaseball.statcast import _small_request, _handle_request, statcast, statcast_single_game
+from pybaseball.statcast import _handle_request, _small_request, statcast, statcast_single_game
 from pybaseball.utils import sanitize_date_range
 
 
@@ -65,13 +63,14 @@ def test_handle_request_pre_season() -> None:
 
 def test_handle_request_post_season() -> None:
     start_dt, end_dt = sanitize_date_range('2018-11-14', '2019-03-22')
-    result = _handle_request(start_dt, end_dt, step=1, verbose=False)
+    with pytest.warns(UserWarning):
+        result = _handle_request(start_dt, end_dt, step=1, verbose=False)
 
-    assert result is not None
-    assert not result.empty
+        assert result is not None
+        assert not result.empty
 
-    assert len(result.columns) == 89
-    assert len(result) == 689
+        assert len(result.columns) == 89
+        assert len(result) == 689
 
 
 def test_handle_request_post_season_same_year() -> None:

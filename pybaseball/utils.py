@@ -10,7 +10,6 @@ import requests
 
 from . import cache
 
-NULLABLE_INT = pd.Int32Dtype()
 DATE_FORMAT = "%Y-%m-%d"
 
 # dictionary containing team abbreviations and their first year in existance
@@ -62,8 +61,8 @@ def validate_datestring(date_text: Optional[str]) -> date:
     try:
         assert date_text
         return datetime.strptime(date_text, DATE_FORMAT).date()
-    except (AssertionError, ValueError):
-        raise ValueError("Incorrect data format, should be YYYY-MM-DD")
+    except (AssertionError, ValueError) as ex:
+        raise ValueError("Incorrect data format, should be YYYY-MM-DD") from ex
 
 
 @functools.lru_cache()
@@ -107,8 +106,8 @@ def date_range(start: date, stop: date, step: int = 1, verbose: bool = True) -> 
 
         if low > stop:
             return
-        hi = min(low + timedelta(step - 1), stop)
-        yield low, hi
+        high = min(low + timedelta(step - 1), stop)
+        yield low, high
         low += timedelta(days=step)
 
 
@@ -122,22 +121,21 @@ def statcast_date_range(start: date, stop: date, step: int, verbose: bool = True
     low = start
 
     while low <= stop:
-        season_start, season_end = STATCAST_VALID_DATES.get(low.year,
-                                                     (low.replace(month=3, day=15), low.replace(month=11, day=15))
-                                                     )
+        date_span = low.replace(month=3, day=15), low.replace(month=11, day=15)
+        season_start, season_end = STATCAST_VALID_DATES.get(low.year, date_span)
         if low < season_start:
             low = season_start
             if verbose:
                 print('Skipping offseason dates')
         elif low > season_end:
-            low, _ = STATCAST_VALID_DATES.get(low.year+1, (date(month=3, day=15, year=low.year + 1), None))
+            low, _ = STATCAST_VALID_DATES.get(low.year + 1, (date(month=3, day=15, year=low.year + 1), None))
             if verbose:
                 print('Skipping offseason dates')
 
         if low > stop:
             return
-        hi = min(low + timedelta(step - 1), stop)
-        yield low, hi
+        high = min(low + timedelta(step - 1), stop)
+        yield low, high
         low += timedelta(days=step)
 
 
@@ -153,7 +151,8 @@ def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple
         print('end_dt', end_dt)
 
         print(
-            "Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, try get_statcast(start_dt, end_dt)."
+            "Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, "
+            "try get_statcast(start_dt, end_dt)."
         )
 
     # If only one date is supplied, assume they only want that day's stats
@@ -174,14 +173,18 @@ def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple
     return start_dt_date, end_dt_date
 
 
-def sanitize_input(start_dt, end_dt, player_id):
+def sanitize_input(start_dt: Optional[str], end_dt: Optional[str], player_id: Optional[int]) -> Tuple[str, str, str]:
     # error if no player ID provided
     if player_id is None:
-        raise ValueError("Player ID is required. If you need to find a player's id, try pybaseball.playerid_lookup(last_name, first_name) and use their key_mlbam. If you want statcast data for all players, try the statcast() function.")
+        raise ValueError(
+            "Player ID is required. If you need to find a player's id, try "
+            "pybaseball.playerid_lookup(last_name, first_name) and use their key_mlbam. "
+            "If you want statcast data for all players, try the statcast() function."
+        )
     # this id should be a string to place inside a url
-    player_id = str(player_id)
+    player_id_str = str(player_id)
     start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
-    return str(start_dt_date), str(end_dt_date), player_id
+    return str(start_dt_date), str(end_dt_date), player_id_str
 
 
 @cache.df_cache()
@@ -211,24 +214,24 @@ def split_request(start_dt: str, end_dt: str, player_id: int, url: str) -> pd.Da
     return pd.concat(results)
 
 
-def get_zip_file(url):
+def get_zip_file(url: str) -> zipfile.ZipFile:
     """
     Get zip file from provided URL
     """
-    with requests.get(url, stream=True) as f:
-        z = zipfile.ZipFile(io.BytesIO(f.content))
-    return z
+    with requests.get(url, stream=True) as file_stream:
+        zip_file = zipfile.ZipFile(io.BytesIO(file_stream.content))
+    return zip_file
 
 
-def get_text_file(url):
+def get_text_file(url: str) -> str:
     """
     Get raw github file from provided URL
     """
 
-    with requests.get(url, stream=True) as f:
-        s = f.text
+    with requests.get(url, stream=True) as file_stream:
+        text = file_stream.text
 
-    return s
+    return text
 
 
 def flag_imputed_data(statcast_df: pd.DataFrame) -> pd.DataFrame:
