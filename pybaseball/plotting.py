@@ -33,6 +33,7 @@ def plot_stadium(team: str, title: Optional[str] = None, width: Optional[int] = 
             Optional: Height of plot
         axis: (matplotlib.axis.Axes), default = None
             Optional: Axes to plot the stadium against. If None, a new Axes will be created
+
     Returns:
         A matplotlib.axes.Axes object that was used to generate the stadium render
     """
@@ -145,7 +146,6 @@ def spraychart(data: pd.DataFrame, team_stadium: str, title: str = '', tooltips:
 
     plt.show()
 
-    # return plot
     return base
 
 
