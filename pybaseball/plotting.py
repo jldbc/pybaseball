@@ -35,13 +35,6 @@ def plot_stadium(team: str, title: Optional[str] = None, width: Optional[int] = 
             Optional: Axes to plot the stadium against. If None, a new Axes will be created
     Returns:
         A matplotlib.axes.Axes object that was used to generate the stadium render
-    Parameters
-    ----------
-    team:   name of team whose stadium you want plotted
-    title:  title for the pyplot chart
-    width:  chart width
-    height: chart heith
-    axis:   optional axes to plot the stadium against. If None, a new figure will be created.
     """
     coords = STADIUM_COORDS[STADIUM_COORDS['team'] == team.lower()]
 
