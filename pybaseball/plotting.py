@@ -21,6 +21,20 @@ def plot_stadium(team: str, title: Optional[str] = None, width: Optional[int] = 
     """
     Plot the outline of the specified team's stadium using MLBAM coordinates (using pyplot)
 
+    
+    Args:
+        team: (str)
+            Team whose stadium will be plotted
+        title: (str), default = name of team
+            Optional: Title of plot
+        width: (int), default = 5 inches
+            Optional: Width of plot
+        height: (int), default = 5 inches
+            Optional: Height of plot
+        axis: (matplotlib.axis.Axes), default = None
+            Optional: Axes to plot the stadium against. If None, a new Axes will be created
+    Returns:
+        A matplotlib.axes.Axes object that was used to generate the stadium render
     Parameters
     ----------
     team:   name of team whose stadium you want plotted
@@ -73,18 +87,29 @@ def spraychart(data: pd.DataFrame, team_stadium: str, title: str = '', tooltips:
     """
     Produces a spraychart using statcast data overlayed on specified stadium
 
-    Parameters
-    ----------
-    data:         statcast batter data
-    team_stadium: team whose stadium the hits will be overlaid on
-    title:        title of plot
-    tooltips:     list of variables in data to include as tooltips (Deprecated)
-    size:         size of marks on plot
-    colorby:      which category to color the mark with. Events or player name.
-                  must be 'events' or 'player'
-    legend_title: optional title for the legend
-    width:        width of plot
-    height:       height of plot
+    
+    Args:
+        data: (pandas.DataFrame)
+            StatCast pandas.DataFrame of StatCast batter data
+        team_stadium: (str)
+            Team whose stadium the hits will be overlaid on
+        title: (str), default = ''
+            Optional: Title of plot
+        tooltips: (List[str]), default = None
+            Optional: List of variables in data to include as tooltips (Deprecated)
+        size: (int), default = 100
+            Optional: Size of hit circles on plot
+        colorby: (str), default = 'events'
+            Optional: Which category to color the mark with. 'events','player', or a column within data
+        legend_title: (str), default = based on colorby
+            Optional: Title for the legend
+        width: (int), default = 500
+            Optional: Width of plot (not counting the legend)
+        height: (int), default = 500
+            Optional: Height of plot
+
+    Returns:
+        A matplotlib.axes.Axes object that was used to generate the stadium render and the spraychart
     """
 
     # pull stadium plot to overlay hits on
@@ -96,12 +121,16 @@ def spraychart(data: pd.DataFrame, team_stadium: str, title: str = '', tooltips:
     if colorby == 'events':
         sub_data['event'] = sub_data['events'].str.replace('_', ' ').str.title()
         color_label = 'event'
-        legend_title = 'Outcome'
+        if not legend_title:
+            legend_title = 'Outcome'
     elif colorby == 'player':
         color_label = 'player_name'
-        legend_title = 'Player'
+        if not legend_title:
+            legend_title = 'Player'
     else:
         color_label = colorby
+        if not legend_title:
+            legend_title = colorby
 
     # scatter plot of hits
     scatters = []
@@ -131,8 +160,10 @@ def plot_bb_profile(df: pd.DataFrame, parameter: Optional[str] = "launch_angle")
     """Plots a given StatCast parameter split by bb_type
 
     Args:
-        df (pd.DataFrame):                   StatCast pd.DataFrame (retrieved through statcast, statcast_batter, etc)
-        parameter (Optional[str], optional): Parameter to plot. Defaults to "launch_angle".
+        df: (pandas.DataFrame)
+            pandas.DataFrame of StatCast batter data (retrieved through statcast, statcast_batter, etc)
+        parameter: (str), default = 'launch_angle'
+            Optional: Parameter to plot
     """
 
     bb_types = df["bb_type"].dropna().unique()
