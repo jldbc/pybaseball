@@ -146,7 +146,15 @@ Gathering player lookup table. This may take a moment.
 
 StatCast data is subject to change (even for prior seasons):
 
-<blockquote class="twitter-tweet"><p lang="en" dir="ltr">Each season has 700,000+ pitches, and is subject to update. You should code accordingly.</p>&mdash; Tangotiger (@tangotiger) <a href="https://twitter.com/tangotiger/status/1362064972025634821?ref_src=twsrc%5Etfw">February 17, 2021</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+<div>
+   <blockquote class="twitter-tweet">
+      <p lang="en" dir="ltr">
+         Each season has 700,000+ pitches, and is subject to update. You should code accordingly.
+      </p>&mdash; Tangotiger (@tangotiger)
+      <a href="https://twitter.com/tangotiger/status/1362064972025634821?ref_src=twsrc%5Etfw">February 17, 2021</a>
+   </blockquote>
+   <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+</div>
 
 ## Pitching Stats: pitching stats for players across multiple seasons, single seasons, or during a specified time period
 
