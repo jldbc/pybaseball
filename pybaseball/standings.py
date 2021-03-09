@@ -10,7 +10,6 @@ from .utils import most_recent_season
 
 def get_soup(year: int) -> BeautifulSoup:
     url = f'http://www.baseball-reference.com/leagues/MLB/{year}-standings.shtml'
-    print(url)
     s = requests.get(url).content
     return BeautifulSoup(s, "lxml")
 

@@ -142,6 +142,19 @@ Gathering player lookup table. This may take a moment.
 [2 rows x 78 columns]
 ```
 
+### A note on Statcast data
+
+Statcast data is subject to change (even for prior seasons):
+
+<div>
+   <blockquote class="twitter-tweet">
+      <p lang="en" dir="ltr">
+         Each season has 700,000+ pitches, and is subject to update. You should code accordingly.
+      </p>&mdash; Tangotiger (@tangotiger)
+      <a href="https://twitter.com/tangotiger/status/1362064972025634821?ref_src=twsrc%5Etfw">February 17, 2021</a>
+   </blockquote>
+</div>
+
 ## Pitching Stats: pitching stats for players across multiple seasons, single seasons, or during a specified time period
 
 This library contains two main functions for obtaining pitching data. For league-wide season-level pitching data, use the function `pitching_stats(start_season, end_season)`. This will return one row per player per season, and provide all metrics made available by FanGraphs.

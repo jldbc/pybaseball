@@ -55,7 +55,7 @@ def get_player_info(playerid: str, soup: bs.BeautifulSoup = None) -> Dict:
             r = InfoRegex.findall(str(ptags[j]))
             # This loop cleans up the text found in the outer loop and removes non alphanumeric characters.
             for k in range(len(r)):
-                pattern = re.compile('[\W_]+')
+                pattern = re.compile(r'[\W_]+')
                 strings = pattern.sub(' ', r[k])
                 if strings and strings != ' ':
                     fv.append(strings)
