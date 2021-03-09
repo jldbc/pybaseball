@@ -16,6 +16,8 @@ _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={g
 _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&team={team}&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&"
 # _MAX_SC_RESULTS = 40000
 
+class StatcastException(Exception):
+    pass
 
 @cache.df_cache(expires=365)
 def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> pd.DataFrame:
@@ -23,6 +25,9 @@ def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> 
         _SC_SMALL_REQUEST.format(start_dt=str(start_dt), end_dt=str(end_dt), team=team if team else '')
     )
     if data is not None and not data.empty:
+        if 'error' in data.columns:
+            raise StatcastException(data['error'].values[0])
+
         data = data.sort_values(
             ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
             ascending=False
