@@ -115,6 +115,12 @@ def statcast_single_game(game_pk: Union[str, int]) -> pd.DataFrame:
         _SC_SINGLE_GAME_REQUEST.format(game_pk=game_pk)
     )
 
+    if data is None or data.empty:
+        return None
+
+    if 'error' in data.columns:
+        raise StatcastException(data['error'].values[0])
+
     return data.sort_values(
         ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
         ascending=False
