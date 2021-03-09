@@ -142,9 +142,9 @@ Gathering player lookup table. This may take a moment.
 [2 rows x 78 columns]
 ```
 
-### A note on StatCast data.
+### A note on Statcast data
 
-StatCast data is subject to change (even for prior seasons):
+Statcast data is subject to change (even for prior seasons):
 
 <div>
    <blockquote class="twitter-tweet">
