@@ -120,8 +120,12 @@ def get_data_file_contents(data_dir: str) -> Callable[[str], str]:
             ARGUMENTS:
             filename    : str : the name of the file within the tests data directory to get the contents of
         """
-        with open(os.path.join(data_dir, filename)) as _file:
-            return _file.read()
+        with open(os.path.join(data_dir, filename), 'rb') as _file:
+            data = _file.read()
+            try:
+                return data.decode('ascii')
+            except UnicodeDecodeError:
+                return data.decode('utf-8')
 
     return get_contents
 

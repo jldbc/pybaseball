@@ -1,7 +1,8 @@
 import re
 from datetime import datetime
-from typing import List, Optional, Union
+from typing import Any, List, Union, Optional
 
+import attr
 import numpy as np
 import pandas as pd
 
@@ -12,7 +13,7 @@ null_regexes = [
 
 date_formats = [
     # Standard statcast format
-    (re.compile(r'^\d{4}-\d{1,2}-\d{1,2}$'),                            '%Y-%m-%d'),
+    (re.compile(r'^\d{4}-\d{1,2}-\d{1,2}$'), '%Y-%m-%d'),
 
     # Just in case (https://github.com/jldbc/pybaseball/issues/104)
     (re.compile(r'^\d{4}-\d{1,2}-\d{1,2}T\d{2}:\d{2}:\d{2}.\d{1,6}Z$'), '%Y-%m-%dT%H:%M:%S.%fZ'),
@@ -23,15 +24,21 @@ def try_parse_dataframe(
     data: pd.DataFrame,
     parse_numerics: bool = True,
     null_replacement: Union[str, int, float, datetime] = np.nan,
-    known_percentages: List[str] = []
+    known_percentages: Optional[List[str]] = None
 ) -> pd.DataFrame:
     data_copy = data.copy()
 
     if parse_numerics:
         data_copy = coalesce_nulls(data_copy, null_replacement)
-        data_copy = data_copy.apply(pd.to_numeric, errors='ignore', downcast='signed').convert_dtypes(convert_string=False)
-    
-    string_columns = [dtype_tuple[0] for dtype_tuple in data_copy.dtypes.items() if str(dtype_tuple[1]) in ["object", "string"]]
+        data_copy = data_copy.apply(
+            pd.to_numeric,
+            errors='ignore',
+            downcast='signed'
+        ).convert_dtypes(convert_string=False)
+
+    string_columns = [
+        dtype_tuple[0] for dtype_tuple in data_copy.dtypes.items() if str(dtype_tuple[1]) in ["object", "string"]
+    ]
     for column in string_columns:
         # Only check the first value of the column and test that;
         # this is faster than blindly trying to convert entire columns
@@ -41,11 +48,12 @@ def try_parse_dataframe(
             continue
         first_value = data_copy[column].loc[first_value_index]
 
-        if str(first_value).endswith('%') or column.endswith('%') or column in known_percentages:
+        if str(first_value).endswith('%') or column.endswith('%') or \
+                (known_percentages is not None and column in known_percentages):
             data_copy[column] = data_copy[column].astype(str).str.replace("%", "").astype(float) / 100.0
         else:
             # Doing it this way as just applying pd.to_datetime on
-            #the whole dataframe just tries to gobble up ints/floats as timestamps
+            # the whole dataframe just tries to gobble up ints/floats as timestamps
             for date_regex, date_format in date_formats:
                 if isinstance(first_value, str) and date_regex.match(first_value):
                     data_copy[column] = data_copy[column].apply(pd.to_datetime, errors='ignore', format=date_format)
@@ -55,11 +63,12 @@ def try_parse_dataframe(
     return data_copy
 
 
+# pylint: disable=too-many-return-statements
 def try_parse(
     value: Union[None, str, int, datetime, float],
     column_name: str,
     null_replacement: Union[str, int, float, datetime] = np.nan,
-    known_percentages: List[str] = []
+    known_percentages: Optional[List[str]] = None
 ) -> Union[str, int, float, datetime]:
     if value is None:
         return null_replacement
@@ -76,19 +85,23 @@ def try_parse(
         if date_regex.match(value):
             try:
                 return datetime.strptime(value, date_format)
-            except:
+            except:  # pylint: disable=bare-except
                 pass
 
     # Is it an float or an int (including percetages)?
     try:
-        percentage = (value.endswith('%') or column_name.endswith('%') or column_name in known_percentages)
+        percentage = (
+            value.endswith('%') or column_name.endswith('%') or \
+            (known_percentages is not None and  column_name in known_percentages)
+        )
         if percentage:
             return try_parse_percentage(value)
+
         if '.' in value:
             return float(value)
-        else:
-            return int(value)
-    except:
+
+        return int(value)
+    except:  # pylint: disable=bare-except
         pass
 
     return value
@@ -127,7 +140,7 @@ def convert_percentages(data: pd.DataFrame, columns: List[str]) -> pd.DataFrame:
         # Skip if column is all NA (happens for some of the more obscure stats + in older seasons)
         if col in data.columns and data[col].count() > 0:
             data[col] = data[col].str.strip(' %')
-            data[col] = data[col].astype(float)/100.0
+            data[col] = data[col].astype(float) / 100.0
         else:
             # print(col)
             pass
@@ -143,10 +156,10 @@ def compute_pa(bat_df: pd.DataFrame) -> pd.Series:
     :param bat_df:
     :return:
     """
-    PA = bat_df.loc[:, "AB"].fillna(0)
+    plate_appearances = bat_df.loc[:, "AB"].fillna(0)
     for stat in ["BB", "HBP", "SH", "SF"]:
-        PA += bat_df.loc[:, stat].fillna(0)
-    return PA.astype(int)
+        plate_appearances += bat_df.loc[:, stat].fillna(0)
+    return plate_appearances.astype(int)
 
 
 def augment_lahman_batting(bat_df: pd.DataFrame) -> pd.DataFrame:
@@ -156,21 +169,23 @@ def augment_lahman_batting(bat_df: pd.DataFrame) -> pd.DataFrame:
     :param bat_df:
     :return:
     """
-    PA = compute_pa(bat_df)
-    X1B = (
+    plate_appearances = compute_pa(bat_df)
+    singles = (
         bat_df.loc[:, "H"]
         - bat_df.loc[:, "2B"]
         - bat_df.loc[:, "3B"]
         - bat_df.loc[:, "HR"]
     )
-    TB = (
+    total_bases = (
         bat_df.loc[:, "HR"] * 4
         + bat_df.loc[:, "3B"] * 3
         + bat_df.loc[:, "2B"] * 2
-        + X1B
+        + singles
     )
     return bat_df.assign(
-        PA=PA.astype(int), X1B=X1B.astype(int), TB=TB.astype(int)
+        PA=plate_appearances.astype(int),
+        X1B=singles.astype(int),
+        TB=total_bases.astype(int)
     ).rename({"X1B": "1B"}, axis=1)
 
 
@@ -187,20 +202,20 @@ def augment_lahman_pitching(stats_df: pd.DataFrame) -> pd.DataFrame:
 def aggregate_by_season(stats_df: pd.DataFrame) -> pd.DataFrame:
     return stats_df.groupby(["playerID", "yearID"]).sum().reset_index()
 
-
-def check_is_zero_one(instance, attribute, value):
+# pylint: disable=unused-argument
+def check_is_zero_one(instance: Any, attribute: attr.Attribute, value: Union[int, float]) -> None:
     if value not in [0, 1]:
         raise ValueError(f"{attribute} must be either 0 or 1, not {value}")
 
-
-def check_greater_zero(instance, attribute, value):
+# pylint: disable=unused-argument
+def check_greater_zero(instance: Any, attribute: attr.Attribute, value: Union[int, float]) -> None:
     if value <= 0:
         raise ValueError(
             f"{attribute} must be greater than zero, not {value}"
         )
 
-
-def check_between_zero_one(instance, attribute, value):
+# pylint: disable=unused-argument
+def check_between_zero_one(instance: Any, attribute: attr.Attribute, value: Union[int, float]) -> None:
     if not 0 <= value <= 1:
         raise ValueError(
             f"{attribute} must be between zero and one, not {value}"

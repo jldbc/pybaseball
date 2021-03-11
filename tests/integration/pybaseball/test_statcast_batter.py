@@ -31,14 +31,15 @@ def test_statcast_batter() -> None:
     assert len(result) == 2418
 
 def test_statcast_batter_expected_stats() -> None:
-    minPA = 150
-    result: pd.DataFrame = statcast_batter_expected_stats(2019, 150)
+    min_pa = 250
+    result: pd.DataFrame = statcast_batter_expected_stats(2019, min_pa)
 
     assert result is not None
     assert not result.empty
 
     assert len(result.columns) == 15
-    assert len(result) == 336
+    assert len(result) > 0
+    assert len(result[result['pa'] < min_pa]) == 0
 
 def test_statcast_batter_percentile_ranks() -> None:
     result: pd.DataFrame = statcast_batter_percentile_ranks(2019)

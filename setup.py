@@ -82,11 +82,9 @@ setup(
                       'lxml>=4.2.1',
                       'pyarrow>=1.0.1',
                       'pygithub>=1.51',
-                      'altair>=4.0.0',
                       'scipy>=1.4.0',
                       'matplotlib>=2.0.0',
                       'tqdm>=4.50.0',
-                      'altair-saver'
                       ],
 
     # List additional groups of dependencies here (e.g. development
