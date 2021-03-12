@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 
 from . import cache
-from .utils import sanitize_input, split_request
+from .utils import norm_pitch_code, sanitize_input, split_request
 
 
 def statcast_pitcher(start_dt: Optional[str] = None, end_dt: Optional[str] = None, player_id: Optional[int] = None) -> pd.DataFrame:
@@ -90,17 +90,11 @@ def statcast_pitcher_percentile_ranks(year: int) -> pd.DataFrame:
     return data.loc[data.player_name.notna()].reset_index(drop=True)
 
 @cache.df_cache()
-def statcast_pitcher_spin_dir_comp(year: int, pitch_combo: str = "4 - Seamer / Changeup", minP: int = 100, pov: str = "Pit") -> pd.DataFrame:
-    pitches = ["4-Seamer", "Changeup", "Curveball", "Slider", "Sinker", "Cutter"]
-    pitch_combos = [' / '.join(perm) for perm in permutations(pitches, 2)]
-    if pitch_combo not in pitch_combos:
-        print(f"Not a valid pitch combo. Must include two of {pitches}, separated by ' / '.")
-        return
-    povs = ["Pit", "Bat"]
-    if pov not in povs:
-        print(f"Not a valid pov. Must be one of {', '.join(povs)}")
-        return
-    url = f"https://baseballsavant.mlb.com/leaderboard/spin-direction-comparison?year={year}&type={pitch_combo}&min={minP}&team=&pov={pov}&sort=11&sortDir=asc&csv=true"
+def statcast_pitcher_spin_dir_comp(year: int, pitch_a: str = "FF", pitch_b: str = "CH", minP: int = 100, pitcher_pov: bool = True) -> pd.DataFrame:
+    pitch_a = norm_pitch_code(pitch_a, to_word=True)
+    pitch_b = norm_pitch_code(pitch_b, to_word=True)
+    pov = "Pit" if pitcher_pov else "Bat"
+    url = f"https://baseballsavant.mlb.com/leaderboard/spin-direction-comparison?year={year}&type={pitch_a} / {pitch_b}&min={minP}&team=&pov={pov}&sort=11&sortDir=asc&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     return data    

@@ -13,13 +13,13 @@ from pybaseball.statcast_pitcher import (
 
 
 def test_statcast_pitcher() -> None:
-    result: pd.DataFrame = statcast_pitcher('2019-01-01', '2019-12-31', 605483)
+	result: pd.DataFrame = statcast_pitcher('2019-01-01', '2019-12-31', 605483)
 
-    assert result is not None
-    assert not result.empty
+	assert result is not None
+	assert not result.empty
 
-    assert len(result.columns) == 89
-    assert len(result) == 1982
+	assert len(result.columns) == 89
+	assert len(result) == 1982
 
 def test_statcast_pitcher_exitvelo_barrels() -> None:
 	min_bbe = 100
@@ -30,7 +30,7 @@ def test_statcast_pitcher_exitvelo_barrels() -> None:
 
 	assert len(result.columns) == 19
 	assert len(result) > 0
-    assert len(result[result['attempts'] < min_bbe]) == 0
+	assert len(result[result['attempts'] < min_bbe]) == 0
 
 def test_statcast_pitchers_expected_stats() -> None:
 	minPA = 100
