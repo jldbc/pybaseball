@@ -48,8 +48,7 @@ def statcast_pitcher_expected_stats(year: int, minPA: Union[int, str] = "q") -> 
 def statcast_pitcher_pitch_arsenal(year: int, minP: int = 250, arsenal_type: str = "avg_speed") -> pd.DataFrame:
     arsenals = ["avg_speed", "n_", "avg_spin"]
     if arsenal_type not in arsenals:
-        print(f"Not a valid arsenal_type. Must be one of {', '.join(arsenals)}.")
-        return
+        raise ValueError(f"Not a valid arsenal_type. Must be one of {', '.join(arsenals)}.")
     url = f"https://baseballsavant.mlb.com/leaderboard/pitch-arsenals?year={year}&min={minP}&type={arsenal_type}&hand=&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
@@ -65,10 +64,7 @@ def statcast_pitcher_arsenal_stats(year: int, minPA: int = 25) -> pd.DataFrame:
 
 @cache.df_cache()
 def statcast_pitcher_pitch_movement(year: int, minP: Union[int, str] = "q", pitch_type: str = "FF") -> pd.DataFrame:
-    pitch_types = ["FF", "SIFT", "CH", "CUKC", "FC", "SL", "FS", "ALL"]
-    if pitch_type not in pitch_types:
-        print(f"Not a valid pitch_type. Must be one of {', '.join(pitch_types)}")
-        return
+    pitch_type = norm_pitch_code(pitch_type)
     url = f"https://baseballsavant.mlb.com/leaderboard/pitch-movement?year={year}&team=&min={minP}&pitch_type={pitch_type}&hand=&x=pitcher_break_x_hidden&z=pitcher_break_z_hidden&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
