@@ -8,7 +8,8 @@ from pybaseball.statcast_pitcher import (
 	statcast_pitcher_arsenal_stats,
 	statcast_pitcher_pitch_movement,
 	statcast_pitcher_active_spin,
-	statcast_pitcher_percentile_ranks
+	statcast_pitcher_percentile_ranks,
+	statcast_pitcher_spin_dir_comp
 )
 
 
@@ -90,3 +91,12 @@ def test_statcast_pitcher_percentile_ranks() -> None:
 
 	assert len(result.columns) == 19
 	assert len(result) == 831
+
+def test_statcast_pitcher_spin_dir_comp() -> None:
+	result: pd.DataFrame = statcast_pitcher_spin_dir_comp(2020)
+
+	assert result is not None
+	assert not result.empty
+
+	assert len(result.columns) == 30
+	assert len(result) == 260

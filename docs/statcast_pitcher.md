@@ -126,7 +126,7 @@ This function retrieves pitch movement stats for all qualified pitchers with a s
 
 `minP:` The minimum number of pitches thrown. If a player falls below this threshold, they will be excluded from the results. If no value is specified, only qualified pitchers will be returned.
 
-`pitch_type:` The type of pitch to retrieve movement data on. Options include `["FF", "SIFT", "CH", "CUKC", "FC", "SL", "FS", "ALL"]`. If no value is specified, it will default to "FF".
+`pitch_type:` The type of pitch to retrieve movement data on. Options include `["FF", "SIFT", "CH", "CUKC", "FC", "SL", "FS", "ALL"]`. Pitch names also allowed. If no value is specified, it will default to "FF".
 
 ## Examples of Valid Queries
 ```python
@@ -172,4 +172,33 @@ from pybaseball import statcast_pitcher_percentile_ranks
 
 # get data for all qualified pitchers in 2019
 data = statcast_pitcher_percentile_ranks(2019)
+```
+# Statcast Pitcher Spin Direction Comparison
+`statcast_pitcher_spin_dir_comp(2020)`
+
+This function retrieves spin comparisons between two pitches for qualifying pitchers in a given year.
+
+## Arguments
+`year:` The year for which you wish to retrieve percentile data. Format: YYYY.
+
+`pitch_a:` The first pitch in the comparison. Valid pitches include "4-Seamer", "Sinker", "Changeup", "Curveball", "Cutter", "Slider", and "Sinker". Defaults to "4-Seamer". Pitch codes also accepted.
+
+`pitch_b:` The second pitch in the comparison and must be different from `pitch_a`. Valid pitches include "4-Seamer", "Sinker", "Changeup", "Curveball", "Cutter", "Slider", "Sinker". Defaults to "Changeup". Pitch codes also accepted.
+
+`minP:` The minimum number of pitches of type `pitch_a` thrown. If a player falls below this threshold, they will be excluded from the results. If no value is specified, only pitchers who threw 100 or more pitches will be returned.
+
+`pitcher_pov:` Boolean. If `True`, then direction of movement is from the pitcher's point of view. If `False`, then it is from the batter's point of view.
+
+## Examples of Valid Queries
+```python
+from pybaseball import statcast_pitcher_spin_dir_comp
+
+# get data for fastball / changeup combos in 2020
+data = statcast_pitcher_spin_dir_comp(2020)
+
+# get data for sinker / slider combos in 2020, with at least 50 sinkers thrown
+data = statcast_pitcher_spin_dir_comp(2020, pitch_a="Sinker", pitch_b="Slider", minP=50)
+
+# get data for sinker / slider combos in 2020 using pitch codes and from the batter's POV
+data = statcast_pitcher_spin_dir_comp(2020, pitch_a="SIFT", pitch_b="SL", pitcher_pov=False)
 ```
