@@ -71,6 +71,34 @@ def get_table(soup,team):
     data['Attendance'].replace(r'^Unknown$', np.nan, regex=True, inplace = True) # make this a NaN so the column can benumeric
     return data
 
+def get_season_teams(season):
+    """
+    Pull the teams played in the season from baseball reference's season batting info
+    """
+    if season is None:
+        season = most_recent_season()
+
+    url = "http://www.baseball-reference.com/leagues/MLB/{}.shtml".format(season)
+    s=requests.get(url).content
+
+    soup = BeautifulSoup(s, "lxml")
+
+    try:
+        table = soup.find("table", {"id": "teams_standard_batting"}).tbody.findAll("tr")
+    except:
+        raise ValueError("Teams played for the season cannot be retrieved.")
+    
+    teams = []
+
+    for row in table:
+        header = row.find("a")
+
+        if header is not None:
+            team = row.find("a").contents[0]
+            teams.append(team)
+
+    return teams
+
 def process_win_streak(data):
     """
     Convert "+++"/"---" formatted win/loss streak column into a +/- integer column
@@ -101,19 +129,32 @@ def make_numeric(data):
 def schedule_and_record(season=None, team=None):
     # retrieve html from baseball reference
     # sanatize input
-    team = team.upper()
-    try:
-        if season < first_season_map[team]:
-            m = "Season cannot be before first year of a team's existence"
-            raise ValueError(m)
-    # ignore validation if team isn't found in dictionary
-    except KeyError:
-        pass
-    if season > datetime.now().year:
-        raise ValueError('Season cannot be after current year')
 
-    soup = get_soup(season, team)
-    table = get_table(soup, team)
-    table = process_win_streak(table)
-    table = make_numeric(table)
-    return table
+    if team is None:
+        teams = get_season_teams(season)
+        print(teams)
+    else:
+        teams = [team]
+
+    tables = pd.DataFrame()
+
+    for team in teams:
+        team = team.upper()
+        try:
+            if season < first_season_map[team]:
+                m = "Season cannot be before first year of a team's existence"
+                raise ValueError(m)
+        # ignore validation if team isn't found in dictionary
+        except KeyError:
+            pass
+        if season > datetime.now().year:
+            raise ValueError('Season cannot be after current year')
+
+        soup = get_soup(season, team)
+        table = get_table(soup, team)
+        table = process_win_streak(table)
+        table = make_numeric(table)
+
+        tables = tables.append(table, ignore_index=True)
+
+    return tables

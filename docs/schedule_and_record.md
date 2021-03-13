@@ -1,8 +1,8 @@
 # Schedule and Record
 
-`schedule_and_record(season, team)`
+`schedule_and_record(season, team=None)`
 
-The schedule_and_record function returns a dataframe of a team's game-level results for a given season, including win/loss/tie result, score, attendance, and winning/losing/saving pitcher. If the season is incomplete, it will provide scheduling information for future games. 
+The schedule_and_record function returns a dataframe of a full season's game-level results or a team's full game-level results for a season, including win/loss/tie result, score, attendance, and winning/losing/saving pitcher. If the season is incomplete, it will provide scheduling information for future games. 
 
 ## Arguments
 `season:` Integer. The season for which you want a team's record data. 
@@ -15,6 +15,9 @@ Note that if a team did not exist during the year you are requesting data for, t
 
 ```python
 from pybaseball import schedule_and_record
+
+# Game-by-game results for all teams from the 2015 season
+data = schedule_and_record(2015)
 
 # Game-by-game results from the Yankees' 1927 season
 data = schedule_and_record(1927, "NYY")

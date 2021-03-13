@@ -26,6 +26,24 @@ def test_schedule_and_record(season: int, team: str) -> None:
     assert list(result.columns) == expected_columns
     assert len(result) > 0
 
+def test_schedule_and_record_for_all_teams() -> None:
+    result = schedule_and_record(2019)
+
+    assert result is not None
+    assert not result.empty
+
+    expected_columns = [
+        'Date', 'Tm', 'Home_Away', 'Opp', 'W/L', 'R', 'RA', 'Inn', 'W-L', 'Rank', 'GB', 'Win',
+        'Loss', 'Save', 'Time', 'D/N', 'Attendance', 'cLI', 'Streak', 'Orig. Scheduled'
+    ]
+
+    assert list(result.columns) == expected_columns
+    assert len(result) > 0
+
+def test_schedule_and_record_for_all_teams_bad_year() -> None:
+    with pytest.raises(ValueError):
+        schedule_and_record(1612)
+
 @pytest.mark.parametrize(
     "season, team", [
         (first_season_map[x] - 1, x) for x in first_season_map.keys()
