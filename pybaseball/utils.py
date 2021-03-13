@@ -56,6 +56,14 @@ STATCAST_VALID_DATES = {
     2020: (date(2020, 7, 23), date(2020, 10, 27))
 }
 
+pitch_codes = ["FF", "SIFT", "CH", "CUKC", "FC", "SL", "FS", "ALL"] # note: all doesn't work in words, we'll have some special handling
+pitch_names = ["4-Seamer", "Sinker", "Changeup", "Curveball", "Cutter", "Slider", "Sinker"]
+pitch_names_upper = [p.upper() for p in pitch_names]
+
+# including all the codes to themselves makes this simpler later
+name_to_code_map = dict(zip(pitch_codes + pitch_names_upper, pitch_codes + pitch_codes))
+code_to_name_map = dict(zip(pitch_codes, pitch_names))
+
 
 def validate_datestring(date_text: Optional[str]) -> date:
     try:
@@ -271,3 +279,12 @@ def flag_imputed_data(statcast_df: pd.DataFrame) -> pd.DataFrame:
     df_return["possible_imputation"] = df_return["possible_imputation"].fillna(False)
     df_return = df_return.drop(["ev", "angle"], axis=1)
     return df_return
+
+def norm_pitch_code(pitch: str, to_word: bool = False) -> str:
+    normed = name_to_code_map.get(pitch.upper())
+    normed = code_to_name_map.get(normed) if to_word else normed
+    if normed is None:
+        if pitch.lower() is 'all':
+            raise ValueError("'All' is not a valid pitch in this particular context!")
+        raise ValueError(f'{pitch} is not a valid pitch!')
+    return normed
