@@ -132,7 +132,6 @@ def schedule_and_record(season=None, team=None):
 
     if team is None:
         teams = get_season_teams(season)
-        print(teams)
     else:
         teams = [team]
 
