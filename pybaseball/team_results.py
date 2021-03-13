@@ -9,7 +9,6 @@ from pybaseball.utils import first_season_map, most_recent_season
 
 from . import cache
 
-# TODO: retrieve data for all teams? a full season's worth of results
 
 def get_soup(season, team):
     # get most recent year's schedule if year not specified
