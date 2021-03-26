@@ -2,12 +2,16 @@ import abc
 import functools
 import glob
 import os
-from typing import Any, Callable, Dict, Optional
+from typing import Any, Callable, Dict, Optional, TypeVar, cast
 
 import pandas as pd
 
 from . import cache_record, func_utils
 from .cache_config import CacheConfig, autoload_cache
+
+# Doing this instead of defining the types in our cache functions allows VS Code to pick up the proper type annotations
+# https://github.com/microsoft/pyright/issues/774
+_CacheFunc = TypeVar("_CacheFunc", bound=Callable[..., pd.DataFrame])
 
 # Cache is disabled by default
 config = autoload_cache()
@@ -44,7 +48,7 @@ class df_cache:
         self.cache_config = config
         self.expires = expires
 
-    def __call__(self, func: Callable[..., pd.DataFrame]) -> Callable[..., pd.DataFrame]:
+    def __call__(self, func: _CacheFunc) -> _CacheFunc:
         @functools.wraps(func)
         def _cached(*args: Any, **kwargs: Any) -> pd.DataFrame:
             func_data = self._safe_get_func_data(func, args, kwargs)
@@ -56,9 +60,9 @@ class df_cache:
 
             return result
 
-        return _cached
+        return cast(_CacheFunc, _cached)
 
-    def _safe_get_func_data(self, func: Callable[..., pd.DataFrame], args: Any, kwargs: Any) -> Dict:
+    def _safe_get_func_data(self, func: _CacheFunc, args: Any, kwargs: Any) -> Dict:
         try:
             func_name = func_utils.get_func_name(func)
 

@@ -18,6 +18,7 @@ from .standings import standings
 from .team_results import schedule_and_record
 from .pitching_leaders import pitching_stats
 from .batting_leaders import batting_stats
+from .fielding_leaders import fielding_stats
 from .team_batting import team_batting
 from .team_batting import team_batting_bref
 from .team_fielding import team_fielding

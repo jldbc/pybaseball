@@ -51,10 +51,11 @@ def test_statcast_batter_percentile_ranks() -> None:
     assert len(result) == 990
 
 def test_statcast_batter_pitch_arsenal() -> None:
-    result: pd.DataFrame = statcast_batter_pitch_arsenal(2019)
+    min_pa = 25
+    result: pd.DataFrame = statcast_batter_pitch_arsenal(2019, min_pa)
 
     assert result is not None
     assert not result.empty
 
     assert len(result.columns) == 21
-    assert len(result) == 2204
+    assert len(result) == 2205
