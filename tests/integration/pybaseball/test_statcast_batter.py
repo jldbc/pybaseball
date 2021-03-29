@@ -58,4 +58,5 @@ def test_statcast_batter_pitch_arsenal() -> None:
     assert not result.empty
 
     assert len(result.columns) == 21
-    assert len(result) == 2205
+    assert len(result) > 0
+    assert len(result[result['pa'] < min_pa]) == 0
