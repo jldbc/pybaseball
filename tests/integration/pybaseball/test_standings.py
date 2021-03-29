@@ -45,10 +45,3 @@ class TestBRefStandings:
         standings_list = standings(season)
 
         assert standings_list == []
-
-    def test_standings_none(self) -> None:
-        season = None
-
-        standings_list = standings(season)
-
-        assert standings_list == []
