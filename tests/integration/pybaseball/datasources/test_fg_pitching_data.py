@@ -5,7 +5,7 @@ import pytest
 
 from pybaseball.datasources.fangraphs import fg_pitching_data
 from pybaseball.enums.fangraphs.pitching_data_enum import FangraphsPitchingStats
-
+from tests.conftest import _DataFrameComparer
 
 class TestFGPitchingData:
     ALL_DATA_COLUMNS_COUNT = len(FangraphsPitchingStats.ALL()) + 2  # All columns + name and team
@@ -65,7 +65,7 @@ class TestFGPitchingData:
         assert len(data.columns) == 6
         assert len(data.index) == self.DEFAULT_MAX_RESULTS
 
-    def test_fg_pitching_data_league(self, assert_frame_not_equal: Callable[[pd.DataFrame, pd.DataFrame], None]) -> None:
+    def test_fg_pitching_data_league(self, assert_frame_not_equal: _DataFrameComparer) -> None:
         data_al = fg_pitching_data(2019, league='AL', max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data_al is not None
@@ -90,7 +90,7 @@ class TestFGPitchingData:
         assert len(data.columns) == self.ALL_DATA_COLUMNS_COUNT
         assert len(data.index) == 4
 
-    def test_fg_pitching_data_on_active_roster(self, assert_frame_not_equal: Callable[[pd.DataFrame, pd.DataFrame], None]) -> None:
+    def test_fg_pitching_data_on_active_roster(self, assert_frame_not_equal: _DataFrameComparer) -> None:
         data = fg_pitching_data(2018, max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data is not None
@@ -123,7 +123,7 @@ class TestFGPitchingData:
         assert len(data.columns) == self.ALL_DATA_COLUMNS_COUNT
         assert len(data.index) == 1
 
-    def test_fg_pitching_team(self, assert_frame_not_equal: Callable[[pd.DataFrame, pd.DataFrame], None]) -> None:
+    def test_fg_pitching_team(self, assert_frame_not_equal: _DataFrameComparer) -> None:
         data_1 = fg_pitching_data(2019, team='3', max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data_1 is not None
