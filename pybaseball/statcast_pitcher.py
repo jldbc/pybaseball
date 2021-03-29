@@ -1,5 +1,6 @@
 import io
 from typing import Optional, Union
+import warnings
 
 import pandas as pd
 import requests
@@ -87,8 +88,10 @@ def statcast_pitcher_active_spin(year: int, minP: int = 250, _type: str = 'spin-
     if res and '<html' in res.decode('utf-8'):
         # This did no go as planned. Statcast redirected us back to HTML :(
         if _type == 'spin-based':
+            warnings.warn(f'Could not get active spin results for year {year} that are "spin-based". Trying to get the older "observed" results.')
             return statcast_pitcher_active_spin(year, minP, 'observed')
         
+        warnings.warn("Statcast did not return any active spin results for the query provided.")
         return pd.DataFrame()
 
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
