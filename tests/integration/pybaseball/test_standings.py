@@ -19,7 +19,7 @@ def get_division_counts_by_season(season: Optional[int]) -> int:
 
 class TestBRefStandings:
     @pytest.mark.parametrize(
-        "season", [(x) for x in range(1871, most_recent_season() - 1)]
+        "season", [(x) for x in range(1871, most_recent_season())]
     )
     def test_standings(self, season: Optional[int]) -> None:
         standings_list = standings(season)
