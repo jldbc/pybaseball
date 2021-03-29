@@ -6,6 +6,11 @@ from tests.integration.pybaseball.enums.fangraphs.transforms import transform_le
 
 
 def test_enums_vs_fangraphs_column_list() -> None:
+    """
+        Go and get all the supported columns out of Fangraphs' "Custom Query" column selector. Compare this list
+        to our enum of supported columns and ensure we've covered them 100%.
+    """
+
     sample_pitching_url = "https://www.fangraphs.com/leaders.aspx?pos=all&stats=fld&type=c,3&lg=all&qual=y&type=8&season=2020&month=0&season1=2020&ind=0"
     sample_pitching_result = requests.get(sample_pitching_url)
 

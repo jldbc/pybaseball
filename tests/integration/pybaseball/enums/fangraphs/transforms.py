@@ -1,4 +1,16 @@
 def transform_leaderboard_item(leaderboard_item: str) -> str:
+    """
+        Helper function to take a Fangraphs column name, and translate it to its related enum value.
+
+        E.g.:
+            '1B'         => 'SINGLES'
+            'ERA'        => 'ERA'
+            'OPS+'       => 'OPS_PLUS'
+            'Made 1-10%' => 'MADE_ONE_TO_TEN_PCT'
+
+        This will be used in integration tests to compare our current enum values to what Fangraphs supports,
+        so that we can see if any columns have been added or removed before a user submits that as a bug report.
+    """
     start_replacements = {
         '-': 'NEGATIVE ',
         '+': 'POSITIVE ',
