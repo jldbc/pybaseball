@@ -9,6 +9,7 @@ import pytest
 
 from pybaseball import cache
 
+_DataFrameComparer = Callable[[pd.DataFrame, pd.DataFrame], bool]
 
 @pytest.fixture(name='logging_side_effect')
 def _logging_side_effect() -> Callable:
@@ -56,7 +57,7 @@ def _override_cache_config(cache_config: cache.CacheConfig) -> None:
 
 
 @pytest.fixture(name="assert_frame_not_equal")
-def _assert_frame_not_equal() -> Callable:
+def _assert_frame_not_equal() -> _DataFrameComparer:
     def _assert(*args: Any, **kwargs: Any) -> bool:
         try:
             pd.testing.assert_frame_equal(*args, **kwargs)

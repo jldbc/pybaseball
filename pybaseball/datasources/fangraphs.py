@@ -1,12 +1,10 @@
 from abc import ABC
-from enum import Enum, unique
-from typing import Any, Callable, Iterable, List, Optional, Type, Union
+from typing import Any, List, Optional, Union
 
 import lxml
 import pandas as pd
 
 from .. import cache
-from ..datahelpers import postprocessing
 from ..datahelpers.column_mapper import BattingStatsColumnMapper, ColumnListMapperFunction, GenericColumnMapper
 from ..enums.fangraphs import (FangraphsBattingStats, FangraphsFieldingStats, FangraphsLeague, FangraphsMonth,
                                FangraphsPitchingStats, FangraphsPositions, FangraphsStatColumn, FangraphsStatsCategory,
@@ -153,7 +151,7 @@ class FangraphsDataTable(ABC):
         }
 
         return self._validate(
-            self._postprocess( 
+            self._postprocess(
                 self.html_accessor.get_tabular_data_from_options(
                     self.QUERY_ENDPOINT,
                     query_params=url_options,
@@ -176,6 +174,16 @@ class FangraphsBattingStatsTable(FangraphsDataTable):
 
     def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
         return self._sort(data, ["WAR", "OPS"], ascending=False)
+
+class FangraphsFieldingStatsTable(FangraphsDataTable):
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.FIELDING
+    DEFAULT_STAT_COLUMNS: List[FangraphsStatColumn] = FangraphsFieldingStats.ALL()
+    # KNOWN_PERCENTAGES: List[str] = ["GB/FB"]
+    ROW_ID_FUNC: RowIdFunction = player_row_id_func
+    ROW_ID_NAME = 'IDfg'
+
+    def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
+        return self._sort(data, ["DEF"], ascending=False)
 
 class FangraphsPitchingStatsTable(FangraphsDataTable):
     STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.PITCHING
@@ -214,6 +222,7 @@ class FangraphsTeamPitchingDataTable(FangraphsDataTable):
     ROW_ID_NAME = 'teamIDfg'
 
 fg_batting_data = FangraphsBattingStatsTable().fetch
+fg_fielding_data = FangraphsFieldingStatsTable().fetch
 fg_pitching_data = FangraphsPitchingStatsTable().fetch
 fg_team_batting_data = FangraphsTeamBattingDataTable().fetch
 fg_team_fielding_data = FangraphsTeamFieldingDataTable().fetch

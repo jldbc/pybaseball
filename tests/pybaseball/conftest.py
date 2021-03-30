@@ -182,6 +182,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
                     self.content = content
                     self.text = content
                     self.status_code = 200
+                    self.url = final_url
 
             return DummyResponse(result)
 
