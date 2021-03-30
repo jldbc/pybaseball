@@ -261,7 +261,7 @@ class FangraphsPitchingStats(FangraphsStatsBase):
     WCH_C_SC                               = '201' # 'wCH/C (sc)' ?
     WSC_C_SC                               = '202' # 'wSC/C (sc)' ?
     WKN_C_SC                               = '203' # 'wKN/C (sc)' ?
-    O_SWING_PCT_SC_1                       = '204' # 'O-Swing% (sc)1' ?
+    O_SWING_PCT_SC                         = '204' # 'O-Swing% (sc)' ?
     Z_SWING_PCT_SC                         = '205' # 'Z-Swing% (sc)' ?
     SWING_PCT_SC                           = '206' # 'Swing% (sc)' ?
     O_CONTACT_PCT_SC                       = '207' # 'O-Contact% (sc)' ?

@@ -11,6 +11,7 @@ def transform_leaderboard_item(leaderboard_item: str) -> str:
         This will be used in integration tests to compare our current enum values to what Fangraphs supports,
         so that we can see if any columns have been added or removed before a user submits that as a bug report.
     """
+
     start_replacements = {
         '-': 'NEGATIVE ',
         '+': 'POSITIVE ',
