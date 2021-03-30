@@ -1,6 +1,6 @@
-from itertools import permutations
 import io
 from typing import Optional, Union
+import warnings
 
 import pandas as pd
 import requests
@@ -71,10 +71,33 @@ def statcast_pitcher_pitch_movement(year: int, minP: Union[int, str] = "q", pitc
     return data
 
 @cache.df_cache()
-def statcast_pitcher_active_spin(year: int, minP: int = 250) -> pd.DataFrame:
-    url = f"https://baseballsavant.mlb.com/leaderboard/active-spin?year={year}&min={minP}&hand=&csv=true"
+def statcast_pitcher_active_spin(year: int, minP: int = 250, _type: str = 'spin-based') -> pd.DataFrame:
+    # Statcast supports spin-based for some years, but not others. We'll try to get that first, but if it's empty
+    # we'll fall back to the observed. 
+    #
+    # From Statcast:
+    #   Measured active spin uses the 3D spin vector at release; this is only possible with the 2020 season going
+    #   forward. (Label is "2020 - Spin-based" and can be read as "Active Spin using the Spin-based method".)
+    #   Inferred active spin from movement uses the total amount of movement to estimate the amount of active spin,
+    #   if we presumed only magnus was at play; this is a legacy method that can be useful in certain circumstances.
+    #   (Label is "2020 - Observed" and can be read as "Active Spin using the Total Observed Movement method".)
+
+
+    url = f"https://baseballsavant.mlb.com/leaderboard/active-spin?year={year}_{_type}&min={minP}&hand=&csv=true"
     res = requests.get(url, timeout=None).content
+    if res and '<html' in res.decode('utf-8'):
+        # This did no go as planned. Statcast redirected us back to HTML :(
+        if _type == 'spin-based':
+            warnings.warn(f'Could not get active spin results for year {year} that are "spin-based". Trying to get the older "observed" results.')
+            return statcast_pitcher_active_spin(year, minP, 'observed')
+        
+        warnings.warn("Statcast did not return any active spin results for the query provided.")
+        return pd.DataFrame()
+
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    if _type == 'spin-based' and (data is None or data.empty):
+        return statcast_pitcher_active_spin(year, minP, 'observed')
+
     return data
 
 @cache.df_cache()

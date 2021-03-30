@@ -4,10 +4,11 @@ import pandas as pd
 import pytest
 
 from pybaseball.datasources.fangraphs import fg_batting_data
+from pybaseball.enums.fangraphs.batting_data_enum import FangraphsBattingStats
 
 
 class TestFGBattingData:
-    ALL_DATA_COLUMNS_COUNT = 314
+    ALL_DATA_COLUMNS_COUNT = len(FangraphsBattingStats.ALL()) + 2  # All columns + name and team
     DEFAULT_MAX_RESULTS = 10
 
     def test_fg_batting_data(self) -> None:
@@ -19,7 +20,7 @@ class TestFGBattingData:
         assert not data.empty
         assert len(data.columns) == self.ALL_DATA_COLUMNS_COUNT
         assert len(data.index) == self.DEFAULT_MAX_RESULTS
-        
+
         seasons = list(set(data['Season']))
 
         assert len(seasons) == 1
@@ -71,7 +72,7 @@ class TestFGBattingData:
         assert not data_al.empty
         assert len(data_al.columns) == self.ALL_DATA_COLUMNS_COUNT
         assert len(data_al.index) == self.DEFAULT_MAX_RESULTS
-        
+
         data_nl = fg_batting_data(2019, league='NL', max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data_nl is not None
@@ -96,7 +97,7 @@ class TestFGBattingData:
         assert not data.empty
         assert len(data.columns) == self.ALL_DATA_COLUMNS_COUNT
         assert len(data.index) == self.DEFAULT_MAX_RESULTS
-        
+
         oar_data = fg_batting_data(2018, on_active_roster=True, max_results=self.DEFAULT_MAX_RESULTS)
 
         assert oar_data is not None
@@ -130,7 +131,7 @@ class TestFGBattingData:
         assert len(data_1.columns) == self.ALL_DATA_COLUMNS_COUNT - 1
         assert 'Team' not in data_1.columns
         assert len(data_1.index) == 4
-        
+
         data_2 = fg_batting_data(2019, team='2', max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data_2 is not None
@@ -148,7 +149,7 @@ class TestFGBattingData:
         assert not data_1b.empty
         assert len(data_1b.columns) == self.ALL_DATA_COLUMNS_COUNT
         assert len(data_1b.index) == 10
-        
+
         data_2b = fg_batting_data(2019, position='2B', max_results=self.DEFAULT_MAX_RESULTS)
 
         assert data_2b is not None
@@ -157,7 +158,7 @@ class TestFGBattingData:
         assert len(data_2b.index) == 10
 
         assert_frame_not_equal(data_1b, data_2b)
-    
+
     def test_fg_batting_data_max_results(self) -> None:
         season = 2019
 
