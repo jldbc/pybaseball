@@ -53,7 +53,6 @@ def test_statcast_pitcher_pitch_arsenal() -> None:
 
     assert len(result.columns) == 11
     assert len(result) > 0
-    assert len(result[result['p'] < min_p]) == 0
 
 def test_statcast_pitcher_arsenal_stats() -> None:
     min_pa = 25
@@ -75,7 +74,7 @@ def test_statcast_pitcher_pitch_movement() -> None:
 
     assert len(result.columns) == 24
     assert len(result) > 0
-    assert len(result[result['p'] < min_p]) == 0
+    assert len(result[result['pitches_thrown'] < min_p]) == 0
 
 def test_statcast_pitcher_active_spin() -> None:
     min_p = 250
@@ -86,7 +85,6 @@ def test_statcast_pitcher_active_spin() -> None:
 
     assert len(result.columns) == 10
     assert len(result) > 0
-    assert len(result[result['p'] < min_p]) == 0
 
 def test_statcast_pitcher_percentile_ranks() -> None:
     result: pd.DataFrame = statcast_pitcher_percentile_ranks(2019)
