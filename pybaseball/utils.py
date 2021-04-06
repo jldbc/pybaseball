@@ -64,10 +64,12 @@ pitch_names_upper = [p.upper() for p in pitch_names]
 pitch_name_to_code_map = dict(zip(pitch_codes + pitch_names_upper, pitch_codes + pitch_codes))
 pitch_code_to_name_map = dict(zip(pitch_codes, pitch_names))
 
+# Statcast outs above average positions
 position_codes = ["IF", "OF", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "ALL"]
-position_names = ["Infield", "Outfield", "Catcher", "First Base", "Second Base", "Shortstop", "Third Base", "Left Field", "Center Field", "Right Field"]
+position_names = ["Infield", "Outfield", "Catcher", "First Base", "Second Base", "Third Base", "Shortstop", "Left Field", "Center Field", "Right Field"]
 position_names_upper = [p.upper() for p in position_names]
 
+posn_code_to_numbers_map = dict(zip(position_codes[2:10], [str(x) for x in range(2, 10)]))
 posn_name_to_code_map = dict(zip(position_codes + position_names_upper, position_codes + position_codes))
 posn_code_to_name_map = dict(zip(position_codes, position_names))
 
@@ -296,12 +298,15 @@ def norm_pitch_code(pitch: str, to_word: bool = False) -> str:
         raise ValueError(f'{pitch} is not a valid pitch!')
     return normed
 
-def norm_positions(posn: str, to_word: bool = False) -> str:
+def norm_positions(posn: str, to_word: bool = False, to_number: bool = True) -> str:
     normed = posn_name_to_code_map.get(posn.upper())
     normed = posn_code_to_name_map.get(normed) if to_word else normed
+    if to_number:
+        if normed not in ["IF", "OF"]:
+            normed = posn_code_to_numbers_map.get(normed)
+        if posn.lower() == "all":
+            normed = ""
     if normed is None:
-        if posn.lower() == 'all':
-            raise ValueError("'All' is not a valid position in this particular context!")
         raise ValueError(f'{posn} is not a valid position!')
-    return normed
+    return normed.lower()
 

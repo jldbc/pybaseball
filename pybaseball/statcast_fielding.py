@@ -8,13 +8,15 @@ from . import cache
 from .utils import norm_positions
 
 @cache.df_cache()
-def statcast_outs_above_average(year: int, posn: str) -> pd.DataFrame:
+def statcast_outs_above_average(year: int, posn: str, min_att: Union[int, str] = "q") -> pd.DataFrame:
 	# a lot of options here. need to handle all the positions. range and split years?
 	# can use startYear and endYear for multi year
 	posn = norm_positions(posn)
-	if posn = "C":
+	# catcher is not included in this leaderboard
+	if posn == "2":
 		raise ValueError("'C' not a valid position in this particular context!")
-	url = f"https://baseballsavant.mlb.com/leaderboard/outs_above_average?type=Fielder&year={year}&team=&range=year&min=q&pos={posn}&roles=&viz=show&csv=true"
+	url = f"https://baseballsavant.mlb.com/leaderboard/outs_above_average?type=Fielder&year={year}&team=&range=year&min={min_att}&pos={posn}&roles=&viz=show&csv=true"
+	print(url)
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	return data
@@ -27,13 +29,8 @@ def statcast_outfield_directional_oaa(year: int, min_opp: Union[int, str] = "q")
 	return data
 
 @cache.df_cache()
-def statcast_outfield_catch_proba(year: int, min_opp: Union[int, str] = "q", min_star: int = 0) -> pd.DataFrame:
-	# Parameter in url is count of number of stars, but only for 2, 3, and 4+ stars
-	# Must do slight transform for these options
-	min_star_options = [2, 3, 4]
-	if min_star in min_star_options:
-		min_star = 6 - min_star
-	url = f"https://baseballsavant.mlb.com/leaderboard/catch_probability?type=player&min={min_opp}&year={year}&total=5&csv=true"
+def statcast_outfield_catch_proba(year: int, min_opp: Union[int, str] = "q") -> pd.DataFrame:
+	url = f"https://baseballsavant.mlb.com/leaderboard/catch_probability?type=player&min={min_opp}&year={year}&total=&csv=true"
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	return data
