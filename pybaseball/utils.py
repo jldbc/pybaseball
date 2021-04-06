@@ -61,8 +61,15 @@ pitch_names = ["4-Seamer", "Sinker", "Changeup", "Curveball", "Cutter", "Slider"
 pitch_names_upper = [p.upper() for p in pitch_names]
 
 # including all the codes to themselves makes this simpler later
-name_to_code_map = dict(zip(pitch_codes + pitch_names_upper, pitch_codes + pitch_codes))
-code_to_name_map = dict(zip(pitch_codes, pitch_names))
+pitch_name_to_code_map = dict(zip(pitch_codes + pitch_names_upper, pitch_codes + pitch_codes))
+pitch_code_to_name_map = dict(zip(pitch_codes, pitch_names))
+
+position_codes = ["IF", "OF", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "ALL"]
+position_names = ["Infield", "Outfield", "Catcher", "First Base", "Second Base", "Shortstop", "Third Base", "Left Field", "Center Field", "Right Field"]
+position_names_upper = [p.upper() for p in position_names]
+
+posn_name_to_code_map = dict(zip(position_codes + position_names_upper, position_codes + position_codes))
+posn_code_to_name_map = dict(zip(position_codes, position_names))
 
 
 def validate_datestring(date_text: Optional[str]) -> date:
@@ -281,10 +288,20 @@ def flag_imputed_data(statcast_df: pd.DataFrame) -> pd.DataFrame:
     return df_return
 
 def norm_pitch_code(pitch: str, to_word: bool = False) -> str:
-    normed = name_to_code_map.get(pitch.upper())
-    normed = code_to_name_map.get(normed) if to_word else normed
+    normed = pitch_name_to_code_map.get(pitch.upper())
+    normed = pitch_code_to_name_map.get(normed) if to_word else normed
     if normed is None:
         if pitch.lower() == 'all':
             raise ValueError("'All' is not a valid pitch in this particular context!")
         raise ValueError(f'{pitch} is not a valid pitch!')
     return normed
+
+def norm_positions(posn: str, to_word: bool = False) -> str:
+    normed = posn_name_to_code_map.get(posn.upper())
+    normed = posn_code_to_name_map.get(normed) if to_word else normed
+    if normed is None:
+        if posn.lower() == 'all':
+            raise ValueError("'All' is not a valid position in this particular context!")
+        raise ValueError(f'{posn} is not a valid position!')
+    return normed
+
