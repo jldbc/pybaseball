@@ -1,6 +1,6 @@
 import pytest
 
-from pybaseball import league_batting_stats
+from pybaseball import league_batting_stats, batting_stats_range
 from pybaseball.utils import most_recent_season
 
 
@@ -46,3 +46,8 @@ def test_bwar_bat_return_all() -> None:
 
     assert len(bwar_bat_2019.columns) == 49
     assert(len(bwar_bat_2019)) == 1567
+
+
+def test_batting_stats_range_default():
+    stats = batting_stats_range()
+    assert not stats.empty
