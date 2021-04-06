@@ -48,6 +48,6 @@ def test_bwar_bat_return_all() -> None:
     assert(len(bwar_bat_2019)) == 1567
 
 
-def test_batting_stats_range_default():
-    stats = batting_stats_range()
+def test_batting_stats_range_single_date():
+    stats = batting_stats_range('2019-05-01', )
     assert not stats.empty

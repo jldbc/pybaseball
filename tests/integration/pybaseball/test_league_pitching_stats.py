@@ -52,6 +52,6 @@ def test_pitching_stats_bref_future() -> None:
         league_pitching_stats.pitching_stats_bref(most_recent_season() + 1)
 
 
-def test_pitching_stats_range_default():
-    stats = pitching_stats_range()
+def test_pitching_stats_range_single_date():
+    stats = pitching_stats_range('2019-05-01',)
     assert not stats.empty
