@@ -1,17 +1,29 @@
 import copy
 import logging
 import os
-from typing import Any, Callable, Optional
+from threading import Lock
+from typing import Any, Callable, Generator, Optional
 from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
+from _pytest.fixtures import _FixtureFunction
 
 from pybaseball import cache
 
 CURRENT_SC_COLUMNS = 92
 
 _DataFrameComparer = Callable[[pd.DataFrame, pd.DataFrame], bool]
+
+@pytest.fixture(autouse=True)
+def be_sequential(request: _FixtureFunction) -> Generator[None, None, None]:
+    if request.node.get_closest_marker("sequential"):  # type: ignore
+        lock = Lock()
+        lock.acquire()
+        yield
+        lock.release()
+    else:
+        yield
 
 @pytest.fixture(name='logging_side_effect')
 def _logging_side_effect() -> Callable:

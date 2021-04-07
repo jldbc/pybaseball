@@ -32,14 +32,14 @@ def _save_mock(monkeypatch: MonkeyPatch) -> MagicMock:
     monkeypatch.setattr(cache.dataframe_utils, 'save_df', save_mock)
     return save_mock
 
-
+@pytest.mark.sequential
 def test_cache_enable() -> None:
     enable_mock = MagicMock()
     with patch('pybaseball.cache.config.enable', enable_mock):
         cache.enable()
         enable_mock.assert_called_once_with(True)
 
-
+@pytest.mark.sequential
 def test_cache_disable() -> None:
     enable_mock = MagicMock()
     with patch('pybaseball.cache.config.enable', enable_mock):
@@ -47,6 +47,7 @@ def test_cache_disable() -> None:
         enable_mock.assert_called_once_with(False)
 
 
+@pytest.mark.sequential
 @patch('pybaseball.cache.config.enabled', False)
 def test_call_cache_disabled(load_mock: MagicMock, save_mock: MagicMock) -> None:
     df_func = MagicMock(return_value=pd.DataFrame([1, 2], columns=['a']))
@@ -63,6 +64,7 @@ def test_call_cache_disabled(load_mock: MagicMock, save_mock: MagicMock) -> None
     save_mock.assert_not_called()
 
 
+@pytest.mark.sequential
 @patch('os.path.exists', MagicMock(return_value=True))
 @patch('os.path.getmtime', MagicMock(return_value=datetime.now().timestamp()))
 @patch('pybaseball.cache.config.enabled', True)
@@ -95,6 +97,7 @@ def test_call_cache_enabled_loads_cache(mock_data_1: pd.DataFrame, load_mock: Ma
     pd.testing.assert_frame_equal(result, mock_data_1)
 
 
+@pytest.mark.sequential
 @patch('os.path.exists', MagicMock(return_value=True))
 @patch('os.path.getmtime', MagicMock(return_value=datetime.now()-timedelta(days=7)).timestamp())
 @patch('pybaseball.cache.config.enabled', True)
@@ -119,6 +122,7 @@ def test_call_cache_ignores_expired(mock_data_1: pd.DataFrame, load_mock: MagicM
     pd.testing.assert_frame_equal(mock_data_1, save_mock.call_args[0][0])
 
 
+@pytest.mark.sequential
 @patch('pybaseball.cache.config.enabled', True)
 @patch('glob.glob', MagicMock(return_value=[]))
 @patch('os.path.exists', MagicMock(return_value=False))
@@ -139,6 +143,7 @@ def test_call_cache_gets_uncached_data(mock_data_1: pd.DataFrame, load_mock: Mag
     pd.testing.assert_frame_equal(mock_data_1, save_mock.call_args[0][0])
 
 
+@pytest.mark.sequential
 @patch('pybaseball.cache.config.enabled', True)
 def test_call_cache_get_func_data_fails_silently(mock_data_1: pd.DataFrame, thrower: Callable, load_mock: MagicMock,
                                                  save_mock: MagicMock) -> None:
@@ -161,6 +166,7 @@ def test_call_cache_get_func_data_fails_silently(mock_data_1: pd.DataFrame, thro
     save_mock.assert_not_called()
 
 
+@pytest.mark.sequential
 @patch('pybaseball.cache.config.enabled', True)
 def test_call_cache_load_fails_silently(mock_data_1: pd.DataFrame, thrower: Callable, load_mock: MagicMock,
                                         save_mock: MagicMock) -> None:
@@ -182,6 +188,7 @@ def test_call_cache_load_fails_silently(mock_data_1: pd.DataFrame, thrower: Call
     save_mock.assert_called_once()
 
 
+@pytest.mark.sequential
 @patch('pybaseball.cache.config.enabled', True)
 def test_call_cache_save_fails_silently(mock_data_1: pd.DataFrame, thrower: Callable, empty_load_mock: MagicMock,
                                         save_mock: MagicMock) -> None:
@@ -204,6 +211,7 @@ def test_call_cache_save_fails_silently(mock_data_1: pd.DataFrame, thrower: Call
     save_mock.assert_not_called()
 
 
+@pytest.mark.sequential
 def test_purge(remove: MagicMock) -> None:
     glob_result = ['1.cache_record.json', '2.cache_record.json']
     glob_mock = MagicMock(return_value=glob_result)
@@ -220,6 +228,7 @@ def test_purge(remove: MagicMock) -> None:
     assert remove.call_count == len(glob_result)
 
 
+@pytest.mark.sequential
 def test_flush(remove: MagicMock) -> None:
     glob_result = ['1.cache_record.json', '2.cache_record.json']
     glob_mock = MagicMock(return_value=glob_result)
