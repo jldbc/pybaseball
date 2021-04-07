@@ -195,12 +195,15 @@ def _generate_teams() -> pd.DataFrame:
         error_state = True
 
     if not unjoined_fangraphs_teams.empty:
-        logging.warning(
-            'When trying to join Fangraphs data to lahman, found %s rows of extraneous Fangraphs data: %s',
-            len(unjoined_fangraphs_teams.index),
-            unjoined_fangraphs_teams.sort_values(['Season', 'Team'])
-        )
-        error_state = True
+        missing_seasons = list(set(unjoined_fangraphs_teams['Season'].values))
+        # Lahman trails by a year during the season, so ignore if the extraneous data is from this season
+        if len(missing_seasons) > 1 or missing_seasons[0] != end_season:
+            logging.warning(
+                'When trying to join Fangraphs data to lahman, found %s rows of extraneous Fangraphs data: %s',
+                len(unjoined_fangraphs_teams.index),
+                unjoined_fangraphs_teams.sort_values(['Season', 'Team'])
+            )
+            error_state = True
 
     if error_state:
         raise Exception("Extraneous data was not matched. Aborting.")
