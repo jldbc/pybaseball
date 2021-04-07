@@ -1,5 +1,7 @@
 import pandas as pd
 
+from tests.conftest import CURRENT_SC_COLUMNS
+
 from pybaseball.statcast_batter import (
     statcast_batter,
     statcast_batter_exitvelo_barrels,
@@ -27,8 +29,8 @@ def test_statcast_batter() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 92
-    assert len(result) > 0
+    assert len(result.columns) == CURRENT_SC_COLUMNS
+    assert len(result) == 2418
 
 def test_statcast_batter_expected_stats() -> None:
     min_pa = 250

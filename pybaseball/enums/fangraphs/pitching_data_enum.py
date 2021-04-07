@@ -394,4 +394,4 @@ class FangraphsPitchingStats(FangraphsStatsBase):
     EVENTS                                 = '329' # ?
     CSTR_PCT                               = '330' # CStr% ?
     CSW_PCT                                = '331' # CSW% ?
-    XERA                                   = '332' # ?
+    XERA                                   = '332' # xERA

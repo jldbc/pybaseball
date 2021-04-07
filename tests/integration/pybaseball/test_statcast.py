@@ -5,6 +5,7 @@ import pytest
 
 from pybaseball.statcast import _handle_request, _small_request, statcast, statcast_single_game
 from pybaseball.utils import sanitize_date_range
+from tests.conftest import CURRENT_SC_COLUMNS
 
 
 def test_small_request() -> None:
@@ -14,8 +15,8 @@ def test_small_request() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 92
-    assert len(result) > 4000
+    assert len(result.columns) == CURRENT_SC_COLUMNS
+    assert len(result) == 4556
 
 
 def test_statcast() -> None:
@@ -24,8 +25,8 @@ def test_statcast() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 92
-    assert len(result) > 10000
+    assert len(result.columns) == CURRENT_SC_COLUMNS
+    assert len(result) == 16130
 
 
 def test_statcast_chunking() -> None:
@@ -57,8 +58,8 @@ def test_handle_request_pre_season() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 92
-    assert len(result) > 0
+    assert len(result.columns) == CURRENT_SC_COLUMNS
+    assert len(result) == 689
 
 
 def test_handle_request_post_season() -> None:
@@ -69,8 +70,8 @@ def test_handle_request_post_season() -> None:
         assert result is not None
         assert not result.empty
 
-        assert len(result.columns) == 92
-        assert len(result) > 0
+        assert len(result.columns) == CURRENT_SC_COLUMNS
+        assert len(result) == 689
 
 
 def test_handle_request_post_season_same_year() -> None:
@@ -87,5 +88,5 @@ def test_single_game_request() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 92
-    assert len(result) > 0
+    assert len(result.columns) == CURRENT_SC_COLUMNS
+    assert len(result) == 462

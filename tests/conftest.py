@@ -9,6 +9,8 @@ import pytest
 
 from pybaseball import cache
 
+CURRENT_SC_COLUMNS = 92
+
 _DataFrameComparer = Callable[[pd.DataFrame, pd.DataFrame], bool]
 
 @pytest.fixture(name='logging_side_effect')

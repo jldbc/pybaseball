@@ -381,6 +381,6 @@ class FangraphsBattingStats(FangraphsStatsBase):
     EVENTS                            = '312' # ?
     CSTR_PCT                          = '313' # CStr% ?
     CSW_PCT                           = '314' # CSW% ?
-    XBA                               = '315' # xBA ?
-    XSLG                              = '316' # xSLG ?
-    XWOBA                             = '317' # xwOBA ?
+    XBA                               = '315' # xBA
+    XSLG                              = '316' # xSLG
+    XWOBA                             = '317' # xWBOBA
