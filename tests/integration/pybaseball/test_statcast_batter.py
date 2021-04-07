@@ -50,7 +50,7 @@ def test_statcast_batter_percentile_ranks() -> None:
     assert not result.empty
 
     assert len(result.columns) == 17
-    assert len(result) > 0
+    assert len(result) == 990
 
 def test_statcast_batter_pitch_arsenal() -> None:
     min_pa = 25

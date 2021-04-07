@@ -95,7 +95,7 @@ def test_statcast_pitcher_percentile_ranks() -> None:
     assert not result.empty
 
     assert len(result.columns) == 19
-    assert len(result) > 0
+    assert len(result) == 831
 
 def test_statcast_pitcher_spin_dir_comp() -> None:
     result: pd.DataFrame = statcast_pitcher_spin_dir_comp(2020)
