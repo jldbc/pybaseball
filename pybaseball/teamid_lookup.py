@@ -14,7 +14,9 @@ from .utils import most_recent_season
 
 _DATA_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'fangraphs_teams.csv')
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
-logging.basicConfig(level=LOG_LEVEL)
+logger = logging.getLogger('pybaseball')
+logger.setLevel(LOG_LEVEL)
+
 
 def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
     if not os.path.exists(_DATA_FILENAME):
@@ -61,7 +63,7 @@ def _front_loaded_ratio(str_1: str, str_2: str) -> float:
     '''
 
     if len(str_1) != 3 or len(str_2) != 3:
-        logging.warn(
+        logger.warn(
             "This ratio is intended for 3 length string comparison (such as a lahman teamID, franchID, or teamIDBR."
             "Returning 0 for non-compliant string(s)."
         )
@@ -162,7 +164,7 @@ def _generate_teams() -> pd.DataFrame:
         unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(labels=fg_columns, axis=1)
         unjoined_fangraphs_teams = unjoined.query('yearID.isnull()').drop(labels=lahman_columns, axis=1)
 
-        logging.info("Matched %s teams off of %s. %s teams remaining to match.", len(joined.index) - joined_count, join_column, len(unjoined_lahman_teams.index))
+        logger.info("Matched %s teams off of %s. %s teams remaining to match.", len(joined.index) - joined_count, join_column, len(unjoined_lahman_teams.index))
 
     joined_count = len(joined.index) if (joined is not None) else 0
 
@@ -183,12 +185,12 @@ def _generate_teams() -> pd.DataFrame:
     unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(unjoined_fangraphs_teams.columns.values, axis=1)
     unjoined_fangraphs_teams = unjoined.query('yearID.isnull()').drop(unjoined_lahman_teams.columns, axis=1)
 
-    logging.info("Matched %s teams off of close match. %s teams remaining to match.", len(joined.index) - joined_count, len(unjoined_lahman_teams.index))
+    logger.info("Matched %s teams off of close match. %s teams remaining to match.", len(joined.index) - joined_count, len(unjoined_lahman_teams.index))
 
     error_state = False
 
     if not unjoined_lahman_teams.empty:
-        logging.warning(
+        logger.warning(
             'When trying to join lahman data to Fangraphs, found %s rows of extraneous lahman data: %s',
             len(unjoined_lahman_teams.index),
             unjoined_lahman_teams.sort_values(['yearID', 'lgID', 'teamID', 'franchID'])
@@ -198,7 +200,7 @@ def _generate_teams() -> pd.DataFrame:
     if not unjoined_fangraphs_teams.empty:
         this_year = date.today().year
         if not unjoined_fangraphs_teams[(unjoined_fangraphs_teams.Season.astype(int) < this_year)].empty:
-            logging.warning(
+            logger.warning(
                 'When trying to join Fangraphs data to lahman, found %s rows of extraneous Fangraphs data: %s',
                 len(unjoined_fangraphs_teams.index),
                 unjoined_fangraphs_teams.sort_values(['Season', 'Team'])
