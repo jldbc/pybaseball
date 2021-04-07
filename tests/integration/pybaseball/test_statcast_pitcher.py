@@ -19,7 +19,7 @@ def test_statcast_pitcher() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 89
+    assert len(result.columns) == 92
     assert len(result) == 1982
 
 def test_statcast_pitcher_exitvelo_barrels() -> None:
@@ -102,4 +102,4 @@ def test_statcast_pitcher_spin_dir_comp() -> None:
     assert not result.empty
 
     assert len(result.columns) == 30
-    assert len(result) == 260
+    assert len(result) > 100
