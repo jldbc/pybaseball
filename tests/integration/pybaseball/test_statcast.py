@@ -5,8 +5,8 @@ import pytest
 
 from pybaseball.statcast import _handle_request, _small_request, statcast, statcast_single_game
 from pybaseball.utils import sanitize_date_range
+from tests.conftest import CURRENT_SC_COLUMNS
 
-CURRENT_SC_COLUMNS = 92
 
 def test_small_request() -> None:
     start_dt, end_dt = sanitize_date_range('2019-06-01', None)
