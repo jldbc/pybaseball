@@ -1,11 +1,13 @@
 import copy
 import logging
 import os
-from typing import Any, Callable, Optional
+from threading import Lock
+from typing import Any, Callable, Generator, Optional
 from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
+from _pytest.fixtures import _FixtureFunction
 
 from pybaseball import cache
 
@@ -13,11 +15,22 @@ CURRENT_SC_COLUMNS = 92
 
 _DataFrameComparer = Callable[[pd.DataFrame, pd.DataFrame], bool]
 
+@pytest.fixture(autouse=True)
+def be_sequential(request: _FixtureFunction) -> Generator[None, None, None]:
+    if request.node.get_closest_marker("sequential"):  # type: ignore
+        lock = Lock()
+        lock.acquire()
+        yield
+        lock.release()
+    else:
+        yield
+
 @pytest.fixture(name='logging_side_effect')
 def _logging_side_effect() -> Callable:
     def _logger(name: str, after: Optional[Callable] = None) -> Callable:
         def _side_effect(*args: Any, **kwargs: Any) -> Optional[Any]:
-            logging.debug(f'Mock {name} => {args} {kwargs}')
+            logger = logging.getLogger('pybaseball')
+            logger.debug(f'Mock {name} => {args} {kwargs}')
             if after is not None:
                 return after(*args, **kwargs)
 
@@ -39,7 +52,8 @@ def _cache_config() -> cache.CacheConfig:
 @pytest.fixture(autouse=True)
 def _override_cache_config(cache_config: cache.CacheConfig) -> None:
     def _test_auto_load() -> cache.CacheConfig:
-        logging.debug('_test_auto_load')
+        logger = logging.getLogger('pybaseball')
+        logger.debug('_test_auto_load')
         return cache_config
 
     # Copy this for when we want to test the autoload_cache function
