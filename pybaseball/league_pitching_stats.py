@@ -50,7 +50,7 @@ def pitching_stats_range(start_dt=None, end_dt=None):
     if end_dt_date.year < 2008:
         raise ValueError("Year must be 2008 or later")
     # retrieve html from baseball reference
-    soup = get_soup(start_dt, end_dt)
+    soup = get_soup(start_dt_date, end_dt_date)
     table = get_table(soup)
     table = table.dropna(how='all') # drop if all columns are NA
     #fix some strange formatting for percentage columns

@@ -3,6 +3,7 @@ import os
 import re
 from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Set
+from datetime import date
 
 import numpy as np
 import pandas as pd
@@ -197,12 +198,14 @@ def _generate_teams() -> pd.DataFrame:
         error_state = True
 
     if not unjoined_fangraphs_teams.empty:
-        logger.warning(
-            'When trying to join Fangraphs data to lahman, found %s rows of extraneous Fangraphs data: %s',
-            len(unjoined_fangraphs_teams.index),
-            unjoined_fangraphs_teams.sort_values(['Season', 'Team'])
-        )
-        error_state = True
+        this_year = date.today().year
+        if not unjoined_fangraphs_teams[(unjoined_fangraphs_teams.Season.astype(int) < this_year)].empty:
+            logger.warning(
+                'When trying to join Fangraphs data to lahman, found %s rows of extraneous Fangraphs data: %s',
+                len(unjoined_fangraphs_teams.index),
+                unjoined_fangraphs_teams.sort_values(['Season', 'Team'])
+            )
+            error_state = True
 
     if error_state:
         raise Exception("Extraneous data was not matched. Aborting.")
