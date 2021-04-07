@@ -158,10 +158,7 @@ def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple
         print('start_dt', start_dt)
         print('end_dt', end_dt)
 
-        print(
-            "Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, "
-            "try get_statcast(start_dt, end_dt)."
-        )
+        print("Warning: no date range supplied, assuming yesterday's date.")
 
     # If only one date is supplied, assume they only want that day's stats
     # query in this case is from date 1 to date 1
@@ -284,7 +281,7 @@ def norm_pitch_code(pitch: str, to_word: bool = False) -> str:
     normed = name_to_code_map.get(pitch.upper())
     normed = code_to_name_map.get(normed) if to_word else normed
     if normed is None:
-        if pitch.lower() is 'all':
+        if pitch.lower() == 'all':
             raise ValueError("'All' is not a valid pitch in this particular context!")
         raise ValueError(f'{pitch} is not a valid pitch!')
     return normed
