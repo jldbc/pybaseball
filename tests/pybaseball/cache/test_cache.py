@@ -32,12 +32,14 @@ def _save_mock(monkeypatch: MonkeyPatch) -> MagicMock:
     monkeypatch.setattr(cache.dataframe_utils, 'save_df', save_mock)
     return save_mock
 
+
 @pytest.mark.sequential
 def test_cache_enable() -> None:
     enable_mock = MagicMock()
     with patch('pybaseball.cache.config.enable', enable_mock):
         cache.enable()
         enable_mock.assert_called_once_with(True)
+
 
 @pytest.mark.sequential
 def test_cache_disable() -> None:
