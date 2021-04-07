@@ -8,14 +8,14 @@ from . import cache
 from .utils import norm_positions
 
 @cache.df_cache()
-def statcast_outs_above_average(year: int, posn: str, min_att: Union[int, str] = "q") -> pd.DataFrame:
+def statcast_outs_above_average(year: int, pos: str, min_att: Union[int, str] = "q") -> pd.DataFrame:
 	# a lot of options here. need to handle all the positions. range and split years?
 	# can use startYear and endYear for multi year
-	posn = norm_positions(posn)
+	pos = norm_positions(pos)
 	# catcher is not included in this leaderboard
-	if posn == "2":
+	if pos == "2":
 		raise ValueError("'C' not a valid position in this particular context!")
-	url = f"https://baseballsavant.mlb.com/leaderboard/outs_above_average?type=Fielder&year={year}&team=&range=year&min={min_att}&pos={posn}&roles=&viz=show&csv=true"
+	url = f"https://baseballsavant.mlb.com/leaderboard/outs_above_average?type=Fielder&year={year}&team=&range=year&min={min_att}&pos={pos}&roles=&viz=show&csv=true"
 	print(url)
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
@@ -56,3 +56,4 @@ def statcast_catcher_framing(year: int, min_called_p: Union[int, str] = "q") -> 
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	return data	
+

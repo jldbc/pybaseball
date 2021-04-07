@@ -69,9 +69,9 @@ position_codes = ["IF", "OF", "C", "1B", "2B", "3B", "SS", "LF", "CF", "RF", "AL
 position_names = ["Infield", "Outfield", "Catcher", "First Base", "Second Base", "Third Base", "Shortstop", "Left Field", "Center Field", "Right Field"]
 position_names_upper = [p.upper() for p in position_names]
 
-posn_code_to_numbers_map = dict(zip(position_codes[2:10], [str(x) for x in range(2, 10)]))
-posn_name_to_code_map = dict(zip(position_codes + position_names_upper, position_codes + position_codes))
-posn_code_to_name_map = dict(zip(position_codes, position_names))
+pos_code_to_numbers_map = dict(zip(position_codes[2:10], [str(x) for x in range(2, 10)]))
+pos_name_to_code_map = dict(zip(position_codes + position_names_upper, position_codes + position_codes))
+pos_code_to_name_map = dict(zip(position_codes, position_names))
 
 
 def validate_datestring(date_text: Optional[str]) -> date:
@@ -298,15 +298,15 @@ def norm_pitch_code(pitch: str, to_word: bool = False) -> str:
         raise ValueError(f'{pitch} is not a valid pitch!')
     return normed
 
-def norm_positions(posn: str, to_word: bool = False, to_number: bool = True) -> str:
-    normed = posn_name_to_code_map.get(posn.upper())
-    normed = posn_code_to_name_map.get(normed) if to_word else normed
+def norm_positions(pos: str, to_word: bool = False, to_number: bool = True) -> Union[str, int]:
+    normed = pos_name_to_code_map.get(pos.upper())
+    normed = pos_code_to_name_map.get(normed) if to_word else normed
     if to_number:
         if normed not in ["IF", "OF"]:
-            normed = posn_code_to_numbers_map.get(normed)
-        if posn.lower() == "all":
+            normed = pos_code_to_numbers_map.get(normed)
+        if pos.lower() == "all":
             normed = ""
     if normed is None:
-        raise ValueError(f'{posn} is not a valid position!')
+        raise ValueError(f'{pos} is not a valid position!')
     return normed.lower()
 
