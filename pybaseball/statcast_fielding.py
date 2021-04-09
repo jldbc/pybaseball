@@ -54,5 +54,6 @@ def statcast_catcher_framing(year: int, min_called_p: Union[int, str] = "q") -> 
 	url = f"https://baseballsavant.mlb.com/catcher_framing?year={year}&team=&min={min_called_p}&sort=4,1&csv=true"
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
-	return data	
+	# CSV includes league average player, which we drop from the result
+	return data.loc[data.player_name.notna()].reset_index(drop=True)	
 

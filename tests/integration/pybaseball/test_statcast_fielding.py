@@ -17,12 +17,19 @@ def test_statcast_outs_above_average() -> None:
 	assert result is not None
 	assert not result.empty
 
+	assert len(result.columns) == 17
+	assert len(result) == 184
+
 def test_statcast_outfield_directional_oaa() -> None:
 	min_opp = 50
 	result: pd.DataFrame = statcast_outfield_directional_oaa(2019, min_opp)
 
 	assert result is not None
 	assert not result.empty
+
+	assert len(result.columns) == 13
+	assert len(result) > 0
+	assert len(result.loc[result.attempts < min_opp]) == 0
 
 def test_statcast_outfield_catch_proba() -> None:
 	min_opp = 25
@@ -31,12 +38,19 @@ def test_statcast_outfield_catch_proba() -> None:
 	assert result is not None
 	assert not result.empty
 
+	assert len(result.columns) == 19
+	assert len(result) = 228
+
 def test_statcast_outfielder_jump() -> None:		
 	min_att = 50
 	result: pd.DataFrame = statcast_outfielder_jump(2019, min_att)
 	
 	assert result is not None
 	assert not result.empty
+
+	assert len(result.columns) == 13
+	assert len(result) > 0
+	assert len(result.loc[result.n < min_att]) == 0
 
 def test_statcast_catcher_poptime() -> None:
 	min_2b_att = 5
@@ -46,9 +60,19 @@ def test_statcast_catcher_poptime() -> None:
 	assert result is not None
 	assert not result.empty
 
+	assert len(result.columns) == 14
+	assert len(result) > 0
+	assert len(result.loc[result.pop_2b_sba_count < min_2b_att]) == 0
+	assert len(result.loc[result.pop_3b_sba_count < min_3b_att]) == 0
+
 def test_statcast_catcher_framing() -> None:
 	min_called_p = 100
 	result: pd.DataFrame = statcast_catcher_framing(2019, min_called_p)
 
 	assert result is not None
 	assert not result.empty
+
+	assert len(result.columns) == 15
+	assert len(result) > 0
+	assert len(result.loc[result.n_called_pitches < min_called_p]) == 0
+

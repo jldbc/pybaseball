@@ -13,7 +13,9 @@ def test_statcast_sprint_speed() -> None:
 	assert result is not None
 	assert not result.empty
 
-	# to be filled in
+	assert len(result.columns) == 10
+	assert len(result) > 0
+	assert len(result.loc[result.competitive_runs < min_opp]) == 0
 
 @cache.df_cache()
 def test_statcast_running_splits() -> None:
@@ -24,4 +26,5 @@ def test_statcast_running_splits() -> None:
 	assert result is not None
 	assert not result.empt
 
-	# to be filled iny
+	assert len(result.columns) == 27
+	assert len(result) == 546
