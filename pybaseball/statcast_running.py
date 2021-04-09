@@ -14,7 +14,7 @@ def statcast_sprint_speed(year: int, min_opp: int = 10) -> pd.DataFrame:
 	return data
 
 @cache.df_cache()
-def statcast_running_splits(year: int, min_opp: int = 5, raw_splits: bool = True)-> pd.DataFrame:
+def statcast_running_splits(year: int, min_opp: int = 5, raw_splits: bool = True) -> pd.DataFrame:
 	split_type = "raw" if raw_splits else "percent"
 	url = f"https://baseballsavant.mlb.com/running_splits?type={split_type}&bats=&year={year}&position=&team=&min={min_opp}&csv=true"
 	res = requests.get(url, timeout=None).content
