@@ -298,7 +298,7 @@ def norm_pitch_code(pitch: str, to_word: bool = False) -> str:
         raise ValueError(f'{pitch} is not a valid pitch!')
     return normed
 
-def norm_positions(pos: str, to_word: bool = False, to_number: bool = True) -> Union[str, int]:
+def norm_positions(pos: str, to_word: bool = False, to_number: bool = True) -> str:
     normed = pos_name_to_code_map.get(pos.upper())
     normed = pos_code_to_name_map.get(normed) if to_word else normed
     if to_number:
@@ -308,5 +308,6 @@ def norm_positions(pos: str, to_word: bool = False, to_number: bool = True) -> U
             normed = ""
     if normed is None:
         raise ValueError(f'{pos} is not a valid position!')
+    # lower() ok due to positional numbers being cast as strings when created
     return normed.lower()
 

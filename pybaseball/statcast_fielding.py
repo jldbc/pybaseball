@@ -16,7 +16,6 @@ def statcast_outs_above_average(year: int, pos: str, min_att: Union[int, str] = 
 	if pos == "2":
 		raise ValueError("'C' not a valid position in this particular context!")
 	url = f"https://baseballsavant.mlb.com/leaderboard/outs_above_average?type=Fielder&year={year}&team=&range=year&min={min_att}&pos={pos}&roles=&viz=show&csv=true"
-	print(url)
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	return data
@@ -36,8 +35,8 @@ def statcast_outfield_catch_proba(year: int, min_opp: Union[int, str] = "q") -> 
 	return data
 
 @cache.df_cache()
-def statcast_outfielder_jump(year: int, min_p: Union[int, str] = "q") -> pd.DataFrame:
-	url = f"https://baseballsavant.mlb.com/leaderboard/outfield_jump?year={year}&min={min_p}&csv=true"
+def statcast_outfielder_jump(year: int, min_att: Union[int, str] = "q") -> pd.DataFrame:
+	url = f"https://baseballsavant.mlb.com/leaderboard/outfield_jump?year={year}&min={min_att}&csv=true"
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	return data
