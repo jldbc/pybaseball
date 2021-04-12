@@ -39,7 +39,7 @@ def test_statcast_outfield_catch_proba() -> None:
 	assert not result.empty
 
 	assert len(result.columns) == 19
-	assert len(result) = 228
+	assert len(result) == 228
 
 def test_statcast_outfielder_jump() -> None:		
 	min_att = 50
