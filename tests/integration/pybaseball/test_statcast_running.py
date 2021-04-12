@@ -22,7 +22,7 @@ def test_statcast_running_splits() -> None:
 	result: pd.DataFrame = statcast_running_splits(2019, min_opp, raw_splits)
 
 	assert result is not None
-	assert not result.empt
+	assert not result.empty
 
 	assert len(result.columns) == 27
 	assert len(result) == 546

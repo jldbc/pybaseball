@@ -55,5 +55,5 @@ def statcast_catcher_framing(year: int, min_called_p: Union[int, str] = "q") -> 
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	# CSV includes league average player, which we drop from the result
-	return data.loc[data.player_name.notna()].reset_index(drop=True)	
+	return data.loc[data.last_name.notna()].reset_index(drop=True)	
 
