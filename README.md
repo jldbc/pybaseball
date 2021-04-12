@@ -1,6 +1,6 @@
 # pybaseball
 
-## 2.2.0 Release: March 15, 2020
+## 2.2.0 Release: March 15, 2021
 
 **What's New?**
 
