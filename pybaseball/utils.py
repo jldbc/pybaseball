@@ -167,10 +167,7 @@ def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple
         print('start_dt', start_dt)
         print('end_dt', end_dt)
 
-        print(
-            "Warning: no date range supplied. Returning yesterday's Statcast data. For a different date range, "
-            "try get_statcast(start_dt, end_dt)."
-        )
+        print("Warning: no date range supplied, assuming yesterday's date.")
 
     # If only one date is supplied, assume they only want that day's stats
     # query in this case is from date 1 to date 1
