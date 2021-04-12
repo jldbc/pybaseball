@@ -55,7 +55,7 @@ def test_statcast_outfielder_jump() -> None:
 def test_statcast_catcher_poptime() -> None:
 	min_2b_att = 5
 	min_3b_att = 0
-	result: pd.DataFrame = statcast_catcher_poptime(2019, min_2b_att, min_3b_att) -> pd.DataFrame:
+	result: pd.DataFrame = statcast_catcher_poptime(2019, min_2b_att, min_3b_att) 
 
 	assert result is not None
 	assert not result.empty

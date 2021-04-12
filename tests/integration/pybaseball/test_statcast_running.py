@@ -5,7 +5,6 @@ from pybaseball.statcast_running import (
 	statcast_running_splits
 )
 	
-@cache.df_cache()
 def test_statcast_sprint_speed() -> None:
 	min_opp = 10
 	result: pd.DataFrame = statcast_sprint_speed(2019, min_opp)
@@ -17,7 +16,6 @@ def test_statcast_sprint_speed() -> None:
 	assert len(result) > 0
 	assert len(result.loc[result.competitive_runs < min_opp]) == 0
 
-@cache.df_cache()
 def test_statcast_running_splits() -> None:
 	min_opp = 5
 	raw_splits = True
