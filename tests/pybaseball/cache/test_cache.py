@@ -70,8 +70,6 @@ def test_call_cache_disabled(load_mock: MagicMock, save_mock: MagicMock) -> None
     save_mock.assert_not_called()
 
 
-@patch('os.path.exists', MagicMock(return_value=True))
-@patch('os.path.getmtime', MagicMock(return_value=datetime.now().timestamp()))
 @patch('pybaseball.cache.config.enabled', True)
 @patch('glob.glob', MagicMock(return_value=['1.cache_record.json']))
 @patch('pybaseball.cache.file_utils.load_json', MagicMock(
@@ -104,8 +102,6 @@ def test_call_cache_enabled_loads_cache(
     pd.testing.assert_frame_equal(result, mock_data_1)
 
 
-@patch('os.path.exists', MagicMock(return_value=True))
-@patch('os.path.getmtime', MagicMock(return_value=datetime.now()-timedelta(days=7)).timestamp())
 @patch('pybaseball.cache.config.enabled', True)
 @patch('glob.glob', MagicMock(return_value=['1.cache_record.json']))
 @patch('pybaseball.cache.file_utils.load_json', MagicMock(
@@ -198,6 +194,16 @@ def test_call_cache_load_fails_silently(
 
 
 @patch('pybaseball.cache.config.enabled', True)
+@patch('glob.glob', MagicMock(return_value=['1.cache_record.json']))
+@patch('pybaseball.cache.file_utils.load_json', MagicMock(
+    return_value={
+        'expires': '3000-01-01',
+        'func': 'df_func',
+        'args': [1, 2],
+        'kwargs': {'val1': 'a'},
+        'dataframe': 'cachefile.csv'
+    }
+))
 def test_call_cache_save_fails_silently(
         mock_data_1: pd.DataFrame, thrower: Callable,
         empty_load_mock: MagicMock, save_mock: MagicMock) -> None:
