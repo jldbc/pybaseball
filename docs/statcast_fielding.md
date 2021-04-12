@@ -16,7 +16,7 @@ from pybaseball import statcast_outs_above_average
 data = statcast_outs_above_average(2019, "all", 50)
 
 # Center fielders who qualified in 2019
-data = statcast_outs_above_average(2019, "CF")
+data = statcast_outs_above_average(2019,  pos = "CF")
 
 # Infielders with at least 100 fielding attempts in 2019
 data = statcast_outs_above_average(2019, pos = "IF", min_att = 100)
