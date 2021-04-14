@@ -6,7 +6,7 @@ This function retrieves outs above average (OAA) for the given year, position, a
 ## Arguments
 `year:` The year for which you wish to retrieve batted ball against data. Format: YYYY.
 `pos:` The position you are interested in. Valid positions include "all", "IF", "OF", and position names or abbreviations. Pitchers and catchers are not included.
-`min_att:` The minimum number of fielding attempts for the player to be included in the result. The default is players, which is 1 fielding attempt per game played for 2B, SS, 3B, and OF and 1 fielding attempt per every other game played for 1B.
+`min_att:` The minimum number of fielding attempts for the player to be included in the result. Statcast's default is players, which is 1 fielding attempt per game played for 2B, SS, 3B, and OF and 1 fielding attempt per every other game played for 1B.
 
 ## Examples of Valid Queries
 ```python
@@ -29,7 +29,7 @@ This function retrieves outfielders' directional OAA data for the given year and
 
 ## Arguments
 `year:` The year for which you wish to retrieve batted ball against data. Format: YYYY.
-`min_opp:` The minimum number of opportunities for the player to be included in the result. The default is players with at least 1 fielding attempt per game.
+`min_opp:` The minimum number of opportunities for the player to be included in the result. Statcast's default is players with at least 1 fielding attempt per game.
 
 ## Examples of Valid Queries
 ```python
@@ -49,7 +49,7 @@ This function retrieves aggregated data for outfielder performance on fielding a
 
 ## Arguments
 `year:` The year for which you wish to retrieve batted ball against data. Format: YYYY.
-`min_opp:` The minimum number of opportunities for the player to be included in the result. The default is players with at least 1 fielding attempt per game. 
+`min_opp:` The minimum number of opportunities for the player to be included in the result. Statcast's default is players with at least 1 fielding attempt per game. 
 
 ## Examples of Valid Queries
 ```python
@@ -69,7 +69,7 @@ This function retrieves data on outfielder's jump to the ball for the given year
 
 ## Arguments
 `year:` The year for which you wish to retrieve batted ball against data. Format: YYYY.
-`min_att:` The minimum number of attempts for the player to be included in the result. The default is players with at least 2 two star or harder fielding attempts per team game / 5. 
+`min_att:` The minimum number of attempts for the player to be included in the result. Statcast's default is players with at least 2 two star or harder fielding attempts per team game / 5. 
 
 ## Examples of Valid Queries
 ```python
@@ -91,8 +91,8 @@ Note: It is not available for 2020 data.
 
 ## Arguments
 `year:` The year for which you wish to retrieve batted ball against data. Format: YYYY.
-`min_2b_att:` The minimum number of stolen base attempts for second base against the catcher.
-`min_3b_att:` The minimum number of stolen base attempts for third base against the catcher.
+`min_2b_att:` The minimum number of stolen base attempts for second base against the catcher. Statcast's default is 5.
+`min_3b_att:` The minimum number of stolen base attempts for third base against the catcher. Statcast's default is 0.
 
 ## Examples of Valid Queries
 ```python
@@ -109,7 +109,7 @@ This function retrieves the catcher's framing results for the given year and min
 
 ## Arguments
 `year:` The year for which you wish to retrieve batted ball against data. Format: YYYY.
-`min_called_p:` The minimum number of called pitches for the catcher in the shadow zone. The default is players with at least 6 called pitches in the shadow zone per team game.
+`min_called_p:` The minimum number of called pitches for the catcher in the shadow zone. Statcast's default is players with at least 6 called pitches in the shadow zone per team game.
 
 ## Examples of Valid Queries
 ```python
