@@ -1,3 +1,6 @@
+
+**Note:** Statcast data is liable to change unexpectedly due to the large number of observations. Please keep that in mind when pulling data.
+
 # Statcast Fielding Outs Above Average
 `statcast_outs_above_average(year: int, pos: str, min_att: Union[int, str] = "q")`
 

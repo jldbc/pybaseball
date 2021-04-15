@@ -1,3 +1,6 @@
+
+**Note:** Statcast data is liable to change unexpectedly due to the large number of observations. Please keep that in mind when pulling data
+
 # Statcast Running Sprint Speed
 `statcast_sprint_speed(year: int, min_opp: int = 10)`
 
