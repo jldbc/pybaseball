@@ -48,7 +48,7 @@ data = statcast_outfield_directional_oaa(2019, 200)
 ```
 
 # Statcast Fielding Outfield Catch Probability
-`statcast_outfield_catch_proba(year: int, min_opp: Union[int, str] = "q")`
+`statcast_outfield_catch_prob(year: int, min_opp: Union[int, str] = "q")`
 
 This function retrieves aggregated data for outfielder performance on fielding attempt types, binned into five star categories, for the given year and number of opportunities.
 
@@ -58,13 +58,13 @@ This function retrieves aggregated data for outfielder performance on fielding a
 
 ## Examples of Valid Queries
 ```python
-from pybaseball import statcast_outfield_catch_proba
+from pybaseball import statcast_outfield_catch_prob
 
 # All qualified outfielders from 2019
-data = statcast_outfield_catch_proba(2019)
+data = statcast_outfield_catch_prob(2019)
 
 # All outfielders with at least 200 attempts in 2019
-data = statcast_outfield_catch_proba(2019, 200)
+data = statcast_outfield_catch_prob(2019, 200)
 ```
 
 # Statcast Fielding Outfielder Jump

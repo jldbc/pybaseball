@@ -26,7 +26,7 @@ def statcast_outfield_directional_oaa(year: int, min_opp: Union[int, str] = "q")
 	return data
 
 @cache.df_cache()
-def statcast_outfield_catch_proba(year: int, min_opp: Union[int, str] = "q") -> pd.DataFrame:
+def statcast_outfield_catch_prob(year: int, min_opp: Union[int, str] = "q") -> pd.DataFrame:
 	url = f"https://baseballsavant.mlb.com/leaderboard/catch_probability?type=player&min={min_opp}&year={year}&total=&csv=true"
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))

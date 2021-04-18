@@ -3,7 +3,7 @@ import pandas as pd
 from pybaseball.statcast_fielding import (
 	statcast_outs_above_average,
 	statcast_outfield_directional_oaa,
-	statcast_outfield_catch_proba,
+	statcast_outfield_catch_prob,
 	statcast_outfielder_jump,
 	statcast_catcher_poptime,
 	statcast_catcher_framing
@@ -31,9 +31,9 @@ def test_statcast_outfield_directional_oaa() -> None:
 	assert len(result) > 0
 	assert len(result.loc[result.attempts < min_opp]) == 0
 
-def test_statcast_outfield_catch_proba() -> None:
+def test_statcast_outfield_catch_prob() -> None:
 	min_opp = 25
-	result: pd.DataFrame = statcast_outfield_catch_proba(2019, min_opp)
+	result: pd.DataFrame = statcast_outfield_catch_prob(2019, min_opp)
 
 	assert result is not None
 	assert not result.empty
