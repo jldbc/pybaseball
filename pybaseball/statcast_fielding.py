@@ -8,7 +8,7 @@ from . import cache
 from .utils import norm_positions
 
 @cache.df_cache()
-def statcast_outs_above_average(year: int, pos: str, min_att: Union[int, str] = "q") -> pd.DataFrame:
+def statcast_outs_above_average(year: int, pos: Union[int, str], min_att: Union[int, str] = "q") -> pd.DataFrame:
 	pos = norm_positions(pos)
 	# catcher is not included in this leaderboard
 	if pos == "2":

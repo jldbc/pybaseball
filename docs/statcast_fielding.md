@@ -2,13 +2,13 @@
 **Note:** Statcast data is liable to change unexpectedly due to the large number of observations. Please keep that in mind when pulling data.
 
 # Statcast Fielding Outs Above Average
-`statcast_outs_above_average(year: int, pos: str, min_att: Union[int, str] = "q")`
+`statcast_outs_above_average(year: int, pos: Union[int, str], min_att: Union[int, str] = "q")`
 
 This function retrieves outs above average (OAA) for the given year, position, and attempts. OAA is a Statcast metric based on the "cumulative effect of all individual plays a fielder has been credited or debited with, making it a range-based metric of fielding skill that accounts for the number of plays made and the difficulty of them".
 
 ## Arguments
 `year:` The year for which you wish to retrieve batted ball against data. Format: YYYY.
-`pos:` The position you are interested in. Valid positions include "all", "IF", "OF", and position names or abbreviations. Pitchers and catchers are not included.
+`pos:` The position you are interested in. Valid positions include "all", "IF", "OF", and position names, numbers, or abbreviations. Position numbers may be entered as integers or strings, e.g. 6 or "6" for shortstops. Pitchers and catchers are not included.
 `min_att:` The minimum number of fielding attempts for the player to be included in the result. Statcast's default is players, which is 1 fielding attempt per game played for 2B, SS, 3B, and OF and 1 fielding attempt per every other game played for 1B.
 
 ## Examples of Valid Queries
@@ -21,6 +21,8 @@ data = statcast_outs_above_average(2019, "all", 50)
 # Center fielders who qualified in 2019
 data = statcast_outs_above_average(2019,  pos = "cf")
 
+# Shortstops who qualified in 2019
+data = statcast_outs_above_average(2019, pos = 6)
 # Infielders with at least 100 fielding attempts in 2019
 data = statcast_outs_above_average(2019, pos = "IF", min_att = 100)
 ```
