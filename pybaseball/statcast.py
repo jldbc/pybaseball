@@ -98,6 +98,8 @@ def statcast(start_dt: str = None, end_dt: str = None, team: str = None,
     start_dt: YYYY-MM-DD : the first date for which you want statcast data
     end_dt: YYYY-MM-DD : the last date for which you want statcast data
     team: optional (defaults to None) : city abbreviation of the team you want data for (e.g. SEA or BOS)
+    verbose: bool (defaults to True) : whether to print updates on query progress
+    parallel: bool (defaults to True) : whether to parallelize HTTP requests in large queries
 
     If no arguments are provided, this will return yesterday's statcast data.
     If one date is provided, it will return that date's statcast data.
