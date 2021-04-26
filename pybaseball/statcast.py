@@ -90,7 +90,7 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
 
 
 def statcast(start_dt: str = None, end_dt: str = None, team: str = None,
-             parallel: bool = True, verbose: bool = True) -> pd.DataFrame:
+             verbose: bool = True, parallel: bool = True) -> pd.DataFrame:
     """
     Pulls statcast play-level data from Baseball Savant for a given date range.
 
