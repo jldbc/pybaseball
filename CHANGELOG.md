@@ -1,3 +1,12 @@
+**2.2.1 Release: April 27th, 2021**
+
+- Statcast Fielding & Running leaderboards -- @wfordh
+
+- Improved logger setup -- @Maradonna90
+
+- Various bugfixes -- @TheCleric, @bdilday, @schorrm, @Latonis
+
+- Make Statcast parallelization optional -- @reddigari
 
 **2.2.0 Release: March 15, 2021**
 
