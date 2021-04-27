@@ -3,6 +3,11 @@
 
 The `statcast` function retrieves pitch-level statcast data for a given date or range or dates. 
 
+## Returned data
+This function returns a pandas `DataFrame` with one entry for each pitch in the
+query. The data returned for each pitch is explained on
+[Baseball Savant](https://baseballsavant.mlb.com/csv-docs).
+
 ## Arguments
 `start_dt:` first day for which you want to retrieve data. Defaults to yesterday's date if nothing is entered. If you only want data for one date, supply a `start_dt` value but not an `end_dt` value. Format: YYYY-MM-DD. 
 
