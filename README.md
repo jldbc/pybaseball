@@ -1,25 +1,8 @@
 # pybaseball
 
-## 2.2.0 Release: March 15, 2021
+## 2.2.1 Release: April 27, 2021
 
-**What's New?**
-
-- Cleaning up and parallelizing Statcast calls -- @TheCleric, @bdilday, and @schorrm
-
-- Statcast spin rate & spin direction -- @tpoatsy, see docs/statcast_pitcher_spin.md for more info.
-
-- Statcast Batter & Pitcher leaderboards -- @wfordh
-
-- We removed some fairly unnecessary dependencies that were causing a massive amount of dependency bloat -- @TheCleric and @bdilday.
-
-- Various test fixes -- @TheCleric
-
-- Spell-check to playerid lookup -- @tjburch and @mwisnie5
-
-- Plotting bugfix -- @andersonfrailey
-
-- Marcels Example -- @andersonfrailey
-
+See [CHANGELOG.md](CHANGELOG.md) for details.
 
 `pybaseball` is a Python package for baseball data analysis. This package scrapes Baseball Reference, Baseball Savant, and FanGraphs so you don't have to. The package retrieves statcast data, pitching stats, batting stats, division standings/team records, awards data, and more. Data is available at the individual pitch level, as well as aggregated at the season level and over custom time periods. See the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) for a comprehensive list of data acquisition functions.
 
