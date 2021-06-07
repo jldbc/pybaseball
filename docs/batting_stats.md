@@ -11,7 +11,7 @@ The `batting_stats` function returns season-level batting data from FanGraphs.
 
 `league:` String. "all" for both leagues, "al" for the American League, or "nl" for the National League. Defaults to "all".
 
-`qual:` Integer. Minimum number of plate appearances to be included in the results. Defaults to 1. 
+`qual:` Integer. Minimum number of plate appearances to be included in the results. Defaults to `None`, which is equivalent to the current Fangraphs "Qualified" PA threshold from their leaderboard. 
 
 `ind:` 1 or 0. Equals 1 if you want data returned at the individual season level. Equals 0 if you want aggregate data over the seasons included in the query. With `ind=1` and a query spanning the 2010 through 2015 seasons, for example, you will get each player's stats for 2010, 2011, 2012, 2013, 2014, and 2015 in a separate observation. With `ind=0`, this same query returns one row per player with their statistics aggregated over this period (either summed or averaged depending on what's appropriate).
 
