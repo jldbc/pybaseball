@@ -1,7 +1,12 @@
 # Statcast
-`statcast(start_dt=[yesterday's date], end_dt=None, team=None)`
+`statcast(start_dt=[yesterday's date], end_dt=None, team=None, verbose=True, parallel=True)`
 
 The `statcast` function retrieves pitch-level statcast data for a given date or range or dates. 
+
+## Returned data
+This function returns a pandas `DataFrame` with one entry for each pitch in the
+query. The data returned for each pitch is explained on
+[Baseball Savant](https://baseballsavant.mlb.com/csv-docs).
 
 ## Arguments
 `start_dt:` first day for which you want to retrieve data. Defaults to yesterday's date if nothing is entered. If you only want data for one date, supply a `start_dt` value but not an `end_dt` value. Format: YYYY-MM-DD. 
@@ -12,11 +17,16 @@ The `statcast` function retrieves pitch-level statcast data for a given date or 
 
 `verbose:` Boolean, default=True. If set to True this will provide updates on query progress, if set to False it will not. 
 
+`parallel:` Boolean, default=True. Whether to parallelize HTTP requests in large queries.
+
 ### A note on data availability 
 The earliest available statcast data comes from the 2008 season when the system was first introduced to Major League Baseball. Queries before this year will not work. Further, some features were introduced after the 2008 season. Launch speed angle, for example, is only available from the 2015 season forward. 
 
 ### A note on query time
 Baseball savant limits queries to 30000 rows each. For this reason, if your request is for a period of greater than 5 days, it will be broken into two or more smaller requests. The data will still be returned to you in a single dataframe, but it will take slightly longer. 
+
+### A note on parallelization
+Large queries with requests made in parallel complete substantially faster. This option exists to accommodate compute environments where multiprocessing is disabled (e.g. some AWS Lambda environments).
 
 ## Examples of valid queries
 

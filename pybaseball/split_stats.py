@@ -83,7 +83,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
     for i in range(len(comment)):
         commentsoup = bs.BeautifulSoup(comment[i], 'lxml')
         split_tables = commentsoup.find_all(
-            "div", {"class": "overthrow table_container"})
+            "div", {"class": "table_container"})
         splits = [ele for ele in split_tables]
         headings = []
         level_headings = []

@@ -1,3 +1,32 @@
+**2.2.1 Release: April 27th, 2021**
+
+- Statcast Fielding & Running leaderboards -- @wfordh
+
+- Improved logger setup -- @Maradonna90
+
+- Various bugfixes -- @TheCleric, @bdilday, @schorrm, @Latonis
+
+- Make Statcast parallelization optional -- @reddigari
+
+**2.2.0 Release: March 15, 2021**
+
+## Release Notes
+
+- Cleaning up and parallelizing Statcast calls -- @TheCleric, @bdilday, and @schorrm
+
+- Statcast spin rate & spin direction -- @tpoatsy, see docs/statcast_pitcher_spin.md for more info.
+
+- Statcast Batter & Pitcher leaderboards -- @wfordh
+
+- We removed some fairly unnecessary dependencies that were causing a massive amount of dependency bloat -- @TheCleric and @bdilday.
+
+- Various test fixes -- @TheCleric
+
+- Spell-check to playerid lookup -- @tjburch and @mwisnie5
+
+- Plotting bugfix -- @andersonfrailey
+
+- Marcels Example -- @andersonfrailey
 
 **2.1.1 Hotfix: October 15, 2020**
 

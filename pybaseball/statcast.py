@@ -51,7 +51,7 @@ def _check_warning(start_dt: date, end_dt: date) -> None:
 
 
 def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
-                    team: Optional[str] = None) -> pd.DataFrame:
+                    team: Optional[str] = None, parallel: bool = True) -> pd.DataFrame:
     """
     Fulfill the request in sensible increments.
     """
@@ -65,11 +65,16 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
     date_range = list(statcast_date_range(start_dt, end_dt, step, verbose))
 
     with tqdm(total=len(date_range)) as progress:
-        with concurrent.futures.ProcessPoolExecutor() as executor:
-            futures = {executor.submit(_small_request, subq_start, subq_end, team=team)
-                    for subq_start, subq_end in date_range}
-            for future in concurrent.futures.as_completed(futures):
-                dataframe_list.append(future.result())
+        if parallel:
+            with concurrent.futures.ProcessPoolExecutor() as executor:
+                futures = {executor.submit(_small_request, subq_start, subq_end, team=team)
+                        for subq_start, subq_end in date_range}
+                for future in concurrent.futures.as_completed(futures):
+                    dataframe_list.append(future.result())
+                    progress.update(1)
+        else:
+            for subq_start, subq_end in date_range:
+                dataframe_list.append(_small_request(subq_start, subq_end, team=team))
                 progress.update(1)
 
     # Concatenate all dataframes into final result set
@@ -84,7 +89,8 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
     return final_data
 
 
-def statcast(start_dt: str = None, end_dt: str = None, team: str = None, verbose: bool = True) -> pd.DataFrame:
+def statcast(start_dt: str = None, end_dt: str = None, team: str = None,
+             verbose: bool = True, parallel: bool = True) -> pd.DataFrame:
     """
     Pulls statcast play-level data from Baseball Savant for a given date range.
 
@@ -92,6 +98,8 @@ def statcast(start_dt: str = None, end_dt: str = None, team: str = None, verbose
     start_dt: YYYY-MM-DD : the first date for which you want statcast data
     end_dt: YYYY-MM-DD : the last date for which you want statcast data
     team: optional (defaults to None) : city abbreviation of the team you want data for (e.g. SEA or BOS)
+    verbose: bool (defaults to True) : whether to print updates on query progress
+    parallel: bool (defaults to True) : whether to parallelize HTTP requests in large queries
 
     If no arguments are provided, this will return yesterday's statcast data.
     If one date is provided, it will return that date's statcast data.
@@ -99,7 +107,8 @@ def statcast(start_dt: str = None, end_dt: str = None, team: str = None, verbose
 
     start_dt_date, end_dt_date = sanitize_date_range(start_dt, end_dt)
 
-    return _handle_request(start_dt_date, end_dt_date, 1, verbose=verbose, team=team)
+    return _handle_request(start_dt_date, end_dt_date, 1, verbose=verbose,
+                           team=team, parallel=parallel)
 
 
 def statcast_single_game(game_pk: Union[str, int]) -> pd.DataFrame:

@@ -14,7 +14,7 @@ def test_team_id_lookup_all() -> None:
     result = result.query('yearID <= 2019')
 
     assert len(result.columns) == 7
-    assert len(result) == 2925
+    assert len(result) == 2875
 
 
 def test_team_id_lookup_season() -> None:
