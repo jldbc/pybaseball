@@ -19,7 +19,7 @@ def get_division_counts_by_season(season: Optional[int]) -> int:
 
 class TestBRefStandings:
     @pytest.mark.parametrize(
-        "season", [(x) for x in range(1871, most_recent_season())]
+        "season", [(x) for x in range(1876, most_recent_season())]
     )
     def test_standings(self, season: Optional[int]) -> None:
         standings_list = standings(season)
@@ -33,7 +33,7 @@ class TestBRefStandings:
             assert len(data.columns) > 0
             assert len(data.index) > 0
 
-    def test_standings_pre_1871(self) -> None:
+    def test_standings_pre_1876(self) -> None:
         season = 1870
 
         with pytest.raises(ValueError):

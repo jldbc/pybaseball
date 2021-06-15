@@ -103,13 +103,13 @@ def _generate_teams() -> pd.DataFrame:
     Should only need to be run when a team is added, removed, or moves to a new city.
     """
 
-    start_season = 1871
+    start_season = 1876
     end_season = most_recent_season()
 
     lahman_columns = ['yearID', 'lgID', 'teamID', 'franchID', 'divID', 'name', 'teamIDBR', 'teamIDlahman45',
                       'teamIDretro']
 
-    lahman_teams = lahman.teams()[lahman_columns]
+    lahman_teams = lahman.teams().query('yearID >= @start_season')[lahman_columns]
 
     # Only getting AB to make payload small, and you have to specify at least one column
     fg_team_data = fangraphs.fg_team_batting_data(start_season, end_season, "ALL", stat_columns=['AB'])
