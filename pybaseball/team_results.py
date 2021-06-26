@@ -66,12 +66,12 @@ def get_table(soup: BeautifulSoup, team: str) -> pd.DataFrame:
                 cols = [ele.text.strip() for ele in cols][0:5]
                 data.append([ele for ele in cols if ele])
     #convert to pandas dataframe. make first row the table's column names and reindex.
-    dataframe = pd.DataFrame(data)
-    dataframe = dataframe.rename(columns=dataframe.iloc[0])
-    dataframe = dataframe.reindex(dataframe.index.drop(0))
-    dataframe = dataframe.drop('',1) #not a useful column
-    dataframe['Attendance'].replace(r'^Unknown$', np.nan, regex=True, inplace = True) # make this a NaN so the column can benumeric
-    return dataframe
+    df = pd.DataFrame(data)
+    df = df.rename(columns=df.iloc[0])
+    df = df.reindex(df.index.drop(0))
+    df = df.drop('',1) #not a useful column
+    df['Attendance'].replace(r'^Unknown$', np.nan, regex=True, inplace = True) # make this a NaN so the column can benumeric
+    return df
 
 def process_win_streak(data: pd.DataFrame) -> pd.DataFrame:
     """

@@ -101,32 +101,6 @@ def get_first_season(team: str, include_equivalents: bool = True) -> Optional[in
             oldest = equivalent_first
     
     return oldest
-# first_season_map = {'ALT': 1884, 'ANA': 1997, 'ARI': 1998, 'ATH': 1871,
-# 					'ATL': 1966, 'BAL': 1872, 'BLA': 1901, 'BLN': 1892,
-# 					'BLU': 1884, 'BOS': 1871, 'BRA': 1872, 'BRG': 1890,
-# 					'BRO': 1884, 'BSN': 1876, 'BTT': 1914, 'BUF': 1879,
-# 					'BWW': 1890, 'CAL': 1965, 'CEN': 1875, 'CHC': 1876,
-# 					'CHI': 1871, 'CHW': 1901, 'CIN': 1876, 'CKK': 1891,
-# 					'CLE': 1871, 'CLV': 1879, 'COL': 1883, 'COR': 1884,
-# 					'CPI': 1884, 'DET': 1901, 'DTN': 1881, 'ECK': 1872,
-# 					'FLA': 1993, 'HAR': 1874, 'HOU': 1962, 'IND': 1878,
-# 					'KCA': 1955, 'KCC': 1884, 'KCN': 1886, 'KCP': 1914,
-# 					'KCR': 1969, 'KEK': 1871, 'LAA': 1961, 'LAD': 1958,
-# 					'LOU': 1876, 'MAN': 1872, 'MAR': 1873, 'MIA': 2012,
-# 					'MIL': 1884, 'MIN': 1961, 'MLA': 1901, 'MLG': 1878,
-# 					'MLN': 1953, 'MON': 1969, 'NAT': 1872, 'NEW': 1915,
-# 					'NHV': 1875, 'NYG': 1883, 'NYI': 1890, 'NYM': 1962,
-# 					'NYP': 1883, 'NYU': 1871, 'NYY': 1903, 'OAK': 1968,
-# 					'OLY': 1871, 'PBB': 1890, 'PBS': 1914, 'PHA': 1882,
-# 					'PHI': 1873, 'PHK': 1884, 'PHQ': 1890, 'PIT': 1882,
-# 					'PRO': 1878, 'RES': 1873, 'RIC': 1884, 'ROC': 1890,
-# 					'ROK': 1871, 'SDP': 1969, 'SEA': 1977, 'SEP': 1969,
-# 					'SFG': 1958, 'SLB': 1902, 'SLM': 1884, 'SLR': 1875,
-# 					'STL': 1875, 'STP': 1884, 'SYR': 1879, 'TBD': 1998,
-# 					'TBR': 2008, 'TEX': 1972, 'TOL': 1884, 'TOR': 1977,
-# 					'TRO': 1871, 'WAS': 1873, 'WES': 1875, 'WHS': 1884,
-# 					'WIL': 1884, 'WOR': 1880, 'WSA': 1961, 'WSH': 1901,
-# 					'WSN': 2005}
 
 STATCAST_VALID_DATES = {
 	2008: (date(2008, 3, 25), date(2008, 10, 27)),
