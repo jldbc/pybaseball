@@ -2,7 +2,7 @@ from typing import List, Optional
 
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup, Comment
+from bs4 import BeautifulSoup, Comment, PageElement, ResultSet
 
 from . import cache
 from .utils import most_recent_season
@@ -16,22 +16,22 @@ def get_soup(year: int) -> BeautifulSoup:
 def get_tables(soup: BeautifulSoup, season: int) -> List[pd.DataFrame]:
     datasets = []
     if season >= 1969:
-        tables = soup.find_all('table')
+        tables: List[PageElement] = soup.find_all('table')
         if season == 1981:
             # For some reason BRef has 1981 broken down by halves and overall
             # https://www.baseball-reference.com/leagues/MLB/1981-standings.shtml
             tables = [x for x in tables if 'overall' in x.get('id', '')]
         for table in tables:
             data = []
-            headings = [th.get_text() for th in table.find("tr").find_all("th")]
+            headings: List[PageElement] = [th.get_text() for th in table.find("tr").find_all("th")]
             data.append(headings)
-            table_body = table.find('tbody')
-            rows = table_body.find_all('tr')
+            table_body: PageElement = table.find('tbody')
+            rows: List[PageElement] = table_body.find_all('tr')
             for row in rows:
-                cols = row.find_all('td')
-                cols = [ele.text.strip() for ele in cols]
-                cols.insert(0,row.find_all('a')[0]['title']) # team name
-                data.append([ele for ele in cols if ele])
+                cols: List[PageElement] = row.find_all('td')
+                cols_text: List[str] = [ele.text.strip() for ele in cols]
+                cols_text.insert(0, row.find_all('a')[0].text.strip()) # team name
+                data.append([ele for ele in cols_text if ele])
             datasets.append(data)
     else:
         data = []
@@ -64,7 +64,7 @@ def get_tables(soup: BeautifulSoup, season: int) -> List[pd.DataFrame]:
                 for _ in range(16):
                     cols.pop()
             cols = [ele.text.strip() for ele in cols]
-            cols.insert(0,row.find_all('a')[0]['title']) # team name
+            cols.insert(0,row.find_all('a')[0].text.strip()) # team name
             data.append([ele for ele in cols if ele])
         datasets.append(data)
     #convert list-of-lists to dataframes
@@ -78,10 +78,10 @@ def standings(season:Optional[int] = None) -> pd.DataFrame:
     # get most recent standings if date not specified
     if season is None:
         season = most_recent_season()
-    if season < 1871:
+    if season < 1876:
         raise ValueError(
-            "This query currently only returns standings until the 1871 season. "
-            "Try looking at years from 1871 to present."
+            "This query currently only returns standings until the 1876 season. "
+            "Try looking at years from 1876 to present."
         )
 
     # retrieve html from baseball reference

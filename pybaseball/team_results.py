@@ -1,25 +1,27 @@
 from datetime import datetime
+from typing import Optional
 
+from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup
 
-from pybaseball.utils import first_season_map, most_recent_season
+from pybaseball.utils import get_first_season, most_recent_season
 
 from . import cache
 
 # TODO: retrieve data for all teams? a full season's worth of results
 
-def get_soup(season, team):
+def get_soup(season: Optional[int], team: str) -> BeautifulSoup:
     # get most recent year's schedule if year not specified
     if season is None:
         season = most_recent_season()
     url = "http://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml".format(team, season)
-    s=requests.get(url).content
+    print(url)
+    s = requests.get(url).content
     return BeautifulSoup(s, "lxml")
 
-def get_table(soup,team):
+def get_table(soup: BeautifulSoup, team: str) -> pd.DataFrame:
     try:
         table = soup.find_all('table')[0]
     except:
@@ -64,14 +66,14 @@ def get_table(soup,team):
                 cols = [ele.text.strip() for ele in cols][0:5]
                 data.append([ele for ele in cols if ele])
     #convert to pandas dataframe. make first row the table's column names and reindex.
-    data = pd.DataFrame(data)
-    data = data.rename(columns=data.iloc[0])
-    data = data.reindex(data.index.drop(0))
-    data = data.drop('',1) #not a useful column
-    data['Attendance'].replace(r'^Unknown$', np.nan, regex=True, inplace = True) # make this a NaN so the column can benumeric
-    return data
+    df = pd.DataFrame(data)
+    df = df.rename(columns=df.iloc[0])
+    df = df.reindex(df.index.drop(0))
+    df = df.drop('',1) #not a useful column
+    df['Attendance'].replace(r'^Unknown$', np.nan, regex=True, inplace = True) # make this a NaN so the column can benumeric
+    return df
 
-def process_win_streak(data):
+def process_win_streak(data: pd.DataFrame) -> pd.DataFrame:
     """
     Convert "+++"/"---" formatted win/loss streak column into a +/- integer column
     """
@@ -83,7 +85,7 @@ def process_win_streak(data):
         data = data.drop('Streak2',1)
     return data
 
-def make_numeric(data):
+def make_numeric(data: pd.DataFrame) -> pd.DataFrame:
     # first remove commas from attendance values
     # skip if column is all NA (not sure if everyone kept records in the early days)
     if data['Attendance'].count() > 0:
@@ -98,12 +100,13 @@ def make_numeric(data):
     return data
 
 @cache.df_cache()
-def schedule_and_record(season=None, team=None):
+def schedule_and_record(season: int, team: str) -> pd.DataFrame:
     # retrieve html from baseball reference
     # sanatize input
     team = team.upper()
     try:
-        if season < first_season_map[team]:
+        first_season = get_first_season(team)
+        if first_season is None or season < first_season:
             m = "Season cannot be before first year of a team's existence"
             raise ValueError(m)
     # ignore validation if team isn't found in dictionary
