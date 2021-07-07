@@ -51,3 +51,10 @@ def test_bwar_bat_return_all() -> None:
 def test_batting_stats_range_single_date():
     stats = batting_stats_range('2019-05-01', )
     assert not stats.empty
+
+
+def test_batting_stats_range_parsing_error():
+    """This tests the issue with parsing mentioned in
+    https://github.com/jldbc/pybaseball/issues/218"""
+    stats = batting_stats_range("2021-06-26", "2021-06-26")
+    assert len(stats) > 200
