@@ -19,7 +19,7 @@ def test_pitching_stats_bref() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 40
+    assert len(result.columns) == 41
     assert(len(result)) == 831
 
 

@@ -10,7 +10,7 @@ def test_batting_stats_bref() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 27
+    assert len(result.columns) == 28
     assert(len(result)) == 991
 
 
