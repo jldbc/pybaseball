@@ -16,7 +16,9 @@ def get_soup(start_dt, end_dt):
         return None
     url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=p&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
     s = requests.get(url).content
-    return BeautifulSoup(s, "lxml")
+    # a workaround to avoid beautiful soup applying the wrong encoding
+    s = str(s).encode()
+    return BeautifulSoup(s, features="lxml")
 
 
 def get_table(soup):
