@@ -13,13 +13,13 @@ import pandas as pd
 CUR_PATH = Path(__file__).resolve().parent
 
 
-def _coordinate_transform(coord: pd.Series, center: float, scale: float, sign: float) -> pd.Series:
+def _transform_coordinate(coord: pd.Series, center: float, scale: float, sign: float) -> pd.Series:
     return sign * ((coord - center) * scale + center)
 
 
 def transform_coordinates(coords: pd.DataFrame, scale: float, x_center: float = 125, y_center: float = 199) -> pd.DataFrame:
-    x_transform = partial(_coordinate_transform, center=x_center, scale=scale, sign=+1)
-    y_transform = partial(_coordinate_transform, center=y_center, scale=scale, sign=-1)
+    x_transform = partial(_transform_coordinate, center=x_center, scale=scale, sign=+1)
+    y_transform = partial(_transform_coordinate, center=y_center, scale=scale, sign=-1)
     return coords.assign(x=coords.x.apply(x_transform), y=coords.y.apply(y_transform))
 
 
@@ -31,7 +31,10 @@ def transform_coordinates(coords: pd.DataFrame, scale: float, x_center: float = 
 #  - the center (x=125, y=199) comes from this hardball times article
 #  https://tht.fangraphs.com/research-notebook-new-format-for-statcast-data-export-at-baseball-savant/
 
-STADIUM_COORDS = transform_coordinates(pd.read_csv(Path(CUR_PATH, 'data', 'mlbstadiums.csv'), index_col=0))
+STADIUM_SCALE = 2.495 / 2.33
+STADIUM_COORDS = transform_coordinates(
+    pd.read_csv(Path(CUR_PATH, 'data', 'mlbstadiums.csv'), index_col=0), scale=STADIUM_SCALE
+)
 
 
 def plot_stadium(team: str, title: Optional[str] = None, width: Optional[int] = None,
