@@ -1,3 +1,4 @@
+from functools import partial
 from pathlib import Path
 from typing import List, Optional
 import warnings
@@ -10,10 +11,27 @@ import numpy as np
 import pandas as pd
 
 CUR_PATH = Path(__file__).resolve().parent
-STADIUM_COORDS = pd.read_csv(Path(CUR_PATH, 'data', 'mlbstadiums.csv'), index_col=0)
 
-# transform over x axis
-STADIUM_COORDS['y'] *= -1
+
+def _coordinate_transform(coord: pd.Series, center: float, scale: float, sign: float) -> pd.Series:
+    return sign * ((coord - center) * scale + center)
+
+
+def transform_coordinates(coords: pd.DataFrame, scale: float, x_center: float = 125, y_center: float = 199) -> pd.DataFrame:
+    x_transform = partial(_coordinate_transform, center=x_center, scale=scale, sign=+1)
+    y_transform = partial(_coordinate_transform, center=y_center, scale=scale, sign=-1)
+    return coords.assign(x=coords.x.apply(x_transform), y=coords.y.apply(y_transform))
+
+
+#  transform STADIUM_COORDS to match hc_x, hc_y
+#  the scale factor determined heuristically by:
+#  - finding the scale of STADIUM_COORDS that will match the outfield dimensions, e.g.,
+#    for coors, https://www.seamheads.com/ballparks/ballpark.php?parkID=DEN02
+#  - finding the scale for mlbam data so that hc_x, hc_y match the hit_distance_sc field
+#  - the center (x=125, y=199) comes from this hardball times article
+#  https://tht.fangraphs.com/research-notebook-new-format-for-statcast-data-export-at-baseball-savant/
+
+STADIUM_COORDS = transform_coordinates(pd.read_csv(Path(CUR_PATH, 'data', 'mlbstadiums.csv'), index_col=0))
 
 
 def plot_stadium(team: str, title: Optional[str] = None, width: Optional[int] = None,
