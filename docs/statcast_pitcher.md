@@ -43,7 +43,7 @@ This function retrieves batted ball against data for all qualified pitchers in a
 
 ## Examples of Valid Queries
 ```python
-from pybaseball import statcast_pitcher_exitvelo_barrels
+from pybaseball.statcast_pitcher import statcast_pitcher_exitvelo_barrels
 
 # get data for all qualified pitchers in 2019
 data = statcast_pitcher_exitvelo_barrels(2019)
@@ -63,7 +63,7 @@ This function retrieves expected stats based on quality of batted ball contact a
 
 ## Examples of Valid Queries
 ```python
-from pybaseball import statcast_pitcher_expected_stats
+from pybaseball.statcast_pitcher import statcast_pitcher_expected_stats
 
 # get data for all qualified pitchers in 2019
 data = statcast_pitcher_expected_stats(2019)
@@ -85,7 +85,7 @@ This function retrieves high level stats on each pitcher's arsenal in a given ye
 
 ## Examples of Valid Queries
 ```python
-from pybaseball import statcast_pitcher_pitch_arsenal
+from pybaseball.statcast_pitcher import statcast_pitcher_pitch_arsenal
 
 # get average pitch speed data for all qualified pitchers in 2019
 data = statcast_pitcher_pitch_arsenal(2019)
@@ -108,7 +108,7 @@ This function retrieves assorted basic and advanced outcome stats for pitchers' 
 
 ## Examples of Valid Queries
 ```python
-from pybaseball import statcast_pitcher_arsenal_stats
+from pybaseball.statcast_pitcher import statcast_pitcher_arsenal_stats
 
 # get data for all pitchers with 25 or more plate appearances against in 2019
 data = statcast_pitcher_arsenal_stats(2019)
@@ -168,7 +168,7 @@ This function retrieves percentile ranks for each player in a given year, includ
 
 ## Examples of Valid Queries
 ```python
-from pybaseball import statcast_pitcher_percentile_ranks
+from pybaseball.statcast_pitcher import statcast_pitcher_percentile_ranks
 
 # get data for all qualified pitchers in 2019
 data = statcast_pitcher_percentile_ranks(2019)
@@ -191,7 +191,7 @@ This function retrieves spin comparisons between two pitches for qualifying pitc
 
 ## Examples of Valid Queries
 ```python
-from pybaseball import statcast_pitcher_spin_dir_comp
+from pybaseball.statcast_pitcher import statcast_pitcher_spin_dir_comp
 
 # get data for fastball / changeup combos in 2020
 data = statcast_pitcher_spin_dir_comp(2020)
