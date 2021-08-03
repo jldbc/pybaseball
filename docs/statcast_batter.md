@@ -41,7 +41,7 @@ This function retrieves batted ball data for all batters in a given year.
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_batter import statcast_batter_exitvelo_barrels
+from pybaseball import statcast_batter_exitvelo_barrels
 
 # get data for all qualified batters in 2019
 data = statcast_batter_exitvelo_barrels(2019)
@@ -61,7 +61,7 @@ This function retrieves expected stats based on quality of batted ball contact i
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_batter import statcast_batter_expected_stats
+from pybaseball import statcast_batter_expected_stats
 
 # get data for all qualified batters in 2019
 data = statcast_batter_expected_stats(2019)
@@ -79,7 +79,7 @@ This function retrieves percentile ranks for each player in a given year, includ
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_batter import statcast_batter_percentile_ranks
+from pybaseball import statcast_batter_percentile_ranks
 
 # get data for all qualified batters in 2019
 data = statcast_batter_percentile_ranks(2019)
@@ -96,7 +96,7 @@ This function retrieves outcome data for batters split by the pitch type in a gi
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_batter import statcast_batter_pitch_arsenal
+from pybaseball import statcast_batter_pitch_arsenal
 
 # get data for all qualified batters in 2019
 data = statcast_batter_pitch_arsenal(2019)

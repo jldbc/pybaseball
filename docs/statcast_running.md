@@ -14,7 +14,7 @@ This function returns each player's sprint speed for the given year and minimum 
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_running import statcast_sprint_speed
+from pybaseball import statcast_sprint_speed
 
 # All players with at least 50 opportunities in 2019
 data = statcast_sprint_speed(2019, 50)
@@ -34,7 +34,7 @@ This function returns each player's 90 feet sprint splits at five foot intervals
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_running import statcast_running_splits
+from pybaseball import statcast_running_splits
 
 # Raw split times for players with at least 50 opportunities in 2019
 data = statcast_running_splits(2019, 50)

@@ -13,7 +13,7 @@ This function retrieves outs above average (OAA) for the given year, position, a
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_fielding import statcast_outs_above_average
+from pybaseball import statcast_outs_above_average
 
 # All fielders with at least 50 fielding attempts in 2019
 data = statcast_outs_above_average(2019, "all", 50)
@@ -38,7 +38,7 @@ This function retrieves outfielders' directional OAA data for the given year and
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_fielding import statcast_outfield_directional_oaa
+from pybaseball import statcast_outfield_directional_oaa
 
 # All qualified outfielders from 2019
 data = statcast_outfield_directional_oaa(2019)
@@ -58,7 +58,7 @@ This function retrieves aggregated data for outfielder performance on fielding a
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_fielding import statcast_outfield_catch_prob
+from pybaseball import statcast_outfield_catch_prob
 
 # All qualified outfielders from 2019
 data = statcast_outfield_catch_prob(2019)
@@ -78,7 +78,7 @@ This function retrieves data on outfielder's jump to the ball for the given year
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_fielding import statcast_outfielder_jump
+from pybaseball import statcast_outfielder_jump
 
 # All qualified outfielders from 2019
 data = statcast_outfielder_jump(2019)
@@ -101,7 +101,7 @@ Note: It is not available for 2020 data.
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_fielding import statcast_catcher_poptime
+from pybaseball import statcast_catcher_poptime
 
 # Catchers with at least 10 second base attempts against and 2 third base attempts against in 2019
 data = statcast_catcher_poptime(2019, min_2b_att = 10, min_3b_att = 2)
@@ -118,7 +118,7 @@ This function retrieves the catcher's framing results for the given year and min
 
 ## Examples of Valid Queries
 ```python
-from pybaseball.statcast_fielding import statcast_catcher_framing
+from pybaseball import statcast_catcher_framing
 
 # All qualified catchers from 2019
 data = statcast_catcher_framing(2019)
