@@ -52,5 +52,5 @@ from pybaseball import amateur_draft_by_team
 rays_2011_draft = amateur_draft_by_team("TBD", 2011)
 
 # check 2013 Royals draft without stats
-royals_2013_draft_without_stats = amateur_draft_by_team("KCR", 2013)
+royals_2013_draft_without_stats = amateur_draft_by_team("KCR", 2013, keep_stats=False)
 ```
