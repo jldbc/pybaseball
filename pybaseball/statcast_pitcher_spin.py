@@ -132,7 +132,9 @@ def find_phi(df):
         np.arctan2(df['amagz'], df['amagx'])*180/np.pi,
         360 + np.arctan2(df['amagz'], df['amagx'])*180/np.pi) + 90
 
-    df['phi'] = df['phi'].round(0).astype('int64')
+    # astype(float) first to avoid a TypeError like so:
+    # TypeError: loop of ufunc does not support argument 0 of type float which has no callable rint method
+    df['phi'] = df['phi'].astype(float).round().astype('int64')
     return df
 
 
