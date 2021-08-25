@@ -56,7 +56,8 @@ class df_cache:
 
             if result is None:
                 result = func(*args, **kwargs)
-                self._safe_save_func_cache(func_data, result)
+                if len(result) > 0:
+                    self._safe_save_func_cache(func_data, result)
 
             return result
 
