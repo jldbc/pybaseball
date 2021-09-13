@@ -3,7 +3,7 @@ import pybaseball
 
 class TestTeamGameLogs:
     def test_nyy_game_logs_regression1():
-        """Regression test for NYY 2021 subway series"""
+        """Regression test for NYY 2021 example"""
         df = pybaseball.team_game_logs(2021, "NYY", "pitching") 
 
         # NYY home against TOR 9/9/2021
