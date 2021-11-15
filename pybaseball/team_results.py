@@ -69,7 +69,7 @@ def get_table(soup: BeautifulSoup, team: str) -> pd.DataFrame:
     df = pd.DataFrame(data)
     df = df.rename(columns=df.iloc[0])
     df = df.reindex(df.index.drop(0))
-    df = df.drop('',1) #not a useful column
+    df = df.drop('',axis=1) #not a useful column
     df['Attendance'].replace(r'^Unknown$', np.nan, regex=True, inplace = True) # make this a NaN so the column can benumeric
     return df
 
