@@ -123,11 +123,11 @@ def schools() -> pd.DataFrame:
 def series_post() -> pd.DataFrame:
     return _get_file("core/SeriesPost.csv")
 
-def teams_core() -> pd.DataFrame:
+def teams() -> pd.DataFrame:
     return _get_file("core/Teams.csv")
 
 def teams_upstream() -> pd.DataFrame:
-    return _get_file("upstream/Teams.csv")
+    return _get_file("upstream/Teams.csv") # manually maintained file
 
 def teams_franchises() -> pd.DataFrame:
     return _get_file("core/TeamsFranchises.csv")
