@@ -17,7 +17,7 @@ def statcast_batter(start_dt: Optional[str] = None, end_dt: Optional[str] = None
     end_dt : YYYY-MM-DD : the final date for which you want data
     player_id : INT : the player's MLBAM ID. Find this by calling pybaseball.playerid_lookup(last_name, first_name), finding the correct player, and selecting their key_mlbam.
     """
-    sanitize_input(start_dt, end_dt, player_id)
+    start_dt, end_dt, _ = sanitize_input(start_dt, end_dt, player_id)
     
     # sanitize_input will guarantee these are not None
     assert start_dt
