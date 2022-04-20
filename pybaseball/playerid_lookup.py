@@ -105,7 +105,7 @@ class _PlayerSearchClient:
         if len(results) == 0 and fuzzy:
             print("No identically matched names found! Returning the 5 most similar names.")
             results=get_closest_names(last=last, first=first, player_table=self.table)
-            
+
         return results
 
 
@@ -118,12 +118,12 @@ class _PlayerSearchClient:
 
         Returns:
             pd.DataFrame: DataFrame of playerIDs, name, years played
-        ''' 
+        '''
         results = pd.DataFrame()
 
         for last, first in player_list:
             results = results.append(self.search(last, first), ignore_index=True)
-        
+
         return results
 
 
@@ -161,6 +161,25 @@ def _get_client() -> _PlayerSearchClient:
         _client = _PlayerSearchClient()
     return _client
 
+def handle_nicknames(name):
+    """
+    Account for searching a player using either their nickname or full name
+    while it is different in the csv file. Including a short list of names with
+    common nicknames that potentially led to erroneous searches.
+
+    Previous issues with no results for "Michael King" on the Yankees, but
+    his information appearing for "Mike King".
+    """
+    names = ["mike", "michael", "josh", "joshua", "joe", "joey", "pat", "patrick",
+    "matt", "matthew", "charles", "charlie", "jake", "jacob", "nick", "nicholas",
+    "vlad", "vladimir"]
+    if name.lower() not in names:
+        return name
+    i = names.index(name.lower())
+    if i % 2 == 0:
+        return names[i + 1]
+    return names [i - 1]
+
 def playerid_lookup(last: str, first: str = None, fuzzy: bool = False) -> pd.DataFrame:
     """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
 
@@ -173,7 +192,10 @@ def playerid_lookup(last: str, first: str = None, fuzzy: bool = False) -> pd.Dat
         pd.DataFrame: DataFrame of playerIDs, name, years played
     """
     client = _get_client()
-    return client.search(last, first, fuzzy)
+    result = client.search(last, first, fuzzy)
+    if result.empty:
+        result = client.search(last, handle_nicknames(first), fuzzy)
+    return result
 
 def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
     '''
@@ -184,7 +206,7 @@ def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: DataFrame of playerIDs, name, years played
-    ''' 
+    '''
     client = _get_client()
     return client.search_list(player_list)
 
