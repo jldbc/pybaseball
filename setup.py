@@ -98,6 +98,7 @@ setup(
                  'mypy>=0.782',
                  'pytest-cov>=2.10.1',
                  'pytest-xdist>=2.1.0',
+                 'types-requests>=2.18.1'
                  ],
     },
 

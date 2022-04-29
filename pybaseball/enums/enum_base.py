@@ -10,7 +10,7 @@ class EnumBase(Enum):
     
     @classmethod
     def parse(enum_class: Type[_T], value: str) -> _T:
-        parsed = enum_class.safe_parse(value) # type: ignore
+        parsed: Optional[_T] = enum_class.safe_parse(value) # type: ignore
 
         if parsed is None:
             raise ValueError(f"Invalid value of '{value}'. Values must be a valid member of the enum: {enum_class.__name__}")
@@ -24,12 +24,9 @@ class EnumBase(Enum):
         except KeyError:
             pass
 
-        parsed = enum_class.safe_parse_by_value(value) # type: ignore
+        parsed: Optional[_T] = enum_class.safe_parse_by_value(value) # type: ignore
 
-        if parsed is not None:
-            return parsed
-
-        return None
+        return parsed
     
     @classmethod
     def safe_parse_by_value(enum_class: Type[_T], value: Any) -> Optional[_T]:
