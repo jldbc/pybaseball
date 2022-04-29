@@ -45,10 +45,11 @@ def get_player_info(playerid: str, soup: bs.BeautifulSoup = None) -> Dict:
     about_info = soup.find_all(
         "div", {"itemtype": "https://schema.org/Person"})
     info = [ele for ele in about_info]
+    fv = []
     # This for loop goes through the player bio section at the top of the splits page to find all of the <p> tags
     for i in range(len(info)):
         ptags = info[i].find_all('p')
-        fv = []
+        
         # This loop goes through each of the <p> tags and finds all text between the tags including the <strong> tags.
         for j in range(len(ptags)):
             InfoRegex = re.compile(r'>(.*?)<', re.DOTALL)
