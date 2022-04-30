@@ -2,6 +2,7 @@ from .fangraphs_stats_base import FangraphsStatsBase
 
 
 class FangraphsFieldingStats(FangraphsStatsBase):
+    __COMMON_COLUMNS__               =  ['0', '1', '2', '3']
     COMMON                           = 'c'
     LINE_BREAK                       = '-1'
     NAME                             = '0'
@@ -88,3 +89,5 @@ class FangraphsFieldingStats(FangraphsStatsBase):
     RTS                              = '58' # ?
     FRAMING                          = '59'
     FRM                              = FRAMING
+    OAA                              = '60' # ?
+    RAA                              = '61' # ?

@@ -383,4 +383,5 @@ class FangraphsBattingStats(FangraphsStatsBase):
     CSW_PCT                           = '314' # CSW% ?
     XBA                               = '315' # xBA
     XSLG                              = '316' # xSLG
-    XWOBA                             = '317' # xWBOBA
+    XWOBA                             = '317' # xwOBA
+    LEGACY_WAR                        = '318' # Legacy WAR
