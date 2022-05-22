@@ -31,6 +31,8 @@ jobs:
       - name: Timing test
         timeout-minutes: 2
         run: python -m scripts.statcast_timing
+      - name: Cache test
+        run: make validate-cache
       - name: Run MyPy
         run: make mypy ONLY_MODIFIED=0
         continue-on-error: true

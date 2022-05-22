@@ -73,7 +73,6 @@ class FangraphsDataTable(ABC):
     def _validate(self, data: pd.DataFrame) -> pd.DataFrame:
         return data
 
-    @cache.df_cache()
     def fetch(self, start_season: int, end_season: Optional[int] = None, league: str = 'ALL', ind: int = 1,
               stat_columns: Union[str, List[str]] = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
               month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
@@ -172,6 +171,10 @@ class FangraphsBattingStatsTable(FangraphsDataTable):
     ROW_ID_FUNC: RowIdFunction = player_row_id_func
     ROW_ID_NAME = 'IDfg'
 
+    @cache.df_cache()
+    def fetch(self, *args, **kwargs):
+        return super().fetch(*args, **kwargs)
+
     def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
         return self._sort(data, ["WAR", "OPS"], ascending=False)
 
@@ -182,6 +185,10 @@ class FangraphsFieldingStatsTable(FangraphsDataTable):
     ROW_ID_FUNC: RowIdFunction = player_row_id_func
     ROW_ID_NAME = 'IDfg'
 
+    @cache.df_cache()
+    def fetch(self, *args, **kwargs):
+        return super().fetch(*args, **kwargs)
+
     def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
         return self._sort(data, ["DEF"], ascending=False)
 
@@ -190,6 +197,10 @@ class FangraphsPitchingStatsTable(FangraphsDataTable):
     DEFAULT_STAT_COLUMNS: List[FangraphsStatColumn] = FangraphsPitchingStats.ALL()
     ROW_ID_FUNC: RowIdFunction = player_row_id_func
     ROW_ID_NAME = 'IDfg'
+
+    @cache.df_cache()
+    def fetch(self, *args, **kwargs):
+        return super().fetch(*args, **kwargs)
 
     def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
         if "WAR" in data.columns:
