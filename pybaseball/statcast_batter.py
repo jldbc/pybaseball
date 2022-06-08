@@ -8,6 +8,29 @@ from . import cache
 from .utils import sanitize_input, split_request
 
 
+def statcast_batter_team(start_dt: Optional[str] = None, end_dt: Optional[str] = None,
+                         team: Optional[str] = None) -> pd.DataFrame:
+    """
+    Pulls statcast pitch-level data from Baseball Savant for all batters, with at least one plate appearance, on a
+    given team
+
+    ARGUMENTS
+    start_dt : YYYY-MM-DD : the first date for which you want a player's statcast data
+    end_dt : YYYY-MM-DD : the final date for which you want data
+    team : STR : the 3 letter MLB team code (current teams only)
+    """
+    start_dt, end_dt, _ = sanitize_input(start_dt, end_dt, team)
+
+    # sanitize_input will guarantee these are not None
+    assert start_dt
+    assert end_dt
+    assert team
+
+    url = 'https://baseballsavant.mlb.com/statcast_search/csv?all=true&hfPT=&hfAB=&hfGT=R%7C&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfPull=&hfC=&hfSea=&hfSit=&player_type=batter&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={}&game_date_lt={}&hfInfield=&team={}&position=&hfOutfield=&hfRO=&home_road=&hfFlag=&hfBBT=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=api_p_release_speed&sort_order=desc&min_pas=0&type=details&'
+    df = split_request_team(start_dt, end_dt, team, url)
+    return df
+
+
 def statcast_batter(start_dt: Optional[str] = None, end_dt: Optional[str] = None, player_id: Optional[int] = None) -> pd.DataFrame:
     """
     Pulls statcast pitch-level data from Baseball Savant for a given batter.
