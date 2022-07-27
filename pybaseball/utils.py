@@ -218,6 +218,15 @@ def statcast_date_range(start: date, stop: date, step: int, verbose: bool = True
 		low += timedelta(days=step)
 
 
+def sanitize_statcast_columns(df: pd.DataFrame) -> pd.DataFrame:
+	'''
+	Creates uniform structure in Statcast column names
+	Removes leading whitespace in column names
+	'''
+	df.columns = df.columns.str.strip()
+	return df
+
+
 def sanitize_date_range(start_dt: Optional[str], end_dt: Optional[str]) -> Tuple[date, date]:
 	# If no dates are supplied, assume they want yesterday's data
 	# send a warning in case they wanted to specify
