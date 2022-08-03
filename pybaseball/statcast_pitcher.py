@@ -6,7 +6,7 @@ import pandas as pd
 import requests
 
 from . import cache
-from .utils import norm_pitch_code, sanitize_input, split_request
+from .utils import norm_pitch_code, sanitize_input, split_request, sanitize_statcast_columns
 
 
 def statcast_pitcher(start_dt: Optional[str] = None, end_dt: Optional[str] = None, player_id: Optional[int] = None) -> pd.DataFrame:
@@ -35,6 +35,7 @@ def statcast_pitcher_exitvelo_barrels(year: int, minBBE: Union[int, str] = "q") 
     url = f"https://baseballsavant.mlb.com/leaderboard/statcast?type=pitcher&year={year}&position=&team=&min={minBBE}&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    data = sanitize_statcast_columns(data)
     return data
 
 @cache.df_cache()
@@ -42,6 +43,7 @@ def statcast_pitcher_expected_stats(year: int, minPA: Union[int, str] = "q") -> 
     url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=pitcher&year={year}&position=&team=&min={minPA}&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    data = sanitize_statcast_columns(data)
     return data
 
 @cache.df_cache()
@@ -52,6 +54,7 @@ def statcast_pitcher_pitch_arsenal(year: int, minP: int = 250, arsenal_type: str
     url = f"https://baseballsavant.mlb.com/leaderboard/pitch-arsenals?year={year}&min={minP}&type={arsenal_type}&hand=&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    data = sanitize_statcast_columns(data)
     return data
 
 @cache.df_cache()
@@ -60,6 +63,7 @@ def statcast_pitcher_arsenal_stats(year: int, minPA: int = 25) -> pd.DataFrame:
     url = f"https://baseballsavant.mlb.com/leaderboard/pitch-arsenal-stats?type=pitcher&pitchType=&year={year}&team=&min={minPA}&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    data = sanitize_statcast_columns(data)
     return data
 
 @cache.df_cache()
@@ -68,6 +72,7 @@ def statcast_pitcher_pitch_movement(year: int, minP: Union[int, str] = "q", pitc
     url = f"https://baseballsavant.mlb.com/leaderboard/pitch-movement?year={year}&team=&min={minP}&pitch_type={pitch_type}&hand=&x=pitcher_break_x_hidden&z=pitcher_break_z_hidden&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    data = sanitize_statcast_columns(data)
     return data
 
 @cache.df_cache()
@@ -98,6 +103,7 @@ def statcast_pitcher_active_spin(year: int, minP: int = 250, _type: str = 'spin-
     if _type == 'spin-based' and (data is None or data.empty):
         return statcast_pitcher_active_spin(year, minP, 'observed')
 
+    data = sanitize_statcast_columns(data)
     return data
 
 @cache.df_cache()
@@ -116,4 +122,5 @@ def statcast_pitcher_spin_dir_comp(year: int, pitch_a: str = "FF", pitch_b: str 
     url = f"https://baseballsavant.mlb.com/leaderboard/spin-direction-comparison?year={year}&type={pitch_a} / {pitch_b}&min={minP}&team=&pov={pov}&sort=11&sortDir=asc&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    data = sanitize_statcast_columns(data)
     return data    
