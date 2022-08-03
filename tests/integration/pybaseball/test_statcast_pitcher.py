@@ -31,7 +31,7 @@ def test_statcast_pitcher_exitvelo_barrels() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 19
+    assert len(result.columns) == 18
     assert len(result) > 0
     assert len(result[result['attempts'] < min_bbe]) == 0
 
