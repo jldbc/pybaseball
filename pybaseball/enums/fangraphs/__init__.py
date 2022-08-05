@@ -7,6 +7,8 @@ from .league import FangraphsLeague
 from .month import FangraphsMonth
 from .pitching_data_enum import FangraphsPitchingStats
 from .positions import FangraphsPositions
+from .teams import FangraphsTeams
+from .projections import FangraphsProjections
 
 from. fangraphs_stats_base import stat_list_to_str
 
