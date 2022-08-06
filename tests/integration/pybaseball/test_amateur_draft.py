@@ -31,4 +31,4 @@ def test_amateur_draft_future() -> None:
     print(result)
 
     assert len(result.columns) == 8
-    assert len(result) in (36, 37)  # the Astros getting docked a pick throws this off for 2021
+    assert (len(result) > 30) and (len(result) < 60)
