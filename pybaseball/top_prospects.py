@@ -3,11 +3,18 @@ import requests
 
 from . import cache
 
+from pybaseball import teamid_lookup
+
 
 @cache.df_cache()
 def top_prospects(teamName=None, playerType=None):
-    teamUrl = "" if teamName == None else teamName.lower() + '/'
-    url = f"https://www.mlb.com/{teamUrl}prospects/stats/top-prospects"
+    
+    if teamName == None:
+        url = "https://www.mlb.com/prospects/stats/top-prospects"
+    else:
+        mlbTeamId = teamid_lookup.mlb_com_team_id(teamName)
+        url = f"https://www.mlb.com/prospects/stats?teamId={mlbTeamId}"
+    
     res = requests.get(url, timeout=None).content
     prospectList = pd.read_html(res)
     if playerType == "batters":
