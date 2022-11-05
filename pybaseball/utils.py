@@ -357,7 +357,7 @@ def norm_pitch_code(pitch: str, to_word: bool = False) -> str:
 		raise ValueError(f'{pitch} is not a valid pitch!')
 	return normed
 
-def norm_positions(pos: Union[int, str], to_word: bool = False, to_number: bool = True, to_code: bool = False) -> str:
+def norm_positions(pos: Union[int, str], to_word: bool = False, to_number: bool = True) -> str:
 	pos_str = str(pos)
 	normed: Optional[str] = None
 	if pos_str in pos_code_to_numbers_map.values():
