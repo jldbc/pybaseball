@@ -55,3 +55,18 @@ def statcast_catcher_framing(year: int, min_called_p: Union[int, str] = "q") -> 
 	# CSV includes league average player, which we drop from the result
 	return data.loc[data.last_name.notna()].reset_index(drop=True)	
 
+@cache.df_cache()
+def statcast_arm_strength(year: int, pos: Union[int, str], min_throws: int = 100):
+	# want the pos as a "code" not a name or number
+	pos = norm_positions(pos, to_word=False, to_number=False)
+	# The 2B/SS/3B option uses "inf" instead of "if" as an abbreviation for
+	# "infield" for some reason
+	if pos == "if":
+		pos = "inf"
+	if pos == "2":
+		raise ValueError("This particular leaderboard does not include catchers!")
+	url = f"https://baseballsavant.mlb.com/leaderboard/arm-strength?type={is_player}&year={year}&minThrows={min_throws}&pos=arm_{pos}&team=&csv=true"
+	res = requests.get(url, timeout=None).content
+	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+	return data
+

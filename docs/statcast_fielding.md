@@ -126,3 +126,36 @@ data = statcast_catcher_framing(2019)
 # Catchers with at least 500 called pitches from 2019
 data = statcast_catcher_framing(2019, min_called_p = 500)
 ```
+
+# Statcast Fielding Arm Strength
+`statcast_arm_strength(year: int = 2022, min_throws: int = 100, pos: Union[int, str] = "")`
+
+This function retrieves the arm strength results for the given year, position, and minimum throws. It provides their overall average velocity on "competitive" throws, maximum velocity, number of "competitive" throws, and a breakdown by position.
+
+Per [Statcast](https://baseballsavant.mlb.com/leaderboard/arm-strength): 
+> Given that there is no rulebook definition of "a throw where the player is trying hard," and many non-competitive lobs are captured, we have elected to take the average of the top portion of a player's throws. Since the demands of each position grouping are different, the averages and qualifiers are different as well.
+>
+>    - 1B -- average of top 1% of throws -- minimum 100 throws to qualify
+>    - 2B/SS/3B -- average of top 5% of throws -- minimum 75 throws to qualify
+>    - OF -- average of top 10% of throws -- minimum 50 throws to qualify
+
+
+## Arguments
+`year:` The year for which you wish to retrieve arm strength data. Only goes back to 2020. Format: YYYY.
+`min_throws:` The minimum number of throws.
+`position:` The position for which you wish to retrieve arm strength data. It is available for all non-pitching and catching positions, as well as outfielders as a group and non-first basemen infielders. You may request the infield data with "if" as the position, though on Statcast it is under "2B/SS/3B".
+
+
+## Examples of Valid Queries
+```python
+from pybaseball import statcast_arm_strength
+
+# All qualified fielders from 2021
+data = statcast_arm_strength(2021)
+
+# Fielders with at least 500 throws from 2021
+data = statcast_arm_strength(2021, min_throws = 500)
+
+# All qualified infielders from 2021
+data = statcast_arm_strength(2021, pos="if")
+```
