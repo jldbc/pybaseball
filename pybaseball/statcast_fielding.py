@@ -65,7 +65,7 @@ def statcast_arm_strength(year: int, pos: Union[int, str], min_throws: int = 100
 		pos = "inf"
 	if pos == "2":
 		raise ValueError("This particular leaderboard does not include catchers!")
-	url = f"https://baseballsavant.mlb.com/leaderboard/arm-strength?type={is_player}&year={year}&minThrows={min_throws}&pos=arm_{pos}&team=&csv=true"
+	url = f"https://baseballsavant.mlb.com/leaderboard/arm-strength?type=&year={year}&minThrows={min_throws}&pos=arm_{pos}&team=&csv=true"
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	return data

@@ -79,7 +79,8 @@ def test_statcast_catcher_framing() -> None:
 
 def test_statcast_arm_strength() -> None:
 	min_throws = 100
-	result: pd.DataFrame = statcast_arm_strength(2021, min_throws)
+	pos = "all"
+	result: pd.DataFrame = statcast_arm_strength(2021, pos, min_throws)
 
 	assert result is not None
 	assert not result.empty
