@@ -1,6 +1,6 @@
 # pybaseball
 
-## 2.2.1 Release: April 27, 2021
+## 2.2.3 Release: June 29, 2022
 
 See [CHANGELOG.md](CHANGELOG.md) for details.
 
@@ -252,6 +252,10 @@ So far this has provided a basic overview of what this package can do and how yo
 # So what can I do with this? 
 
 Need some inspiration? See some examples of classic baseball studies replicated using this package [here](https://github.com/jldbc/pybaseball/tree/master/EXAMPLES).
+
+# Community
+
+Discussion about pybaseball use and development is hosted on our group Discord, sign up link [here](https://discord.gg/TnJVyUDDn8). Issues with the codebase should still be raised and addressed on GitHub.
 
 ------
 
