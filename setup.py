@@ -11,6 +11,12 @@ here = path.abspath(path.dirname(__file__))
 with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+# Get Version
+version_file = path.join(here, "pybaseball", "version.py")
+with open(version_file, encoding="utf-8") as f:
+    version = f.read().split(" = ")[-1].strip('"')
+
+
 setup(
     name='pybaseball',
 
@@ -19,7 +25,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='2.2.4',
+    version=version,
 
     description='Retrieve baseball data in Python',
     long_description=long_description,
