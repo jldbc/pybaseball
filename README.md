@@ -24,6 +24,10 @@ pip install -e .
 
 We will try to publish periodic updates through the 'releases' and PyPI CI, but it may lag at times.
 
+## Community
+
+Discussion about pybaseball use and development is hosted on our group Discord, sign up link [here](https://discord.gg/TnJVyUDDn8). Issues with the codebase should still be raised and addressed on GitHub.
+
 ##  Documentation
 
 Full documentation on available functions and their arguments along with examples is located [docs](https://github.com/jldbc/pybaseball/tree/master/docs) folder. This section contains a brief overview of the main functionalities of this library.
@@ -192,11 +196,6 @@ For other problems, please submit an issue.
 ## Contributing
 
 See [contributing.md](https://github.com/jldbc/pybaseball/tree/master/contributing.md) for a guide to contributing to this library.
-
-
-## Community
-
-Discussion about pybaseball use and development is hosted on our group Discord, sign up link [here](https://discord.gg/TnJVyUDDn8). Issues with the codebase should still be raised and addressed on GitHub.
 
 
 ------
