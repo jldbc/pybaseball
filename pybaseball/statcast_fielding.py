@@ -7,13 +7,31 @@ import requests
 from . import cache
 from .utils import norm_positions, sanitize_statcast_columns
 
+"""Scrapes outs above average from baseball savant for a given year and position
+
+	Args:
+		year (int): Season to pull
+		pos (Union[int, str]): Numerical position (e.g. 3 for 1B, 4 for 2B). Catchers not supported
+		min_att (Union[int, str], optional): Integer number of attempts required or "q" for qualified. 
+			Defaults to "q".
+		view (str, optional): Perspective of defensive metrics. String argument supports "Fielder", "Pitcher", "Fielding_Team", "Batter", and "Batting_Team"
+			Defaults to "Fielder"
+
+	Raises:
+		ValueError: Failure if catcher is passed
+
+	Returns:
+		pd.DataFrame: Dataframe of defensive OAA for the given year and position for players who have met
+			the given threshold
+"""
+
 @cache.df_cache()
-def statcast_outs_above_average(year: int, pos: Union[int, str], min_att: Union[int, str] = "q") -> pd.DataFrame:
+def statcast_outs_above_average(year: int, pos: Union[int, str], min_att: Union[int, str] = "q", view: str = "Fielder") -> pd.DataFrame:
 	pos = norm_positions(pos)
 	# catcher is not included in this leaderboard
 	if pos == "2":
 		raise ValueError("This particular leaderboard does not include catchers!")
-	url = f"https://baseballsavant.mlb.com/leaderboard/outs_above_average?type=Fielder&year={year}&team=&range=year&min={min_att}&pos={pos}&roles=&viz=show&csv=true"
+	url = f"https://baseballsavant.mlb.com/leaderboard/outs_above_average?type={view}&year={year}&team=&range=year&min={min_att}&pos={pos}&roles=&viz=show&csv=true"
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	data = sanitize_statcast_columns(data)
