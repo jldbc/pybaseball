@@ -14,7 +14,7 @@ A good place to start is on our Issues page, specifically [good first issues](ht
 
 # Guidelines
 
-Generally follow [PEP8](https://peps.python.org/pep-0008/) for code formatting. Docstrings will follow the [Numpy guide](https://numpydoc.readthedocs.io/en/latest/format.html). Please use [Type Annotations](https://docs.python.org/3/library/typing.html) for functions. If any of this is foreign, make the PR and we will give guidance in code review. 
+Generally follow [PEP8](https://peps.python.org/pep-0008/) for code formatting. Please use [Type Annotations](https://docs.python.org/3/library/typing.html) for functions. If any of this is foreign, make the PR and we will give guidance in code review. 
 
 With each PR, please make sure you address the following:
 
