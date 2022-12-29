@@ -1,18 +1,20 @@
-import warnings
+from typing import List, Optional
 
 import pandas as pd
-import requests
 from bs4 import BeautifulSoup
 
 from . import cache
 from .datasources.fangraphs import fg_team_batting_data
+from .datasources.bref import BRefSession
+
+session = BRefSession()
 
 # This is just a pass through for the new, more configurable function
 team_batting = fg_team_batting_data
 
 
 @cache.df_cache()
-def team_batting_bref(team, start_season, end_season=None):
+def team_batting_bref(team: str, start_season: int, end_season: Optional[int]=None) -> pd.DataFrame:
     """
     Get season-level Batting Statistics for Specific Team (from Baseball-Reference)
 
@@ -30,12 +32,12 @@ def team_batting_bref(team, start_season, end_season=None):
 
     url = "https://www.baseball-reference.com/teams/{}".format(team)
 
-    data = []
-    headings = None
+    raw_data = []
+    headings: Optional[List[str]] = None
     for season in range(start_season, end_season+1):
         print("Getting Batting Data: {} {}".format(season, team))
         stats_url = "{}/{}.shtml".format(url, season)
-        response = requests.get(stats_url)
+        response = session.get(stats_url)
         soup = BeautifulSoup(response.content, 'html.parser')
 
         table = soup.find_all('table', {'class': 'sortable stats_table'})[0]
@@ -50,10 +52,11 @@ def team_batting_bref(team, start_season, end_season=None):
             cols = [col.replace('*', '').replace('#', '') for col in cols]  # Removes '*' and '#' from some names
             cols = [col for col in cols if 'Totals' not in col and 'NL teams' not in col and 'AL teams' not in col]  # Removes Team Totals and other rows
             cols.insert(2, season)
-            data.append([ele for ele in cols[0:]])
+            raw_data.append([ele for ele in cols[0:]])
 
+    assert headings is not None
     headings.insert(2, "Year")
-    data = pd.DataFrame(data=data, columns=headings) # [:-5]  # -5 to remove Team Totals and other rows
+    data = pd.DataFrame(data=raw_data, columns=headings) # [:-5]  # -5 to remove Team Totals and other rows
     data = data.dropna()  # Removes Row of All Nones
 
     return data

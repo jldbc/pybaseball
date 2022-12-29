@@ -3,7 +3,7 @@ LOG_LEVEL := INFO
 MYPY_RUN_AGAINST_DEFAULT := *.py pybaseball tests
 MYPY_RUN_AGAINST := $(MYPY_RUN_AGAINST_DEFAULT)
 ONLY_MODIFIED := 1
-TEST_RUN_AGAINST := tests
+TEST_RUN_AGAINST := tests/pybaseball
 TEST_FLAGS := -n auto
 
 
