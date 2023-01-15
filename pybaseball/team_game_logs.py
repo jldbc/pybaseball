@@ -29,7 +29,7 @@ def postprocess(data):
         "Pitchers Used (Rest-GameScore-Dec)": "PitchersUsed"
     }
     data.rename(repl_dict, axis=1, inplace=True)
-    data["Home"] = ~data["Home"].isnull()  # '@' if away, empty if home
+    data["Home"] = data["Home"].isnull()  # '@' if away, empty if home
     data = data[data["Game"].str.match(r"\d+")]  # drop empty month rows
     data = data.apply(pd.to_numeric, errors="ignore")
     data["Game"] = data["Game"].astype(int)

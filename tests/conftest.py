@@ -1,13 +1,11 @@
 import copy
 import logging
 import os
-from threading import Lock
-from typing import Any, Callable, Generator, Optional
+from typing import Any, Callable, Optional
 from unittest.mock import MagicMock
 
 import pandas as pd
 import pytest
-from _pytest.fixtures import _FixtureFunction
 
 from pybaseball import cache
 

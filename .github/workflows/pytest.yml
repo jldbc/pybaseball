@@ -9,14 +9,21 @@ on:
 
 jobs:
   test:
+    strategy:
+      matrix:
+        python-version:
+        - 3.6
+        - 3.7
+        - 3.8
+        - 3.9
     name: Install dependencies and test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Set up Python
-        uses: actions/setup-python@v2.2.1
+        uses: actions/setup-python@v2
         with:
-          python-version: "3.6"
+          python-version: "${{ matrix.python-version }}"
       - name: Install dependencies
         run: make install
       - name: Run tests
@@ -24,6 +31,8 @@ jobs:
       - name: Timing test
         timeout-minutes: 2
         run: python -m scripts.statcast_timing
+      - name: Cache test
+        run: make validate-cache
       - name: Run MyPy
         run: make mypy ONLY_MODIFIED=0
         continue-on-error: true

@@ -6,8 +6,31 @@ from .playerid_lookup import chadwick_register
 from .teamid_lookup import fangraphs_teams
 from .teamid_lookup import team_ids
 from .statcast import statcast, statcast_single_game
-from .statcast_pitcher import statcast_pitcher
-from .statcast_batter import statcast_batter, statcast_batter_exitvelo_barrels
+from .statcast_pitcher import (
+	statcast_pitcher,
+	statcast_pitcher_exitvelo_barrels,
+	statcast_pitcher_expected_stats,
+	statcast_pitcher_pitch_arsenal,
+	statcast_pitcher_arsenal_stats,
+	statcast_pitcher_percentile_ranks,
+	statcast_pitcher_spin_dir_comp
+)
+from .statcast_batter import (
+	statcast_batter,
+	statcast_batter_exitvelo_barrels,
+	statcast_batter_expected_stats,
+	statcast_batter_percentile_ranks,
+	statcast_batter_pitch_arsenal
+)
+from .statcast_running import statcast_sprint_speed, statcast_running_splits
+from .statcast_fielding import (
+	statcast_outs_above_average,
+	statcast_outfield_directional_oaa,
+	statcast_outfield_catch_prob,
+	statcast_outfielder_jump,
+	statcast_catcher_poptime,
+	statcast_catcher_framing
+)
 from .league_batting_stats import batting_stats_bref
 from .league_batting_stats import batting_stats_range
 from .league_batting_stats import bwar_bat
@@ -27,6 +50,7 @@ from .team_pitching import team_pitching
 from .team_pitching import team_pitching_bref
 from .top_prospects import top_prospects
 from .amateur_draft import amateur_draft
+from .amateur_draft_by_team import amateur_draft_by_team
 from .lahman import parks
 from .lahman import all_star_full
 from .lahman import appearances
@@ -52,7 +76,8 @@ from .lahman import pitching_post
 from .lahman import salaries
 from .lahman import schools
 from .lahman import series_post
-from .lahman import teams
+from .lahman import teams_core
+from .lahman import teams_upstream
 from .lahman import teams_franchises
 from .lahman import teams_half
 from .lahman import download_lahman

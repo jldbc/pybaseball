@@ -232,6 +232,19 @@ from pybaseball import cache
 cache.enable()
 ```
 
+# Troubleshooting
+
+If you're getting a error with `concurrent.futures.process.BrokenProcessPool`, wrap your call in a main function, e.g.
+
+```
+if __name__ == '__main__':
+    stats = statcast()
+```
+
+This may be necessary on systems that use spawn-based processes (often Windows and OSX). 
+
+For other problems, please submit an issue.
+
 # Complete Documentation
 
 So far this has provided a basic overview of what this package can do and how you can use it. For full documentation on available functions and their arguments, see the [docs](https://github.com/jldbc/pybaseball/tree/master/docs) folder. 

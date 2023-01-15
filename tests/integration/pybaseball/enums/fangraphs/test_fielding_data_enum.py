@@ -25,7 +25,7 @@ def test_enums_vs_fangraphs_column_list() -> None:
 
     current_leaderboard_items = sorted(
         [str(x).split('.')[1] for x in FangraphsFieldingStats.ALL()
-         if x not in  [FangraphsFieldingStats.COMMON, FangraphsFieldingStats.LINE_BREAK]]
+         if x not in [FangraphsFieldingStats.COMMON, FangraphsFieldingStats.LINE_BREAK]] + [FangraphsFieldingStats.POS.name]
     )
 
     assert custom_leaderboards_items == current_leaderboard_items

@@ -63,7 +63,7 @@ def batting_stats_range(start_dt: Optional[str] = None, end_dt: Optional[str] = 
     # convert the necessary columns to numeric.
     for column in ['Age', '#days', 'G', 'PA', 'AB', 'R', 'H', '2B', '3B',
                     'HR', 'RBI', 'BB', 'IBB', 'SO', 'HBP', 'SH', 'SF', 'GDP',
-                    'SB', 'CS', 'BA', 'OBP', 'SLG', 'OPS']:
+                    'SB', 'CS', 'BA', 'OBP', 'SLG', 'OPS', 'mlbID']:
         #table[column] = table[column].astype('float')
         table[column] = pd.to_numeric(table[column])
         #table['column'] = table['column'].convert_objects(convert_numeric=True)

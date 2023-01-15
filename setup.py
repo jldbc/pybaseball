@@ -19,7 +19,7 @@ setup(
     # Versions should comply with PEP440.  For a discussion on single-sourcing
     # the version across setup.py and the project code, see
     # https://packaging.python.org/en/latest/single_source_version.html
-    version='2.2.1',
+    version='2.2.4',
 
     description='Retrieve baseball data in Python',
     long_description=long_description,
@@ -98,6 +98,7 @@ setup(
                  'mypy>=0.782',
                  'pytest-cov>=2.10.1',
                  'pytest-xdist>=2.1.0',
+                 'types-requests>=2.18.1'
                  ],
     },
 
