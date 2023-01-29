@@ -21,14 +21,14 @@ def get_register_file():
     return os.path.join(cache.config.cache_directory, 'chadwick-register.csv')
 
 
-def _extract_people_files(zip_archive: bytes) -> Iterable[zipfile.ZipInfo]:
+def _extract_people_files(zip_archive: zipfile.ZipFile) -> Iterable[zipfile.ZipInfo]:
     return filter(
         lambda zip_info: re.search(PEOPLE_FILE_PATTERN, zip_info.filename),
         zip_archive.infolist(),
     )
 
 
-def _extract_people_table(zip_archive: bytes) -> pd.DataFrame:
+def _extract_people_table(zip_archive: zipfile.ZipFile) -> pd.DataFrame:
     dfs = map(
         lambda zip_info: pd.read_csv(io.BytesIO(zip_archive.read(zip_info.filename))),
         _extract_people_files(zip_archive),
