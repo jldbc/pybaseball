@@ -1,17 +1,16 @@
 from typing import List, Optional
 
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup, Comment, PageElement, ResultSet
 
 from . import cache
 from .utils import most_recent_season
-from .datasources.bref import BRefSession
 
-session = BRefSession()
 
 def get_soup(year: int) -> BeautifulSoup:
     url = f'http://www.baseball-reference.com/leagues/MLB/{year}-standings.shtml'
-    s = session.get(url).content
+    s = requests.get(url).content
     return BeautifulSoup(s, "lxml")
 
 def get_tables(soup: BeautifulSoup, season: int) -> List[pd.DataFrame]:

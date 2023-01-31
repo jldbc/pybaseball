@@ -1,9 +1,7 @@
 import pandas as pd
+import requests
 
 from . import cache
-from .datasources.bref import BRefSession
-
-session = BRefSession()
 
 # pylint: disable=line-too-long
 _URL = "https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={draft_round}&draft_type=junreg&query_type=year_round&"
@@ -11,7 +9,7 @@ _URL = "https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={dr
 
 def get_draft_results(year: int, draft_round: int) -> pd.DataFrame:
     url = _URL.format(year=year, draft_round=draft_round)
-    res = session.get(url, timeout=None).content
+    res = requests.get(url, timeout=None).content
     draft_results = pd.read_html(res)
     return draft_results
 

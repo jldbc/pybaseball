@@ -1,36 +1,32 @@
-from datetime import date
 import io
-from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
 
 from . import cache
 from .utils import most_recent_season, sanitize_date_range
-from .datasources.bref import BRefSession
-
-session = BRefSession()
 
 
-def get_soup(start_dt: Optional[Union[date, str]], end_dt: Optional[Union[date, str]]) -> BeautifulSoup:
+def get_soup(start_dt, end_dt):
     # get most recent standings if date not specified
     if((start_dt is None) or (end_dt is None)):
         print('Error: a date range needs to be specified')
         return None
     url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=p&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
-    s = session.get(url).content
+    s = requests.get(url).content
     # a workaround to avoid beautiful soup applying the wrong encoding
     s = str(s).encode()
     return BeautifulSoup(s, features="lxml")
 
 
-def get_table(soup: BeautifulSoup) -> pd.DataFrame:
+def get_table(soup):
     table = soup.find_all('table')[0]
-    raw_data = []
+    data = []
     headings = [th.get_text() for th in table.find("tr").find_all("th")][1:]
     headings.append("mlbID")
-    raw_data.append(headings)
+    data.append(headings)
     table_body = table.find('tbody')
     rows = table_body.find_all('tr')
     for row in rows:
@@ -39,15 +35,15 @@ def get_table(soup: BeautifulSoup) -> pd.DataFrame:
         mlbid = row_anchor["href"].split("mlb_ID=")[-1] if row_anchor else pd.NA  # ID str or nan
         cols = [ele.text.strip() for ele in cols]
         cols.append(mlbid)
-        raw_data.append([ele for ele in cols])
-    data = pd.DataFrame(raw_data)
+        data.append([ele for ele in cols])
+    data = pd.DataFrame(data)
     data = data.rename(columns=data.iloc[0])
     data = data.reindex(data.index.drop(0))
     return data
 
 
 @cache.df_cache()
-def pitching_stats_range(start_dt: Optional[str]=None, end_dt: Optional[str]=None) -> pd.DataFrame:
+def pitching_stats_range(start_dt=None, end_dt=None):
     """
     Get all pitching stats for a set time range. This can be the past week, the
     month of August, anything. Just supply the start and end date in YYYY-MM-DD
@@ -75,30 +71,30 @@ def pitching_stats_range(start_dt: Optional[str]=None, end_dt: Optional[str]=Non
     for column in ['Str', 'StL', 'StS', 'GB/FB', 'LD', 'PU']:
         table[column] = table[column].replace('%','',regex=True).astype('float')/100
 
-    table = table.drop('', axis=1)
+    table = table.drop('',1)
     return table
 
-def pitching_stats_bref(season: Optional[int]=None) -> pd.DataFrame:
+def pitching_stats_bref(season=None):
     """
     Get all pitching stats for a set season. If no argument is supplied, gives stats for
     current season to date.
     """
     if season is None:
         season = most_recent_season()
-    str_season = str(season)
-    start_dt = str_season + '-03-01' #opening day is always late march or early april
-    end_dt = str_season + '-11-01' #season is definitely over by November
+    season = str(season)
+    start_dt = season + '-03-01' #opening day is always late march or early april
+    end_dt = season + '-11-01' #season is definitely over by November
     return(pitching_stats_range(start_dt, end_dt))
 
 
-def bwar_pitch(return_all: bool=False) -> pd.DataFrame:
+def bwar_pitch(return_all=False):
     """
     Get data from war_daily_pitch table. Returns WAR, its components, and a few other useful stats.
     To get all fields from this table, supply argument return_all=True.
     """
     url = "http://www.baseball-reference.com/data/war_daily_pitch.txt"
-    s = session.get(url).content
-    c = pd.read_csv(io.StringIO(s.decode('utf-8')))
+    s = requests.get(url).content
+    c=pd.read_csv(io.StringIO(s.decode('utf-8')))
     if return_all:
         return c
     else:

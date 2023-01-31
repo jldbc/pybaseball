@@ -8,7 +8,7 @@ from pybaseball.team_pitching import team_pitching
 
 
 @pytest.fixture()
-def sample_html(get_data_file_contents: Callable[[str], str]) -> str:
+def sample_html(get_data_file_contents: Callable) -> str:
     return get_data_file_contents('team_pitching.html')
 
 
@@ -17,7 +17,7 @@ def sample_processed_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('team_pitching.csv')
 
 
-def test_team_pitching(response_get_monkeypatch: Callable, sample_html: str, sample_processed_result: pd.DataFrame) -> None:
+def test_team_pitching(response_get_monkeypatch: Callable, sample_html: str, sample_processed_result: pd.DataFrame):
     season = 2019
 
     response_get_monkeypatch(sample_html)

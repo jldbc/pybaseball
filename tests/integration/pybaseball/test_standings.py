@@ -1,5 +1,4 @@
-from time import sleep
-from typing import Generator, Optional
+from typing import Optional
 
 import pandas as pd
 import pytest
@@ -7,12 +6,6 @@ import pytest
 from pybaseball.standings import standings
 from pybaseball.utils import most_recent_season
 
-@pytest.fixture(autouse=True)
-def before_after_each() -> Generator[None, None, None]:
-    # before each test
-    yield
-    # after each test
-    sleep(6) # BBRef will throttle us if we make more than 10 calls per minute
 
 def get_division_counts_by_season(season: Optional[int]) -> int:
     if season is None:
