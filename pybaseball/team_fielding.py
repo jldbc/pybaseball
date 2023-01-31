@@ -1,21 +1,19 @@
-from typing import List, Optional
+import warnings
 
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup, Comment
 
 from . import cache
 from .datahelpers import postprocessing
 from .datasources.fangraphs import fg_team_fielding_data
-from .datasources.bref import BRefSession
-
-session = BRefSession()
 
 # This is just a pass through for the new, more configurable function
 team_fielding = fg_team_fielding_data
 
 
 @cache.df_cache()
-def team_fielding_bref(team: str, start_season: int, end_season: Optional[int]=None) -> pd.DataFrame:
+def team_fielding_bref(team, start_season, end_season=None):
     """
     Get season-level Fielding Statistics for Specific Team (from Baseball-Reference)
 
@@ -35,11 +33,11 @@ def team_fielding_bref(team: str, start_season: int, end_season: Optional[int]=N
 
     url = "https://www.baseball-reference.com/teams/{}".format(team)
 
-    raw_data = []
-    headings: Optional[List[str]] = None
+    data = []
+    headings = None
     for season in range(start_season, end_season+1):
         stats_url = "{}/{}-fielding.shtml".format(url, season)
-        response = session.get(stats_url)
+        response = requests.get(stats_url)
         soup = BeautifulSoup(response.content, 'html.parser')
 
         fielding_div = soup.find('div', {'id': 'all_standard_fielding'})
@@ -67,11 +65,10 @@ def team_fielding_bref(team: str, start_season: int, end_season: Optional[int]=N
                 col for col in cols if 'Team Runs' not in col
             ]
             cols.insert(2, season)
-            raw_data.append(cols)
+            data.append(cols)
 
-    assert headings is not None
     headings.insert(2, "Year")
-    data = pd.DataFrame(data=raw_data, columns=headings)
+    data = pd.DataFrame(data=data, columns=headings)
     data = data.dropna()  # Removes Row of All Nones
 
     postprocessing.coalesce_nulls(data)

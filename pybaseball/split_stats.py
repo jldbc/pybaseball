@@ -1,12 +1,23 @@
-from typing import Dict, List, Optional, Tuple, Union
-
+import requests
+from requests.adapters import HTTPAdapter
+from requests.packages.urllib3.util.retry import Retry
+from typing import Dict, Optional, Tuple, Union
 import bs4 as bs
 import pandas as pd
 import re
 
-from .datasources.bref import BRefSession
 
-session = BRefSession()
+def download_url(url: str) -> bytes:
+    """
+    Gets the content from the url specified
+    """
+    session = requests.Session()
+    retry = Retry(connect=3, backoff_factor=0.5)
+    adapter = HTTPAdapter(max_retries=retry)
+    session.mount('http://', adapter)
+    session.mount('https://', adapter)
+    resp = session.get(url)
+    return resp.content
 
 
 def get_split_soup(playerid: str, year: Optional[int] = None, pitching_splits: bool = False) -> bs.BeautifulSoup:
@@ -14,9 +25,12 @@ def get_split_soup(playerid: str, year: Optional[int] = None, pitching_splits: b
     gets soup for the player splits.
     """
     pitch_or_bat = 'p' if pitching_splits else 'b'
-    str_year = 'Career' if year is None else str(year)
-    url = f"https://www.baseball-reference.com/players/split.fcgi?id={playerid}&year={str_year}&t={pitch_or_bat}"
-    html = session.get(url).content
+    if year is None:  # provides scores from yesterday if date is not provided
+        url = f"https://www.baseball-reference.com/players/split.fcgi?id={playerid}&year=Career&t={pitch_or_bat}"
+    else:
+        year = str(year)
+        url = f"https://www.baseball-reference.com/players/split.fcgi?id={playerid}&year={year}&t={pitch_or_bat}"
+    html = download_url(url)
     soup = bs.BeautifulSoup(html, 'lxml')
     return soup
 
@@ -29,8 +43,8 @@ def get_player_info(playerid: str, soup: bs.BeautifulSoup = None) -> Dict:
     if not soup:
         soup = get_split_soup(playerid)
     about_info = soup.find_all(
-        "div", {"class": "players"})
-    info: List[bs.BeautifulSoup] = [ele for ele in about_info]
+        "div", {"itemtype": "https://schema.org/Person"})
+    info = [ele for ele in about_info]
     fv = []
     # This for loop goes through the player bio section at the top of the splits page to find all of the <p> tags
     for i in range(len(info)):
@@ -65,8 +79,8 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
     soup = get_split_soup(playerid, year, pitching_splits)
     # the splits tables on the bbref site are all within an embedded comment. This finds all the comments
     comment = soup.find_all(text=lambda text: isinstance(text, bs.Comment))
-    raw_data = []
-    raw_level_data = []
+    data = []
+    level_data = []
     for i in range(len(comment)):
         commentsoup = bs.BeautifulSoup(comment[i], 'lxml')
         split_tables = commentsoup.find_all(
@@ -88,7 +102,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
                 level_headings.append('Player ID')
                 # singles data isn't included in the tables so this appends the column header
                 level_headings.append('1B')
-                raw_level_data.append(level_headings)
+                level_data.append(level_headings)
                 rows = splits[j].find_all('tr')
                 for row in rows:
                     if year == None:  # The bbref tables for career splits have one extra preceding th column labeled 'I' that is not used and is not in the single season records
@@ -99,7 +113,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
                     if split_type != "By Inning":  # bbref added three empty columns to the by inning tables that don't match the rest of the tables. Not including this split table in results
                         level_cols.append(split_type)
                         level_cols.append(playerid)
-                        raw_level_data.append([ele for ele in level_cols])
+                        level_data.append([ele for ele in level_cols])
             else:
                 if year == None:  # The bbref tables for career splits have one extra preceding th column labeled 'I' that is not used and is not in the single season records
                     headings = [th.get_text()
@@ -111,7 +125,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
                 headings.append('Player ID')
                 # singles data isn't included in the tables so this appends the column header
                 headings.append('1B')
-                raw_data.append(headings)
+                data.append(headings)
                 rows = splits[j].find_all('tr')
                 for row in rows:
                     if year == None:  # The bbref tables for career splits have one extra preceding th column labeled 'I' that is not used and is not in the single season records
@@ -122,9 +136,9 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
                     if split_type != "By Inning":  # bbref added three empty columns to the by inning tables that don't match the rest of the tables. Not including this split table in results
                         cols.append(split_type)
                         cols.append(playerid)
-                        raw_data.append([ele for ele in cols])
+                        data.append([ele for ele in cols])
 
-    data = pd.DataFrame(raw_data)
+    data = pd.DataFrame(data)
     data = data.rename(columns=data.iloc[0])
     data = data.reindex(data.index.drop(0))
     data = data.set_index(['Player ID', 'Split Type', 'Split'])
@@ -134,7 +148,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
     data['1B'] = data['H']-data['2B']-data['3B']-data['HR']
     data = data.loc[playerid]
     if pitching_splits is True: # Returns Game Level tables as a second dataframe for pitching splits
-        level_data = pd.DataFrame(raw_level_data)
+        level_data = pd.DataFrame(level_data)
         level_data = level_data.rename(columns=level_data.iloc[0])
         level_data = level_data.reindex(level_data.index.drop(0))
         level_data = level_data.set_index(['Player ID', 'Split Type', 'Split'])
