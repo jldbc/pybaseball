@@ -50,7 +50,7 @@ def test_playerid_lookup_name_with_jr() -> None:
     """Test names with abbreviations in them"""
     # Ronald Acuna Jr
     acuna_df = playerid_lookup("acuna jr.", "ronald", fuzzy=True)
-    assert acuna_df["name_last"][0] == "acuna"
+    assert acuna_df["name_last"][0] == "acuña"
     assert acuna_df["name_first"][0] == "ronald"
     
 def test_playerid_lookup_hyphenated_name() -> None:
