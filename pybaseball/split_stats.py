@@ -43,7 +43,7 @@ def get_player_info(playerid: str, soup: bs.BeautifulSoup = None) -> Dict:
     if not soup:
         soup = get_split_soup(playerid)
     about_info = soup.find_all(
-        "div", {"itemtype": "https://schema.org/Person"})
+        "div", id="info", class_=re.compile("players") )
     info = [ele for ele in about_info]
     fv = []
     # This for loop goes through the player bio section at the top of the splits page to find all of the <p> tags
