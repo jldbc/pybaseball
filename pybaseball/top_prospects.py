@@ -63,3 +63,7 @@ def top_prospects(teamName=None, playerType=None,
             topProspects.sort_values(by=['Rk'], inplace = True)
             topProspects = postprocess(topProspects)
             return topProspects
+
+def postprocess(prospectList):
+    prospectList = prospectList.drop(list(prospectList.filter(regex = 'Tm|Unnamed:*')), axis = 1)
+    return prospectList
