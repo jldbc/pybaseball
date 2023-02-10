@@ -143,7 +143,7 @@ class FangraphsDataTable(ABC):
             'ind': ind if ind == 0 and split_seasons else int(split_seasons),
             'team':  f'{team or 0},ts' if self.TEAM_DATA else team,
             'rost': int(on_active_roster),
-            'age': f"{minimum_age},{maximum_age}",
+            'age': "0",
             'filter': _filter,
             'players': players,
             'page': f'1_{max_results}'
