@@ -20,6 +20,18 @@ def test_statcast_outs_above_average() -> None:
 	assert len(result.columns) == 17
 	assert len(result) > 0
 
+def test_statcast_outs_above_average_view() -> None:
+	min_att = 50
+	pos = "of"
+	view = "Pitcher"
+	result: pd.DataFrame = statcast_outs_above_average(2019, pos, min_att, view)
+
+	assert result is not None
+	assert not result.empty
+
+	assert len(result.columns) == 17
+	assert len(result) > 0
+
 def test_statcast_outfield_directional_oaa() -> None:
 	min_opp = 50
 	result: pd.DataFrame = statcast_outfield_directional_oaa(2019, min_opp)
@@ -76,3 +88,6 @@ def test_statcast_catcher_framing() -> None:
 	assert len(result) > 0
 	assert len(result.loc[result.n_called_pitches < min_called_p]) == 0
 
+
+#test_statcast_outs_above_average_view()
+test_statcast_outs_above_average()
