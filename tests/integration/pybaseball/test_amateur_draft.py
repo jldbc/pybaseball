@@ -1,6 +1,18 @@
+from time import sleep
+from typing import Generator
+
+import pytest
+
 from pybaseball import amateur_draft
 from pybaseball.utils import most_recent_season
 
+
+@pytest.fixture(autouse=True)
+def before_after_each() -> Generator[None, None, None]:
+    # before each test
+    yield
+    # after each test
+    sleep(6) # BBRef will throttle us if we make more than 10 calls per minute
 
 def test_amateur_draft() -> None:
     result = amateur_draft(2019, 1)

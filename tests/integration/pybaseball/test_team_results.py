@@ -1,4 +1,5 @@
-from typing import Optional
+from time import sleep
+from typing import Generator, Optional
 
 import pytest
 
@@ -15,6 +16,13 @@ missing_schedules_scores = {
     'NYC', 'PBG', 'PBK', 'PC' , 'PK' , 'PS' , 'PTG', 'SBS', 'SEN', 'SL2', 'SL3', 'SLG', 'SLI', 'SLS', 'SNH', 'SNS',
     'SYS', 'TC' , 'TC2', 'TLM', 'TRT', 'TT' , 'WAP', 'WEG', 'WMP', 'WNA', 'WNL', 'WP' , 'WST'
 }
+
+@pytest.fixture(autouse=True)
+def before_after_each() -> Generator[None, None, None]:
+    # before each test
+    yield
+    # after each test
+    sleep(6) # BBRef will throttle us if we make more than 10 calls per minute
 
 @pytest.mark.parametrize(
     "season, team", [

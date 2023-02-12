@@ -28,14 +28,15 @@ def _sample_processed_result_no_stats(
 
 
 def test_amateur_draft(
-    response_get_monkeypatch: Callable,
+    bref_get_monkeypatch: Callable[[str, str], None],
     sample_html: str,
     sample_processed_result: pd.DataFrame,
 ) -> None:
     expected_url = _URL.format(team="TBD", year=2011)
 
-    response_get_monkeypatch(sample_html, expected_url)
+    bref_get_monkeypatch(sample_html, expected_url)
     result = amateur_draft_by_team("TBD", 2011)
+    result.to_csv('./tests/pybaseball/data/amateur_draft_by_team_keep_stats.csv')
 
     assert result is not None
     assert not result.empty
@@ -44,14 +45,15 @@ def test_amateur_draft(
 
 
 def test_amateur_draft_no_stats(
-    response_get_monkeypatch: Callable,
+    bref_get_monkeypatch: Callable[[str, str], None],
     sample_html: str,
     sample_processed_result_no_stats: pd.DataFrame,
 ) -> None:
     expected_url = _URL.format(team="TBD", year=2011)
 
-    response_get_monkeypatch(sample_html, expected_url)
+    bref_get_monkeypatch(sample_html, expected_url)
     result = amateur_draft_by_team("TBD", 2011, keep_stats=False)
+    result.to_csv('./tests/pybaseball/data/amateur_draft_by_team_no_stats.csv')
 
     assert result is not None
     assert not result.empty

@@ -1,5 +1,17 @@
+from time import sleep
+from typing import Generator
+
+import pytest
+
 import pybaseball
 
+
+@pytest.fixture(autouse=True)
+def before_after_each() -> Generator[None, None, None]:
+    # before each test
+    yield
+    # after each test
+    sleep(6) # BBRef will throttle us if we make more than 10 calls per minute
 
 def test_nyy_game_logs_regression1() -> None:
     """Regression test for NYY 2021 example"""
