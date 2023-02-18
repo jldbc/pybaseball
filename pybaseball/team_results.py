@@ -4,11 +4,13 @@ from typing import Optional
 from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
-import requests
 
 from pybaseball.utils import get_first_season, most_recent_season
 
 from . import cache
+from .datasources.bref import BRefSession
+
+session = BRefSession()
 
 # TODO: retrieve data for all teams? a full season's worth of results
 
@@ -18,7 +20,7 @@ def get_soup(season: Optional[int], team: str) -> BeautifulSoup:
         season = most_recent_season()
     url = "http://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml".format(team, season)
     print(url)
-    s = requests.get(url).content
+    s = session.get(url).content
     return BeautifulSoup(s, "lxml")
 
 def get_table(soup: BeautifulSoup, team: str) -> pd.DataFrame:
