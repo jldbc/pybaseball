@@ -44,12 +44,13 @@ git checkout -b my-awesome-new-feature
 4. Run setup.py (strongly recommend in a virtualenv)
 
 ```
-pip install -e .
+pip install -e '.[test]'
 ```
+
 
 5. Make your changes
 
-6. Run the test suite. From the top level `pybaseball` directory run:
+6. Run the test suite. From the top level `tests` directory run:
 
 ```
 pytest
