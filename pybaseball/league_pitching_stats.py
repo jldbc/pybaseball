@@ -87,7 +87,7 @@ def pitching_stats_bref(season: Optional[int]=None) -> pd.DataFrame:
         season = most_recent_season()
     str_season = str(season)
     start_dt = str_season + '-03-01' #opening day is always late march or early april
-    end_dt = str_season + '-11-01' #season is definitely over by November
+    end_dt = str_season + '-11-30' #postseason is definitely over by end of November
     return(pitching_stats_range(start_dt, end_dt))
 
 
