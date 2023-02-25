@@ -18,4 +18,4 @@ def test_batting_stats_bref_none() -> None:
     with patch('pybaseball.league_batting_stats.batting_stats_range', batting_stats_range_mock):
         league_batting_stats.batting_stats_bref(None)
 
-    batting_stats_range_mock.assert_called_once_with(f'{this_year}-03-01', f"{this_year}-11-01")
+    batting_stats_range_mock.assert_called_once_with(f'{this_year}-03-01', f"{this_year}-11-30")
