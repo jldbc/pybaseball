@@ -30,7 +30,10 @@ def _extract_people_files(zip_archive: zipfile.ZipFile) -> Iterable[zipfile.ZipI
 
 def _extract_people_table(zip_archive: zipfile.ZipFile) -> pd.DataFrame:
     dfs = map(
-        lambda zip_info: pd.read_csv(io.BytesIO(zip_archive.read(zip_info.filename))),
+        lambda zip_info: pd.read_csv(
+            io.BytesIO(zip_archive.read(zip_info.filename)),
+            low_memory=False
+        ),
         _extract_people_files(zip_archive),
     )
     return pd.concat(dfs, axis=0)
