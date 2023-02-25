@@ -1,6 +1,6 @@
 import os
 import urllib.parse
-from typing import Any, Callable, Dict, List, Union
+from typing import Callable, Dict, List, Optional, Union
 from unittest.mock import MagicMock
 
 import pandas as pd
@@ -8,6 +8,8 @@ import pytest
 import requests
 from _pytest.monkeypatch import MonkeyPatch
 from typing_extensions import Protocol
+
+from pybaseball.datasources.bref import BRefSession
 
 _ParseDates = Union[bool, List[int], List[str], List[List], Dict]
 
@@ -153,7 +155,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
     """
         Returns a function that will monkeypatch the requests.get function call to return expected data 
     """
-    def setup(result: Union[str, bytes], expected_url: str = None) -> None:
+    def setup(result: Union[str, bytes], expected_url: Optional[str] = None) -> None:
         """
            Get the DatFrame representation of the contents of a csv file in the tests data directory
 
@@ -163,7 +165,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
             expected_url    : str (optional) : an expected_url to test the get call against
                                                to ensure the correct endpoint is hit
         """
-        def _monkeypatch(url: str, params: Dict = None, timeout: int = None) -> object:
+        def _monkeypatch(url: str, params: Optional[Dict] = None, timeout: Optional[int] = None) -> object:
             final_url = url
 
             if params:
@@ -187,5 +189,47 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
             return DummyResponse(result)
 
         monkeypatch.setattr(requests, 'get', _monkeypatch)
+
+    return setup
+
+@pytest.fixture()
+def bref_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
+    """
+        Returns a function that will monkeypatch the BRefSession.get function call to return expected data 
+    """
+    def setup(result: Union[str, bytes], expected_url: Optional[str] = None) -> None:
+        """
+           Get the DatFrame representation of the contents of a csv file in the tests data directory
+
+
+            ARGUMENTS:
+            result          : str            : the payload to return in the contents of the request.get call
+            expected_url    : str (optional) : an expected_url to test the get call against
+                                               to ensure the correct endpoint is hit
+        """
+        def _monkeypatch(url: str, params: Optional[Dict] = None, timeout: Optional[int] = None) -> object:
+            final_url = url
+
+            if params:
+                query_params = urllib.parse.urlencode(params, safe=',')
+                final_url = f"{final_url}?{query_params}"
+
+            if expected_url is not None:
+                # These prints are desired as these are long and get cut off in the test output.
+                # These will only render on failed tests, so only when you would want to see them anyway.
+                print("expected", expected_url)
+                print("received", final_url)
+                assert final_url.endswith(expected_url)
+
+            class DummyResponse:
+                def __init__(self, content: Union[str, bytes]):
+                    self.content = content
+                    self.text = content
+                    self.status_code = 200
+                    self.url = final_url
+
+            return DummyResponse(result)
+
+        monkeypatch.setattr(BRefSession(), 'get', _monkeypatch)
 
     return setup

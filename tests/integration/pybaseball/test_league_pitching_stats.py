@@ -1,7 +1,18 @@
+from time import sleep
+from typing import Generator
+
 import pytest
 
 from pybaseball import league_pitching_stats, pitching_stats_range
 from pybaseball.utils import most_recent_season
+
+
+@pytest.fixture(autouse=True)
+def before_after_each() -> Generator[None, None, None]:
+    # before each test
+    yield
+    # after each test
+    sleep(6) # BBRef will throttle us if we make more than 10 calls per minute
 
 def test_get_soup_none_none() -> None:
     result = league_pitching_stats.get_soup(None, None)
@@ -52,6 +63,6 @@ def test_pitching_stats_bref_future() -> None:
         league_pitching_stats.pitching_stats_bref(most_recent_season() + 1)
 
 
-def test_pitching_stats_range_single_date():
+def test_pitching_stats_range_single_date() -> None:
     stats = pitching_stats_range('2019-05-01',)
     assert not stats.empty

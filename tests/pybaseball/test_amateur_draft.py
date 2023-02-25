@@ -23,11 +23,11 @@ def _sample_processed_result_no_stats(get_data_file_dataframe: GetDataFrameCalla
     return get_data_file_dataframe('amateur_draft_no_stats.csv')
 
 
-def test_amateur_draft(response_get_monkeypatch: Callable, sample_html: str,
+def test_amateur_draft(bref_get_monkeypatch: Callable, sample_html: str,
                        sample_processed_result: pd.DataFrame) -> None:
     expected_url = _URL.format(year=2019, draft_round=1)
 
-    response_get_monkeypatch(sample_html, expected_url)
+    bref_get_monkeypatch(sample_html, expected_url)
     result = amateur_draft(2019, 1)
 
     assert result is not None
@@ -36,11 +36,11 @@ def test_amateur_draft(response_get_monkeypatch: Callable, sample_html: str,
     pd.testing.assert_frame_equal(result, sample_processed_result, check_dtype=False)
 
 
-def test_amateur_draft_no_stats(response_get_monkeypatch: Callable, sample_html: str,
+def test_amateur_draft_no_stats(bref_get_monkeypatch: Callable, sample_html: str,
                                 sample_processed_result_no_stats: pd.DataFrame) -> None:
     expected_url = _URL.format(year=2019, draft_round=1)
 
-    response_get_monkeypatch(sample_html, expected_url)
+    bref_get_monkeypatch(sample_html, expected_url)
     result = amateur_draft(2019, 1, keep_stats=False)
 
     assert result is not None
