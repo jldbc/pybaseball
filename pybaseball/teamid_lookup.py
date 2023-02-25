@@ -33,6 +33,26 @@ def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
     return fg_team_data
 
 
+def mlb_team_id(team_name):
+    #
+    # For the given team_name passed in, look it up in the csv and return the MLB Team ID (for example, if Cubs
+    # were passed in, 112 should be returned. If not found, throw an error.
+    #
+    mlb_url_file_name = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'mlb_url_team_ID.csv')
+    mlb_team_id_data = pd.read_csv(mlb_url_file_name, index_col=0)
+
+    # Sanitize the input - remove spaces, dashes and make lower case
+    team_name = team_name.replace(" ", "").replace("-", "").lower()
+
+    # Filter the csv data by the sanitized team name
+    filtered_data = mlb_team_id_data.query(f"team_name == '{team_name}'")
+
+    # If we found something, return it.
+    if filtered_data.size == 0:
+        raise ValueError(f"Team name {team_name} was not found!")
+    else:
+        return mlb_team_id_data['mlb_team_id'].loc[filtered_data.index[0]]
+
 # franchID: teamIDfg
 _manual_matches: Dict[str, int] = {
     'BLT': 1007,
@@ -164,7 +184,8 @@ def _generate_teams() -> pd.DataFrame:
         unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(labels=fg_columns, axis=1)
         unjoined_fangraphs_teams = unjoined.query('yearID.isnull()').drop(labels=lahman_columns, axis=1)
 
-        logger.info("Matched %s teams off of %s. %s teams remaining to match.", len(joined.index) - joined_count, join_column, len(unjoined_lahman_teams.index))
+        logger.info("Matched %s teams off of %s. %s teams remaining to match.", len(joined.index) - joined_count,
+                    join_column, len(unjoined_lahman_teams.index))
 
     joined_count = len(joined.index) if (joined is not None) else 0
 
@@ -185,7 +206,8 @@ def _generate_teams() -> pd.DataFrame:
     unjoined_lahman_teams = unjoined.query('Season.isnull()').drop(unjoined_fangraphs_teams.columns.values, axis=1)
     unjoined_fangraphs_teams = unjoined.query('yearID.isnull()').drop(unjoined_lahman_teams.columns, axis=1)
 
-    logger.info("Matched %s teams off of close match. %s teams remaining to match.", len(joined.index) - joined_count, len(unjoined_lahman_teams.index))
+    logger.info("Matched %s teams off of close match. %s teams remaining to match.", len(joined.index) - joined_count,
+                len(unjoined_lahman_teams.index))
 
     error_state = False
 
