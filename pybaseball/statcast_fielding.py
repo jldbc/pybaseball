@@ -83,7 +83,7 @@ def statcast_arm_strength(year: int, pos: Union[int, str], min_throws: int = 100
 	# want the pos as a "code" not a name or number
 	pos = norm_positions(pos, to_word=False, to_number=False)
 	# The 2B/SS/3B option uses "inf" instead of "if" as an abbreviation for
-	# "infield" for some reason
+	# "infield" for some reason 
 	if pos == "if":
 		pos = "inf"
 	if pos == "2":
