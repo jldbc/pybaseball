@@ -227,6 +227,8 @@ def bref_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
                     self.text = content
                     self.status_code = 200
                     self.url = final_url
+                    self.ok = True
+                    self.reason = None
 
             return DummyResponse(result)
 

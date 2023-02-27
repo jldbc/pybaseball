@@ -48,6 +48,7 @@ from .team_fielding import team_fielding
 from .team_fielding import team_fielding_bref
 from .team_pitching import team_pitching
 from .team_pitching import team_pitching_bref
+from .team_batting_against import team_batting_against
 from .top_prospects import top_prospects
 from .amateur_draft import amateur_draft
 from .amateur_draft_by_team import amateur_draft_by_team
