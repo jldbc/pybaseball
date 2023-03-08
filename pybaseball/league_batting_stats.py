@@ -3,11 +3,13 @@ from datetime import date
 from typing import Optional
 
 import pandas as pd
-import requests
 from bs4 import BeautifulSoup
 
 from . import cache
 from .utils import most_recent_season, sanitize_date_range
+from .datasources.bref import BRefSession
+
+session = BRefSession()
 
 
 def get_soup(start_dt: date, end_dt: date) -> BeautifulSoup:
@@ -16,7 +18,7 @@ def get_soup(start_dt: date, end_dt: date) -> BeautifulSoup:
     #    print('Error: a date range needs to be specified')
     #    return None
     url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=b&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
-    s = requests.get(url).content
+    s = session.get(url).content
     # a workaround to avoid beautiful soup applying the wrong encoding
     s = str(s).encode()
     return BeautifulSoup(s, features="lxml")
@@ -67,7 +69,7 @@ def batting_stats_range(start_dt: Optional[str] = None, end_dt: Optional[str] = 
         #table[column] = table[column].astype('float')
         table[column] = pd.to_numeric(table[column])
         #table['column'] = table['column'].convert_objects(convert_numeric=True)
-    table = table.drop('', 1)
+    table = table.drop('', axis=1)
     return table
 
 
@@ -80,7 +82,7 @@ def batting_stats_bref(season: Optional[int] = None) -> pd.DataFrame:
     if season is None:
         season = most_recent_season()
     start_dt = f'{season}-03-01' #opening day is always late march or early april
-    end_dt = f'{season}-11-01' #season is definitely over by November
+    end_dt = f'{season}-11-30' #postseason is definitely over by end of November
     return batting_stats_range(start_dt, end_dt)
 
 
@@ -91,7 +93,7 @@ def bwar_bat(return_all: bool = False) -> pd.DataFrame:
     To get all fields from this table, supply argument return_all=True.
     """
     url = "http://www.baseball-reference.com/data/war_daily_bat.txt"
-    s = requests.get(url).content
+    s = session.get(url).content
     c=pd.read_csv(io.StringIO(s.decode('utf-8')))
     if return_all:
         return c

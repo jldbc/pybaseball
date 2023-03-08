@@ -1,21 +1,42 @@
 from difflib import get_close_matches
 import io
 import os
+import re
+import zipfile
 
-from typing import List, Tuple
+from typing import List, Tuple, Iterable
 
 import pandas as pd
 import requests
 
 from . import cache
 
-url = "https://raw.githubusercontent.com/chadwickbureau/register/master/data/people.csv"
+url = "https://github.com/chadwickbureau/register/archive/refs/heads/master.zip"
+PEOPLE_FILE_PATTERN = re.compile("/people.+csv$")
 
 _client = None
 
 
 def get_register_file():
     return os.path.join(cache.config.cache_directory, 'chadwick-register.csv')
+
+
+def _extract_people_files(zip_archive: zipfile.ZipFile) -> Iterable[zipfile.ZipInfo]:
+    return filter(
+        lambda zip_info: re.search(PEOPLE_FILE_PATTERN, zip_info.filename),
+        zip_archive.infolist(),
+    )
+
+
+def _extract_people_table(zip_archive: zipfile.ZipFile) -> pd.DataFrame:
+    dfs = map(
+        lambda zip_info: pd.read_csv(
+            io.BytesIO(zip_archive.read(zip_info.filename)),
+            low_memory=False
+        ),
+        _extract_people_files(zip_archive),
+    )
+    return pd.concat(dfs, axis=0)
 
 
 @cache.df_cache()
@@ -30,7 +51,9 @@ def chadwick_register(save: bool = False) -> pd.DataFrame:
     s = requests.get(url).content
     mlb_only_cols = ['key_retro', 'key_bbref', 'key_fangraphs', 'mlb_played_first', 'mlb_played_last']
     cols_to_keep = ['name_last', 'name_first', 'key_mlbam'] + mlb_only_cols
-    table = pd.read_csv(io.StringIO(s.decode('utf-8')), usecols=cols_to_keep)
+    table = _extract_people_table(
+        zipfile.ZipFile(io.BytesIO(s))
+        ).loc[:, cols_to_keep]
 
     table.dropna(how='all', subset=mlb_only_cols, inplace=True)  # Keep only the major league rows
     table.reset_index(inplace=True, drop=True)

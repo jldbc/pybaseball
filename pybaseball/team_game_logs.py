@@ -1,15 +1,17 @@
 import pandas as pd
-import requests
 from bs4 import BeautifulSoup
 
 from . import cache
+from .datasources.bref import BRefSession
+
+session = BRefSession()
 
 _URL = "https://www.baseball-reference.com/teams/tgl.cgi?team={}&t={}&year={}"
 
 
-def get_table(season, team, log_type):
+def get_table(season: int, team: str, log_type: str) -> pd.DataFrame:
     t_param = "b" if log_type == "batting" else "p"
-    content = requests.get(_URL.format(team, t_param, season)).content
+    content = session.get(_URL.format(team, t_param, season)).content
     soup = BeautifulSoup(content, "lxml")
     table_id = "team_{}_gamelogs".format(log_type)
     table = soup.find("table", attrs=dict(id=table_id))
@@ -19,7 +21,7 @@ def get_table(season, team, log_type):
     return data
 
 
-def postprocess(data):
+def postprocess(data: pd.DataFrame) -> pd.DataFrame:
     data.drop("Rk", axis=1, inplace=True)  # drop index column
     repl_dict = {
         "Gtm": "Game",
@@ -37,7 +39,7 @@ def postprocess(data):
 
 
 @cache.df_cache()
-def team_game_logs(season, team, log_type="batting"):
+def team_game_logs(season: int, team: str, log_type: str="batting") -> pd.DataFrame:
     """
     Get Baseball Reference batting or pitching game logs for a team-season.
 

@@ -12,7 +12,7 @@ def test_statcast_sprint_speed() -> None:
 	assert result is not None
 	assert not result.empty
 
-	assert len(result.columns) == 10
+	assert len(result.columns) == 11
 	assert len(result) > 0
 	assert len(result.loc[result.competitive_runs < min_opp]) == 0
 
