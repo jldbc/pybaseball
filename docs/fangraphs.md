@@ -6,7 +6,7 @@
 |  ---             | ---              | ---
 | start_season     | int              | The first season to pull data for. If no end_season is passed, this is the only season returned.
 | end_season       | int              | The last season to pull data for.
-| league           | str              | League to return data for: ALL, AL, FL, NL. Default = ALL
+| league           | str              | League to return data for: ALL, AL, FL, NL, MNL (See `FangraphsLeague` for all values). Default = ALL
 | ind              | int              | DEPRECATED. ONLY FOR BACKWARDS COMPATIBILITY. USE `split_seasons` INSTEAD. <br> 1 if you want individual season-level data. <br> 0 if you want a player's aggregate data over all seasons in the query
 | stat_columns     | str or List[str] | The columns of data to return. <br> Default = ALL
 | qual             | Optional[int]    | Minimum number of plate appearances to be included. <br> If None is specified, the Fangraphs default ('y') is used. <br> Default = None
