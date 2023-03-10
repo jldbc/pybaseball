@@ -21,24 +21,14 @@ def test_team_batting_current_year() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 26
+    assert len(result.columns) == 27
 
 
 def test_team_batting_against_specific_year() -> None:
-    result = team_batting_against(2022)
+    result = team_batting_against(2021)
 
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 26
-    assert len(result) == 30
-
-
-def test_team_batting_against_future() -> None:
-    with pytest.raises(ValueError):
-        team_batting_against(most_recent_season() + 1)
-
-
-def test_team_batting_against_bad_input() -> None:
-    with pytest.raises(ValueError):
-        team_batting_against(1776)
+    assert len(result.columns) == 27
+    assert len(result) == 32

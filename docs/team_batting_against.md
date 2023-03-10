@@ -1,8 +1,8 @@
 # Team Batting Against Stats from Baseball-Reference
 
-`team_batting_against(season=[most_recent_season])`
+`team_batting_against(season=most_recent_season)`
 
-The 'team_batting_against' function returns a dataframe of each team's batting against stats for a single season.
+The 'team_batting_against' function returns a dataframe of each team's batting against stats for a single season. This data is available for seasons since 1915. 
 
 ## Arguments
 
