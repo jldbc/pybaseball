@@ -46,8 +46,8 @@ def postprocess(team_batting_against: pd.DataFrame) -> pd.DataFrame:
 
     # fix numeric conversion now that string values are removed
     postprocessing.convert_numeric(team_batting_against, postprocessing.columns_except(team_batting_against, ['Tm']))
-    # int_cols = ["PAu", "G", "PA", "AB", "R", "H", "2B", "3B", "HR", "SB",
-    #             "CS", "BB", "SO", "TB", "GDP", "HBP", "SH", "SF", "IBB", "ROE"]
-    # team_batting_against[int_cols] = team_batting_against.loc[:, int_cols].astype(int)
+    int_cols = ["PAu", "G", "PA", "AB", "R", "H", "2B", "3B", "HR", "SB",
+                "CS", "BB", "SO", "TB", "GDP", "HBP", "SH", "SF", "IBB", "ROE"]
+    team_batting_against[int_cols] = team_batting_against.loc[:, int_cols].astype("Int64")
 
     return team_batting_against
