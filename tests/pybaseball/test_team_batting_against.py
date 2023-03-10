@@ -75,7 +75,7 @@ def test_batting_against_1974(bref_get_monkeypatch: Callable, sample_html_1974: 
     pd.testing.assert_frame_equal(result, sample_processed_result_1974, check_dtype=False)
 
 
-def test_batting_against_illegal_arguments(bref_get_monkeypatch: Callable, sample_html: str) -> None:
+def test_batting_against_illegal_arguments() -> None:
     old_year = 1914
     with pytest.raises(ValueError, match='between 1915 and current season'):
         team_batting_against(old_year)
