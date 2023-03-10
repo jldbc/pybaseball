@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import json
 from difflib import SequenceMatcher
 from typing import Dict, List, Optional, Set
 from datetime import date
@@ -13,6 +14,7 @@ from .datasources import fangraphs
 from .utils import most_recent_season
 
 _DATA_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'fangraphs_teams.csv')
+_FG_DICT_FILENAME = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'data', 'fangraphs_dict.json')
 LOG_LEVEL = os.environ.get('LOG_LEVEL', 'WARNING').upper()
 logger = logging.getLogger('pybaseball')
 logger.setLevel(LOG_LEVEL)
@@ -21,6 +23,7 @@ logger.setLevel(LOG_LEVEL)
 def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
     if not os.path.exists(_DATA_FILENAME):
         _generate_teams()
+        _generate_fg_team_dict()
 
     fg_team_data = pd.read_csv(_DATA_FILENAME, index_col=0)
 
@@ -52,6 +55,7 @@ def mlb_team_id(team_name):
         raise ValueError(f"Team name {team_name} was not found!")
     else:
         return mlb_team_id_data['mlb_team_id'].loc[filtered_data.index[0]]
+
 
 # franchID: teamIDfg
 _manual_matches: Dict[str, int] = {
@@ -241,8 +245,41 @@ def _generate_teams() -> pd.DataFrame:
     joined = joined.reset_index(drop=True)
 
     joined.to_csv(_DATA_FILENAME)
+    
+    _generate_fg_team_dict()
 
     return joined
+
+
+def fg_team_id_dict() -> Dict[str, int]:
+    """Returns a key-value pair of all team identifiers and their Fangraphs team ID from the team_ids method
+
+    Returns:
+        Dict[str, int]: dictionary of team identifiers to FG team IDs
+    """
+    if not os.path.exists(_FG_DICT_FILENAME):
+        _generate_fg_team_dict()
+
+    fg_dict = {}
+    with open(_FG_DICT_FILENAME) as file:
+        fg_dict = json.load(file)
+
+    return fg_dict
+
+
+def _generate_fg_team_dict() -> Dict[str, int]:
+    fg_dict = {}
+    for _, row in team_ids().iterrows():
+        fg_id = row["teamIDfg"]
+        fg_dict[row["teamID"]] = fg_id
+        fg_dict[row["franchID"]] = fg_id
+        fg_dict[row["teamIDBR"]] = fg_id
+        fg_dict[row["teamIDretro"]] = fg_id
+
+    with open(_FG_DICT_FILENAME, 'w') as file:
+        file.write(json.dumps(fg_dict))
+        
+    return fg_dict
 
 
 # For backwards API compatibility

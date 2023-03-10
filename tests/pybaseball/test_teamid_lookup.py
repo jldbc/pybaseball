@@ -1,7 +1,7 @@
 import pandas as pd
 import pytest
 
-from pybaseball.teamid_lookup import _front_loaded_ratio, _get_close_team_matches, team_ids
+from pybaseball.teamid_lookup import _front_loaded_ratio, _get_close_team_matches, team_ids, fg_team_id_dict
 
 
 def test_team_id_lookup_all() -> None:
@@ -140,3 +140,9 @@ def test_get_close_team_matches() -> None:
 
     for _, row in lahman_teams.iterrows():
         assert _get_close_team_matches(row, fg_teams) == row.expected
+
+def test_fg_id_load_all() -> None:
+    fg_dict = fg_team_id_dict()
+    
+    assert fg_dict is not None
+    assert bool(fg_dict) == True

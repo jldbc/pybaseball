@@ -3,6 +3,7 @@ from .playerid_lookup import playerid_reverse_lookup
 from .playerid_lookup import player_search_list
 from .playerid_lookup import playerid_lookup
 from .playerid_lookup import chadwick_register
+from .fangraphs_projections import fg_projections
 from .teamid_lookup import fangraphs_teams
 from .teamid_lookup import team_ids
 from .statcast import statcast, statcast_single_game
