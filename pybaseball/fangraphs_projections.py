@@ -3,12 +3,16 @@ import json
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+
 from pybaseball.teamid_lookup import fg_team_id_dict
+
+from . import cache
 
 # pylint: disable=line-too-long
 _URL = "https://www.fangraphs.com/projections?pos={pos}&stats={stats}&type={proj_source}&team={team}&lg={lg}"
 
 
+@cache.df_cache()
 def fg_projections(proj_source: str = "zips", position: str = "batters", league: str = "mlb", team: str = "") -> pd.DataFrame:
     """Retrieves player projection statistics from Fangraphs. View markdown documentation for complete list of valid arguments.
 
