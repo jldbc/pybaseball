@@ -8,7 +8,15 @@ from pybaseball import teamid_lookup
 
 @cache.df_cache()
 def top_prospects(teamName=None, playerType=None):
-    
+    """
+    Retrieves the top prospects by team or leaguewide. It can return top prospect pitchers, batters, or both.
+
+    ARGUMENTS
+    team: The team name for which you wish to retrieve top prospects. There must be no whitespace. If not specified, 
+        the function will return leaguewide top prospects.
+    playerType: Either "pitchers" or "batters". If not specified, the function will return top prospects for both 
+        pitchers and batters.
+    """
     if teamName == None:
         url = "https://www.mlb.com/prospects/stats/top-prospects"
     else:

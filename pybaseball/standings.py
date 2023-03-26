@@ -76,6 +76,13 @@ def get_tables(soup: BeautifulSoup, season: int) -> List[pd.DataFrame]:
 
 @cache.df_cache()
 def standings(season:Optional[int] = None) -> pd.DataFrame:
+    """
+    Returns a pandas DataFrame of the standings for a given MLB season, or the most recent standings
+    if the date is not specified.
+
+    ARGUMENTS
+        season (int): the year of the season
+    """
     # get most recent standings if date not specified
     if season is None:
         season = most_recent_season()
