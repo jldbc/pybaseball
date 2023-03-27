@@ -31,16 +31,8 @@ def statcast_pitcher_spin(start_dt=None, end_dt=None, player_id=None):
             see the function playerid_lookup.
     
     RETURNS
-        A dataframe containing pitch-level statcast data for the given dates, along with these colummns added:
-        
-        Mx: The amount of movement in the x-direction due to the Magnus effect alone. (Positive is towards first 
-            base/catcher's right)
-        Mz: The amount of movement in the z-direction due to the Magnus effect alone. (Positive is upwards)
-        theta: The angle of the spin axis with respect to it's movement between 0 and 90. A 0 angle means the spin axis 
-            is perpendicular to it's movement (it's all 'useful' spin with regards to the Magnus effect); 90 means the 
-            spin axis is parallel to it's direction (like a gyroball).
-        phi: The angle of the spin axis in the x-z plane oriented to the x-axis. More colloquially, the axis the ball 
-            is spinning from the catcher's eye.
+        A dataframe containing pitch-level statcast data for the given dates, along with four colummns added: Mx, Mz, phi, 
+        and theta, as described in the docs: https://github.com/jldbc/pybaseball/blob/master/docs/statcast_pitcher_spin.md.
     """
     pitcher_data = statcast_pitcher(start_dt, end_dt, player_id)
 

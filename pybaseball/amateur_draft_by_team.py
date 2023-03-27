@@ -47,7 +47,8 @@ def amateur_draft_by_team(
     Get amateur draft results by team and year.
 
     ARGUMENTS
-        team: Team code which you want to check.
+        team: Team code which you want to check. See docs for team codes 
+            (https://github.com/jldbc/pybaseball/blob/master/docs/amateur_draft_by_team.md)
         year: Year which you want to check.
 
     """
