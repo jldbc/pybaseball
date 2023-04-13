@@ -1,4 +1,5 @@
 from abc import ABC
+from datetime import date
 from typing import Any, List, Optional, Union
 
 import lxml
@@ -77,7 +78,8 @@ class FangraphsDataTable(ABC):
               stat_columns: Union[str, List[str]] = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
               month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
               maximum_age: int = MAX_AGE, team: str = '', _filter: str = '', players: str = '',
-              position: str = 'ALL', max_results: int = 1000000,) -> pd.DataFrame:
+              position: str = 'ALL', start_date: str = None, end_date: str = None, max_results: int = 1000000,
+              ) -> pd.DataFrame:
 
         """
         Get leaderboard data from Fangraphs.
@@ -111,20 +113,48 @@ class FangraphsDataTable(ABC):
                                                 Specify "0,ts" to get aggregate team data.
         position           : str              : Position to filter data by.
                                                 Default = ALL
+        start_date         : str              : The beginning of the date range you want data for.
+                                                Format is YYYY-MM-DD
+                                                Default = None
+        end_date           : str              : The end of the date range you want data for.
+                                                Format is YYYY-MM-DD
+                                                Default = None
         max_results        : int              : The maximum number of results to return.
                                                 Default = 1000000 (In effect, all results)
         """
 
         stat_columns_enums = stat_list_from_str(self.STATS_CATEGORY, stat_columns)
+        start_year = None
+        end_year = None
+
+        if start_date is not None:
+            try:
+                formattedDate = date.fromisoformat(start_date)
+                start_year = formattedDate.year
+            except:
+                raise ValueError("Parameter 'start_date' must be in the format yyyy-mm-dd.")
+       
+        if end_date is not None:
+            try:
+                formattedDate = date.fromisoformat(end_date)
+                end_year = formattedDate.year
+            except:
+                raise ValueError("Parameter 'end_date' must be in the format yyyy-mm-dd.")
 
         if start_season is None:
-            raise ValueError(
-                "You need to provide at least one season to collect data for. " +
-                "Try specifying start_season or start_season and end_season."
-            )
+            if start_year is None:
+                raise ValueError(
+                    "You need to provide at least one season to collect data for. " +
+                    "Try specifying start_season or start_season and end_season."
+                )
+            else:
+                start_season = start_year
 
         if end_season is None:
-            end_season = start_season
+            if end_year is None:
+                end_season = start_season
+            else:
+                end_season = end_year
 
         assert self.STATS_CATEGORY is not None
 
@@ -146,7 +176,9 @@ class FangraphsDataTable(ABC):
             'age': f"{minimum_age},{maximum_age}",
             'filter': _filter,
             'players': players,
-            'page': f'1_{max_results}'
+            'page': f'1_{max_results}',
+            'startdate': start_date,
+            'enddate': end_date,
         }
 
         return self._validate(
