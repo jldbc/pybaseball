@@ -78,7 +78,7 @@ class FangraphsDataTable(ABC):
               stat_columns: Union[str, List[str]] = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
               month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
               maximum_age: int = MAX_AGE, team: str = '', _filter: str = '', players: str = '',
-              position: str = 'ALL', start_date: str = None, end_date: str = None, max_results: int = 1000000,
+              position: str = 'ALL', start_date: str = '', end_date: str = '', max_results: int = 1000000,
               ) -> pd.DataFrame:
 
         """
@@ -127,7 +127,7 @@ class FangraphsDataTable(ABC):
         start_year = None
         end_year = None
 
-        if start_date is not None:
+        if start_date != '':
             ind = 0
 
             try:
@@ -141,7 +141,7 @@ class FangraphsDataTable(ABC):
             except:
                 raise ValueError("Parameter 'start_date' must be in the format yyyy-mm-dd.")
        
-        if end_date is not None:
+        if end_date != '':
             try:
                 formattedDate = date.fromisoformat(end_date)
                 end_year = formattedDate.year
@@ -182,7 +182,7 @@ class FangraphsDataTable(ABC):
             'qual': qual if qual is not None else 'y',
             'type': stat_list_to_str(stat_columns_enums),
             'season': end_season,
-            'month': 1000 if start_date is not None else FangraphsMonth.parse(month).value,
+            'month': 1000 if start_date != '' else FangraphsMonth.parse(month).value,
             'season1': start_season,
             'ind': ind if ind == 0 and split_seasons else int(split_seasons),
             'team':  f'{team or 0},ts' if self.TEAM_DATA else team,
