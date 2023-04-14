@@ -128,9 +128,16 @@ class FangraphsDataTable(ABC):
         end_year = None
 
         if start_date is not None:
+            ind = 0
+
             try:
                 formattedDate = date.fromisoformat(start_date)
                 start_year = formattedDate.year
+
+                if start_year != start_season:
+                    raise ValueError(
+                        "The start_season provided must be equal to the year of the start_date provided."
+                    )
             except:
                 raise ValueError("Parameter 'start_date' must be in the format yyyy-mm-dd.")
        
@@ -138,17 +145,24 @@ class FangraphsDataTable(ABC):
             try:
                 formattedDate = date.fromisoformat(end_date)
                 end_year = formattedDate.year
+
+                if end_season is not None and end_year != end_season:
+                    raise ValueError(
+                        "The end_season provided must be equal to the year of the end_date provided."
+                    )
             except:
                 raise ValueError("Parameter 'end_date' must be in the format yyyy-mm-dd.")
 
+        if start_year is not None and end_year is not None and  end_year - start_year > 3:
+            raise ValueError(
+                "Fangraphs only provides data for custom date ranges smaller than 3 years."
+            )
+
         if start_season is None:
-            if start_year is None:
-                raise ValueError(
-                    "You need to provide at least one season to collect data for. " +
-                    "Try specifying start_season or start_season and end_season."
-                )
-            else:
-                start_season = start_year
+            raise ValueError(
+                "You need to provide at least one season to collect data for. " +
+                "Try specifying start_season or start_season and end_season."
+            )
 
         if end_season is None:
             if end_year is None:
@@ -168,7 +182,7 @@ class FangraphsDataTable(ABC):
             'qual': qual if qual is not None else 'y',
             'type': stat_list_to_str(stat_columns_enums),
             'season': end_season,
-            'month': FangraphsMonth.parse(month).value,
+            'month': 1000 if start_date is not None else FangraphsMonth.parse(month).value,
             'season1': start_season,
             'ind': ind if ind == 0 and split_seasons else int(split_seasons),
             'team':  f'{team or 0},ts' if self.TEAM_DATA else team,
@@ -176,9 +190,9 @@ class FangraphsDataTable(ABC):
             'age': f"{minimum_age},{maximum_age}",
             'filter': _filter,
             'players': players,
-            'page': f'1_{max_results}',
             'startdate': start_date,
             'enddate': end_date,
+            'page': f'1_{max_results}',
         }
 
         return self._validate(
