@@ -4,13 +4,12 @@ from typing import Union
 import pandas as pd
 import requests
 
-# test id box_score(565997)
-
 ROOT_URL = "https://statsapi.mlb.com/api/"
 
 _STATS_BOX_SCORE_REQUEST = "v1/game/{game_pk}/boxscore"
 
-def box_score(game_pk: Union[str, int]):
+
+def box_score(game_pk: Union[str, int]) -> pd.DataFrame:
     """
     Pulls in statsapi MLB box score data identified by its MLB game ID
     (game_pk in statcast data)
@@ -19,10 +18,11 @@ def box_score(game_pk: Union[str, int]):
     game_pk : 6-digit integer MLB game ID to retrieve
     """
     result = requests.get(ROOT_URL + _STATS_BOX_SCORE_REQUEST.format(game_pk=game_pk)
-)
+                          )
     return format_box_score(result.json())
 
-def format_box_score(data):
+
+def format_box_score(data) -> pd.DataFrame:
 
     home_df = pd.DataFrame(data['teams']['home']['players'].values())
     home_df['team'] = 'home'
