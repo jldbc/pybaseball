@@ -118,8 +118,8 @@ STATCAST_VALID_DATES = {
 	2020: (date(2020, 7, 23), date(2020, 10, 27))
 }
 
-pitch_codes = ["FF", "SIFT", "CH", "CUKC", "FC", "SL", "FS", "ALL"] # note: all doesn't work in words, we'll have some special handling
-pitch_names = ["4-Seamer", "Sinker", "Changeup", "Curveball", "Cutter", "Slider", "Sinker"]
+pitch_codes = ["FF", "CU", "CH", "FC", "EP", "FO", "KN", "KC", "SC", "SI", "SL", "FS", "FT", "ST", "SV", "SIFT", "CUKC", "ALL"] # note: all doesn't work in words, we'll have some special handling
+pitch_names = ["4-Seamer", "Curveball", "Changeup", "Cutter", "Eephus", "Forkball", "Knuckleball", "Knuckle-curve", "Screwball", "Sinker", "Slider", "Splitter", "2-Seamer", "Sweeper", "Slurve", "Sinker", "Curveball"]
 pitch_names_upper = [p.upper() for p in pitch_names]
 
 # including all the codes to themselves makes this simpler later
