@@ -2,7 +2,7 @@ from datetime import date, datetime, timedelta
 
 import pytest
 
-from pybaseball.utils import DATE_FORMAT, sanitize_date_range
+from pybaseball.utils import DATE_FORMAT, sanitize_date_range, statcast_clean_column_names
 
 
 def test_sanitize_date_range_nones() -> None:
@@ -52,3 +52,8 @@ def test_sanitize_date_range_start_dt_gt_end_dt() -> None:
     assert start_dt_date < end_dt_date
     assert str(start_dt_date) == end_dt
     assert str(end_dt_date) == start_dt
+
+def test_statcast_clean_column_names() -> None:
+    assert statcast_clean_column_names(("Unnamed: 0_level_0", "Total Movement (In.)")) == "Total Movement (In.)"
+    assert statcast_clean_column_names(("Runners On Base", "Total Movement (In.)")) == "Runners On Base Total Movement (In.)"
+    assert statcast_clean_column_names("Total Movement (In.)") == "Total Movement (In.)"

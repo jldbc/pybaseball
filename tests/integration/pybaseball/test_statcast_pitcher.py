@@ -8,6 +8,7 @@ from pybaseball.statcast_pitcher import (
     statcast_pitcher_arsenal_stats,
     statcast_pitcher_exitvelo_barrels,
     statcast_pitcher_expected_stats,
+    statcast_pitcher_page_stats,
     statcast_pitcher_percentile_ranks,
     statcast_pitcher_pitch_arsenal,
     statcast_pitcher_pitch_movement,
@@ -105,3 +106,12 @@ def test_statcast_pitcher_spin_dir_comp() -> None:
 
     assert len(result.columns) == 30
     assert len(result) > 100
+
+def test_statcast_pitcher_page_stats() -> None:
+    result: dict[str, pd.DataFrame] = statcast_pitcher_page_stats(605483)
+    stat_df = result["Statcast Statistics"]
+
+    assert result is not None
+    assert not stat_df.empty
+
+    assert len(stat_df) > 5

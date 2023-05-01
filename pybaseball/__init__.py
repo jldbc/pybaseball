@@ -13,14 +13,16 @@ from .statcast_pitcher import (
 	statcast_pitcher_pitch_arsenal,
 	statcast_pitcher_arsenal_stats,
 	statcast_pitcher_percentile_ranks,
-	statcast_pitcher_spin_dir_comp
+	statcast_pitcher_spin_dir_comp,
+    statcast_pitcher_page_stats
 )
 from .statcast_batter import (
 	statcast_batter,
 	statcast_batter_exitvelo_barrels,
 	statcast_batter_expected_stats,
 	statcast_batter_percentile_ranks,
-	statcast_batter_pitch_arsenal
+	statcast_batter_pitch_arsenal,
+    statcast_batter_player_stats
 )
 from .statcast_running import statcast_sprint_speed, statcast_running_splits
 from .statcast_fielding import (
