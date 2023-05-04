@@ -210,17 +210,28 @@ def plot_teams(data: pd.DataFrame, x_axis: str, y_axis: str, title: Optional[str
 
     for index, row in data.iterrows():
 
-        # Get path of team logo
-        path = Path(CUR_PATH, '../docs/images/logos', f"{row['Team']}.png")
+        # If there is a logo image for the corresponding team, plot the Team's logo image
+        try:
+            # Get path of team logo
+            path = Path(CUR_PATH, '../docs/images/logos', f"{row['Team']}.png")
 
-        # Read in the image from the folder location
-        img = OffsetImage(plt.imread(path, format="png"), zoom=.3)
+            # Read in the image from the folder location
+            img = OffsetImage(plt.imread(path, format="png"), zoom=.3)
 
-        # Convert the image into a plottable object
-        ab = AnnotationBbox(img, (float(row[x_axis]), float(row[y_axis])), frameon=False)
+            # Convert the image into a plottable object
+            ab = AnnotationBbox(img, (float(row[x_axis]), float(row[y_axis])), frameon=False)
 
-        # Plot the MLB logo
-        ax.add_artist(ab)
+            # Plot the MLB logo
+            ax.add_artist(ab)
+
+        # If there is no logo image for the corresponding team, just plot the Team's Abbreviation
+        except FileNotFoundError:
+            plt.text(float(row[x_axis]), float(row[y_axis]), row['Team'], fontsize=20, weight='bold')
+
+
+
+
+
 
     # add some spacing to the x axis and y axis so the logos stay within the bounds of the chart
     x_axis_spacing = (data[x_axis].max() - data[x_axis].min()) * .1
