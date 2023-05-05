@@ -118,6 +118,5 @@ def getLeagueQualityStarts():
     stats = soup.find("table")
     table = pd.read_html(str(stats))
     table = table[0]
-
     
     return table
