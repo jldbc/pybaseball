@@ -4,6 +4,7 @@ from typing import Optional, Union
 
 import numpy as np
 import pandas as pd
+import requests
 from bs4 import BeautifulSoup
 
 from . import cache
@@ -106,3 +107,17 @@ def bwar_pitch(return_all: bool=False) -> pd.DataFrame:
                         'G', 'GS', 'RA','xRA', 'BIP', 'BIP_perc','salary', 'ERA_plus', 'WAR_rep', 'WAA',
                         'WAA_adj','WAR']
         return c[cols_to_keep]
+
+def getLeagueQualityStarts():
+
+    url = "https://www.teamrankings.com/mlb/player-stat/quality-starts?season_id=643&rate=season-totals"
+    page = requests.get(url)
+
+    soup = BeautifulSoup(page.text, 'html.parser')
+    
+    stats = soup.find("table")
+    table = pd.read_html(str(stats))
+    table = table[0]
+
+    
+    return table
