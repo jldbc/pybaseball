@@ -5,6 +5,7 @@ import warnings
 
 from matplotlib import axes
 from matplotlib import patches
+from matplotlib.offsetbox import OffsetImage, AnnotationBbox
 import matplotlib.path
 import matplotlib.pyplot as plt
 import numpy as np
@@ -187,3 +188,74 @@ def plot_bb_profile(df: pd.DataFrame, parameter: Optional[str] = "launch_angle")
         bins = np.arange(df_skimmed[parameter].min(), df_skimmed[parameter].max(), 2)
         plt.hist(df_skimmed[parameter], bins=bins, alpha=0.5, label=bb_type.replace("_", " ").capitalize())
         plt.tick_params(labelsize=12)
+
+
+def plot_teams(data: pd.DataFrame, x_axis: str, y_axis: str, title: Optional[str] = None) -> None:
+    """Plots a scatter plot with each MLB team
+
+    Args:
+        data: (pandas.DataFrame)
+            pandas.DataFrame of Fangraphs team data (retrieved through team_batting or team_pitching)
+        x_axis: (str)
+            Stat name to be plotted as the x_axis of the chart
+        y_axis: (str)
+            Stat name to be plotted as the y_axis of the chart
+        title: (str), default = None
+            Optional: Title of the plot
+    """
+
+    data = data[['Team', x_axis, y_axis]]
+
+    fig, ax = plt.subplots()
+
+    for index, row in data.iterrows():
+
+        # If there is a logo image for the corresponding team, plot the Team's logo image
+        try:
+            # Get path of team logo
+            path = Path(CUR_PATH, '../docs/images/logos', f"{row['Team']}.png")
+
+            # Read in the image from the folder location
+            img = OffsetImage(plt.imread(path, format="png"), zoom=.3)
+
+            # Convert the image into a plottable object
+            ab = AnnotationBbox(img, (float(row[x_axis]), float(row[y_axis])), frameon=False)
+
+            # Plot the MLB logo
+            ax.add_artist(ab)
+
+        # If there is no logo image for the corresponding team, just plot the Team's Abbreviation
+        except FileNotFoundError:
+            plt.text(float(row[x_axis]), float(row[y_axis]), row['Team'], fontsize=20, weight='bold')
+
+
+
+
+
+
+    # add some spacing to the x axis and y axis so the logos stay within the bounds of the chart
+    x_axis_spacing = (data[x_axis].max() - data[x_axis].min()) * .1
+    y_axis_spacing = (data[y_axis].max() - data[y_axis].min()) * .1
+
+    # set the axis with the spacing from above
+    plt.xlim([data[x_axis].min() - x_axis_spacing, data[x_axis].max() + x_axis_spacing])
+    plt.ylim([data[y_axis].min() - y_axis_spacing, data[y_axis].max() + y_axis_spacing])
+
+    # Plot league average for y axis variable
+    plt.axhline(y=data[y_axis].mean(), color='k', linestyle='-')
+    plt.text(data[x_axis].min() - x_axis_spacing * .9, data[y_axis].mean() + y_axis_spacing * .1, 'league average')
+
+    # Plot league average for x axis variable
+    plt.axvline(x=data[x_axis].mean(), color='k', linestyle='-')
+    plt.text(data[x_axis].mean() + x_axis_spacing * .05, data[y_axis].min() - y_axis_spacing * .8, 'league average',
+             rotation=90)
+
+    # Add title and labels
+    if not title:
+        title = f'Plot of Team {x_axis}/Team {y_axis}'
+
+    plt.title(title)
+    plt.xlabel(x_axis)
+    plt.ylabel(y_axis)
+
+    plt.show()

@@ -107,3 +107,28 @@ plt.show()
 
 ![](images/plot_bb_profile_example.png)
 
+---
+`plot_team(data, x_axis, y_axis, title=None)`
+
+## Arguments
+
+`data`: Fangraphs team data from either team_batting or team_pitching
+
+`x_axis`: name of stat to be plotted as the x_axis of the chart
+
+`y_axis`: name of stat to be plotted as the y_axis of the chart
+
+`title`: title for your chart
+
+# Example
+
+```python
+from pybaseball import plot_teams, team_batting
+
+data = team_batting(2023)
+
+plot_teams(data, "HR", "BB")
+```
+![Plot Teams_2023_BB/HR](images/plot_teams_example.png)
+
+`
