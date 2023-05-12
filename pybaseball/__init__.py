@@ -96,6 +96,7 @@ from .plotting import plot_stadium
 from .plotting import spraychart
 from .plotting import plot_teams
 from .datasources.fangraphs import (fg_batting_data, fg_pitching_data, fg_team_batting_data, fg_team_fielding_data,
-                                    fg_team_pitching_data)
+                                    fg_team_pitching_data, fg_batting_projections_data,
+                                    fg_pitching_projections_data)
 from .split_stats import get_splits
 from .version import __version__

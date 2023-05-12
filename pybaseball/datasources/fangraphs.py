@@ -8,10 +8,12 @@ from .. import cache
 from ..datahelpers.column_mapper import BattingStatsColumnMapper, ColumnListMapperFunction, GenericColumnMapper
 from ..enums.fangraphs import (FangraphsBattingStats, FangraphsFieldingStats, FangraphsLeague, FangraphsMonth,
                                FangraphsPitchingStats, FangraphsPositions, FangraphsStatColumn, FangraphsStatsCategory,
+                               FangraphsProjections, FangraphsTeams,
                                stat_list_from_str, stat_list_to_str)
 from .html_table_processor import HTMLTableProcessor, RowIdFunction
 
 _FG_LEADERS_URL = "/leaders.aspx"
+_FG_PROJECTIONS_URL = "/projections.aspx"
 
 MIN_AGE = 0
 MAX_AGE = 100
@@ -232,9 +234,88 @@ class FangraphsTeamPitchingDataTable(FangraphsDataTable):
     ROW_ID_FUNC: RowIdFunction = team_row_id_func
     ROW_ID_NAME = 'teamIDfg'
 
+class FangraphsProjectionsTable(FangraphsDataTable):
+    QUERY_ENDPOINT: str = _FG_PROJECTIONS_URL
+    ROW_ID_FUNC = player_row_id_func
+    def __init__(self):
+        super().__init__()
+    def fetch(self, type: str, position: str = 'ALL', team: str = 'ALL',
+              league: str = 'ALL', players: str = '0',
+              max_results: int = 1000000,) -> pd.DataFrame:
+        """
+        Get projection data from Fangraphs
+
+        ARGUMENTS
+        ----------
+        type : str : Which projections to fetch. Options: ZIPS, ZIPSDC, ZIPS1 (ZIPS for one year in the future)
+                    ZIPSP2 (ZIPS for 2 years into the future), STEAMER, STEAMER600,
+                    DEPTH_CHARTS, ATC, THE_BAT, THE_BAT_X, ZIPS_ROS, ZIPS_UPDATE,
+                    STEAMER_ROS, STEAMER_UPDATE, STEAMER600_UPDATE, DEPTH_CHARTS_ROS,
+                    THE_BAT_ROS, THE_BAT_X_ROS, ON_PACE_EGP, ON_PACE_GP
+        position : str : Position to filter data by, 'ALL' to not filter by position
+            Default = 'ALL'
+        team : str : Team to filter data by. 'ALL' to not filter by team
+            Default = 'ALL'
+        league : str : League to return data for: ALL, AL, NL
+            Default = 'ALL'
+        players : str : FanGraphs player ID of the projection you want. '0' returns all players
+            Default = '0'
+        max_results : int : The maximum number of results to return. Currently doesn't do anything
+            Default = 1000000
+
+        Returns
+        -------
+        pd.DataFrame
+            _description_
+        """
+        assert type.upper() in vars(FangraphsProjections)['_member_names_']
+
+        url_options = {
+            'pos': FangraphsPositions.parse(position.upper()).value,
+            'stats': self.STATS_CATEGORY.value,
+            'type': FangraphsProjections.parse(type.upper()).value,
+            'team': FangraphsTeams.parse(team.upper()).value,
+            'lg': FangraphsLeague.parse(league.upper()).value,
+            'players': players,
+            'page': f'1_{max_results}'
+
+        }
+        return self._validate(
+            self._postprocess(
+                self.html_accessor.get_tabular_data_from_options(
+                    self.QUERY_ENDPOINT,
+                    query_params=url_options,
+                    column_name_mapper=self.COLUMN_NAME_MAPPER,
+                    known_percentages=self.KNOWN_PERCENTAGES,
+                    row_id_func=self.ROW_ID_FUNC,
+                    row_id_name=self.ROW_ID_NAME
+                )
+            )
+        )
+
+class FangraphsBattingProjectionsTable(FangraphsProjectionsTable):
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.BATTING
+    ROW_ID_NAME = 'IDfg'
+    def fetch(self, *args, **kwargs):
+        return super().fetch(*args, **kwargs)
+
+    def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
+        return self._sort(data, ['WAR'], ascending=False)
+
+class FangraphsPitchingProjectionsTable(FangraphsProjectionsTable):
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.PITCHING
+    ROW_ID_NAME = 'IDfg'
+    def fetch(self, *args, **kwargs):
+        return super().fetch(*args, **kwargs)
+
+    def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
+        return self._sort(data, ['WAR'], ascending=False)
+
 fg_batting_data = FangraphsBattingStatsTable().fetch
 fg_fielding_data = FangraphsFieldingStatsTable().fetch
 fg_pitching_data = FangraphsPitchingStatsTable().fetch
 fg_team_batting_data = FangraphsTeamBattingDataTable().fetch
 fg_team_fielding_data = FangraphsTeamFieldingDataTable().fetch
 fg_team_pitching_data = FangraphsTeamPitchingDataTable().fetch
+fg_batting_projections_data = FangraphsBattingProjectionsTable().fetch
+fg_pitching_projections_data = FangraphsPitchingProjectionsTable().fetch
