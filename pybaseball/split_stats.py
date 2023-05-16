@@ -92,7 +92,7 @@ def soup_to_data(soup: bs.BeautifulSoup, year: int, identifier: str, identifier_
                     level_headings = [th.get_text()
                                       for th in splits[j].find("tr").find_all("th")][:]
                 level_headings.append('Split Type')
-                level_headings.append('Identifier')
+                level_headings.append(identifier_label)
                 # singles data isn't included in the tables so this appends the column header
                 level_headings.append('1B')
                 raw_level_data.append(level_headings)
