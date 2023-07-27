@@ -94,7 +94,7 @@ def get_closest_names(last: str, first: str, player_table: pd.DataFrame) -> pd.D
     fuzzy_matches = pd.DataFrame(
         get_close_matches(f"{first} {last}", filled_df.chadwick_name, n=5, cutoff=0)
     ).rename({0: "chadwick_name"}, axis=1)
-    return fuzzy_matches.merge(filled_df, on="chadwick_name").drop("chadwick_name", axis=1)
+    return fuzzy_matches.drop_duplicates().merge(filled_df, on="chadwick_name").drop("chadwick_name", axis=1)
 
 
 class _PlayerSearchClient:
