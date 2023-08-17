@@ -11,7 +11,7 @@ from ..enums.fangraphs import (FangraphsBattingStats, FangraphsFieldingStats, Fa
                                stat_list_from_str, stat_list_to_str)
 from .html_table_processor import HTMLTableProcessor, RowIdFunction
 
-_FG_LEADERS_URL = "/leaders.aspx"
+_FG_LEADERS_URL = "/leaders-legacy.aspx"
 
 MIN_AGE = 0
 MAX_AGE = 100
