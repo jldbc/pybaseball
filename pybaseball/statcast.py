@@ -19,7 +19,7 @@ _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=
 class StatcastException(Exception):
     pass
 
-@cache.df_cache(expires=365)
+
 def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> pd.DataFrame:
     data = statcast_ds.get_statcast_data_from_csv_url(
         _SC_SMALL_REQUEST.format(start_dt=str(start_dt), end_dt=str(end_dt), team=team if team else '')
