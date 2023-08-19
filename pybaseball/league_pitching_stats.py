@@ -46,7 +46,6 @@ def get_table(soup: BeautifulSoup) -> pd.DataFrame:
     return data
 
 
-@cache.df_cache()
 def pitching_stats_range(start_dt: Optional[str]=None, end_dt: Optional[str]=None) -> pd.DataFrame:
     """
     Get all pitching stats for a set time range. This can be the past week, the
@@ -78,6 +77,8 @@ def pitching_stats_range(start_dt: Optional[str]=None, end_dt: Optional[str]=Non
     table = table.drop('', axis=1)
     return table
 
+
+@cache.df_cache()
 def pitching_stats_bref(season: Optional[int]=None) -> pd.DataFrame:
     """
     Get all pitching stats for a set season. If no argument is supplied, gives stats for
@@ -91,6 +92,7 @@ def pitching_stats_bref(season: Optional[int]=None) -> pd.DataFrame:
     return(pitching_stats_range(start_dt, end_dt))
 
 
+@cache.df_cache()
 def bwar_pitch(return_all: bool=False) -> pd.DataFrame:
     """
     Get data from war_daily_pitch table. Returns WAR, its components, and a few other useful stats.
