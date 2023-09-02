@@ -5,7 +5,7 @@ import pandas as pd
 import requests
 
 from . import cache
-from .utils import sanitize_input, split_request, sanitize_statcast_columns
+from .utils import STATCAST_TABLES_BATTER, sanitize_input, split_request, sanitize_statcast_columns, statcast_clean_column_names
 
 
 def statcast_batter(start_dt: Optional[str] = None, end_dt: Optional[str] = None, player_id: Optional[int] = None) -> pd.DataFrame:
@@ -92,3 +92,32 @@ def statcast_batter_pitch_arsenal(year: int, minPA: int = 25) -> pd.DataFrame:
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     data = sanitize_statcast_columns(data)
     return data
+
+@cache.df_cache()
+def statcast_batter_player_stats(
+    player_id: str, tables_names: Optional[list] = ["ALL"]
+) -> dict[str, pd.DataFrame]:
+    """
+    Retrieves tables from individual batters page on Baseball Savant with options to select table of interest.
+
+    ARGUMENTS
+        player_id : INT : the player's MLBAM ID. Find this by calling pybaseball.playerid_lookup(last_name, first_name), 
+            finding the correct player, and selecting their key_mlbam.
+        table_names : A list of strings containing the names of the tables to be extracted from the player's savant,
+            alternatively left blank and all named tables will be gathered
+
+    """
+    url = f"https://baseballsavant.mlb.com/savant-player/{str(player_id)}?stats=statcast-r-hitting-mlb&playerType=batter"
+    res = requests.get(url).content
+    data = pd.read_html(res)
+    dfs = {}
+
+    for df in data:
+        for table_name in STATCAST_TABLES_BATTER:
+            if list(df.columns) == STATCAST_TABLES_BATTER[table_name] and (
+                table_name in tables_names or "ALL" in tables_names
+            ):
+                df.columns = [statcast_clean_column_names(name) for name in df.columns]
+                dfs[table_name] = df
+
+    return dfs
