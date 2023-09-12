@@ -21,7 +21,6 @@ sdist/
 var/
 wheels/
 share/python-wheels/
-pybaseball-venv/
 *.egg-info/
 .installed.cfg
 *.egg
