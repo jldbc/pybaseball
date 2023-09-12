@@ -6,7 +6,8 @@ from pybaseball.statcast_fielding import (
 	statcast_outfield_catch_prob,
 	statcast_outfielder_jump,
 	statcast_catcher_poptime,
-	statcast_catcher_framing
+	statcast_catcher_framing,
+	statcast_fielding_run_value
 )
 
 def test_statcast_outs_above_average() -> None:
@@ -88,6 +89,16 @@ def test_statcast_catcher_framing() -> None:
 	assert len(result) > 0
 	assert len(result.loc[result.n_called_pitches < min_called_p]) == 0
 
+def test_statcast_fielding_run_value() -> None:
+	min_inn = 50
+	pos = 4
+	result: pd.DataFrame = statcast_fielding_run_value(2019, pos, min_inn)
+
+	assert result is not None
+	assert not result.empty
+
+	assert len(result.columns) == 22
+	assert len(result) > 0
 
 #test_statcast_outs_above_average_view()
 test_statcast_outs_above_average()
