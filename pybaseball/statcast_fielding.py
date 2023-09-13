@@ -41,9 +41,9 @@ def statcast_fielding_run_value(year: int, pos: Union[int, str], min_inn: int = 
 	"""Scrapes fielding run value from baseball savant for a given year and position
 
 	Args:
-		year (int): Season to pull
+		year (int): Season to pull, if 0 returns merged data for all available years.
 		pos (Union[int, str]): Numerical position (e.g. 3 for 1B, 4 for 2B). Catchers ARE supported
-		min_att (int, optional): Integer number of attempts required or "q" for qualified. 
+		min_inn (int, optional): Integer number of attempts required.
 			Defaults to 100.
 
 	Raises:
