@@ -1,4 +1,5 @@
 from typing import List, Optional
+import logging
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -10,7 +11,8 @@ from .datasources.bref import BRefSession
 session = BRefSession()
 
 # This is just a pass through for the new, more configurable function
-team_pitching = fg_team_pitching_data 
+team_pitching = fg_team_pitching_data
+logger = logging.getLogger(__name__)
 
 
 @cache.df_cache()
@@ -35,7 +37,7 @@ def team_pitching_bref(team: str, start_season: int, end_season: Optional[int]=N
     raw_data = []
     headings: Optional[List[str]] = None
     for season in range(start_season, end_season+1):
-        print("Getting Pitching Data: {} {}".format(season, team))
+        logger.info("Getting Pitching Data: %s %s", season, team)
         stats_url = "{}/{}.shtml".format(url, season)
         response = session.get(stats_url)
         soup = BeautifulSoup(response.content, 'html.parser')

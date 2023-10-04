@@ -1,4 +1,5 @@
 from datetime import datetime
+import logging
 from typing import Optional
 
 from bs4 import BeautifulSoup
@@ -11,6 +12,7 @@ from . import cache
 from .datasources.bref import BRefSession
 
 session = BRefSession()
+logger = logging.getLogger(__name__)
 
 # TODO: retrieve data for all teams? a full season's worth of results
 
@@ -19,7 +21,7 @@ def get_soup(season: Optional[int], team: str) -> BeautifulSoup:
     if season is None:
         season = most_recent_season()
     url = "http://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml".format(team, season)
-    print(url)
+    logger.debug(url)
     s = session.get(url).content
     return BeautifulSoup(s, "lxml")
 

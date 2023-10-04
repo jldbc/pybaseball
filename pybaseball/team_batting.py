@@ -1,4 +1,5 @@
 from typing import List, Optional
+import logging
 
 import pandas as pd
 from bs4 import BeautifulSoup
@@ -35,7 +36,7 @@ def team_batting_bref(team: str, start_season: int, end_season: Optional[int]=No
     raw_data = []
     headings: Optional[List[str]] = None
     for season in range(start_season, end_season+1):
-        print("Getting Batting Data: {} {}".format(season, team))
+        logging.info("Getting Batting Data: %s %s",season, team)
         stats_url = "{}/{}.shtml".format(url, season)
         response = session.get(stats_url)
         soup = BeautifulSoup(response.content, 'html.parser')
