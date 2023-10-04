@@ -3,6 +3,7 @@ import io
 import os
 import re
 import zipfile
+import logging
 
 from typing import List, Tuple, Iterable
 
@@ -15,6 +16,7 @@ url = "https://github.com/chadwickbureau/register/archive/refs/heads/master.zip"
 PEOPLE_FILE_PATTERN = re.compile("/people.+csv$")
 
 _client = None
+logger = logging.getLogger(__name__)
 
 
 def get_register_file():
@@ -47,7 +49,7 @@ def chadwick_register(save: bool = False) -> pd.DataFrame:
         table = pd.read_csv(get_register_file())
         return table
 
-    print('Gathering player lookup table. This may take a moment.')
+    logger.info('Gathering player lookup table. This may take a moment.')
     s = requests.get(url).content
     mlb_only_cols = ['key_retro', 'key_bbref', 'key_fangraphs', 'mlb_played_first', 'mlb_played_last']
     cols_to_keep = ['name_last', 'name_first', 'key_mlbam'] + mlb_only_cols
@@ -126,7 +128,7 @@ class _PlayerSearchClient:
 
         # If no matches, return 5 closest names
         if len(results) == 0 and fuzzy:
-            print("No identically matched names found! Returning the 5 most similar names.")
+            logger.warning("No identically matched names found! Returning the 5 most similar names.")
             results=get_closest_names(last=last, first=first, player_table=self.table)
             
         return results

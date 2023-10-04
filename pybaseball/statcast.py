@@ -1,5 +1,5 @@
 import concurrent.futures
-import warnings
+import logging
 from datetime import date
 from typing import Optional, Union
 
@@ -11,13 +11,18 @@ import pybaseball.datasources.statcast as statcast_ds
 from . import cache
 from .utils import sanitize_date_range, statcast_date_range
 
+logger = logging.getLogger(__name__)
+
 _SC_SINGLE_GAME_REQUEST = "/statcast_search/csv?all=true&type=details&game_pk={game_pk}"
 # pylint: disable=line-too-long
 _SC_SMALL_REQUEST = "/statcast_search/csv?all=true&hfPT=&hfAB=&hfBBT=&hfPR=&hfZ=&stadium=&hfBBL=&hfNewZones=&hfGT=R%7CPO%7CS%7C=&hfSea=&hfSit=&player_type=pitcher&hfOuts=&opponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&team={team}&position=&hfRO=&home_road=&hfFlag=&metric_1=&hfInn=&min_pitches=0&min_results=0&group_by=name&sort_col=pitches&player_event_sort=h_launch_speed&sort_order=desc&min_abs=0&type=details&"
+
+
 # _MAX_SC_RESULTS = 40000
 
 class StatcastException(Exception):
     pass
+
 
 @cache.df_cache(expires=365)
 def _small_request(start_dt: date, end_dt: date, team: Optional[str] = None) -> pd.DataFrame:
@@ -47,7 +52,7 @@ subqueries if that happens.'''
 
 def _check_warning(start_dt: date, end_dt: date) -> None:
     if not cache.config.enabled and (end_dt - start_dt).days >= 42:
-        warnings.warn(_OVERSIZE_WARNING)
+        logger.warning(_OVERSIZE_WARNING)
 
 
 def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
@@ -59,7 +64,7 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
     _check_warning(start_dt, end_dt)
 
     if verbose:
-        print("This is a large query, it may take a moment to complete", flush=True)
+        logger.info("This is a large query, it may take a moment to complete")
 
     dataframe_list = []
     date_range = list(statcast_date_range(start_dt, end_dt, step, verbose))
@@ -71,7 +76,7 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
             # See https://docs.python.org/3.7/library/concurrent.futures.html#processpoolexecutor
             with concurrent.futures.ThreadPoolExecutor() as executor:
                 futures = {executor.submit(_small_request, subq_start, subq_end, team=team)
-                        for subq_start, subq_end in date_range}
+                           for subq_start, subq_end in date_range}
                 for future in concurrent.futures.as_completed(futures):
                     dataframe_list.append(future.result())
                     progress.update(1)
@@ -114,7 +119,7 @@ def statcast(start_dt: str = None, end_dt: str = None, team: str = None,
                            team=team, parallel=parallel)
 
 
-def statcast_single_game(game_pk: Union[str, int]) -> pd.DataFrame:
+def statcast_single_game(game_pk: Union[str, int]) -> Optional[pd.DataFrame]:
     """
     Pulls statcast play-level data from Baseball Savant for a single game,
     identified by its MLB game ID (game_pk in statcast data)

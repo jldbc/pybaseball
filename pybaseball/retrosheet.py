@@ -21,12 +21,11 @@ as additional data are received. We are grateful to anyone who
 discovers discrepancies and we appreciate learning of the details.
 """
 import pandas as pd
+import logging
 from pybaseball.utils import get_text_file
-from datetime import datetime
 from io import StringIO
 from github import Github
 import os
-from getpass import getuser, getpass
 from github.GithubException import RateLimitExceededException
 import warnings
 
@@ -106,6 +105,9 @@ parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master
 roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/rosters/{}{}.ROS'
 event_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/event/{}/{}'
 
+logger = logging.getLogger(__name__)
+
+
 def events(season, type='regular', export_dir='.'):
     """
     Pulls retrosheet event files for an entire season. The `type` argument
@@ -115,7 +117,7 @@ def events(season, type='regular', export_dir='.'):
     Right now, pybaseball does not parse the retrosheet files but downloads and
     saves them.
     """
-    GH_TOKEN=os.getenv('GH_TOKEN', '')
+    GH_TOKEN = os.getenv('GH_TOKEN', '')
     if not os.path.exists(export_dir):
         os.mkdir(export_dir)
 
@@ -142,16 +144,17 @@ def events(season, type='regular', export_dir='.'):
         )
 
     for filename in event_files:
-        print(f'Downloading {filename}')
+        logger.info('Downloading %s', filename)
         s = get_text_file(event_url.format(type, filename))
         with open(os.path.join(export_dir, filename), 'w') as f:
             f.write(s)
+
 
 def rosters(season):
     """
     Pulls retrosheet roster files for an entire season
     """
-    GH_TOKEN=os.getenv('GH_TOKEN', '')
+    GH_TOKEN = os.getenv('GH_TOKEN', '')
 
     try:
         g = Github(GH_TOKEN)
@@ -170,15 +173,16 @@ def rosters(season):
             UserWarning
         )
 
-    df_list = [_roster(team = r[:3], season = season, checked=False) for r in rosters]
+    df_list = [_roster(team=r[:3], season=season, checked=False) for r in rosters]
 
     return pd.concat(df_list)
 
-def _roster(team, season, checked = False):
+
+def _roster(team, season, checked=False):
     """
     Pulls retrosheet roster files
     """
-    GH_TOKEN=os.getenv('GH_TOKEN', '')
+    GH_TOKEN = os.getenv('GH_TOKEN', '')
 
     if not checked:
         g = Github(GH_TOKEN)
@@ -204,6 +208,7 @@ def _roster(team, season, checked = False):
     data.columns = roster_columns
     return data
 
+
 def park_codes():
     """
     Pulls retrosheet Park IDs
@@ -213,15 +218,16 @@ def park_codes():
     data.columns = parkcode_columns
     return data
 
+
 def schedules(season):
     """
     Pull retrosheet schedule for a given season
     """
-    GH_TOKEN=os.getenv('GH_TOKEN', '')
+    GH_TOKEN = os.getenv('GH_TOKEN', '')
     # validate input
     g = Github(GH_TOKEN)
     repo = g.get_repo('chadwickbureau/retrosheet')
-    schedules = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents('schedule')]
+    schedules = [f.path[f.path.rfind('/') + 1:] for f in repo.get_contents('schedule')]
     file_name = f'{season}SKED.TXT'
 
     if file_name not in schedules:
@@ -231,15 +237,16 @@ def schedules(season):
     data.columns = schedule_columns
     return data
 
+
 def season_game_logs(season):
     """
     Pull Retrosheet game logs for a given season
     """
-    GH_TOKEN=os.getenv('GH_TOKEN', '')
+    GH_TOKEN = os.getenv('GH_TOKEN', '')
     # validate input
     g = Github(GH_TOKEN)
     repo = g.get_repo('chadwickbureau/retrosheet')
-    gamelogs = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents('gamelog')]
+    gamelogs = [f.path[f.path.rfind('/') + 1:] for f in repo.get_contents('gamelog')]
     file_name = f'GL{season}.TXT'
 
     if file_name not in gamelogs:
