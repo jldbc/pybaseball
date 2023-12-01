@@ -132,3 +132,25 @@ data = statcast_catcher_framing(2019)
 # Catchers with at least 500 called pitches from 2019
 data = statcast_catcher_framing(2019, min_called_p = 500)
 ```
+
+# Statcast Fielding Run Value
+`statcast_fielding_run_value(year: int, pos: Union[int, str], min_inn: int = 100)`
+
+This function retrieves the total Fielding Run Value (FRV) for any given season and position.
+
+## Arguments
+`year:` The year for which you wish to retrieve FRV data. Format: YYYY.
+`pos:` The position you are interested in. Valid positions include "all", "IF", "OF", and position names, numbers, or abbreviations. Position numbers may be entered as integers or strings, e.g. 6 or "6" for shortstops. Pitchers are not included.
+`min_inn:` The minimum number of innings played at given position for a player to be included.
+
+## Examples of Valid Queries
+```python
+from pybaseball import statcast_fielding_run_value
+
+# All players with more than 100 defensive innings played from 2019
+data = statcast_fielding_run_value(2019, "all")
+
+# All players with more than 200 defensive innings played at 2B from 2019
+data = statcast_fielding_run_value(2019, 4, 200)
+
+```

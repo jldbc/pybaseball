@@ -9,7 +9,7 @@ The `batting_stats` function returns season-level batting data from FanGraphs.
 
 `end_season:` Integer. The final season you want to retrieve data from. If omitted, the funciton will return only data from the start_season.
 
-`league:` String. "all" for both leagues, "al" for the American League, or "nl" for the National League. Defaults to "all".
+`league:` String. Either "all" for all data, "nl" for National League, "al" for the American League, or "mnl" for all Negro League data. Defaults to "all", for returning data on all teams. See `FangraphsLeague` definition for all leagues.
 
 `qual:` Integer. Minimum number of plate appearances to be included in the results. Defaults to `None`, which is equivalent to the current Fangraphs "Qualified" PA threshold from their leaderboard. 
 

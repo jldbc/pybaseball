@@ -9,7 +9,7 @@ The team_batting function returns a dataframe of team-level batting stats. This 
 
 `end_season:` Integer. The last season for which you want the league's team-level batting data. If not provided, the query will return data for only the `start_season`.  
 
-`league:` String. Either "all", "nl", or "al" for determining whether you want data from one league or both. Defaults to "all", for returning data on all teams. 
+`league:` String. Either "all" for all data, "nl" for National League, "al" for the American League, or "mnl" for all Negro League data. Defaults to "all", for returning data on all teams. See `FangraphsLeague` definition for all leagues.
 
 `ind:` Integer. Flag for whether you want data to be returned at the individual-season or aggregate level. If `ind=1`, returns one row per team per year. If `ind=0`, the query aggregates the data so that one row of aggregate stats is provided per team. For example, `team_batting(2010, 2012, ind=1)` would return 90 rows, one for each team's 2010, 2011, and 2012 stats, while `team_batting(2010, 2012, ind=0)` would return 30 rows, one for each team's aggregate 2010-2012 batting performance.
 

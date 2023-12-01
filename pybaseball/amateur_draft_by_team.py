@@ -43,6 +43,15 @@ def drop_stats(draft_results: pd.DataFrame) -> pd.DataFrame:
 def amateur_draft_by_team(
     team: str, year: int, keep_stats: bool = True
 ) -> pd.DataFrame:
+    """
+    Get amateur draft results by team and year.
+
+    ARGUMENTS
+        team: Team code which you want to check. See docs for team codes 
+            (https://github.com/jldbc/pybaseball/blob/master/docs/amateur_draft_by_team.md)
+        year: Year which you want to check.
+
+    """
     draft_results = get_draft_results(team, year)
     draft_results = postprocess(draft_results)
     if not keep_stats:

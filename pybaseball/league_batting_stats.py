@@ -82,7 +82,7 @@ def batting_stats_bref(season: Optional[int] = None) -> pd.DataFrame:
     if season is None:
         season = most_recent_season()
     start_dt = f'{season}-03-01' #opening day is always late march or early april
-    end_dt = f'{season}-11-01' #season is definitely over by November
+    end_dt = f'{season}-11-30' #postseason is definitely over by end of November
     return batting_stats_range(start_dt, end_dt)
 
 

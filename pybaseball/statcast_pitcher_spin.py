@@ -19,6 +19,21 @@ GRAVITATIONAL_ACCELERATION = 32.174
 
 
 def statcast_pitcher_spin(start_dt=None, end_dt=None, player_id=None):
+    """
+    Retrieves pitch-level statcast data for a given date or range or dates and calculates spin related metrics.
+
+    ARGUMENTS
+        start_dt: first day for which you want to retrieve data. Defaults to yesterday's date if nothing is entered. 
+            If you only want data for one date, supply a start_dt value but not an end_dt value. Format: YYYY-MM-DD.
+        end_dt: last day for which you want to retrieve data. Defaults to None. If you want to retrieve data for more 
+            than one day, both a start_dt and end_dt value must be given. Format: YYYY-MM-DD.
+        player_id: MLBAM player ID for the pitcher you want to retrieve data for. To find a player's MLBAM ID, 
+            see the function playerid_lookup.
+    
+    RETURNS
+        A dataframe containing pitch-level statcast data for the given dates, along with four colummns added: Mx, Mz, phi, 
+        and theta, as described in the docs: https://github.com/jldbc/pybaseball/blob/master/docs/statcast_pitcher_spin.md.
+    """
     pitcher_data = statcast_pitcher(start_dt, end_dt, player_id)
 
     spin_df = pitcher_data[[

@@ -103,6 +103,15 @@ def make_numeric(data: pd.DataFrame) -> pd.DataFrame:
 
 @cache.df_cache()
 def schedule_and_record(season: int, team: str) -> pd.DataFrame:
+    """ 
+    Retrieve a team's game-level results for a given season, including win/loss/tie result, score, attendance, 
+    and winning/losing/saving pitcher. If the season is incomplete, it will provide scheduling information for 
+    future games.
+
+    ARGUMENTS
+        season: Integer. The season for which you want a team's record data.
+        team: String. The abbreviation of the team for which you are requesting data (e.g. "PHI", "BOS", "LAD").
+    """
     # retrieve html from baseball reference
     # sanatize input
     team = team.upper()

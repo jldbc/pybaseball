@@ -107,3 +107,85 @@ plt.show()
 
 ![](images/plot_bb_profile_example.png)
 
+---
+`plot_team(data, x_axis, y_axis, title=None)`
+
+## Arguments
+
+`data`: Fangraphs team data from either team_batting or team_pitching
+
+`x_axis`: name of stat to be plotted as the x_axis of the chart
+
+`y_axis`: name of stat to be plotted as the y_axis of the chart
+
+`title`: title for your chart
+
+# Example
+
+```python
+from pybaseball import plot_teams, team_batting
+
+data = team_batting(2023)
+
+plot_teams(data, "HR", "BB")
+```
+![Plot Teams_2023_BB/HR](images/plot_teams_example.png)
+
+---
+`plot_strike_zone(data: pd.DataFrame, title: str = '', colorby: str = 'pitch_type', legend_title: str = '',
+                     annotation: str = 'pitch_type', axis: Optional[axes.Axes] = None) -> axes.Axes:`
+
+## Arguments
+
+`data`: StatCast pandas.DataFrame of StatCast pitcher data
+
+`title`: (str), default = '' Optional: Title of plot
+
+`colorby`: (str), default = 'pitch_type', Optional: Which category to color the mark with. 'pitch_type', 'pitcher', 'description' or a column within data
+
+`legend_title`: (str), default = based on colorby, Optional: Title for the legend
+
+`annotation`: (str), default = 'pitch_type', Optional: What to annotate in the marker. 'pitch_type', 'release_speed', 'effective_speed', 'launch_speed', or something else in the data
+
+`axis`: (matplotlib.axis.Axes), default = None, Optional: Axes to plot the strike zone on. If None, a new Axes will be created
+
+# Examples
+
+```python
+from pybaseball.plotting import plot_strike_zone
+from pybaseball import statcast_pitcher
+
+data = statcast_pitcher('2022-09-03', '2022-09-03', 656302)
+
+plot_strike_zone(data, title = "Dylan Cease's 1-hitter on Sept 3, 2022")
+
+```
+
+![Strike zone with Dylan Cease's pitches from 2022-09-03 overlaid](images/plot_strike_zone_cease_all.png)
+
+```python
+from pybaseball.plotting import plot_strike_zone
+from pybaseball import statcast_pitcher
+
+data = statcast_pitcher('2022-09-03', '2022-09-03', 656302)
+
+plot_strike_zone(data.loc[data["pitch_type"] == "SL"], title = "Exit Velocities on Dylan Cease's Slider", colorby='description', annotation="launch_speed")
+
+```
+
+![Strike zone with Dylan Cease's Slider from 2022-09-03 overlaid](images/plot_strike_zone_cease_SL.png)
+
+
+```python
+from pybaseball.plotting import plot_strike_zone
+from pybaseball import statcast
+
+data = statcast('2023-04-23', '2023-04-23')
+
+plot_strike_zone(data.loc[data["batter"] == 669016], title = "Brandon Marsh's Three True Outcome Day", colorby='pitcher', annotation="description")
+
+```
+
+![Strike zone with Brandon Marsh's Three True Outcome Day overlaid](images/plot_strike_zone_marsh.png)
+
+`
