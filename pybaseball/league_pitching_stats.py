@@ -21,7 +21,7 @@ def get_soup(start_dt: Optional[Union[date, str]], end_dt: Optional[Union[date, 
     url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=p&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
     s = session.get(url).content
     # a workaround to avoid beautiful soup applying the wrong encoding
-    s = str(s).encode()
+    s = s.decode('utf-8')
     return BeautifulSoup(s, features="lxml")
 
 
