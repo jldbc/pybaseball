@@ -1,4 +1,5 @@
 from abc import ABC
+from datetime import date
 from typing import Any, List, Optional, Union
 
 import lxml
@@ -77,7 +78,8 @@ class FangraphsDataTable(ABC):
               stat_columns: Union[str, List[str]] = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
               month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
               maximum_age: int = MAX_AGE, team: str = '', _filter: str = '', players: str = '',
-              position: str = 'ALL', max_results: int = 1000000,) -> pd.DataFrame:
+              position: str = 'ALL', start_date: str = '', end_date: str = '', max_results: int = 1000000,
+              ) -> pd.DataFrame:
 
         """
         Get leaderboard data from Fangraphs.
@@ -111,11 +113,50 @@ class FangraphsDataTable(ABC):
                                                 Specify "0,ts" to get aggregate team data.
         position           : str              : Position to filter data by.
                                                 Default = ALL
+        start_date         : str              : The beginning of the date range you want data for.
+                                                Format is YYYY-MM-DD
+                                                Default = None
+        end_date           : str              : The end of the date range you want data for.
+                                                Format is YYYY-MM-DD
+                                                Default = None
         max_results        : int              : The maximum number of results to return.
                                                 Default = 1000000 (In effect, all results)
         """
 
         stat_columns_enums = stat_list_from_str(self.STATS_CATEGORY, stat_columns)
+        start_year = None
+        end_year = None
+
+        if start_date != '':
+            ind = 0
+
+            try:
+                formattedDate = date.fromisoformat(start_date)
+                start_year = formattedDate.year
+
+                if start_year != start_season:
+                    raise ValueError(
+                        "The start_season provided must be equal to the year of the start_date provided."
+                    )
+            except:
+                raise ValueError("Parameter 'start_date' must be in the format yyyy-mm-dd.")
+       
+        if end_date != '':
+            try:
+                formattedDate = date.fromisoformat(end_date)
+                end_year = formattedDate.year
+
+                if end_season is not None and end_year != end_season:
+                    raise ValueError(
+                        "The end_season provided must be equal to the year of the end_date provided."
+                    )
+            except:
+                raise ValueError("Parameter 'end_date' must be in the format yyyy-mm-dd.")
+
+        if start_year is not None and end_year is not None and  end_year - start_year > 3:
+            raise ValueError(
+                "Fangraphs only provides data for custom date ranges smaller than 3 years."
+            )
 
         if start_season is None:
             raise ValueError(
@@ -124,7 +165,10 @@ class FangraphsDataTable(ABC):
             )
 
         if end_season is None:
-            end_season = start_season
+            if end_year is None:
+                end_season = start_season
+            else:
+                end_season = end_year
 
         assert self.STATS_CATEGORY is not None
 
@@ -138,7 +182,7 @@ class FangraphsDataTable(ABC):
             'qual': qual if qual is not None else 'y',
             'type': stat_list_to_str(stat_columns_enums),
             'season': end_season,
-            'month': FangraphsMonth.parse(month).value,
+            'month': 1000 if start_date != '' else FangraphsMonth.parse(month).value,
             'season1': start_season,
             'ind': ind if ind == 0 and split_seasons else int(split_seasons),
             'team':  f'{team or 0},ts' if self.TEAM_DATA else team,
@@ -146,7 +190,9 @@ class FangraphsDataTable(ABC):
             'age': f"{minimum_age},{maximum_age}",
             'filter': _filter,
             'players': players,
-            'page': f'1_{max_results}'
+            'startdate': start_date,
+            'enddate': end_date,
+            'page': f'1_{max_results}',
         }
 
         return self._validate(
