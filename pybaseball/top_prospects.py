@@ -5,9 +5,12 @@ from . import cache
 
 from pybaseball import teamid_lookup
 
+battersCategory = ["Age", "PA", "AB", "R", "H", "2B", "3B", "HR", "TB", "RBI", "BB", "SO", "SB", "CS", "LOB", "HR%", "BB%",
+                   "K%", "AVG", "OBP", "SLG", "OPS"]
+pitchersCategory = ["Age", "G", "IP", "H", "R", "ER", "BB", "SO", "HRA", "Outs", "ERA", "WHIP", "W", "L", "SV"]
 
 @cache.df_cache()
-def top_prospects(teamName=None, playerType=None):
+def top_prospects(teamName=None, playerType=None, category=None):
     """
     Retrieves the top prospects by team or leaguewide. It can return top prospect pitchers, batters, or both.
 
@@ -16,6 +19,7 @@ def top_prospects(teamName=None, playerType=None):
         the function will return leaguewide top prospects.
     playerType: Either "pitchers" or "batters". If not specified, the function will return top prospects for both 
         pitchers and batters.
+    category: How you wish the players to be sorted. If not specified, they are sorted by their prospect rank.
     """
     if teamName == None:
         url = "https://www.mlb.com/prospects/stats/top-prospects"
@@ -25,12 +29,16 @@ def top_prospects(teamName=None, playerType=None):
     
     res = requests.get(url, timeout=None).content
     prospectList = pd.read_html(res)
-    
+
     if playerType == "batters":
         topBattingProspects = postprocess(prospectList[0])
+        if category in battersCategory:
+            topBattingProspects.sort_values(by=[category], inplace = True)
         return topBattingProspects
     elif playerType == "pitchers":        
         topPitchingProspects = postprocess(prospectList[1])
+        if category in pitchersCategory:
+            topPitchingProspects.sort_values(by=[category], inplace = True)
         return topPitchingProspects
     elif playerType == None:
         topProspects = pd.concat(prospectList)
