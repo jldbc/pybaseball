@@ -12,6 +12,7 @@ from ..enums.fangraphs import (FangraphsBattingStats, FangraphsFieldingStats, Fa
 from .html_table_processor import HTMLTableProcessor, RowIdFunction
 
 _FG_LEADERS_URL = "/api/leaders/major-league/data"
+_LEGACY_FG_LEADERS_URL = "/leaders-legacy.aspx"
 
 MIN_AGE = 0
 MAX_AGE = 100
@@ -43,6 +44,7 @@ class FangraphsDataTable(ABC):
     DATA_ROWS_XPATH: str = "({TABLE_XPATH}/tbody//tr)"
     DATA_CELLS_XPATH: str = "td[position()>1]/descendant-or-self::*/text()"
     QUERY_ENDPOINT: str = _FG_LEADERS_URL
+    LEGACY_QUERY_ENDPOINT: str = _LEGACY_FG_LEADERS_URL
     STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.NONE
     DEFAULT_STAT_COLUMNS: List[FangraphsStatColumn] = []
     KNOWN_PERCENTAGES: List[str] = []
@@ -77,7 +79,7 @@ class FangraphsDataTable(ABC):
               stat_columns: Union[str, List[str]] = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
               month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
               maximum_age: int = MAX_AGE, team: str = '', _filter: str = '', players: str = '',
-              position: str = 'ALL', max_results: int = 1000000,) -> pd.DataFrame:
+              position: str = 'ALL', max_results: int = 1000000, legacy: bool = False) -> pd.DataFrame:
 
         """
         Get leaderboard data from Fangraphs.
@@ -150,14 +152,22 @@ class FangraphsDataTable(ABC):
             'pageitems': max_results # New Fangraphs Leaderboard uses pageitems to get maximum results per page
         }
 
-        return self._validate(
-            self._postprocess(
-                self.html_accessor.get_tabular_data_from_api(
-                    f"{self.ROOT_URL}{self.QUERY_ENDPOINT}",
-                    query_params=url_options
-                )
-            )
-        )
+        # Add `legacy` flag to let users decide whether use legacy api or not
+        tabular_data = self.html_accessor.get_tabular_data_from_options(
+                            self.LEGACY_QUERY_ENDPOINT,
+                            query_params=url_options,
+                            # TODO: Remove the type: ignore after this is fixed: https://github.com/python/mypy/issues/5485
+                            column_name_mapper=self.COLUMN_NAME_MAPPER,  # type: ignore
+                            known_percentages=self.KNOWN_PERCENTAGES,
+                            row_id_func=self.ROW_ID_FUNC,
+                            row_id_name=self.ROW_ID_NAME,
+                        ) if legacy else self.html_accessor.get_tabular_data_from_api(
+                                            f"{self.ROOT_URL}{self.QUERY_ENDPOINT}",
+                                            query_params=url_options
+                                        )
+
+
+        return self._validate(self._postprocess(tabular_data))
 
 class FangraphsBattingStatsTable(FangraphsDataTable):
     STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.BATTING
