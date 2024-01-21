@@ -11,7 +11,7 @@ from ..enums.fangraphs import (FangraphsBattingStats, FangraphsFieldingStats, Fa
                                stat_list_from_str, stat_list_to_str)
 from .html_table_processor import HTMLTableProcessor, RowIdFunction
 
-_FG_LEADERS_URL = "/leaders-legacy.aspx"
+_FG_LEADERS_URL = "/api/leaders/major-league/data"
 
 MIN_AGE = 0
 MAX_AGE = 100
@@ -146,19 +146,15 @@ class FangraphsDataTable(ABC):
             'age': f"{minimum_age},{maximum_age}",
             'filter': _filter,
             'players': players,
-            'page': f'1_{max_results}'
+            'page': f'1_{max_results}',
+            'pageitems': max_results # New Fangraphs Leaderboard uses pageitems to get maximum results per page
         }
 
         return self._validate(
             self._postprocess(
-                self.html_accessor.get_tabular_data_from_options(
-                    self.QUERY_ENDPOINT,
-                    query_params=url_options,
-                    # TODO: Remove the type: ignore after this is fixed: https://github.com/python/mypy/issues/5485
-                    column_name_mapper=self.COLUMN_NAME_MAPPER, # type: ignore
-                    known_percentages=self.KNOWN_PERCENTAGES,
-                    row_id_func=self.ROW_ID_FUNC,
-                    row_id_name=self.ROW_ID_NAME,
+                self.html_accessor.get_tabular_data_from_api(
+                    f"{self.ROOT_URL}{self.QUERY_ENDPOINT}",
+                    query_params=url_options
                 )
             )
         )
