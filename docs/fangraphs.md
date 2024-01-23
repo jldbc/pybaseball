@@ -18,6 +18,7 @@
 | team             | str              | Team to filter data by. <br> Specify "0,ts" to get aggregate team data.
 | position         | str              | Position to filter data by. <br> Default = ALL
 | max_results      | int              | The maximum number of results to return. <br> Default = 1000000 (In effect, all results)
+| legacy           | bool             | Flag to select whether to get data from legacy leaderboard page or not <br> Default = False
 
 
 ## Usage
