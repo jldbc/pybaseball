@@ -10,6 +10,7 @@ import pandas as pd
 import requests
 
 from . import cache
+import unicodedata
 
 url = "https://github.com/chadwickbureau/register/archive/refs/heads/master.zip"
 PEOPLE_FILE_PATTERN = re.compile("/people.+csv$")
@@ -101,13 +102,14 @@ class _PlayerSearchClient:
     def __init__(self) -> None:
         self.table = get_lookup_table()
 
-    def search(self, last: str, first: str = None, fuzzy: bool = False) -> pd.DataFrame:
+    def search(self, last: str, first: str = None, fuzzy: bool = False, ignore_accents: bool = False) -> pd.DataFrame:
         """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
 
         Args:
             last (str, required): Player's last name.
             first (str, optional): Player's first name. Defaults to None.
             fuzzy (bool, optional): In case of typos, returns players with names close to input. Defaults to False.
+            ignore_accents (bool, optional): Normalizes accented letters. Defaults to False
 
         Returns:
             pd.DataFrame: DataFrame of playerIDs, name, years played
@@ -116,6 +118,13 @@ class _PlayerSearchClient:
         # force input strings to lowercase
         last = last.lower()
         first = first.lower() if first else None
+
+        if ignore_accents:
+            last = normalize_accents(last)
+            first = normalize_accents(first) if first else None
+
+            self.table['name_last'] = self.table['name_last'].apply(normalize_accents)
+            self.table['name_first'] = self.table['name_first'].apply(normalize_accents)
 
         if first is None:
             results = self.table.loc[self.table['name_last'] == last]
@@ -184,19 +193,20 @@ def _get_client() -> _PlayerSearchClient:
         _client = _PlayerSearchClient()
     return _client
 
-def playerid_lookup(last: str, first: str = None, fuzzy: bool = False) -> pd.DataFrame:
+def playerid_lookup(last: str, first: str = None, fuzzy: bool = False, ignore_accents: bool = False) -> pd.DataFrame:
     """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
 
     Args:
         last (str, required): Player's last name.
         first (str, optional): Player's first name. Defaults to None.
         fuzzy (bool, optional): In case of typos, returns players with names close to input. Defaults to False.
+        ignore_accents (bool, optional): Normalizes accented letters. Defaults to False
 
     Returns:
         pd.DataFrame: DataFrame of playerIDs, name, years played
     """
     client = _get_client()
-    return client.search(last, first, fuzzy)
+    return client.search(last, first, fuzzy, ignore_accents)
 
 def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
     '''
@@ -223,3 +233,14 @@ def playerid_reverse_lookup(player_ids: List[str], key_type: str = 'mlbam') -> p
     """
     client = _get_client()
     return client.reverse_lookup(player_ids, key_type)
+
+def normalize_accents(s: str) -> str:
+    """Removes accented letters from a string
+
+    Args:
+        s: string with accented letters
+
+    Returns:
+        str: string with accented letters normalized
+    """
+    return ''.join(c for c in unicodedata.normalize('NFD', str(s)) if unicodedata.category(c) != 'Mn')
