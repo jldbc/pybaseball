@@ -146,6 +146,8 @@ class FangraphsDataTable(ABC):
             'age': f"{minimum_age},{maximum_age}",
             'filter': _filter,
             'players': players,
+            'startdate': '',
+            'enddate': '',
             'page': f'1_{max_results}'
         }
 
