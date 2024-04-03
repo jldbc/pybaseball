@@ -103,7 +103,7 @@ roster_columns = [
 gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/GL{}.TXT'
 schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}schedule.csv'
 parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/reference/ballparks.csv'
-roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/rosters/{}{}.ROS'
+roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}{}.ROS'
 event_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}'
 
 def events(season, type='regular', export_dir='.'):
@@ -155,12 +155,8 @@ def rosters(season):
     try:
         g = Github(GH_TOKEN)
         repo = g.get_repo('chadwickbureau/retrosheet')
-        tree = repo.get_git_tree('master')
-        for t in tree.tree:
-            if t.path == 'rosters':
-                subtree = t
-
-        rosters = [t.path for t in repo.get_git_tree(subtree.sha).tree if str(season) in t.path]
+        season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
+        rosters = [t for t in season_folder if t.endswith('.ROS')]
         if len(rosters) == 0:
             raise ValueError(f'Rosters not available for {season}')
     except RateLimitExceededException:
@@ -183,12 +179,8 @@ def _roster(team, season, checked = False):
         g = Github(GH_TOKEN)
         try:
             repo = g.get_repo('chadwickbureau/retrosheet')
-            tree = repo.get_git_tree('master')
-            for t in tree.tree:
-                if t.path == 'rosters':
-                    subtree = t
-
-            rosters = [t.path for t in repo.get_git_tree(subtree.sha).tree]
+            season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
+            rosters = [t for t in season_folder if t.endswith('.ROS')]
             file_name = f'{team}{season}.ROS'
             if file_name not in rosters:
                 raise ValueError(f'Roster not available for {team} in {season}')
@@ -198,7 +190,7 @@ def _roster(team, season, checked = False):
                 UserWarning
             )
 
-    s = get_text_file(roster_url.format(team, season))
+    s = get_text_file(roster_url.format(season, team, season))
     data = pd.read_csv(StringIO(s), header=None, sep=',', quotechar='"')
     data.columns = roster_columns
     return data
