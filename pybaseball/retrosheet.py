@@ -100,7 +100,8 @@ roster_columns = [
     'player_id', 'last_name', 'first_name', 'bats', 'throws', 'team', 'position'
 ]
 
-gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/GL{}.TXT'
+gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/gamelog/GL{}.TXT'
+season_gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/GL{}.TXT'
 schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}schedule.csv'
 parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/reference/ballparks.csv'
 roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}{}.ROS'
@@ -235,7 +236,7 @@ def season_game_logs(season):
 
     if gamelog_file_name not in season_folder:
         raise ValueError(f'Season game logs not available for {season}')
-    s = get_text_file(gamelog_url.format(season, season))
+    s = get_text_file(season_gamelog_url.format(season, season))
     data = pd.read_csv(StringIO(s), header=None, sep=',', quotechar='"')
     data.columns = gamelog_columns
     return data
