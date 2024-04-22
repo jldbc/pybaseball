@@ -29,12 +29,11 @@ def try_parse_dataframe(
     data_copy = data.copy()
 
     if parse_numerics:
-        data_copy = coalesce_nulls(data_copy, null_replacement)
-        data_copy = data_copy.apply(
-            pd.to_numeric,
-            errors='ignore',
-            downcast='signed'
-        ).convert_dtypes(convert_string=False)
+        data_copy = (
+            coalesce_nulls(data_copy, null_replacement)
+            .apply(pd.to_numeric, downcast="signed")
+            .convert_dtypes(convert_string=False)
+        )
 
     string_columns = [
         dtype_tuple[0] for dtype_tuple in data_copy.dtypes.items() if str(dtype_tuple[1]) in ["object", "string"]
@@ -56,8 +55,12 @@ def try_parse_dataframe(
             # the whole dataframe just tries to gobble up ints/floats as timestamps
             for date_regex, date_format in date_formats:
                 if isinstance(first_value, str) and date_regex.match(first_value):
-                    data_copy[column] = data_copy[column].apply(pd.to_datetime, errors='ignore', format=date_format)
-                    data_copy[column] = data_copy[column].convert_dtypes(convert_string=False)
+                    data_copy[column] = (
+                        data_copy[column]
+                        .apply(pd.to_datetime, format=date_format)
+                        .convert_dtypes(convert_string=False)
+                    )
+
                     break
 
     return data_copy
