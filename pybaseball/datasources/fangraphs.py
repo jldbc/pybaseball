@@ -98,7 +98,7 @@ class FangraphsDataTable(ABC):
                                                 Default = None
         split_seasons      : bool             : True if you want individual season-level data
                                                 False if you want aggregate data over all seasons.
-                                                Default = False
+                                                Default = True
         split_teams        : bool             : True if you want individual team-level data
                                                 False if you want aggregate data over all teams.
                                                 Default = False
