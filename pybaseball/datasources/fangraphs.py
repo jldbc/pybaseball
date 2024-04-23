@@ -75,7 +75,7 @@ class FangraphsDataTable(ABC):
 
     def fetch(self, start_season: int, end_season: Optional[int] = None, league: str = 'ALL', ind: int = 1,
               stat_columns: Union[str, List[str]] = 'ALL', qual: Optional[int] = None, split_seasons: bool = True,
-              month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
+              split_teams: bool = False, month: str = 'ALL', on_active_roster: bool = False, minimum_age: int = MIN_AGE,
               maximum_age: int = MAX_AGE, team: str = '', _filter: str = '', players: str = '',
               position: str = 'ALL', max_results: int = 1000000,) -> pd.DataFrame:
 
@@ -98,6 +98,9 @@ class FangraphsDataTable(ABC):
                                                 Default = None
         split_seasons      : bool             : True if you want individual season-level data
                                                 False if you want aggregate data over all seasons.
+                                                Default = False
+        split_teams        : bool             : True if you want individual team-level data
+                                                False if you want aggregate data over all teams.
                                                 Default = False
         month              : str              : Month to filter data by. 'ALL' to not filter by month.
                                                 Default = 'ALL'
@@ -130,6 +133,13 @@ class FangraphsDataTable(ABC):
 
         if league is None:
             raise ValueError("parameter 'league' cannot be None.")
+        
+        if self.TEAM_DATA:
+            team = f'{team or 0},ts'
+        elif split_teams:
+            team = f'{team or 0},to'
+        else:
+            team = team
 
         url_options = {
             'pos': FangraphsPositions.parse(position).value,
@@ -141,7 +151,7 @@ class FangraphsDataTable(ABC):
             'month': FangraphsMonth.parse(month).value,
             'season1': start_season,
             'ind': ind if ind == 0 and split_seasons else int(split_seasons),
-            'team':  f'{team or 0},ts' if self.TEAM_DATA else team,
+            'team': team,
             'rost': int(on_active_roster),
             'age': f"{minimum_age},{maximum_age}",
             'filter': _filter,
