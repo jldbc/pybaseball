@@ -100,7 +100,7 @@ roster_columns = [
     'player_id', 'last_name', 'first_name', 'bats', 'throws', 'team', 'position'
 ]
 
-gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/gamelog/GL{}.TXT'
+gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/GL{}.TXT'
 schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/schedule/{}SKED.TXT'
 parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/misc/parkcode.txt'
 roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/rosters/{}{}.ROS'
@@ -239,12 +239,12 @@ def season_game_logs(season):
     # validate input
     g = Github(GH_TOKEN)
     repo = g.get_repo('chadwickbureau/retrosheet')
-    gamelogs = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents('gamelog')]
-    file_name = f'GL{season}.TXT'
+    season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
+    gamelog_file_name = f'GL{season}.TXT'
 
-    if file_name not in gamelogs:
+    if gamelog_file_name not in season_folder:
         raise ValueError(f'Season game logs not available for {season}')
-    s = get_text_file(gamelog_url.format(season))
+    s = get_text_file(gamelog_url.format(season, season))
     data = pd.read_csv(StringIO(s), header=None, sep=',', quotechar='"')
     data.columns = gamelog_columns
     return data
