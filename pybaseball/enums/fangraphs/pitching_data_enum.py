@@ -454,3 +454,5 @@ class FangraphsPitchingStats(FangraphsStatsBase):
     STF_PLUS_FO                            = '389' # Stf+ FO
     LOC_PLUS_FO                            = '390' # Loc+ FO
     PIT_PLUS_FO                            = '391' # Pit+ FO
+    QS                                     = '421' # Pit+ FO
+    QUALITY_STARTS                         = QS
