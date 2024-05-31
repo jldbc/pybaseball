@@ -14,7 +14,7 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 # Get Version
 version_file = path.join(here, "pybaseball", "version.py")
 with open(version_file, encoding="utf-8") as f:
-    version = f.read().split(" = ")[-1].strip('"')
+    version = f.read().split(" = ")[-1].strip().strip('"')
 
 setup(
     name='pybaseball',

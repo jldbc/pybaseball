@@ -101,10 +101,11 @@ roster_columns = [
 ]
 
 gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/gamelog/GL{}.TXT'
-schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/schedule/{}SKED.TXT'
-parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/misc/parkcode.txt'
-roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/rosters/{}{}.ROS'
-event_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/event/{}/{}'
+season_gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/GL{}.TXT'
+schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}schedule.csv'
+parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/reference/ballparks.csv'
+roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}{}.ROS'
+event_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}'
 
 def events(season, type='regular', export_dir='.'):
     """
@@ -118,22 +119,21 @@ def events(season, type='regular', export_dir='.'):
     GH_TOKEN=os.getenv('GH_TOKEN', '')
     if not os.path.exists(export_dir):
         os.mkdir(export_dir)
+    
+    match type:
+        case 'regular':
+            file_extension = ('.EVA','.EVN')
+        case 'post':
+            file_extension = ('CS.EVE','D1.EVE','D2.EVE','W1.EVE','W2.EVE','WS.EVE')
+        case 'asg':
+            file_extension = ('AS.EVE')
 
     try:
         g = Github(GH_TOKEN)
         repo = g.get_repo('chadwickbureau/retrosheet')
-        tree = repo.get_git_tree('master')
-        for t in tree.tree:
-            if t.path == 'event':
-                subtree = t
-
-        subtree = repo.get_git_tree(subtree.sha)
-        for t in subtree.tree:
-            if t.path == type:
-                subsubtree = t
-
-        event_files = [t.path for t in repo.get_git_tree(subsubtree.sha).tree if str(season) in t.path]
-        if len(event_files) == 0:
+        season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
+        season_events = [t for t in season_folder if t.endswith(file_extension)]
+        if len(season_events) == 0:
             raise ValueError(f'Event files not available for {season}')
     except RateLimitExceededException:
         warnings.warn(
@@ -141,9 +141,9 @@ def events(season, type='regular', export_dir='.'):
             UserWarning
         )
 
-    for filename in event_files:
+    for filename in season_events:
         print(f'Downloading {filename}')
-        s = get_text_file(event_url.format(type, filename))
+        s = get_text_file(event_url.format(season, filename))
         with open(os.path.join(export_dir, filename), 'w') as f:
             f.write(s)
 
@@ -156,12 +156,8 @@ def rosters(season):
     try:
         g = Github(GH_TOKEN)
         repo = g.get_repo('chadwickbureau/retrosheet')
-        tree = repo.get_git_tree('master')
-        for t in tree.tree:
-            if t.path == 'rosters':
-                subtree = t
-
-        rosters = [t.path for t in repo.get_git_tree(subtree.sha).tree if str(season) in t.path]
+        season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
+        rosters = [t for t in season_folder if t.endswith('.ROS')]
         if len(rosters) == 0:
             raise ValueError(f'Rosters not available for {season}')
     except RateLimitExceededException:
@@ -184,12 +180,8 @@ def _roster(team, season, checked = False):
         g = Github(GH_TOKEN)
         try:
             repo = g.get_repo('chadwickbureau/retrosheet')
-            tree = repo.get_git_tree('master')
-            for t in tree.tree:
-                if t.path == 'rosters':
-                    subtree = t
-
-            rosters = [t.path for t in repo.get_git_tree(subtree.sha).tree]
+            season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
+            rosters = [t for t in season_folder if t.endswith('.ROS')]
             file_name = f'{team}{season}.ROS'
             if file_name not in rosters:
                 raise ValueError(f'Roster not available for {team} in {season}')
@@ -199,7 +191,7 @@ def _roster(team, season, checked = False):
                 UserWarning
             )
 
-    s = get_text_file(roster_url.format(team, season))
+    s = get_text_file(roster_url.format(season, team, season))
     data = pd.read_csv(StringIO(s), header=None, sep=',', quotechar='"')
     data.columns = roster_columns
     return data
@@ -221,12 +213,12 @@ def schedules(season):
     # validate input
     g = Github(GH_TOKEN)
     repo = g.get_repo('chadwickbureau/retrosheet')
-    schedules = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents('schedule')]
-    file_name = f'{season}SKED.TXT'
-
-    if file_name not in schedules:
+    season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
+    file_name = f'{season}schedule.csv'
+    
+    if file_name not in season_folder:
         raise ValueError(f'Schedule not available for {season}')
-    s = get_text_file(schedule_url.format(season))
+    s = get_text_file(schedule_url.format(season, season))
     data = pd.read_csv(StringIO(s), header=None, sep=',', quotechar='"')
     data.columns = schedule_columns
     return data
@@ -239,12 +231,12 @@ def season_game_logs(season):
     # validate input
     g = Github(GH_TOKEN)
     repo = g.get_repo('chadwickbureau/retrosheet')
-    gamelogs = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents('gamelog')]
-    file_name = f'GL{season}.TXT'
+    season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
+    gamelog_file_name = f'GL{season}.TXT'
 
-    if file_name not in gamelogs:
+    if gamelog_file_name not in season_folder:
         raise ValueError(f'Season game logs not available for {season}')
-    s = get_text_file(gamelog_url.format(season))
+    s = get_text_file(season_gamelog_url.format(season, season))
     data = pd.read_csv(StringIO(s), header=None, sep=',', quotechar='"')
     data.columns = gamelog_columns
     return data
