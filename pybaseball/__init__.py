@@ -5,6 +5,7 @@ from .playerid_lookup import playerid_lookup
 from .playerid_lookup import chadwick_register
 from .teamid_lookup import fangraphs_teams
 from .teamid_lookup import team_ids
+from .boxes import boxes
 from .statcast import statcast, statcast_single_game
 from .statcast_pitcher import (
 	statcast_pitcher,
