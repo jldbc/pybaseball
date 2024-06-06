@@ -30,6 +30,12 @@ from getpass import getuser, getpass
 from github.GithubException import RateLimitExceededException
 import warnings
 
+EVENT_TYPES = {
+    'regular': ('.EVA','.EVN'),
+    'post': ('CS.EVE','D1.EVE','D2.EVE','W1.EVE','W2.EVE','WS.EVE'),
+    'asg': ('AS.EVE')
+}
+
 gamelog_columns = [
     'date', 'game_num', 'day_of_week', 'visiting_team',
     'visiting_team_league', 'visiting_team_game_num', 'home_team',
@@ -107,9 +113,9 @@ parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master
 roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}{}.ROS'
 event_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}'
 
-def events(season, type='regular', export_dir='.'):
+def events(season, kind='regular', export_dir='.'):
     """
-    Pulls retrosheet event files for an entire season. The `type` argument
+    Pulls retrosheet event files for an entire season. The `kind` argument
     specifies whether to pull regular season, postseason or asg files. Valid
     arguments are 'regular', 'post', and 'asg'.
 
@@ -119,14 +125,8 @@ def events(season, type='regular', export_dir='.'):
     GH_TOKEN=os.getenv('GH_TOKEN', '')
     if not os.path.exists(export_dir):
         os.mkdir(export_dir)
-    
-    match type:
-        case 'regular':
-            file_extension = ('.EVA','.EVN')
-        case 'post':
-            file_extension = ('CS.EVE','D1.EVE','D2.EVE','W1.EVE','W2.EVE','WS.EVE')
-        case 'asg':
-            file_extension = ('AS.EVE')
+
+    file_extension = EVENT_TYPES.get(kind)
 
     try:
         g = Github(GH_TOKEN)
@@ -215,7 +215,7 @@ def schedules(season):
     repo = g.get_repo('chadwickbureau/retrosheet')
     season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
     file_name = f'{season}schedule.csv'
-    
+
     if file_name not in season_folder:
         raise ValueError(f'Schedule not available for {season}')
     s = get_text_file(schedule_url.format(season, season))
