@@ -9,13 +9,13 @@ from .datasources.bref import BRefSession
 session = BRefSession()
 
 
-def get_soup(team: str, start_dt: date, doubleheader: int = 0) -> BeautifulSoup:
+def get_soup(team: str, start_dt: date, double_header: int = 0) -> BeautifulSoup:
     # get most recent standings if date not specified
     # if((start_dt is None) or (end_dt is None)):
     #    print('Error: a date range needs to be specified')
     #    return None
     # https://www.baseball-reference.com/boxes/DET/DET201007190.shtml
-    url = "http://www.baseball-reference.com/boxes/{}/{}{}{}.shtml".format(team, team, start_dt.strftime('%Y%m%d'), doubleheader)
+    url = "http://www.baseball-reference.com/boxes/{}/{}{}{}.shtml".format(team, team, start_dt.strftime('%Y%m%d'), double_header)
     s = session.get(url).content
     # a workaround to avoid beautiful soup applying the wrong encoding
     s = s.decode('utf-8')
@@ -52,7 +52,7 @@ def get_table(soup: BeautifulSoup) -> pd.DataFrame:
     return df
 
 
-def boxes(team: str, date: str) -> pd.DataFrame:
+def boxes(team: str, date: str, double_header: int = 0) -> pd.DataFrame:
     """
     Get all batting stats for a set time range. This can be the past week, the
     month of August, anything. Just supply the start and end date in YYYY-MM-DD
@@ -65,7 +65,7 @@ def boxes(team: str, date: str) -> pd.DataFrame:
     if end_dt_date.year < 2008:
         raise ValueError("Year must be 2008 or later")
     # retrieve html from baseball reference
-    soup = get_soup(team, game_date)
+    soup = get_soup(team, game_date, double_header)
     table = get_table(soup)
     table = table.dropna(how='all')  # drop if all columns are NA
     return table
