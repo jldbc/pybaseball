@@ -92,3 +92,19 @@ def statcast_batter_pitch_arsenal(year: int, minPA: int = 25) -> pd.DataFrame:
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     data = sanitize_statcast_columns(data)
     return data
+@cache.df_cache()
+def statcast_batter_bat_tracking(year: int, minSwings: Union[int,str] = "q" ) -> pd.DataFrame:
+    """
+    Retrieves a player's bat tracking data for a given year.
+
+    ARGUMENTS
+        year: The year for which you which to retrieve the bat tracking data. Format: YYYY.
+        minSwings: The minimum number of competitive swings for wach player. If a player falls below this threshold,
+            they will be excluded from the results. If no value is specified, the default number of competitive swings
+            is qualified.
+    """
+    url = f"https://baseballsavant.mlb.com/leaderboard/bat-tracking?attackZone=&batSide=&contactType=&count=&dateStart={year}-01-01&dateEnd={year}-12-31&gameType=&isHardHit=&minSwings={minSwings}&minGroupSwings=1&pitchHand=&pitchType=&seasonStart=&seasonEnd=&team=&type=batter&csv=true"
+    res = requests.get(url, timeout=None).content
+    data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    data = sanitize_statcast_columns(data)
+    return data

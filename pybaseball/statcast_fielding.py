@@ -30,7 +30,7 @@ def statcast_outs_above_average(year: int, pos: Union[int, str], min_att: Union[
 	# catcher is not included in this leaderboard
 	if pos == "2":
 		raise ValueError("This particular leaderboard does not include catchers!")
-	url = f"https://baseballsavant.mlb.com/leaderboard/outs_above_average?type={view}&year={year}&team=&range=year&min={min_att}&pos={pos}&roles=&viz=show&csv=true"
+	url = f"https://baseballsavant.mlb.com/leaderboard/outs_above_average?type={view}&startYear={year}&endYear={year}&split=no&team=&range=year&min={min_att}&pos={pos}&roles=&viz=hide&csv=true"
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	data = sanitize_statcast_columns(data)
