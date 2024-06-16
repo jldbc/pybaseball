@@ -120,13 +120,15 @@ def events(season, type='regular', export_dir='.'):
     if not os.path.exists(export_dir):
         os.mkdir(export_dir)
     
-    match type:
-        case 'regular':
-            file_extension = ('.EVA','.EVN')
-        case 'post':
-            file_extension = ('CS.EVE','D1.EVE','D2.EVE','W1.EVE','W2.EVE','WS.EVE')
-        case 'asg':
-            file_extension = ('AS.EVE')
+    if type == 'regular':
+        file_extension = ('.EVA','.EVN')
+    elif type == 'post':
+        file_extension = ('CS.EVE','D1.EVE','D2.EVE','W1.EVE','W2.EVE','WS.EVE')
+    elif type == 'asg':
+        file_extension = ('AS.EVE')
+    else:
+        raise RuntimeError(f"Illegal type argument {type}, "
+                           "the valid types are: 'regular', 'post', and 'asg'.")
 
     try:
         g = Github(GH_TOKEN)
