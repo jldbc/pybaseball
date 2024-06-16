@@ -83,7 +83,7 @@ def _front_loaded_ratio(str_1: str, str_2: str) -> float:
     '''
 
     if len(str_1) != 3 or len(str_2) != 3:
-        logger.warn(
+        logger.warning(
             "This ratio is intended for 3 length string comparison (such as a lahman teamID, franchID, or teamIDBR."
             "Returning 0 for non-compliant string(s)."
         )
