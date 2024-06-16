@@ -201,3 +201,18 @@ def statcast_pitcher_spin_dir_comp(year: int, pitch_a: str = "FF", pitch_b: str 
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     data = sanitize_statcast_columns(data)
     return data    
+@cache.df_cache()
+def statcast_pitcher_bat_tracking(year: int, minSwings: Union[int,str] = "q") -> pd.DataFrame:
+    """
+    Retrieves the bat tracking data against for pitchers.
+
+    ARGUMENTS
+        year: The year for which you wish to retreive bat tracking data. Format: YYYY
+        minSwings: The minimum number of swings batters have taken against a pitcher. If a pitcher falls
+        below the threshold, they will be excluded from the results. The default value is qualified.
+    """
+    url = f"https://baseballsavant.mlb.com/leaderboard/bat-tracking?attackZone=&batSide=&contactType=&count=&dateStart={year}-01-01&dateEnd={year}-12-31&gameType=&isHardHit=&minSwings={minSwings}&minGroupSwings=1&pitchHand=&pitchType=&seasonStart=&seasonEnd=&team=&type=pitcher&csv=true"
+    res = requests.get(url, timeout=None).content
+    data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    data = sanitize_statcast_columns(data)
+    return data

@@ -20,7 +20,8 @@ from .statcast_batter import (
 	statcast_batter_exitvelo_barrels,
 	statcast_batter_expected_stats,
 	statcast_batter_percentile_ranks,
-	statcast_batter_pitch_arsenal
+	statcast_batter_pitch_arsenal,
+    statcast_batter_bat_tracking
 )
 from .statcast_running import statcast_sprint_speed, statcast_running_splits
 from .statcast_fielding import (

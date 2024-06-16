@@ -18,7 +18,7 @@ def test_statcast_outs_above_average() -> None:
 	assert result is not None
 	assert not result.empty
 
-	assert len(result.columns) == 17
+	assert len(result.columns) == 16
 	assert len(result) > 0
 
 def test_statcast_outs_above_average_view() -> None:
