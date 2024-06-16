@@ -1,5 +1,6 @@
 import pandas as pd
 import pytest
+import warnings
 
 from pybaseball.teamid_lookup import _front_loaded_ratio, _get_close_team_matches, team_ids
 
@@ -66,7 +67,7 @@ def test_front_loaded_ratio(team1: str, team2: str, expected_ratio: int) -> None
     if len(team1) == 3 and len(team2) == 3:
         assert round(_front_loaded_ratio(team1, team2), 2) == expected_ratio
     else:
-        with pytest.warns(None):
+        with warnings.catch_warnings(record=True):
             assert _front_loaded_ratio(team1, team2) == 0
 
 def test_get_close_team_matches() -> None:
