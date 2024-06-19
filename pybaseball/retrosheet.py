@@ -100,12 +100,8 @@ roster_columns = [
     'player_id', 'last_name', 'first_name', 'bats', 'throws', 'team', 'position'
 ]
 
-<<<<<<< HEAD
-gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/GL{}.TXT'
-=======
 gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/gamelog/GL{}.TXT'
 season_gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/GL{}.TXT'
->>>>>>> upstream/master
 schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}schedule.csv'
 parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/reference/ballparks.csv'
 roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}{}.ROS'
