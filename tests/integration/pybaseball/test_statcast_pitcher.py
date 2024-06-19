@@ -11,7 +11,8 @@ from pybaseball.statcast_pitcher import (
     statcast_pitcher_percentile_ranks,
     statcast_pitcher_pitch_arsenal,
     statcast_pitcher_pitch_movement,
-    statcast_pitcher_spin_dir_comp
+    statcast_pitcher_spin_dir_comp,
+    statcast_pitcher_bat_tracking
 )
 
 
@@ -105,3 +106,11 @@ def test_statcast_pitcher_spin_dir_comp() -> None:
 
     assert len(result.columns) == 30
     assert len(result) > 100
+def test_statcast_pitcher_bat_tracking() -> None:
+    result: pd.DataFrame = statcast_pitcher_bat_tracking(2024)
+
+    assert result is not None
+    assert not result.empty
+
+    assert len(result.columns) == 18
+    assert len(result) > 0

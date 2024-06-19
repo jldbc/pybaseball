@@ -100,7 +100,12 @@ roster_columns = [
     'player_id', 'last_name', 'first_name', 'bats', 'throws', 'team', 'position'
 ]
 
+<<<<<<< HEAD
 gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/GL{}.TXT'
+=======
+gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/gamelog/GL{}.TXT'
+season_gamelog_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/GL{}.TXT'
+>>>>>>> upstream/master
 schedule_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}schedule.csv'
 parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/reference/ballparks.csv'
 roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}{}.ROS'
@@ -118,6 +123,16 @@ def events(season, type='regular', export_dir='.'):
     GH_TOKEN=os.getenv('GH_TOKEN', '')
     if not os.path.exists(export_dir):
         os.mkdir(export_dir)
+    
+    if type == 'regular':
+        file_extension = ('.EVA','.EVN')
+    elif type == 'post':
+        file_extension = ('CS.EVE','D1.EVE','D2.EVE','W1.EVE','W2.EVE','WS.EVE')
+    elif type == 'asg':
+        file_extension = ('AS.EVE')
+    else:
+        raise RuntimeError(f"Illegal type argument {type}, "
+                           "the valid types are: 'regular', 'post', and 'asg'.")
 
     match type:
         case 'regular':
@@ -214,7 +229,11 @@ def schedules(season):
     repo = g.get_repo('chadwickbureau/retrosheet')
     season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
     file_name = f'{season}schedule.csv'
+<<<<<<< HEAD
 
+=======
+    
+>>>>>>> upstream/master
     if file_name not in season_folder:
         raise ValueError(f'Schedule not available for {season}')
     s = get_text_file(schedule_url.format(season, season))
@@ -235,7 +254,11 @@ def season_game_logs(season):
 
     if gamelog_file_name not in season_folder:
         raise ValueError(f'Season game logs not available for {season}')
+<<<<<<< HEAD
     s = get_text_file(gamelog_url.format(season, season))
+=======
+    s = get_text_file(season_gamelog_url.format(season, season))
+>>>>>>> upstream/master
     data = pd.read_csv(StringIO(s), header=None, sep=',', quotechar='"')
     data.columns = gamelog_columns
     return data
