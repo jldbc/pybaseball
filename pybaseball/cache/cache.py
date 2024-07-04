@@ -1,4 +1,5 @@
 import abc
+import datetime
 import functools
 import glob
 import os
@@ -74,7 +75,22 @@ class df_cache:
             arglist = list(args)  # tuple won't come through the JSONify well
             if arglist and isinstance(arglist[0], abc.ABC):  # remove the table classes when they're self
                 arglist = arglist[1:]
-            return {'func': func_name, 'args': arglist, 'kwargs': kwargs}
+
+            arglist = [
+                (
+                    arg.isoformat()
+                    if any(
+                        map(
+                            lambda dtype: isinstance(arg, dtype),
+                            [datetime.datetime, datetime.date],
+                        )
+                    )
+                    else arg
+                )
+                for arg in arglist
+            ]
+
+            return {"func": func_name, "args": arglist, "kwargs": kwargs}
         except:  # pylint: disable=bare-except
             return {}
 
