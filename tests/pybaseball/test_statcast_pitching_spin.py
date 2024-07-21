@@ -1,10 +1,8 @@
 import pybaseball.statcast_pitcher_spin as spin
-import unittest
 import pytest
 import pandas as pd
 from typing import Callable
 from pandas.testing import assert_frame_equal
-import logging
 
 rounding_error_columns = ['vxR', 'vyR', 'vxbar', 'vybar', 'vbar']
 
@@ -18,7 +16,7 @@ def _test_data(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('statcast_test_data.csv')
 
 # Test Methods
-def test_individual_calculations(response_get_monkeypatch, target_frame, test_frame):
+def test_individual_calculations(response_get_monkeypatch: Callable, target_frame: pd.DataFrame, test_frame: pd.DataFrame) -> None:
     """ Testing Mechanism that compares test data to target data for each
         calculation in the test_dict.
 
@@ -63,7 +61,7 @@ def _sample_data(get_data_file_contents: Callable) -> str:
 @pytest.fixture(name="sample_processed_result")
 def _sample_processed_result(get_data_file_dataframe: Callable) -> pd.DataFrame:
     return get_data_file_dataframe('processed_darvish_data.csv')
-def test_full_function(response_get_monkeypatch, sample_data, sample_processed_result):
+def test_full_function(response_get_monkeypatch: Callable, sample_data: str, sample_processed_result: pd.DataFrame) -> None:
     """
         Testing the full datastream from web-scraping to calculated answers
 

@@ -35,7 +35,7 @@ def get_player_info(playerid: str, soup: bs.BeautifulSoup = None) -> Dict:
     # This for loop goes through the player bio section at the top of the splits page to find all of the <p> tags
     for i in range(len(info)):
         ptags = info[i].find_all('p')
-        
+
         # This loop goes through each of the <p> tags and finds all text between the tags including the <strong> tags.
         for j in range(len(ptags)):
             InfoRegex = re.compile(r'>(.*?)<', re.DOTALL)
@@ -50,7 +50,7 @@ def get_player_info(playerid: str, soup: bs.BeautifulSoup = None) -> Dict:
         'Position': fv[1],
         'Bats': fv[3],
         'Throws': fv[5],
-        # 'Height': int(fv[6].split(' ')[0])*12+int(fv[6].split(' ')[1]), # Commented out because I determined that Pablo Sandoval has some weird formatting that ruins this. Uncomment for ht, wt of most players. 
+        # 'Height': int(fv[6].split(' ')[0])*12+int(fv[6].split(' ')[1]), # Commented out because I determined that Pablo Sandoval has some weird formatting that ruins this. Uncomment for ht, wt of most players.
         # 'Weight': int(fv[7][0:3]),
         # 'Team': fv[10]
     }
@@ -147,7 +147,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
     if player_info is False:
         if pitching_splits is True:
             return data, level_data
-        else: 
+        else:
             return data
     else:
         player_info_data = get_player_info(playerid=playerid, soup=soup)

@@ -21,7 +21,7 @@ class BRefSession(singleton.Singleton):
         self.max_requests_per_minute = max_requests_per_minute
         self.last_request: Optional[datetime.datetime]  = None
         self.session = requests.Session()
-    
+
     def get(self, url: str, **kwargs: Any) -> requests.Response:
         if self.last_request:
             delta = datetime.datetime.now() - self.last_request
@@ -32,4 +32,3 @@ class BRefSession(singleton.Singleton):
         self.last_request = datetime.datetime.now()
 
         return self.session.get(url, **kwargs)
-                

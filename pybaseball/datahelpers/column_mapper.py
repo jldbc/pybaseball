@@ -1,11 +1,11 @@
 from collections import Counter
-from typing import Callable, Iterator, List, Optional
+from typing import Callable, Iterator, List, Optional, Counter as TypingCounter
 
 ColumnListMapperFunction = Callable[[List[str]], Iterator[str]]
 
 class GenericColumnMapper:
-    def __init__(self):
-        self.call_counts = Counter()
+    def __init__(self) -> None:
+        self.call_counts: TypingCounter[str] = Counter()
 
     def _short_circuit(self, column_name: str) -> Optional[str]:
         return None
