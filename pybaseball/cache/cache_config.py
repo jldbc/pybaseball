@@ -13,7 +13,7 @@ class CacheConfig(singleton.Singleton):
     CFG_FILENAME = 'cache_config.json'
     PYBASEBALL_CACHE_ENV = 'PYBASEBALL_CACHE'
 
-    def __init__(self, enabled: bool = False, default_expiration: int = None, cache_type: Optional[str] = None):
+    def __init__(self, enabled: bool = False, default_expiration: Optional[int] = None, cache_type: Optional[str] = None):
         self.enabled = enabled
         self.cache_directory = os.environ.get(CacheConfig.PYBASEBALL_CACHE_ENV) or CacheConfig.DEFAULT_CACHE_DIR
         self.default_expiration = default_expiration or CacheConfig.DEFAULT_EXPIRATION

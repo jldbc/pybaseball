@@ -172,7 +172,7 @@ class FangraphsBattingStatsTable(FangraphsDataTable):
     ROW_ID_NAME = 'IDfg'
 
     @cache.df_cache()
-    def fetch(self, *args, **kwargs):
+    def fetch(self, *args: Any, **kwargs: Any) -> pd.DataFrame:
         return super().fetch(*args, **kwargs)
 
     def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -186,7 +186,7 @@ class FangraphsFieldingStatsTable(FangraphsDataTable):
     ROW_ID_NAME = 'IDfg'
 
     @cache.df_cache()
-    def fetch(self, *args, **kwargs):
+    def fetch(self, *args: Any, **kwargs: Any) -> pd.DataFrame:
         return super().fetch(*args, **kwargs)
 
     def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:
@@ -199,7 +199,7 @@ class FangraphsPitchingStatsTable(FangraphsDataTable):
     ROW_ID_NAME = 'IDfg'
 
     @cache.df_cache()
-    def fetch(self, *args, **kwargs):
+    def fetch(self, *args: Any, **kwargs: Any) -> pd.DataFrame:
         return super().fetch(*args, **kwargs)
 
     def _postprocess(self, data: pd.DataFrame) -> pd.DataFrame:

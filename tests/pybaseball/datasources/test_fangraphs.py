@@ -1,8 +1,6 @@
-import sys
 import urllib.parse
 from typing import Callable
 
-import numpy as np
 import pandas as pd
 import pytest
 
@@ -40,7 +38,7 @@ def _test_team_batting_html(get_data_file_contents: Callable[[str], str]) -> str
 def _test_team_batting_result(get_data_file_dataframe: GetDataFrameCallable) -> pd.DataFrame:
     return get_data_file_dataframe('team_batting.csv')
 
-    
+
 @pytest.fixture(name="test_team_fielding_html")
 def _test_team_fielding_html(get_data_file_contents: Callable[[str], str]) -> str:
     return get_data_file_contents('team_fielding.html')
@@ -87,7 +85,7 @@ class TestDatasourceFangraphs:
             safe=','
         )
 
-        expected_url = f"{_FG_LEADERS_URL}?{query_params}" 
+        expected_url = f"{_FG_LEADERS_URL}?{query_params}"
 
         response_get_monkeypatch(test_batting_stats_html, expected_url)
 
@@ -119,7 +117,7 @@ class TestDatasourceFangraphs:
             safe=','
         )
 
-        expected_url = f"{_FG_LEADERS_URL}?{query_params}" 
+        expected_url = f"{_FG_LEADERS_URL}?{query_params}"
 
         response_get_monkeypatch(test_batting_stats_html, expected_url)
 

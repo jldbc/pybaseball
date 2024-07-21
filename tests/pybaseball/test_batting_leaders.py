@@ -2,7 +2,6 @@ from typing import Callable
 
 import pandas as pd
 import pytest
-import requests
 
 from pybaseball.batting_leaders import batting_stats
 
@@ -18,7 +17,7 @@ def _sample_processed_result(get_data_file_dataframe: Callable[[str], pd.DataFra
 
 
 def test_batting_stats(response_get_monkeypatch: Callable, sample_html: str,
-                        sample_processed_result: pd.DataFrame):
+                        sample_processed_result: pd.DataFrame) -> None:
     season = 2019
 
     response_get_monkeypatch(sample_html)

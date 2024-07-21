@@ -5,18 +5,18 @@ from pybaseball.plotting import transform_coordinates
 
 
 @pytest.fixture
-def coords():
+def coords() -> pd.DataFrame:
     return pd.DataFrame({"x": [1.0, 2.0, -1.0], "y": [1.0, 0.0, 10.0]})
 
 
-def test_transform_coordinates_identity_scale(coords):
+def test_transform_coordinates_identity_scale(coords: pd.DataFrame) -> None:
     transformed_coords = transform_coordinates(coords, scale=1)
     assert_series_equal(coords.x, transformed_coords.x)
     assert_series_equal(-coords.y, transformed_coords.y)
 
 
 
-def test_transform_coordinates(coords):
+def test_transform_coordinates(coords: pd.DataFrame) -> None:
     transformed_coords = transform_coordinates(coords, scale=2, x_center=0, y_center=0)
     assert_series_equal(2 * coords.x, transformed_coords.x)
     assert_series_equal(-2 * coords.y, transformed_coords.y)

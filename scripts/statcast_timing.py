@@ -8,7 +8,7 @@ DEFAULT_START_DATE = "2018-08-01"
 DEFAULT_END_DATE = "2018-08-10"
 
 
-def _parse_args():
+def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--start-date", required=False, default=DEFAULT_START_DATE)
     parser.add_argument("--end-date", required=False, default=DEFAULT_END_DATE)
@@ -16,7 +16,7 @@ def _parse_args():
     return parser.parse_args()
 
 
-def main():
+def main() -> None:
     args = _parse_args()
     start_time = time.time()
     _ = statcast(args.start_date, args.end_date)

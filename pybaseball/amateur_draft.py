@@ -1,3 +1,5 @@
+from typing import List
+
 import pandas as pd
 
 from . import cache
@@ -9,7 +11,7 @@ session = BRefSession()
 _URL = "https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={draft_round}&draft_type=junreg&query_type=year_round&"
 
 
-def get_draft_results(year: int, draft_round: int) -> pd.DataFrame:
+def get_draft_results(year: int, draft_round: int) -> List[pd.DataFrame]:
     url = _URL.format(year=year, draft_round=draft_round)
     res = session.get(url, timeout=None).content
     draft_results = pd.read_html(res)
@@ -23,9 +25,9 @@ def amateur_draft(year: int, draft_round: int, keep_stats: bool = True) -> pd.Da
 
     ARGUMENTS
         year: The year for which you wish to retrieve draft results.
-        draft_round: The round for which you wish to retrieve draft results. There is no distinction made 
+        draft_round: The round for which you wish to retrieve draft results. There is no distinction made
             between the competitive balance, supplementary, and main portions of a round.
-        keep_stats: A boolean parameter that controls whether the major league stats of each draftee is 
+        keep_stats: A boolean parameter that controls whether the major league stats of each draftee is
             displayed. Default set to true.
     """
     draft_results = get_draft_results(year, draft_round)

@@ -3,11 +3,9 @@ import gc
 import io
 import os
 import pstats
-import sys
-from typing import Any, Callable, Dict, List, Optional, Tuple
+from typing import Any, Callable, Dict, List, Tuple
 import argparse
 
-import numpy as np
 import requests
 
 from pybaseball import batting_stats, pitching_stats, team_batting, team_fielding, team_pitching, datahelpers, cache
@@ -16,9 +14,9 @@ _ProfileRun = Tuple[Callable, Callable, int]
 
 ITERATIONS = 10
 
-def mock_requests_get(html: str):
+def mock_requests_get(html: str) -> None:
     class DummyResponse:
-        def __init__(self, content: str):
+        def __init__(self, content: str) -> None:
             self.content = content.encode('utf-8')
             self.status_code = 200
 
@@ -35,8 +33,8 @@ def get_data_file_contents(filename: str) -> str:
         return _file.read()
 
 
-def requests_get_setup(data_file: str, enable_gc: bool = True):
-    def _setup():
+def requests_get_setup(data_file: str, enable_gc: bool = True) -> Callable[[], None]:
+    def _setup() -> None:
         if enable_gc:
             gc.enable()
         mock_requests_get(get_data_file_contents(data_file))
@@ -44,23 +42,23 @@ def requests_get_setup(data_file: str, enable_gc: bool = True):
     return _setup
 
 
-def profile_batting_stats():
+def profile_batting_stats() -> None:
     batting_stats(2019)
 
 
-def profile_pitching_stats():
+def profile_pitching_stats() -> None:
     pitching_stats(2019)
 
 
-def profile_team_batting():
+def profile_team_batting() -> None:
     team_batting(2019)
 
 
-def profile_team_fielding():
+def profile_team_fielding() -> None:
     team_fielding(2019)
 
 
-def profile_team_pitching():
+def profile_team_pitching() -> None:
     team_pitching(2019)
 
 def get_profile_suite(iterations: int = ITERATIONS) -> List[_ProfileRun]:
@@ -73,7 +71,7 @@ def get_profile_suite(iterations: int = ITERATIONS) -> List[_ProfileRun]:
     ]
 
 
-def profile(suite : List[_ProfileRun]):
+def profile(suite : List[_ProfileRun]) -> None:
     for setup, func, iterations in suite:
         setup()
         [func() for x in range(iterations)]

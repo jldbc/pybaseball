@@ -8,4 +8,4 @@ class Singleton:
             cls.__INSTANCE__ = super(Singleton, cls).__new__(cls)
 
         assert cls.__INSTANCE__ is not None
-        return cls.__INSTANCE__ 
+        return cls.__INSTANCE__

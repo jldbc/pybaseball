@@ -2,7 +2,6 @@ from typing import Callable
 
 import pandas as pd
 import pytest
-import requests
 
 from pybaseball.team_batting import team_batting
 

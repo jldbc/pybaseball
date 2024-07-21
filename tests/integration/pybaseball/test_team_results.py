@@ -33,7 +33,7 @@ def test_schedule_and_record(season: Optional[int], team: str) -> None:
     if season is None or team in missing_schedules_scores:
         return
     result = schedule_and_record(season, team)
-    
+
     assert result is not None
     assert not result.empty
 
@@ -63,11 +63,11 @@ def test_schedule_and_record_bad_years(season: Optional[int], team: str) -> None
 def test_schedule_and_record_after_existence() -> None:
     with pytest.raises(ValueError):
         schedule_and_record(2019, 'TBD')
-        
+
 def test_schedule_and_record_future() -> None:
     with pytest.raises(ValueError):
         schedule_and_record(most_recent_season() + 1, 'TBR')
-        
+
 def test_get_soup_none_season() -> None:
     result = get_soup(None, 'TBR')
 

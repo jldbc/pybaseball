@@ -1,4 +1,3 @@
-from os import path
 from typing import Callable
 from unittest.mock import patch
 

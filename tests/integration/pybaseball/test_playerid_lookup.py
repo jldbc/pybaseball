@@ -1,5 +1,3 @@
-import pandas as pd
-
 from pybaseball.playerid_lookup import playerid_lookup
 
 
@@ -31,7 +29,7 @@ def test_playerid_lookup_phonetic_bogaerts() -> None:
     bogaerts_df = playerid_lookup("bogarts", "zander", fuzzy=True)
     assert bogaerts_df["name_last"][0] == "bogaerts"
     assert bogaerts_df["name_first"][0] == "xander"
-    
+
 def test_playerid_lookup_three_word_name() -> None:
     """Test names with three words in them"""
     # Hyun Jin Ryu
@@ -45,14 +43,14 @@ def test_playerid_lookup_abbreviated_name() -> None:
     martinez_df = playerid_lookup("martinez", "jd", fuzzy=True)
     assert martinez_df["name_last"][0] == "martinez"
     assert martinez_df["name_first"][0] == "j. d."
-    
+
 def test_playerid_lookup_name_with_jr() -> None:
     """Test names with abbreviations in them"""
     # Ronald Acuna Jr
     acuna_df = playerid_lookup("acuna jr.", "ronald", fuzzy=True)
     assert acuna_df["name_last"][0] == "acuña"
     assert acuna_df["name_first"][0] == "ronald"
-    
+
 def test_playerid_lookup_hyphenated_name() -> None:
     """Test names with abbreviations in them"""
     # Isiah Kiner-Falefa

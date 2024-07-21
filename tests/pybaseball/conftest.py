@@ -153,7 +153,7 @@ def get_data_file_dataframe(data_dir: str) -> GetDataFrameCallable:
 @pytest.fixture()
 def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
     """
-        Returns a function that will monkeypatch the requests.get function call to return expected data 
+        Returns a function that will monkeypatch the requests.get function call to return expected data
     """
     def setup(result: Union[str, bytes], expected_url: Optional[str] = None) -> None:
         """
@@ -195,7 +195,7 @@ def response_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
 @pytest.fixture()
 def bref_get_monkeypatch(monkeypatch: MonkeyPatch) -> Callable:
     """
-        Returns a function that will monkeypatch the BRefSession.get function call to return expected data 
+        Returns a function that will monkeypatch the BRefSession.get function call to return expected data
     """
     def setup(result: Union[str, bytes], expected_url: Optional[str] = None) -> None:
         """

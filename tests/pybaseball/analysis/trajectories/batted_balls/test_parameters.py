@@ -3,7 +3,7 @@ from pybaseball.analysis.trajectories.batted_balls.parameters import BattedBallC
 import pytest
 
 
-def test_batted_ball_constants():
+def test_batted_ball_constants() -> None:
     b = BattedBallConstants()
     with pytest.raises(FrozenInstanceError):
         b.mass = 1

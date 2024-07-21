@@ -20,13 +20,13 @@ material presented here. All information is subject to corrections
 as additional data are received. We are grateful to anyone who
 discovers discrepancies and we appreciate learning of the details.
 """
+from typing import Union, Tuple
+
 import pandas as pd
 from pybaseball.utils import get_text_file
-from datetime import datetime
 from io import StringIO
 from github import Github
 import os
-from getpass import getuser, getpass
 from github.GithubException import RateLimitExceededException
 import warnings
 
@@ -107,7 +107,7 @@ parkid_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master
 roster_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}{}.ROS'
 event_url = 'https://raw.githubusercontent.com/chadwickbureau/retrosheet/master/seasons/{}/{}'
 
-def events(season, type='regular', export_dir='.'):
+def events(season: Union[str, int], type: str = 'regular', export_dir: str = '.') -> None:
     """
     Pulls retrosheet event files for an entire season. The `type` argument
     specifies whether to pull regular season, postseason or asg files. Valid
@@ -119,13 +119,14 @@ def events(season, type='regular', export_dir='.'):
     GH_TOKEN=os.getenv('GH_TOKEN', '')
     if not os.path.exists(export_dir):
         os.mkdir(export_dir)
-    
+
+    file_extension: Tuple[str, ...]
     if type == 'regular':
         file_extension = ('.EVA','.EVN')
     elif type == 'post':
         file_extension = ('CS.EVE','D1.EVE','D2.EVE','W1.EVE','W2.EVE','WS.EVE')
     elif type == 'asg':
-        file_extension = ('AS.EVE')
+        file_extension = ('AS.EVE',)
     else:
         raise RuntimeError(f"Illegal type argument {type}, "
                            "the valid types are: 'regular', 'post', and 'asg'.")
@@ -149,7 +150,7 @@ def events(season, type='regular', export_dir='.'):
         with open(os.path.join(export_dir, filename), 'w') as f:
             f.write(s)
 
-def rosters(season):
+def rosters(season: Union[str, int]) -> pd.DataFrame:
     """
     Pulls retrosheet roster files for an entire season
     """
@@ -172,7 +173,7 @@ def rosters(season):
 
     return pd.concat(df_list)
 
-def _roster(team, season, checked = False):
+def _roster(team: str, season: Union[str, int], checked: bool = False) -> pd.DataFrame:
     """
     Pulls retrosheet roster files
     """
@@ -198,7 +199,7 @@ def _roster(team, season, checked = False):
     data.columns = roster_columns
     return data
 
-def park_codes():
+def park_codes() -> pd.DataFrame:
     """
     Pulls retrosheet Park IDs
     """
@@ -207,7 +208,7 @@ def park_codes():
     data.columns = parkcode_columns
     return data
 
-def schedules(season):
+def schedules(season: Union[str, int]) -> pd.DataFrame:
     """
     Pull retrosheet schedule for a given season
     """
@@ -217,7 +218,7 @@ def schedules(season):
     repo = g.get_repo('chadwickbureau/retrosheet')
     season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
     file_name = f'{season}schedule.csv'
-    
+
     if file_name not in season_folder:
         raise ValueError(f'Schedule not available for {season}')
     s = get_text_file(schedule_url.format(season, season))
@@ -225,7 +226,7 @@ def schedules(season):
     data.columns = schedule_columns
     return data
 
-def season_game_logs(season):
+def season_game_logs(season: Union[str, int]) -> pd.DataFrame:
     """
     Pull Retrosheet game logs for a given season
     """
@@ -244,7 +245,7 @@ def season_game_logs(season):
     return data
 
 
-def world_series_logs():
+def world_series_logs() -> pd.DataFrame:
     """
     Pull Retrosheet World Series Game Logs
     """
@@ -254,7 +255,7 @@ def world_series_logs():
     return data
 
 
-def all_star_game_logs():
+def all_star_game_logs() -> pd.DataFrame:
     """
     Pull Retrosheet All Star Game Logs
     """
@@ -264,7 +265,7 @@ def all_star_game_logs():
     return data
 
 
-def wild_card_logs():
+def wild_card_logs() -> pd.DataFrame:
     """
     Pull Retrosheet Wild Card Game Logs
     """
@@ -274,7 +275,7 @@ def wild_card_logs():
     return data
 
 
-def division_series_logs():
+def division_series_logs() -> pd.DataFrame:
     """
     Pull Retrosheet Division Series Game Logs
     """
@@ -284,7 +285,7 @@ def division_series_logs():
     return data
 
 
-def lcs_logs():
+def lcs_logs() -> pd.DataFrame:
     """
     Pull Retrosheet LCS Game Logs
     """

@@ -28,5 +28,5 @@ def test_generate_fangraphs_teams() -> None:
                 print('franch_id', franch_id)
                 print('franchises', franchises)
                 print(teams)
-            
+
             assert len(franchises.index) == 1

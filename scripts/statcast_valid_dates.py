@@ -1,6 +1,7 @@
 import argparse
 import os
 from datetime import date
+from typing import Tuple, List
 import multiprocessing
 import pandas as pd
 from pybaseball.utils import date_range
@@ -10,30 +11,30 @@ NUM_THREADS = 8
 RESULTS_FILE = "statcast_dates.csv"
 
 
-def _parse_args():
+def _parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser()
     parser.add_argument("--min-year", default=2008, required=False, type=int)
     parser.add_argument("--max-year", default=2020, required=False, type=int)
     return parser.parse_args()
 
 
-def initialize_file():
+def initialize_file() -> None:
     if not os.path.exists(RESULTS_FILE):
         with open(RESULTS_FILE, "w") as fh:
             fh.write("date,num_records\n")
 
 
-def get_records_count(date_str):
+def get_records_count(date_str: str) -> Tuple[str, int]:
     print("doing", date_str)
     df = statcast(date_str, date_str)
     return date_str, len(df)
 
 
-def get_dates(min_year, max_year):
+def get_dates(min_year: int, max_year: int) -> List[str]:
     lo = date(min_year, 3, 1)
     hi = date(max_year, 11, 10)
 
-    def date_to_str(d):
+    def date_to_str(d: Tuple[date, date]) -> str:
         return d[0].strftime("%Y-%m-%d")
 
     dates = [
@@ -44,29 +45,30 @@ def get_dates(min_year, max_year):
     return dates
 
 
-def get_date_records(dates):
+def get_date_records(dates: List[str]) -> List[Tuple[str, int]]:
     with multiprocessing.Pool(NUM_THREADS) as mp:
         res = mp.map(get_records_count, dates)
     return res
 
 
-def update_date_records(date_records):
+def update_date_records(date_records: List[Tuple[str, int]]
+) -> pd.DataFrame:
     res_df = pd.DataFrame(date_records).rename({0: "date", 1: "num_records"}, axis=1)
     return pd.concat((cache, res_df), axis=0)
 
 
-def save_records(records):
+def save_records(records: pd.DataFrame) -> None:
     records.to_csv(RESULTS_FILE, index=False)
 
 
-def get_rolling_counts(df, lag):
+def get_rolling_counts(df: pd.DataFrame, lag: int) -> pd.DataFrame:
     return pd.concat(
         (df, df.rolling(lag).sum().rename({"num_records": "rolling_counts"}, axis=1)),
         axis=1,
     )
 
 
-def analyze_records(records):
+def analyze_records(records: pd.DataFrame) -> pd.DataFrame:
     """
     Computes max number of records for rolling window from 1 to 7
     returns a dictionary with key=season, values=min and max valid date
@@ -88,7 +90,7 @@ def analyze_records(records):
     return result
 
 
-def main():
+def main() -> None:
     args = _parse_args()
     dates = get_dates(args.min_year, args.max_year)
     date_records = get_date_records(dates)

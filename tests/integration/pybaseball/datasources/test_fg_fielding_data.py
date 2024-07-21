@@ -1,13 +1,12 @@
 from typing import Callable
 
-import pandas as pd
 import pytest
 
 from pybaseball.datasources.fangraphs import fg_fielding_data
 from pybaseball.enums.fangraphs.fielding_data_enum import FangraphsFieldingStats
 
 class TestFGFieldingData:
-    ALL_DATA_COLUMNS_COUNT = len(FangraphsFieldingStats.ALL()) + 2  # All columns + IDFG, name, team, pos - (common + line break) 
+    ALL_DATA_COLUMNS_COUNT = len(FangraphsFieldingStats.ALL()) + 2  # All columns + IDFG, name, team, pos - (common + line break)
     DEFAULT_MAX_RESULTS = 10
 
     def test_fg_fielding_data(self) -> None:

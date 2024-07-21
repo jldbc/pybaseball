@@ -4,7 +4,7 @@ from pybaseball.statcast_running import (
 	statcast_sprint_speed,
 	statcast_running_splits
 )
-	
+
 def test_statcast_sprint_speed() -> None:
 	min_opp = 10
 	result: pd.DataFrame = statcast_sprint_speed(2019, min_opp)
