@@ -15,6 +15,10 @@ The `pitching_stats` function returns season-level pitching data from FanGraphs.
 
 `ind:` 1 or 0. Equals 1 if you want data returned at the individual season level. Equals 0 if you want aggregate data over the seasons included in the query. With `ind=1` and a query spanning the 2010 through 2015 seasons, for example, you will get each player's stats for 2010, 2011, 2012, 2013, 2014, and 2015 in a separate observation. With `ind=0`, this same query returns one row per player with their statistics aggregated over this period (either summed or averaged depending on what's appropriate).
 
+`start_date:` String. The start date of the custom date range that you are querying for. `start_season` must be equal to the year of the start date provided.
+
+`end_date:` String. The end date of the custom date range that you are querying for. If `end_season` is not set, it will be set to the year of the end date. If it is set, `end_season` must be equal to the year of the end date.
+
 Note that larger date ranges will take longer to process.
 
 ### A note on data availability 
@@ -37,5 +41,7 @@ data = pitching_stats(2010, 2016)
 # retrieve aggregate player statistics from 2000 to 2016 (i.e.: who has the most wins over this period?)
 data = pitching_stats(2010, 2016, ind=0)
 
+# retrieve pitching data from between September 3 and October 5 in 2019
+data = pitching_stats(2019, start_date='2019-09-03', end_date='2019-10-05')
 
 ```
