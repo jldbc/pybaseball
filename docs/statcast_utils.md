@@ -2,7 +2,7 @@
 
 Utility functions for additional calculations on StatCast DataFrames. Located in `pybaseball/datahelpers/statcast_utils.py
 
-## Functions
+## Add Spray Angle
 
 `add_spray_angle(df: pd.DataFrame,  adjusted: Optional[bool] = False)`
 
@@ -20,7 +20,7 @@ df (pd.DataFrame): StatCast pd.DataFrame (retrieved through statcast, statcast_b
 
 The following code:
 
-```
+```python
 from pybaseball.datahelpers.statcast_utils import add_spray_angle
 from pybaseball import statcast
 
@@ -63,3 +63,55 @@ Shown for 2018 data:
 
 ![](images/spray_angle_hists.png)
 
+
+## Vertical Approach Angle
+`add_vertical_approach_angle(df: pd.DataFrame)`
+
+Adds a column called "vaa" with the vertical approach angle of each pitch to a StatCast DataFrame
+    
+- Vertical approach angle is the angle, in degrees, at which the ball crosses home plate
+    
+- Formula obtained from [this Fangraphs article](https://blogs.fangraphs.com/a-visualized-primer-on-vertical-approach-angle-vaa/)
+
+### Arguments
+
+df (pd.DataFrame): StatCast pd.DataFrame (retrieved through statcast, statcast_pitcher, etc)
+
+### Example
+
+The following code:
+
+```python
+from pybaseball.datahelpers.statcast_utils import add_vertical_approach_angle
+from pybaseball import statcast_pitcher
+
+df = statcast_pitcher('2022-01-01', '2022-12-31', 543037)
+
+# Add vertical approach angle
+df = add_vertical_approach_angle(df)
+
+print("Vertical approach angle:")
+print(df['vaa'][0:5])
+print("Average vertical approach angle by pitch type:")
+print(df.groupby(['pitch_type'])['vaa'].mean())
+```
+
+Will output these vertical approach angles:
+
+```
+Vertical approach angle:
+1   -11.867287
+2    -3.098514
+3    -2.910248
+4    -7.566446
+Name: vaa, dtype: float64
+Average vertical approach angle by pitch type:
+pitch_type
+CH   -6.660848
+FC   -5.804296
+FF   -4.584262
+KC   -9.739730
+SI   -5.865324
+SL   -7.742220
+Name: vaa, dtype: float64
+```
