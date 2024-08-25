@@ -250,11 +250,7 @@ def season_game_logs(season):
 
     if gamelog_file_name not in season_folder:
         raise ValueError(f'Season game logs not available for {season}')
-<<<<<<< HEAD
-    s = get_text_file(gamelog_url.format(season, season))
-=======
     s = get_text_file(season_gamelog_url.format(season, season))
->>>>>>> upstream/master
     data = pd.read_csv(StringIO(s), header=None, sep=',', quotechar='"')
     data.columns = gamelog_columns
     return data
