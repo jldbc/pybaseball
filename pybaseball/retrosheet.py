@@ -225,11 +225,6 @@ def schedules(season):
     repo = g.get_repo('chadwickbureau/retrosheet')
     season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
     file_name = f'{season}schedule.csv'
-<<<<<<< HEAD
-
-=======
-    
->>>>>>> upstream/master
     if file_name not in season_folder:
         raise ValueError(f'Schedule not available for {season}')
     s = get_text_file(schedule_url.format(season, season))
