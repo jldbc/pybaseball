@@ -12,10 +12,15 @@ from requests_cache import CachedSession
 
 from . import cache
 
-# For example, "https://www.dropbox.com/scl/fi/hy0sxw6gaai7ghemrshi8/lahman_1871-2023_csv.7z?rlkey=edw1u63zzxg48gvpcmr3qpnhz&dl=1"
-def _get_download_url() -> str:
+# NB: response will be cached for 30 days unless force is True
+def _get_response(force:bool=False) -> requests.Response:
     session = _get_session()
-    response = session.get("http://seanlahman.com")
+    response = session.get("http://seanlahman.com", refresh=force)
+    return response
+
+# For example, "https://www.dropbox.com/scl/fi/hy0sxw6gaai7ghemrshi8/lahman_1871-2023_csv.7z?rlkey=edw1u63zzxg48gvpcmr3qpnhz&dl=1"
+def _get_download_url(force:bool=False) -> str:
+    response = _get_response(force)
     soup = BeautifulSoup(response.content, "html.parser")
 
     anchor = soup.find("a", string="Comma-delimited version")
@@ -54,13 +59,14 @@ def _get_table(filename: str,
     )
     return data
 
+# Return whether download happened (True) or if cache used (False)
 def download_lahman(force: bool = False) -> bool:
     if force or not path.exists(_get_file_path()):
         cache_dir = _get_cache_dir()
         base_string = _get_base_string()
         makedirs(f"{cache_dir}/{base_string}", exist_ok=True)
 
-        url = _get_download_url()
+        url = _get_download_url(force)
         stream = requests.get(url, stream=True)
         with SevenZipFile(BytesIO(stream.content)) as zip:
             zip.extractall(cache_dir)

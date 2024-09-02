@@ -1,10 +1,11 @@
 import tempfile
+import time
 from typing import Callable
 
 import pytest
 
 from pybaseball.lahman import *
-from pybaseball.lahman import _get_base_string, _get_download_url, _get_session
+from pybaseball.lahman import _get_base_string, _get_download_url, _get_response, _get_session
 
 
 @pytest.fixture(name="sample_html")
@@ -26,6 +27,7 @@ def run_around_tests():
     cache.config.cache_directory = tempdir.name
     yield
     # teardown
+    pass
 
 def test_get_lahman_info(target_get_monkeypatch: Callable, sample_html: str):
     target_get_monkeypatch(sample_html)
@@ -43,12 +45,23 @@ def test_download_lahman(target_get_monkeypatch: Callable, sample_html: str,
 
     # test download
     b1 = download_lahman()
-    b2 = download_lahman()
-    b3 = download_lahman(force=True)
-
+    r1 = _get_response()
     assert b1
+
+    # test download - no force
+    b2 = download_lahman()
+    r2 = _get_response()
     assert not b2
+    assert r2.created_at == r1.created_at
+    assert r2.expires == r1.expires
+
+    # test download - with force
+    time.sleep(1.1)
+    b3 = download_lahman(force=True)
+    r3 = _get_response(force=True)
     assert b3
+    assert r3.created_at == r1.created_at
+    assert r3.expires > r1.expires
 
 def test_lahman_tables(target_get_monkeypatch: Callable, sample_html: str,
                        response_get_monkeypatch: Callable, sample_bytes: bytes):
