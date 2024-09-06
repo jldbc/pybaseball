@@ -11,7 +11,7 @@ def test_playerid_lookup_misspelling() -> None:
 
 def test_playerid_lookup_multiple_player() -> None:
     """Test multiple players per name - two pedro martinez"""
-    assert len(playerid_lookup("martinez", "pedro", fuzzy=True)) == 2
+    assert len(playerid_lookup("griffey", "ken", fuzzy=True)) == 2
 
 def test_playerid_lookup_last_name() -> None:
     """Test last name-only search"""
