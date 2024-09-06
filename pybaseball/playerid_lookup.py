@@ -77,21 +77,27 @@ def get_lookup_table(save=False):
     # make these lowercase to avoid capitalization mistakes when searching
     table['name_last'] = table['name_last'].str.lower()
     table['name_first'] = table['name_first'].str.lower()
+    table['normalized_name_last'] = table['name_last'].apply(normalize_accents)
+    table['normalized_name_first'] = table['name_first'].apply(normalize_accents)
     return table
 
 
-def get_closest_names(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
+def get_closest_names(last: str, first: str, player_table: pd.DataFrame, ignore_accents:bool=False) -> pd.DataFrame:
     """Calculates similarity of first and last name provided with all players in player_table
 
     Args:
         last (str): Provided last name
         first (str): Provided first name
         player_table (pd.DataFrame): Chadwick player table including names
+        ignore_accets (bool, optional): Normalizes accented letters. Defaults to False
 
     Returns:
         pd.DataFrame: 5 nearest matches from difflib.get_close_matches
     """
-    filled_df = player_table.fillna("").assign(chadwick_name=lambda row: row.name_first + " " + row.name_last)
+    if ignore_accents:
+        filled_df = player_table.fillna("").assign(chadwick_name=lambda row: row.normalized_name_first + " " + row.normalized_name_last)
+    else:
+        filled_df = player_table.fillna("").assign(chadwick_name=lambda row: row.name_first + " " + row.name_last)
     fuzzy_matches = pd.DataFrame(
         get_close_matches(f"{first} {last}", filled_df.chadwick_name, n=5, cutoff=0)
     ).rename({0: "chadwick_name"}, axis=1)
@@ -119,25 +125,30 @@ class _PlayerSearchClient:
         last = last.lower()
         first = first.lower() if first else None
 
+        last_column = 'name_last'
+        first_column = 'name_first'
+
         if ignore_accents:
             last = normalize_accents(last)
             first = normalize_accents(first) if first else None
 
-            self.table['name_last'] = self.table['name_last'].apply(normalize_accents)
-            self.table['name_first'] = self.table['name_first'].apply(normalize_accents)
+            last_column = 'normalized_name_last'
+            first_column = 'normalized_name_first'
 
         if first is None:
-            results = self.table.loc[self.table['name_last'] == last]
+            results = self.table.loc[self.table[last_column] == last]
         else:
-            results = self.table.loc[(self.table['name_last'] == last) & (self.table['name_first'] == first)]
+            results = self.table.loc[(self.table[last_column] == last) & (self.table[first_column] == first)]
 
         results = results.reset_index(drop=True)
 
         # If no matches, return 5 closest names
         if len(results) == 0 and fuzzy:
             print("No identically matched names found! Returning the 5 most similar names.")
-            results=get_closest_names(last=last, first=first, player_table=self.table)
-            
+            results=get_closest_names(last=last, first=first, player_table=self.table, ignore_accents=ignore_accents)
+        
+        results.drop(['normalized_name_last', 'normalized_name_first'], axis=1, inplace=True)
+
         return results
 
 

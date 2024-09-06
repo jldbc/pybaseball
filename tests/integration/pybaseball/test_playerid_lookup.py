@@ -69,19 +69,40 @@ def test_playerid_lookup_accents_df() -> None:
     """Tests ignore accents. No accents in params, accents in df"""
     # Yordan Alvarez
     alvarez_df = playerid_lookup("Alvarez", "Yordan", ignore_accents=True)
-    assert alvarez_df["name_last"][0] == 'alvarez'
+    assert alvarez_df["name_last"][0] == 'álvarez'
     assert alvarez_df["name_first"][0] == 'yordan'
 
 def test_playerid_lookup_accents_params() -> None:
     """Tests ignore accents. Accents in params, not in df"""
     # Victor Martinez
     martinez_df = playerid_lookup('martiñez', 'victor', ignore_accents=True)
-    assert martinez_df['name_last'][0] == 'martinez'
-    assert martinez_df['name_first'][0] == 'victor'
+    assert martinez_df['name_last'][0] == 'martínez'
+    assert martinez_df['name_first'][0] == 'víctor'
 
 def test_playerid_lookup_accents_both() -> None:
     """Tests ignore accents. Accents in params and df"""
     # Ronald Acuana
     acuna_df = playerid_lookup("acuña", "ronald", ignore_accents=True)
-    assert acuna_df["name_last"][0] == 'acuna'
+    assert acuna_df["name_last"][0] == 'acuña'
+    assert acuna_df["name_first"][0] == 'ronald'
+
+def test_playerid_lookup_phonetics_accent_df() -> None:
+    """Tests ignore accents. No accents in params, accents in df, phonetic matching"""
+    # Yordan Alvarez
+    alvarez_df = playerid_lookup("Alvarez", "Jordan", ignore_accents=True, fuzzy=True)
+    assert alvarez_df["name_last"][0] == 'álvarez'
+    assert alvarez_df["name_first"][0] == 'yordan'
+
+def test_playerid_lookup_phonetics_accent_params() -> None:
+    """Tests ignore accents. Accents in params, not in df, phonetic matching"""
+    # Victor Martinez
+    martinez_df = playerid_lookup('martiñez', 'wictor', ignore_accents=True, fuzzy=True)
+    assert martinez_df['name_last'][0] == 'martínez'
+    assert martinez_df['name_first'][0] == 'víctor'
+
+def test_playerid_lookup_phonetics_accents_both() -> None:
+    """Tests ignore accents. Accents in params and df, phonetic matching"""
+    # Ronald Acuana
+    acuna_df = playerid_lookup("acuña", "ronold", ignore_accents=True, fuzzy=True)
+    assert acuna_df["name_last"][0] == 'acuña'
     assert acuna_df["name_first"][0] == 'ronald'
