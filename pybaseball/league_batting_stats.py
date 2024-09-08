@@ -17,7 +17,7 @@ def get_soup(start_dt: date, end_dt: date) -> BeautifulSoup:
     # if((start_dt is None) or (end_dt is None)):
     #    print('Error: a date range needs to be specified')
     #    return None
-    url = "http://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=b&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
+    url = "https://www.baseball-reference.com/leagues/daily.cgi?user_team=&bust_cache=&type=b&lastndays=7&dates=fromandto&fromandto={}.{}&level=mlb&franch=&stat=&stat_value=0".format(start_dt, end_dt)
     s = session.get(url).content
     # a workaround to avoid beautiful soup applying the wrong encoding
     s = s.decode('utf-8')
@@ -92,7 +92,7 @@ def bwar_bat(return_all: bool = False) -> pd.DataFrame:
     Get data from war_daily_bat table. Returns WAR, its components, and a few other useful stats.
     To get all fields from this table, supply argument return_all=True.
     """
-    url = "http://www.baseball-reference.com/data/war_daily_bat.txt"
+    url = "https://www.baseball-reference.com/data/war_daily_bat.txt"
     s = session.get(url).content
     c=pd.read_csv(io.StringIO(s.decode('utf-8')))
     if return_all:
@@ -102,3 +102,5 @@ def bwar_bat(return_all: bool = False) -> pd.DataFrame:
                         'pitcher','G', 'PA', 'salary', 'runs_above_avg', 'runs_above_avg_off','runs_above_avg_def',
                         'WAR_rep','WAA','WAR']
         return c[cols_to_keep]
+    
+print(batting_stats_range())

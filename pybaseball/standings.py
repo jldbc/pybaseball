@@ -10,7 +10,7 @@ from .datasources.bref import BRefSession
 session = BRefSession()
 
 def get_soup(year: int) -> BeautifulSoup:
-    url = f'http://www.baseball-reference.com/leagues/MLB/{year}-standings.shtml'
+    url = f'https://www.baseball-reference.com/leagues/MLB/{year}-standings.shtml'
     s = session.get(url).content
     return BeautifulSoup(s, "lxml")
 
