@@ -102,5 +102,3 @@ def bwar_bat(return_all: bool = False) -> pd.DataFrame:
                         'pitcher','G', 'PA', 'salary', 'runs_above_avg', 'runs_above_avg_off','runs_above_avg_def',
                         'WAR_rep','WAA','WAR']
         return c[cols_to_keep]
-    
-print(batting_stats_range())
