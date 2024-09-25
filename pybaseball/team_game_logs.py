@@ -1,3 +1,4 @@
+from io import StringIO
 import pandas as pd
 from bs4 import BeautifulSoup
 
@@ -17,7 +18,7 @@ def get_table(season: int, team: str, log_type: str) -> pd.DataFrame:
     table = soup.find("table", attrs=dict(id=table_id))
     if table is None:
         raise RuntimeError("Table with expected id not found on scraped page.")
-    data = pd.read_html(str(table))[0]
+    data = pd.read_html(StringIO(str(table)))[0]
     return data
 
 
@@ -33,7 +34,8 @@ def postprocess(data: pd.DataFrame) -> pd.DataFrame:
     data.rename(repl_dict, axis=1, inplace=True)
     data["Home"] = data["Home"].isnull()  # '@' if away, empty if home
     data = data[data["Game"].str.match(r"\d+")]  # drop empty month rows
-    data = data.apply(pd.to_numeric, errors="ignore")
+    for column in data.columns:
+        data[column] = pd.to_numeric(data[column], errors='coerce').fillna(data[column])
     data["Game"] = data["Game"].astype(int)
     return data.reset_index(drop=True)
 
