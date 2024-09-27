@@ -298,6 +298,32 @@ def split_request(start_dt: str, end_dt: str, player_id: int, url: str) -> pd.Da
 		current_dt = next_dt + timedelta(days=1)
 	return pd.concat(results)
 
+@cache.df_cache()
+def split_request_team(start_dt: str, end_dt: str, team: str, url: str) -> pd.DataFrame:
+    """
+	Splits Statcast queries to avoid request timeouts
+	"""
+    current_dt = datetime.strptime(start_dt, '%Y-%m-%d')
+    end_dt_datetime = datetime.strptime(end_dt, '%Y-%m-%d')
+    results = []  # list to hold data as it is returned
+    team_id_str = str(team)
+    print('Gathering Player Data')
+    # break query into multiple requests
+    while current_dt <= end_dt_datetime:
+        remaining = end_dt_datetime - current_dt
+        # increment date ranges by at most 60 days
+        delta = min(remaining, timedelta(days=2190))
+        next_dt = current_dt + delta
+        start_str = current_dt.strftime('%Y-%m-%d')
+        end_str = next_dt.strftime('%Y-%m-%d')
+        # retrieve data
+        data = requests.get(url.format(start_str, end_str, team_id_str))
+        df = pd.read_csv(io.StringIO(data.text))
+        # add data to list and increment current dates
+        results.append(df)
+        current_dt = next_dt + timedelta(days=1)
+    return pd.concat(results)
+
 
 def get_zip_file(url: str) -> zipfile.ZipFile:
 	"""
