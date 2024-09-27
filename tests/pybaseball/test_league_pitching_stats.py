@@ -18,7 +18,7 @@ def test_pitching_stats_range_start_dt_lt_2008() -> None:
 
 def test_pitching_stats_bref_bad_year() -> None:
     with pytest.raises(ValueError):
-        league_pitching_stats.pitching_stats_bref('NOT A YEAR')
+        league_pitching_stats.pitching_stats_bref('NOT A YEAR')  # type: ignore[arg-type]
 
 
 def test_pitching_stats_bref_none() -> None:

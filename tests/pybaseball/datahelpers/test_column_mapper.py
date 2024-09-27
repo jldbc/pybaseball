@@ -2,7 +2,7 @@ from pybaseball.datahelpers.column_mapper import BattingStatsColumnMapper, Gener
 
 
 class TestGenericColumnWrapper:
-    def test_generic_column_mapper(self):
+    def test_generic_column_mapper(self) -> None:
         mapper = GenericColumnMapper()
 
         assert mapper.map('FB%') == 'FB%'
@@ -14,7 +14,7 @@ class TestGenericColumnWrapper:
         assert mapper.map('HR') == 'HR 2'
 
 class TestBattingStatsColumnWrapper:
-    def test_batting_stats_column_mapper(self):
+    def test_batting_stats_column_mapper(self) -> None:
         mapper = BattingStatsColumnMapper()
 
         assert mapper.map('FB%') == 'FB%'

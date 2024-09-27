@@ -12,7 +12,7 @@ RowIdFunction = Optional[Callable[[Any, lxml.etree.Element], Optional[Union[int,
 
 class HTMLTableProcessor:
     def __init__(self, root_url: str, headings_xpath: str, data_rows_xpath: str, data_cell_xpath: str,
-                 table_class: str = None):
+                 table_class: Optional[str] = None):
         self.root_url = root_url
         self.table_class = table_class
         self.headings_xpath = headings_xpath.format(TABLE_XPATH=self.table_xpath)
@@ -25,7 +25,7 @@ class HTMLTableProcessor:
             return f'//table[@class="{self.table_class}"]'
         return '//table'
 
-    def get_tabular_data_from_element(self, element: lxml.etree.Element, column_name_mapper: ColumnListMapperFunction = None,
+    def get_tabular_data_from_element(self, element: lxml.etree.Element, column_name_mapper: Optional[ColumnListMapperFunction] = None,
                                       known_percentages: Optional[List[str]] = None, row_id_func: RowIdFunction = None,
                                       row_id_name: Optional[str] = None) -> pd.DataFrame:
         headings = element.xpath(self.headings_xpath)
@@ -51,7 +51,7 @@ class HTMLTableProcessor:
 
         return fg_data
 
-    def get_tabular_data_from_html(self, html: Union[str, bytes], column_name_mapper: ColumnListMapperFunction = None,
+    def get_tabular_data_from_html(self, html: Union[str, bytes], column_name_mapper: Optional[ColumnListMapperFunction] = None,
                                    known_percentages: Optional[List[str]] = None, row_id_func: RowIdFunction = None,
                                       row_id_name: Optional[str] = None) -> pd.DataFrame:
         html_dom = lxml.etree.HTML(html)
@@ -64,8 +64,8 @@ class HTMLTableProcessor:
             row_id_name=row_id_name,
         )
 
-    def get_tabular_data_from_url(self, url: str, query_params: Dict[str, Union[str, int]] = None,
-                                  column_name_mapper: ColumnListMapperFunction = None,
+    def get_tabular_data_from_url(self, url: str, query_params: Optional[Dict[str, Union[str, int]]] = None,
+                                  column_name_mapper: Optional[ColumnListMapperFunction] = None,
                                   known_percentages: Optional[List[str]] = None, row_id_func: RowIdFunction = None,
                                       row_id_name: Optional[str] = None) -> pd.DataFrame:
         response = requests.get(self.root_url + url, params=query_params)
@@ -84,7 +84,7 @@ class HTMLTableProcessor:
         )
 
     def get_tabular_data_from_options(self, base_url: str, query_params: Dict[str, Union[str, int]],
-                                      column_name_mapper: ColumnListMapperFunction = None,
+                                      column_name_mapper: Optional[ColumnListMapperFunction] = None,
                                       known_percentages: Optional[List[str]] = None, row_id_func: RowIdFunction = None,
                                       row_id_name: Optional[str] = None) -> pd.DataFrame:
         return self.get_tabular_data_from_url(

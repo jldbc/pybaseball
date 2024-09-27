@@ -1,8 +1,3 @@
-import warnings
-from typing import Optional
-
-import pandas as pd
-
 from .datasources.fangraphs import fg_pitching_data
 
 

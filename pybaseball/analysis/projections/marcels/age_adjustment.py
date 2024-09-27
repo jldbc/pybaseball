@@ -12,9 +12,9 @@ def age_adjustment(age: Optional[float]) -> float:
     """
     if isnull(age):
         return float("nan")
-    
+
     assert age
-    
+
     if age <= 0:
         return 1
     elif age >= 29:

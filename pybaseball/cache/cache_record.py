@@ -12,7 +12,7 @@ DateOrNumDays = Union[date, int]
 
 
 class CacheRecord:
-    def __init__(self, filename: str = None, data: Optional[Dict[str, Any]] = None,
+    def __init__(self, filename: Optional[str] = None, data: Optional[Dict[str, Any]] = None,
                  expires: DateOrNumDays = cache_config.CacheConfig.DEFAULT_EXPIRATION):
         ''' Create a new cache record. Loads from file if filename is provided, otherwise creates from data, expires '''
 

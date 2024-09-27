@@ -4,7 +4,7 @@ import os
 import re
 import zipfile
 
-from typing import List, Tuple, Iterable
+from typing import List, Tuple, Iterable, Optional
 
 import pandas as pd
 import requests
@@ -18,7 +18,7 @@ PEOPLE_FILE_PATTERN = re.compile("/people.+csv$")
 _client = None
 
 
-def get_register_file():
+def get_register_file() -> str:
     return os.path.join(cache.config.cache_directory, 'chadwick-register.csv')
 
 
@@ -72,7 +72,7 @@ def chadwick_register(save: bool = False) -> pd.DataFrame:
     return table
 
 
-def get_lookup_table(save=False):
+def get_lookup_table(save: bool = False) -> pd.DataFrame:
     table = chadwick_register(save)
     # make these lowercase to avoid capitalization mistakes when searching
     table['name_last'] = table['name_last'].str.lower()
@@ -80,7 +80,7 @@ def get_lookup_table(save=False):
     return table
 
 
-def get_closest_names(last: str, first: str, player_table: pd.DataFrame) -> pd.DataFrame:
+def get_closest_names(last: str, first: Optional[str], player_table: pd.DataFrame) -> pd.DataFrame:
     """Calculates similarity of first and last name provided with all players in player_table
 
     Args:
@@ -102,7 +102,7 @@ class _PlayerSearchClient:
     def __init__(self) -> None:
         self.table = get_lookup_table()
 
-    def search(self, last: str, first: str = None, fuzzy: bool = False, ignore_accents: bool = False) -> pd.DataFrame:
+    def search(self, last: str, first: Optional[str] = None, fuzzy: bool = False, ignore_accents: bool = False) -> pd.DataFrame:
         """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
 
         Args:
@@ -137,7 +137,7 @@ class _PlayerSearchClient:
         if len(results) == 0 and fuzzy:
             print("No identically matched names found! Returning the 5 most similar names.")
             results=get_closest_names(last=last, first=first, player_table=self.table)
-            
+
         return results
 
 
@@ -150,12 +150,12 @@ class _PlayerSearchClient:
 
         Returns:
             pd.DataFrame: DataFrame of playerIDs, name, years played
-        ''' 
+        '''
         results = pd.DataFrame()
 
         for last, first in player_list:
             results = results.append(self.search(last, first), ignore_index=True)
-        
+
         return results
 
 
@@ -217,7 +217,7 @@ def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: DataFrame of playerIDs, name, years played
-    ''' 
+    '''
     client = _get_client()
     return client.search_list(player_list)
 

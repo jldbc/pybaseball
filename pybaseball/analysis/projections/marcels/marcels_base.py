@@ -285,7 +285,7 @@ class MarcelsProjectionsBase(ABC):
             .loc[:, [metric_name]]
         )
 
-    def projections(self, projected_season: int, computed_metrics: List[str] = None) -> pd.DataFrame:
+    def projections(self, projected_season: int, computed_metrics: Optional[List[str]] = None) -> pd.DataFrame:
         """
         returns projections for all metrics in `computed_metrics`. If
         `computed_metrics` is None it uses the default set.
