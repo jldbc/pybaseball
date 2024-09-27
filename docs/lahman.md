@@ -1,10 +1,10 @@
 # Lahman Data Acquisition Functions
 
-Pull data from [Sean Lahman's database](http://www.seanlahman.com/baseball-archive/statistics/), also hosted by [Chadwick Bureau on GitHub](https://github.com/chadwickbureau/baseballdatabank) -- our new source -- using the following functions:
+Pulls data linked from [Sean Lahman's database](http://seanlahman.com/) now hosted on dropbox -- using the following functions:
 
 ```python
 from pybaseball.lahman import *
-download_lahman() #download the entire lahman database to your current working directory
+download_lahman()
 
 # a table of all player biographical info and ids
 people = people()
@@ -81,7 +81,7 @@ schools = schools()
 series_post = series_post()
 
 # data on teams by year: record, division, stadium, attendance, etc
-teams = teams()
+teams = teams_core()
 
 # current and historical franchises, whether they're still active, and their ids
 teams_franchises = teams_franchises()

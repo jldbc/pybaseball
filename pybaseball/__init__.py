@@ -79,7 +79,6 @@ from .lahman import salaries
 from .lahman import schools
 from .lahman import series_post
 from .lahman import teams_core
-from .lahman import teams_upstream
 from .lahman import teams_franchises
 from .lahman import teams_half
 from .lahman import download_lahman

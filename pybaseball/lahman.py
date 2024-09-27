@@ -1,136 +1,161 @@
+from datetime import timedelta
 from io import BytesIO
+from os import makedirs
 from os import path
-from typing import Optional
-from zipfile import ZipFile
 
+from bs4 import BeautifulSoup
 import pandas as pd
+from pathlib import Path
+from py7zr import SevenZipFile
 import requests
+from requests_cache import CachedSession
 
 from . import cache
 
-url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
-base_string = "baseballdatabank-master"
+# NB: response will be cached for 30 days unless force is True
+def _get_response(force:bool=False) -> requests.Response:
+    session = _get_session()
+    response = session.get("http://seanlahman.com", refresh=force)
+    return response
 
-_handle = None
+# For example, "https://www.dropbox.com/scl/fi/hy0sxw6gaai7ghemrshi8/lahman_1871-2023_csv.7z?rlkey=edw1u63zzxg48gvpcmr3qpnhz&dl=1"
+def _get_download_url(force:bool=False) -> str:
+    response = _get_response(force)
+    soup = BeautifulSoup(response.content, "html.parser")
 
-def get_lahman_zip() -> Optional[ZipFile]:
-    # Retrieve the Lahman database zip file, returns None if file already exists in cwd.
-    # If we already have the zip file, keep re-using that.
-    # Making this a function since everything else will be re-using these lines
-    global _handle
-    if path.exists(path.join(cache.config.cache_directory, base_string)):
-        _handle = None
-    elif not _handle:
-        s = requests.get(url, stream=True)
-        _handle = ZipFile(BytesIO(s.content))
-    return _handle
+    anchor = soup.find("a", string="Comma-delimited version")
+    url = anchor["href"].replace("dl=0", "dl=1")
 
-def download_lahman():
-    # download entire lahman db to present working directory
-    z = get_lahman_zip()
-    if z is not None:
-        z.extractall(cache.config.cache_directory)
-        z = get_lahman_zip()
-        # this way we'll now start using the extracted zip directory
-        # instead of the session ZipFile object
+    return url
 
-def _get_file(tablename: str, quotechar: str = "'") -> pd.DataFrame:
-    z = get_lahman_zip()
-    f = f'{base_string}/{tablename}'
+def _get_cache_dir() -> str:
+    return f"{cache.config.cache_directory}/lahman"
+
+def _get_session() -> CachedSession:
+    return CachedSession(_get_cache_dir(), expire_after=timedelta(days=30))
+
+def _get_base_string() -> str:
+    url = _get_download_url()
+    path = Path(url)
+
+    return path.stem
+
+def _get_file_path(filename: str = "") -> str:
+    base_string = _get_base_string()
+    return path.join(_get_cache_dir(), base_string, filename)
+
+def _get_table(filename: str,
+               quotechar: str = "'",
+               encoding=None,
+               on_bad_lines="error") -> pd.DataFrame:
+    filepath = _get_file_path(filename)
     data = pd.read_csv(
-        f"{path.join(cache.config.cache_directory, f)}" if z is None else z.open(f),
+        filepath,
         header=0,
-        sep=',',
-        quotechar=quotechar
+        sep=",",
+        quotechar=quotechar,
+        encoding=encoding,
+        on_bad_lines=on_bad_lines,
     )
     return data
 
+# Return whether download happened (True) or if cache used (False)
+def download_lahman(force: bool = False) -> bool:
+    if force or not path.exists(_get_file_path()):
+        cache_dir = _get_cache_dir()
+        base_string = _get_base_string()
+        makedirs(f"{cache_dir}/{base_string}", exist_ok=True)
+
+        url = _get_download_url(force)
+        stream = requests.get(url, stream=True)
+        with SevenZipFile(BytesIO(stream.content)) as zip:
+            zip.extractall(cache_dir)
+        return True
+    return False
 
 # do this for every table in the lahman db so they can exist as separate functions
-def parks() -> pd.DataFrame:
-    return _get_file('core/Parks.csv')
-
 def all_star_full() -> pd.DataFrame:
-    return _get_file("core/AllstarFull.csv")
+    return _get_table("AllstarFull.csv")
 
 def appearances() -> pd.DataFrame:
-    return _get_file("core/Appearances.csv")
+    return _get_table("Appearances.csv")
 
 def awards_managers() -> pd.DataFrame:
-    return _get_file("contrib/AwardsManagers.csv")
+    return _get_table("AwardsManagers.csv")
 
 def awards_players() -> pd.DataFrame:
-    return _get_file("contrib/AwardsPlayers.csv")
+    return _get_table("AwardsPlayers.csv")
 
 def awards_share_managers() -> pd.DataFrame:
-    return _get_file("contrib/AwardsShareManagers.csv")
+    return _get_table("AwardsShareManagers.csv")
 
 def awards_share_players() -> pd.DataFrame:
-    return _get_file("contrib/AwardsSharePlayers.csv")
+    return _get_table("AwardsSharePlayers.csv")
 
 def batting() -> pd.DataFrame:
-    return _get_file("core/Batting.csv")
+    return _get_table("Batting.csv")
 
 def batting_post() -> pd.DataFrame:
-    return _get_file("core/BattingPost.csv")
+    return _get_table("BattingPost.csv")
 
 def college_playing() -> pd.DataFrame:
-    return _get_file("contrib/CollegePlaying.csv")
+    return _get_table("CollegePlaying.csv")
 
 def fielding() -> pd.DataFrame:
-    return _get_file("core/Fielding.csv")
+    return _get_table("Fielding.csv")
 
 def fielding_of() -> pd.DataFrame:
-    return _get_file("core/FieldingOF.csv")
+    return _get_table("FieldingOF.csv")
 
 def fielding_of_split() -> pd.DataFrame:
-    return _get_file("core/FieldingOFsplit.csv")
+    return _get_table("FieldingOFsplit.csv")
 
 def fielding_post() -> pd.DataFrame:
-    return _get_file("core/FieldingPost.csv")
+    return _get_table("FieldingPost.csv")
 
 def hall_of_fame() -> pd.DataFrame:
-    return _get_file("contrib/HallOfFame.csv")
+    return _get_table("HallOfFame.csv")
 
 def home_games() -> pd.DataFrame:
-    return _get_file("core/HomeGames.csv")
+    return _get_table("HomeGames.csv")
 
 def managers() -> pd.DataFrame:
-    return _get_file("core/Managers.csv")
+    return _get_table("Managers.csv")
 
 def managers_half() -> pd.DataFrame:
-    return _get_file("core/ManagersHalf.csv")
+    return _get_table("ManagersHalf.csv")
 
 def master() -> pd.DataFrame:
     # Alias for people -- the new name for master
     return people()
 
+def parks() -> pd.DataFrame:
+    return _get_table("Parks.csv", encoding="unicode_escape")
+
 def people() -> pd.DataFrame:
-    return _get_file("core/People.csv")
+    return _get_table("People.csv", encoding="unicode_escape")
 
 def pitching() -> pd.DataFrame:
-    return _get_file("core/Pitching.csv")
+    return _get_table("Pitching.csv")
 
 def pitching_post() -> pd.DataFrame:
-    return _get_file("core/PitchingPost.csv")
+    return _get_table("PitchingPost.csv")
 
 def salaries() -> pd.DataFrame:
-    return _get_file("contrib/Salaries.csv")
+    return _get_table("Salaries.csv")
 
 def schools() -> pd.DataFrame:
-    return _get_file("contrib/Schools.csv", quotechar='"')  # different here bc of doublequotes used in some school names
+    # NB: one line is bad; "brklyncuny" should use double quotes, but doesn't
+    return _get_table("Schools.csv", quotechar='"', on_bad_lines="skip")
 
 def series_post() -> pd.DataFrame:
-    return _get_file("core/SeriesPost.csv")
+    return _get_table("SeriesPost.csv")
 
 def teams_core() -> pd.DataFrame:
-    return _get_file("core/Teams.csv")
-
-def teams_upstream() -> pd.DataFrame:
-    return _get_file("upstream/Teams.csv") # manually maintained file
+    return _get_table("Teams.csv")
 
 def teams_franchises() -> pd.DataFrame:
-    return _get_file("core/TeamsFranchises.csv")
+    return _get_table("TeamsFranchises.csv")
 
 def teams_half() -> pd.DataFrame:
-    return _get_file("core/TeamsHalf.csv")
+    return _get_table("TeamsHalf.csv")
