@@ -4,6 +4,8 @@ from typing import Any, Callable, Dict, List, Optional, Union
 import lxml.etree
 import pandas as pd
 import requests
+import json
+import re
 
 from ..datahelpers import postprocessing
 from ..datahelpers.column_mapper import ColumnListMapperFunction
@@ -95,3 +97,21 @@ class HTMLTableProcessor:
             row_id_func=row_id_func,
             row_id_name=row_id_name,
         )
+
+    def get_tabular_data_from_api(self, base_url: str, query_params: Dict[str, Union[str, int]]):
+        # Newest Fangraphs Leaderboard API will return html tag in `Name` and `Team` column
+        # Therefore we need to extract the name and team from response result
+        def extract_text_from_html(text):
+            try:
+                return re.search('>(.+?)<', text).group(1)
+            except AttributeError:
+                return text
+
+        data = requests.get(base_url, query_params).content
+        data = json.loads(data)
+
+        df = pd.DataFrame(data['data'])
+        df['Name'] = df['Name'].apply(extract_text_from_html)
+        df['Team'] = df['Team'].apply(extract_text_from_html)
+
+        return df
