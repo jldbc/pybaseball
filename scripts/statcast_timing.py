@@ -3,7 +3,7 @@ import sys
 import time
 from pybaseball import statcast
 
-DEFAULT_TIME_THRESHOLD = 30
+DEFAULT_TIME_THRESHOLD = 38
 DEFAULT_START_DATE = "2018-08-01"
 DEFAULT_END_DATE = "2018-08-10"
 
