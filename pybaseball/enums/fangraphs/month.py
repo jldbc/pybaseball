@@ -3,6 +3,9 @@ from ..enum_base import EnumBase
 
 class FangraphsMonth(EnumBase):
     ALL               = 0
+    LAST_SEVEN        = 1
+    LAST_FOURTEEN     = 2
+    LAST_THIRTY       = 3
     MARCH_APRIL       = 4
     MARCH             = MARCH_APRIL
     APRIL             = MARCH_APRIL
