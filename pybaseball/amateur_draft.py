@@ -30,7 +30,7 @@ def amateur_draft(year: int, draft_round: int, keep_stats: bool = True, keep_col
     """
     draft_results = get_draft_results(year, draft_round)
     draft_results = pd.concat(draft_results)
-    if not keep_columns
+    if not keep_columns:
         draft_results = postprocess(draft_results)
     if not keep_stats:
         draft_results = drop_stats(draft_results)
