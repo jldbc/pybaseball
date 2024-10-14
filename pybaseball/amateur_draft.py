@@ -17,7 +17,7 @@ def get_draft_results(year: int, draft_round: int) -> pd.DataFrame:
 
 
 @cache.df_cache()
-def amateur_draft(year: int, draft_round: int, keep_stats: bool = True) -> pd.DataFrame:
+def amateur_draft(year: int, draft_round: int, keep_stats: bool = True, keep_columns: bool = False) -> pd.DataFrame:
     """
     Retrieves the MLB amateur draft results by year and round.
 
@@ -30,7 +30,8 @@ def amateur_draft(year: int, draft_round: int, keep_stats: bool = True) -> pd.Da
     """
     draft_results = get_draft_results(year, draft_round)
     draft_results = pd.concat(draft_results)
-    draft_results = postprocess(draft_results)
+    if not keep_columns
+        draft_results = postprocess(draft_results)
     if not keep_stats:
         draft_results = drop_stats(draft_results)
     return draft_results
