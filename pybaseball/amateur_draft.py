@@ -12,7 +12,7 @@ _URL = "https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={dr
 def get_draft_results(year: int, draft_round: int, include_id: bool) -> pd.DataFrame:
     url = _URL.format(year=year, draft_round=draft_round)
     res = session.get(url, timeout=None).content
-    extract_links = 'Body' if include_id else None
+    extract_links = 'body' if include_id else None
     draft_results = pd.read_html(res, extract_links=extract_links)
     if include_id:
         draft_results = clean_draft_results_with_links(draft_results)
