@@ -25,13 +25,13 @@ def clean_draft_results_with_links(draft_results: pd.DataFrame) -> pd.DataFrame:
         lambda value: True if 'register' in value else False
         )
     draft_results['player_id'] = draft_results['Link'].apply(
-        lambda value: 
-            lambda value: value.split('=')[-1] if 'register' in value 
+        lambda value:
+            value.split('=')[-1] if 'register' in value 
             else value.split('/')[-1].split('.')[0]
         )
     draft_results = draft_results.apply(
         lambda column: [
-            value[0] if column.name not in ['Link', 'is_minors_id', 'id'] 
+            value[0] if column.name not in ['Link', 'is_minors_id', 'player_id'] 
             else value for value in column
             ]
         )
