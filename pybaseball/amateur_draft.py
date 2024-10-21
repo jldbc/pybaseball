@@ -20,7 +20,7 @@ def get_draft_results(year: int, draft_round: int, include_id: bool) -> pd.DataF
     return draft_results
 
 def clean_draft_results_with_links(draft_results: pd.DataFrame) -> pd.DataFrame:
-    draft_results['Link'] = draft_results['Name'].apply(lambda x: x.split(' ')[-1])
+    draft_results['Link'] = draft_results['Name'].apply(lambda value: value[1])
     draft_results['is_minors_id'] = draft_results['Link'].apply(
         lambda value: True if 'register' in value else False
         )
