@@ -14,6 +14,7 @@ def get_draft_results(year: int, draft_round: int, include_id: bool) -> pd.DataF
     res = session.get(url, timeout=None).content
     extract_links = 'body' if include_id else None
     draft_results = pd.read_html(res, extract_links=extract_links)
+    draft_results = pd.concat(draft_results)
     if include_id:
         draft_results = clean_draft_results_with_links(draft_results)
     return draft_results
@@ -53,7 +54,6 @@ def amateur_draft(year: int, draft_round: int, include_id: bool = False, keep_st
             'FrRnd' are returned. Default set to false.
     """
     draft_results = get_draft_results(year, draft_round, include_id)
-    draft_results = pd.concat(draft_results)
     if not keep_columns:
         draft_results = postprocess(draft_results)
     if not keep_stats:
