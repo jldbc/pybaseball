@@ -23,13 +23,13 @@ def clean_draft_results_with_links(draft_results: pd.DataFrame) -> pd.DataFrame:
     draft_results['link'] = draft_results['Name'].apply(
         lambda value: value[1] if value[1] != None else 'NA'
         )
-    draft_results['id_type'] = draft_results['Link'].apply(
+    draft_results['id_type'] = draft_results['link'].apply(
         lambda value:
             'baseball_reference_minor_league_id' if 'register' in value 
             else 'baseball_reference_id' if 'players' in value
             else 'NA'
         )
-    draft_results['player_id'] = draft_results['Link'].apply(
+    draft_results['player_id'] = draft_results['link'].apply(
         lambda value:
             value.split('=')[-1] if 'register' in value 
             else value.split('/')[-1].split('.')[0] if 'players' in value
