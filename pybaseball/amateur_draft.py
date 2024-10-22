@@ -20,7 +20,7 @@ def get_draft_results(year: int, draft_round: int, include_id: bool) -> pd.DataF
     return draft_results
 
 def clean_draft_results_with_links(draft_results: pd.DataFrame) -> pd.DataFrame:
-    draft_results['Link'] = draft_results['Name'].apply(
+    draft_results['link'] = draft_results['Name'].apply(
         lambda value: value[1] if value[1] != None else 'NA'
         )
     draft_results['id_type'] = draft_results['Link'].apply(
@@ -40,7 +40,7 @@ def clean_draft_results_with_links(draft_results: pd.DataFrame) -> pd.DataFrame:
         )
     draft_results = draft_results.apply(
         lambda column: [
-            value[0] if column.name not in ['Link', 'is_minors_id', 'player_id'] 
+            value[0] if column.name not in ['link', 'id_type', 'player_id', 'notes'] 
             else value for value in column
             ]
         )
