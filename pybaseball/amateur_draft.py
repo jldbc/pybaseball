@@ -38,6 +38,9 @@ def clean_draft_results_with_links(draft_results: pd.DataFrame) -> pd.DataFrame:
     draft_results['notes'] = draft_results['Name'].apply(
         lambda value: value[0].split('(')[1].split(')')[0] if value[1] == None else 'NA'
         )
+    draft_results['team_id'] = draft_results['Tm'].apply(
+        lambda value: value[1].split('team_ID=')[-1].split('&year_ID=')[0] if value[1] != None else 'NA'
+    )
     draft_results = draft_results.apply(
         lambda column: [
             value[0] if column.name not in ['link', 'id_type', 'player_id', 'notes'] 
