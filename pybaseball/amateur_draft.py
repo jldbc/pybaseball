@@ -43,7 +43,7 @@ def clean_draft_results_with_links(draft_results: pd.DataFrame) -> pd.DataFrame:
     )
     draft_results = draft_results.apply(
         lambda column: [
-            value[0] if column.name not in ['link', 'id_type', 'player_id', 'notes'] 
+            value[0] if column.name not in ['link', 'id_type', 'player_id', 'notes', 'team_id'] 
             else value for value in column
             ]
         )
