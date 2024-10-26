@@ -58,7 +58,7 @@ def statcast_pitcher_expected_stats(year: int, minPA: Union[int, str] = "q") -> 
         minPA: The minimum number of plate appearances against for each player. If a player falls below this threshold, 
             they will be excluded from the results. If no value is specified, only qualified pitchers will be returned.
     """
-    url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=pitcher&year={year}&position=&team=&min={minPA}&csv=true"
+    url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=pitcher&year={year}&position=&team=&filterType=pa&min={minPA}&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     data = sanitize_statcast_columns(data)
@@ -216,3 +216,19 @@ def statcast_pitcher_bat_tracking(year: int, minSwings: Union[int,str] = "q") ->
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     data = sanitize_statcast_columns(data)
     return data
+@cache.df_cache()
+def statcast_pitcher_arm_angle(year: int, minP: Union[int,str] = "q") -> pd.DataFrame:
+    """
+    Retreives pitcher arm angle data for pitchers.
+
+    ARGUMENTS
+        year: The year for which you wish to retrive arm angle data. Format: YYYY
+        minP: the minimum number of pitches thrown. If a player falls below this threshold, they will be excluded from
+        the results. The default value if no argument is passed is qualified.
+    """
+    url = f"https://baseballsavant.mlb.com/leaderboard/pitcher-arm-angles?season={year}&team=&pitchHand=&min={minP}&sort=ascending&csv=true"
+    res = requests.get(url, timeout=None).content
+    data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+    data = sanitize_statcast_columns(data)
+    return data
+
