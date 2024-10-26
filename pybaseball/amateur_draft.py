@@ -57,7 +57,14 @@ def clean_draft_results_with_links(draft_results: pd.DataFrame) -> pd.DataFrame:
     return draft_results
 
 @cache.df_cache()
-def amateur_draft(year: int, draft_round: int, include_id: bool = False, keep_stats: bool = True, keep_columns: bool = False) -> pd.DataFrame:
+def amateur_draft(
+        year: int,
+        draft_round: int,
+        draft_type: str,
+        include_id:bool = False,
+        keep_stats: bool = True,
+        keep_columns: bool = False
+) -> pd.DataFrame:
     """
     Retrieves the MLB amateur draft results by year and round.
 
@@ -72,7 +79,7 @@ def amateur_draft(year: int, draft_round: int, include_id: bool = False, keep_st
         keep_columns: A boolean parameter that controls whether the columns 'Year', 'Rnd', 'RdPck', 'DT',
             'FrRnd' are returned. Default set to false.
     """
-    draft_results = get_draft_results(year, draft_round, include_id)
+    draft_results = get_draft_results(year, draft_round, draft_type, include_id)
     if not keep_columns:
         draft_results = postprocess(draft_results)
     if not keep_stats:
