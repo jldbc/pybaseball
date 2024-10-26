@@ -103,4 +103,25 @@ data = statcast_batter_pitch_arsenal(2019)
 
 # get data for batters with a minimum of 100 plate appearances in 2019
 data = statcast_batter_pitch_arsenal(2019, 100)
+
+```
+# Statcast Batter Bat Tracking
+`statcast_batter_bat_tracking(year, minSwings=q)`
+
+This functions retrives a player\'s bat tracking data in a given year.
+
+## Arguments:
+`year:` The year for which you wish to retrieve the bat tracking data. Format: YYYY.
+
+`minSwings:` The minimum number of competitive swings for wach player. If a player falls below this threshold, they will be excluded from the results. If no value is specified, the default number of competitive swings is qualified.
+
+## Examples of Valid Queries
+```python
+from pybaseball import statcast_batter_bat_tracking
+
+# Get data for all qualified batters in 2024
+data = statcast_batter_bat_tracking(2024)
+
+# Get data for batters with a minimum of 250 swings in 2024
+data = statcast_batter_bat_tracking(2024, 250)
 ```

@@ -219,11 +219,11 @@ def statcast_pitcher_bat_tracking(year: int, minSwings: Union[int,str] = "q") ->
 @cache.df_cache()
 def statcast_pitcher_arm_angle(year: int, minP: Union[int,str] = "q") -> pd.DataFrame:
     """
-    Retreives pitcher arm angle data for pitchers.
+    Retreives pitcher arm angle data.
 
     ARGUMENTS
         year: The year for which you wish to retrive arm angle data. Format: YYYY
-        minP: the minimum number of pitches thrown. If a player falls below this threshold, they will be excluded from
+        minP: The minimum number of pitches thrown. If a player falls below this threshold, they will be excluded from
         the results. The default value if no argument is passed is qualified.
     """
     url = f"https://baseballsavant.mlb.com/leaderboard/pitcher-arm-angles?season={year}&team=&pitchHand=&min={minP}&sort=ascending&csv=true"

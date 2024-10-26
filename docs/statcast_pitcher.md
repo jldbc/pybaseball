@@ -202,3 +202,43 @@ data = statcast_pitcher_spin_dir_comp(2020, pitch_a="Sinker", pitch_b="Slider", 
 # get data for sinker / slider combos in 2020 using pitch codes and from the batter's POV
 data = statcast_pitcher_spin_dir_comp(2020, pitch_a="SIFT", pitch_b="SL", pitcher_pov=False)
 ```
+# Statcast Pitcher Bat Tracking
+`statcast_pitcher_bat_tracking(year, minSwings=q)`
+
+This function retrives the bat tracking data against for pitchers.
+
+## Arguments
+`year:` The year for which you wish to retrieve bat tracking data. Format: YYYY
+
+`minSwings:` The minimum number of swings batters have taken against a pitcher. If a pitcher falls belows the threshold, they will be excluded from the results. The default value is qualified.
+
+## Examples of Valid Queries
+```python
+from pybaseball import statcast_pitcher_bat_tracking
+
+# Get data for all qualified pitchers in 2024
+data = statcast_pitcher_bat_tracking(2024)
+
+#Get data for all pitchers with a minimum of 250 swings against in 2024
+data = statcast_pitcher_bat_tracking(2024, 250)
+```
+# Statcast Pitcher Arm Angle
+`statcast_pitcher_arm_angle(year, minP=q)`
+
+This function retrieves pitcher arm angle data.
+
+## Arguments
+`year:` The year for which you wish to retrieve arm angle data. Format: YYYY
+
+`minP:` The minimum number of pitchers thrown. If a player falls below this threshold, they will be excluded from the results. The default value if no argument is passed is qualified.
+
+## Examples of Valid Queries
+```python
+from pybaseball import statcast_pitcher_arm_angle
+
+#Get data for all qualified pitchers in 2024
+data = statcast_pitcher_arm_angle(2024)
+
+#Get data for all pitchers with a minimum of 100 pitches thrown in 2024
+data = statcast_pitcher_arm_angle(2024, 100)
+```
