@@ -6,11 +6,18 @@ from .datasources.bref import BRefSession
 session = BRefSession()
 
 # pylint: disable=line-too-long
-_URL = "https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={draft_round}&draft_type=junreg&query_type=year_round&"
+_URL = "https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={draft_round}&draft_type={draft_type}&query_type=year_round&"
 
 
-def get_draft_results(year: int, draft_round: int, include_id: bool) -> pd.DataFrame:
-    url = _URL.format(year=year, draft_round=draft_round)
+def get_draft_results(
+        year: int,
+        draft_round: int,
+        draft_type: str = 'junreg',
+        include_id: bool = False
+) -> pd.DataFrame:
+    if draft_type not in ['junreg', 'junsec', 'janreg', 'jansec', 'augleg', 'junseca', 'junsecd']:
+        draft_type = 'junreg'
+    url = _URL.format(year=year, draft_round=draft_round, draft_type=draft_type)
     res = session.get(url, timeout=None).content
     extract_links = 'body' if include_id else None
     draft_results = pd.read_html(res, extract_links=extract_links)
