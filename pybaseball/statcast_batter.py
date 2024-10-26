@@ -25,7 +25,7 @@ def statcast_batter(start_dt: Optional[str] = None, end_dt: Optional[str] = None
     assert end_dt
     assert player_id
 
-    season = start_dt.split("-")
+    season = start_dt.split("-") #Needs season for query to work
 
     url = f'https://baseballsavant.mlb.com/statcast_search/csv?hfPT=&hfAB=&hfGT=R%7C&hfPR=&hfZ=&hfStadium=&hfBBL=&hfNewZones=&hfPull=&hfC=&hfSea={season[0]}%7C&hfSit=&player_type=pitcher&hfOuts=&hfOpponent=&pitcher_throws=&batter_stands=&hfSA=&game_date_gt={start_dt}&game_date_lt={end_dt}&hfMo=&hfTeam=&home_road=&hfRO=&position=&hfInfield=&hfOutfield=&hfInn=&hfBBT=&batters_lookup%5B%5D={player_id}&hfFlag=&metric_1=&group_by=name&min_pitches=0&min_results=0&min_pas=0&sort_col=pitches&player_event_sort=api_p_release_speed&sort_order=desc&type=details&all=true&minors=false'
     df = split_request(start_dt, end_dt, player_id, url)

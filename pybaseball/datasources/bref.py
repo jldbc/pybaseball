@@ -32,4 +32,3 @@ class BRefSession(singleton.Singleton):
         self.last_request = datetime.datetime.now()
 
         return self.session.get(url, **kwargs)
-                
