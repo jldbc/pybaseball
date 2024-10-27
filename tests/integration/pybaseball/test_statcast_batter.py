@@ -33,6 +33,15 @@ def test_statcast_batter() -> None:
     assert len(result.columns) == CURRENT_SC_COLUMNS
     assert len(result) > 0
 
+def test_statcast_batter_multiple_seasons() -> None:
+    result: pd.DataFrame = statcast_batter('2023-04-01', '2024-10-01', 656941)
+
+    assert result is not None
+    assert not result.empty
+
+    assert len(result.columns) == CURRENT_SC_COLUMNS
+    assert len(result) > 0
+
 def test_statcast_batter_expected_stats() -> None:
     min_pa = 250
     result: pd.DataFrame = statcast_batter_expected_stats(2019, min_pa)
