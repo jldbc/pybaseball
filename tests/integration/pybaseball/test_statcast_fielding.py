@@ -30,7 +30,7 @@ def test_statcast_outs_above_average_view() -> None:
 	assert result is not None
 	assert not result.empty
 
-	assert len(result.columns) == 17
+	assert len(result.columns) == 16
 	assert len(result) > 0
 
 def test_statcast_outfield_directional_oaa() -> None:
@@ -40,7 +40,7 @@ def test_statcast_outfield_directional_oaa() -> None:
 	assert result is not None
 	assert not result.empty
 
-	assert len(result.columns) == 13
+	assert len(result.columns) == 12
 	assert len(result) > 0
 	assert len(result.loc[result.attempts < min_opp]) == 0
 
@@ -51,7 +51,7 @@ def test_statcast_outfield_catch_prob() -> None:
 	assert result is not None
 	assert not result.empty
 
-	assert len(result.columns) == 19
+	assert len(result.columns) == 18
 	assert len(result) > 0
 
 def test_statcast_outfielder_jump() -> None:		
@@ -61,7 +61,7 @@ def test_statcast_outfielder_jump() -> None:
 	assert result is not None
 	assert not result.empty
 
-	assert len(result.columns) == 13
+	assert len(result.columns) == 12
 	assert len(result) > 0
 	assert len(result.loc[result.n < min_att]) == 0
 

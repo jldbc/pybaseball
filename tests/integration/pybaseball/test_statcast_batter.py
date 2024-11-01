@@ -33,6 +33,15 @@ def test_statcast_batter() -> None:
     assert len(result.columns) == CURRENT_SC_COLUMNS
     assert len(result) > 0
 
+def test_statcast_batter_multiple_seasons() -> None:
+    result: pd.DataFrame = statcast_batter('2023-04-01', '2024-10-01', 656941)
+
+    assert result is not None
+    assert not result.empty
+
+    assert len(result.columns) == CURRENT_SC_COLUMNS
+    assert len(result) > 0
+
 def test_statcast_batter_expected_stats() -> None:
     min_pa = 250
     result: pd.DataFrame = statcast_batter_expected_stats(2019, min_pa)
@@ -40,7 +49,7 @@ def test_statcast_batter_expected_stats() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 15
+    assert len(result.columns) == 14
     assert len(result) > 0
     assert len(result[result['pa'] < min_pa]) == 0
 
@@ -50,7 +59,7 @@ def test_statcast_batter_percentile_ranks() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 17
+    assert len(result.columns) == 23
     assert len(result) > 0
 
 def test_statcast_batter_pitch_arsenal() -> None:
@@ -60,7 +69,7 @@ def test_statcast_batter_pitch_arsenal() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 21
+    assert len(result.columns) == 20
     assert len(result) > 0
     assert len(result[result['pa'] < min_pa]) == 0
 def test_statcast_batter_bat_tracking() -> None:
