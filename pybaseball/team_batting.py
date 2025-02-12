@@ -40,7 +40,6 @@ def team_batting_bref(team: str, start_season: int, end_season: Optional[int]=No
         response = session.get(stats_url)
         soup = BeautifulSoup(response.content, 'html.parser')
 
-        print(stats_url)
         table = soup.find_all('table', {'id': 'players_standard_batting'})[0]
 
         if headings is None:
