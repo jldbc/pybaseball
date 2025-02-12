@@ -40,10 +40,11 @@ def team_batting_bref(team: str, start_season: int, end_season: Optional[int]=No
         response = session.get(stats_url)
         soup = BeautifulSoup(response.content, 'html.parser')
 
-        table = soup.find_all('table', {'class': 'sortable stats_table'})[0]
+        print(stats_url)
+        table = soup.find_all('table', {'id': 'players_standard_batting'})[0]
 
         if headings is None:
-            headings = [row.text.strip() for row in table.find_all('th')[1:28]]
+            headings = [row.text.strip() for row in table.find_all('th')[1:32]]
 
         rows = table.find_all('tr')
         for row in rows:
