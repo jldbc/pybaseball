@@ -92,6 +92,7 @@ setup(
                       'matplotlib>=2.0.0',
                       'tqdm>=4.50.0',
                       'attrs>=20.3.0',
+                      'curl_cffi>=0.10.0',
                       ],
 
     # List additional groups of dependencies here (e.g. development

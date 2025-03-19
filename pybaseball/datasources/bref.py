@@ -2,7 +2,7 @@ import datetime
 from time import sleep
 from typing import Any, Optional
 
-import requests
+from curl_cffi import requests
 
 from ..datahelpers import singleton
 
@@ -30,6 +30,12 @@ class BRefSession(singleton.Singleton):
                 sleep(sleep_length)
 
         self.last_request = datetime.datetime.now()
+        try:
+            resp = self.session.get(url, impersonate="chrome", **kwargs)
+            resp.raise_for_status()
+            return resp
+        except requests.exceptions.RequestException as e:
+            print(f"Error: {e}")
 
-        return self.session.get(url, **kwargs)
+        return -1
                 
