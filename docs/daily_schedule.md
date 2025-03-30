@@ -27,3 +27,24 @@ data = daily_schedule(specific_date)
 
 
 ```
+
+# Full Daily Schedule
+
+`full_schedule()`
+
+The `full_schedule` function returns data about all games for the current or immediately previous season.
+
+Only queries against the main current season schedule page at this time. This page remains up until the next season's spring training has started.
+
+### A note on data availability 
+After the new season starts, schedule data including start times will no longer be available by date. Use `schedule_and_record` by team to get data on past seasons.
+
+## Example of valid query
+
+```python
+from pybaseball import full_schedule
+
+# get entire schedule for current season, including some spring training games and postseason if that schedule has been released
+data = full_schedule()
+
+```

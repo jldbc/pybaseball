@@ -33,7 +33,10 @@ from .statcast_fielding import (
 	statcast_catcher_framing,
 	statcast_fielding_run_value
 )
-from .daily_schedule import daily_schedule
+from .daily_schedule import (
+	daily_schedule,
+	full_schedule
+)
 from .league_batting_stats import batting_stats_bref
 from .league_batting_stats import batting_stats_range
 from .league_batting_stats import bwar_bat
