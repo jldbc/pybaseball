@@ -56,7 +56,14 @@ def try_parse_dataframe(
             # the whole dataframe just tries to gobble up ints/floats as timestamps
             for date_regex, date_format in date_formats:
                 if isinstance(first_value, str) and date_regex.match(first_value):
-                    data_copy[column] = data_copy[column].apply(pd.to_datetime, format=date_format)
+
+                    def ignore_error_to_datetime(value, date_format):
+                        try:
+                            return pd.to_datetime(value, format=date_format)
+                        except:
+                            return value
+
+                    data_copy[column] = data_copy[column].apply(lambda x: ignore_error_to_datetime(x, date_format))
                     data_copy[column] = data_copy[column].convert_dtypes(convert_string=False)
                     break
 
