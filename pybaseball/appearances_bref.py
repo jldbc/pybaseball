@@ -9,20 +9,6 @@ from .datasources.bref import BRefSession
 
 session = BRefSession()
 
-# helper to determine if the Awards column should be removed from results
-def season_has_awards(season: int) -> bool:
-    # MVP was the earliest award. we just need to account for the gaps in years it was awarded
-    if season >= 1922:
-        return True
-
-    if season >= 1915:
-        return False
-
-    if season >= 1911:
-        return True
-
-    return False
-
 def get_soup(year: int) -> BeautifulSoup:
     url = f'https://www.baseball-reference.com/leagues/majors/{year}-appearances-fielding.shtml'
     s = session.get(url).content
@@ -38,10 +24,6 @@ def get_tables(soup: BeautifulSoup, season: int) -> pd.DataFrame:
     # remove the Rk header, it's unnecessary
     headings.pop(0)
 
-    # remove the awards column if that season had no awards
-    if not season_has_awards(season):
-        headings.pop()
-
     # pull in data rows
     table_body = table.find('tbody')
     rows = table_body.find_all('tr')
@@ -50,7 +32,7 @@ def get_tables(soup: BeautifulSoup, season: int) -> pd.DataFrame:
             continue
         cols = row.find_all('td')
         cols = [ele.text.strip() for ele in cols]
-        data.append([ele for ele in cols if ele])
+        data.append([ele for ele in cols])
 
     # use headings for column names
     return pd.DataFrame(data, columns=headings)
