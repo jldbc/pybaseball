@@ -12,7 +12,7 @@ from pybaseball.daily_schedule import daily_schedule
 def _sample_html(get_data_file_contents: Callable[[str], str]) -> str:
     return get_data_file_contents('daily_schedule.html')
 
-def test_batting_stats(response_get_monkeypatch: Callable, sample_html: str):
+def test_daily_schedule(response_get_monkeypatch: Callable, sample_html: str):
 
     response_get_monkeypatch(sample_html)
 
