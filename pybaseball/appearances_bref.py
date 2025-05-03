@@ -38,7 +38,7 @@ def get_tables(soup: BeautifulSoup, season: int) -> pd.DataFrame:
         cols = [ele.text.strip() for ele in cols]
 
         # find bref ID in player link and add to data
-        cols.append(get_bref_id_from_player_link(player_link))
+        cols.append(get_bref_id_from_player_link(player_link.get('href')))
 
         data.append([ele for ele in cols])
 

@@ -35,6 +35,7 @@ from .statcast_fielding import (
 )
 from .league_batting_stats import batting_stats_bref
 from .appearances_bref import appearances_bref
+from .active_roster import active_roster
 from .league_batting_stats import batting_stats_range
 from .league_batting_stats import bwar_bat
 from .league_pitching_stats import pitching_stats_bref
