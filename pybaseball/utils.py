@@ -89,7 +89,7 @@ team_equivalents = [
 ACTIVE_TEAMS = [
 	'ARI',
 	'ATH',
-	'ATL'
+	'ATL',
 	'BAL',
 	'BOS',
 	'CHC',
