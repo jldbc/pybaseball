@@ -1,5 +1,7 @@
 from time import sleep
 from typing import Generator
+from datetime import date
+
 
 import pytest
 
@@ -22,3 +24,13 @@ def test_nyy_game_logs_regression1() -> None:
 
     # subway series 9/11/2021, NYY playing Mets @ Citi (NYY is Away)
     assert not df.loc[141]["Home"]
+
+
+def test_current_season() -> None:
+    today = date.today()
+
+    df = pybaseball.team_game_logs(today.year, "NYY")
+
+    # check that there is data in the dataframe if it is after opening day
+    if today.month > 5 and today.day > 10:
+        assert len(df.index) > 0
