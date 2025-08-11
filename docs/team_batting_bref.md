@@ -15,7 +15,7 @@ The 'team_batting_bref' function returns a dataframe of team-level batting stats
 
 ```python
 ~~~~
-from pybaseball import team_batting
+from pybaseball import team_batting_bref
 
 # get the Yankees (NYY) seasonal batting stats from 2010 through 2013
 data = team_batting_bref('NYY', 2010, 2013)
