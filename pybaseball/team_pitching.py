@@ -4,13 +4,15 @@ import pandas as pd
 from bs4 import BeautifulSoup
 
 from . import cache
-from .datasources.fangraphs import fg_team_pitching_data
+from .datasources.fangraphs import fg_team_pitching_data, fg_team_pitching_starters_data, fg_team_pitching_relievers_data
 from .datasources.bref import BRefSession
 
 session = BRefSession()
 
 # This is just a pass through for the new, more configurable function
-team_pitching = fg_team_pitching_data 
+team_pitching = fg_team_pitching_data
+team_pitching_starters = fg_team_pitching_starters_data
+team_pitching_relievers = fg_team_pitching_relievers_data 
 
 
 @cache.df_cache()

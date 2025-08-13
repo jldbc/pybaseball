@@ -232,9 +232,17 @@ class FangraphsTeamPitchingDataTable(FangraphsDataTable):
     ROW_ID_FUNC: RowIdFunction = team_row_id_func
     ROW_ID_NAME = 'teamIDfg'
 
+class FangraphsTeamPitchingStartersDataTable(FangraphsTeamPitchingDataTable):
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.STARTERS
+
+class FangraphsTeamPitchingRelieversDataTable(FangraphsTeamPitchingDataTable):
+    STATS_CATEGORY: FangraphsStatsCategory = FangraphsStatsCategory.RELIEVERS
+
 fg_batting_data = FangraphsBattingStatsTable().fetch
 fg_fielding_data = FangraphsFieldingStatsTable().fetch
 fg_pitching_data = FangraphsPitchingStatsTable().fetch
 fg_team_batting_data = FangraphsTeamBattingDataTable().fetch
 fg_team_fielding_data = FangraphsTeamFieldingDataTable().fetch
 fg_team_pitching_data = FangraphsTeamPitchingDataTable().fetch
+fg_team_pitching_starters_data = FangraphsTeamPitchingStartersDataTable().fetch
+fg_team_pitching_relievers_data = FangraphsTeamPitchingRelieversDataTable().fetch

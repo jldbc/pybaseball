@@ -49,6 +49,8 @@ from .team_batting import team_batting_bref
 from .team_fielding import team_fielding
 from .team_fielding import team_fielding_bref
 from .team_pitching import team_pitching
+from .team_pitching import team_pitching_starters
+from .team_pitching import team_pitching_relievers
 from .team_pitching import team_pitching_bref
 from .top_prospects import top_prospects
 from .amateur_draft import amateur_draft
@@ -99,6 +101,6 @@ from .plotting import spraychart
 from .plotting import plot_teams
 from .plotting import plot_strike_zone
 from .datasources.fangraphs import (fg_batting_data, fg_pitching_data, fg_team_batting_data, fg_team_fielding_data,
-                                    fg_team_pitching_data)
+                                    fg_team_pitching_data, fg_team_pitching_starters_data, fg_team_pitching_relievers_data)
 from .split_stats import get_splits
 from .version import __version__

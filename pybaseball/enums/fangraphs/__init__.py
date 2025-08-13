@@ -16,6 +16,8 @@ _category_enum_map: Dict[FangraphsStatsCategory, Type[FangraphsStatColumn]] = {
     FangraphsStatsCategory.BATTING: FangraphsBattingStats,
     FangraphsStatsCategory.FIELDING: FangraphsFieldingStats,
     FangraphsStatsCategory.PITCHING: FangraphsPitchingStats,
+    FangraphsStatsCategory.RELIEVERS: FangraphsPitchingStats,
+    FangraphsStatsCategory.STARTERS: FangraphsPitchingStats,
 }
 
 def stat_list_from_str(stat_category: FangraphsStatsCategory, values: Union[str, List[str]]) -> List:
