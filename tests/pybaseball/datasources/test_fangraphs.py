@@ -82,6 +82,8 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
+                'startdate': '',
+                'enddate': '',
                 'page': f'1_1000000'
             },
             safe=','
@@ -114,6 +116,8 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
+                'startdate': '',
+                'enddate': '',
                 'page': f'1_1000000'
             },
             safe=','
@@ -147,6 +151,8 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
+                'startdate': '',
+                'enddate': '',
                 'page': f'1_1000000'
             },
             safe=','
@@ -180,6 +186,8 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
+                'startdate': '',
+                'enddate': '',
                 'page': f'1_1000000'
             },
             safe=','
@@ -213,6 +221,8 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
+                'startdate': '',
+                'enddate': '',
                 'page': f'1_1000000'
             },
             safe=','
@@ -246,6 +256,8 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
+                'startdate': '',
+                'enddate': '',
                 'page': f'1_1000000'
             },
             safe=','
@@ -280,6 +292,8 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
+                'startdate': '',
+                'enddate': '',
                 'page': f'1_1000000'
             },
             safe=','
@@ -314,6 +328,8 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
+                'startdate': '',
+                'enddate': '',
                 'page': f'1_1000000'
             },
             safe=','
@@ -348,6 +364,8 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
+                'startdate': '',
+                'enddate': '',
                 'page': f'1_1000000'
             },
             safe=','
@@ -381,6 +399,8 @@ class TestDatasourceFangraphs:
                 'age': f"{MIN_AGE},{MAX_AGE}",
                 'filter': '',
                 'players': '',
+                'startdate': '',
+                'enddate': '',
                 'page': f'1_1000000'
             },
             safe=','

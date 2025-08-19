@@ -4,6 +4,8 @@
 
 The `batting_stats_range` function returns batting stats from Baseball Reference, aggregated over a user-defined time range.
 
+To get batting stats data over a time range from Fangraphs, set the start_date and end_date parameters in [the batting_stats function](./batting_stats.md).
+
 ## Arguments
 `start_dt:` String. The beginning of the date range you want batting stats for. Format: "YYYY-MM-DD". 
 
