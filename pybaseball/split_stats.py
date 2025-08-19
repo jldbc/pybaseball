@@ -1,4 +1,4 @@
-from typing import Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import bs4 as bs
 import pandas as pd
@@ -7,6 +7,16 @@ import re
 from .datasources.bref import BRefSession
 
 session = BRefSession()
+
+def get_team_split_soup(team: str, year: int, pitching_splits: bool = False) -> bs.BeautifulSoup:
+    """
+    gets soup for the team splits.
+    """
+    pitch_or_bat = 'p' if pitching_splits else 'b'
+    url = f"https://www.baseball-reference.com/teams/split.cgi?t={pitch_or_bat}&team={team}&year={year}"
+    html = session.get(url).content
+    soup = bs.BeautifulSoup(html, 'lxml')
+    return soup
 
 
 def get_split_soup(playerid: str, year: Optional[int] = None, pitching_splits: bool = False) -> bs.BeautifulSoup:
@@ -57,13 +67,10 @@ def get_player_info(playerid: str, soup: bs.BeautifulSoup = None) -> Dict:
     return player_info_data
 
 
-def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = False, pitching_splits: bool = False) -> Union[pd.DataFrame, Tuple[pd.DataFrame, Dict]]:
+def soup_to_data(soup: bs.BeautifulSoup, year: int, identifier: str, identifier_label: str):
     """
-    Returns a dataframe of all split stats for a given player.
-    If player_info is True, this will also return a dictionary that includes player position, handedness, height, weight, position, and team
+    splits tables on the bbref site are all within an embedded comment. This finds all the comments
     """
-    soup = get_split_soup(playerid, year, pitching_splits)
-    # the splits tables on the bbref site are all within an embedded comment. This finds all the comments
     comment = soup.find_all(text=lambda text: isinstance(text, bs.Comment))
     raw_data = []
     raw_level_data = []
@@ -85,7 +92,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
                     level_headings = [th.get_text()
                                       for th in splits[j].find("tr").find_all("th")][:]
                 level_headings.append('Split Type')
-                level_headings.append('Player ID')
+                level_headings.append(identifier_label)
                 # singles data isn't included in the tables so this appends the column header
                 level_headings.append('1B')
                 raw_level_data.append(level_headings)
@@ -98,7 +105,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
                     level_cols = [ele.text.strip() for ele in level_cols]
                     if split_type != "By Inning":  # bbref added three empty columns to the by inning tables that don't match the rest of the tables. Not including this split table in results
                         level_cols.append(split_type)
-                        level_cols.append(playerid)
+                        level_cols.append(identifier)
                         raw_level_data.append([ele for ele in level_cols])
             else:
                 if year == None:  # The bbref tables for career splits have one extra preceding th column labeled 'I' that is not used and is not in the single season records
@@ -108,7 +115,7 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
                     headings = [th.get_text()
                                 for th in splits[j].find("tr").find_all("th")][:]
                 headings.append('Split Type')
-                headings.append('Player ID')
+                headings.append(identifier_label)
                 # singles data isn't included in the tables so this appends the column header
                 headings.append('1B')
                 raw_data.append(headings)
@@ -121,18 +128,39 @@ def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = Fa
                     cols = [ele.text.strip() for ele in cols]
                     if split_type != "By Inning":  # bbref added three empty columns to the by inning tables that don't match the rest of the tables. Not including this split table in results
                         cols.append(split_type)
-                        cols.append(playerid)
+                        cols.append(identifier)
                         raw_data.append([ele for ele in cols])
-
     data = pd.DataFrame(raw_data)
     data = data.rename(columns=data.iloc[0])
     data = data.reindex(data.index.drop(0))
-    data = data.set_index(['Player ID', 'Split Type', 'Split'])
+    data = data.set_index([identifier_label, 'Split Type', 'Split'])
     data = data.drop(index=['Split'], level=2)
     data = data.apply(pd.to_numeric, errors='coerce').convert_dtypes()
     data = data.dropna(axis=1, how='all')
     data['1B'] = data['H']-data['2B']-data['3B']-data['HR']
-    data = data.loc[playerid]
+    data = data.loc[identifier]
+    return data, raw_level_data
+
+
+def get_team_splits(team: str, year: int, pitching_splits: bool = False) -> pd.DataFrame:
+    """
+    Returns a dataframe of all split stats for a given team.
+    """
+    soup = get_team_split_soup(team, year, pitching_splits)
+
+    data, raw_level_data = soup_to_data(soup, year, team, "Team")
+    
+    return data
+
+def get_splits(playerid: str, year: Optional[int] = None, player_info: bool = False, pitching_splits: bool = False) -> Union[pd.DataFrame, Tuple[pd.DataFrame, Dict]]:
+    """
+    Returns a dataframe of all split stats for a given player.
+    If player_info is True, this will also return a dictionary that includes player position, handedness, height, weight, position, and team
+    """
+    soup = get_split_soup(playerid, year, pitching_splits)
+    # the splits tables on the bbref site are all within an embedded comment. This finds all the comments
+    data, raw_level_data = soup_to_data(soup, year, playerid, 'Player ID')
+
     if pitching_splits is True: # Returns Game Level tables as a second dataframe for pitching splits
         level_data = pd.DataFrame(raw_level_data)
         level_data = level_data.rename(columns=level_data.iloc[0])
