@@ -9,7 +9,8 @@ from . import cache
 from .utils import norm_pitch_code, sanitize_input, split_request, sanitize_statcast_columns
 
 
-def statcast_pitcher(start_dt: Optional[str] = None, end_dt: Optional[str] = None, player_id: Optional[int] = None) -> pd.DataFrame:
+def statcast_pitcher(start_dt: Optional[str] = None, end_dt: Optional[str] = None,
+                     player_id: Optional[int] = None) -> pd.DataFrame:
     """
     Pulls statcast pitch-level data from Baseball Savant for a given pitcher.
 
@@ -31,6 +32,7 @@ def statcast_pitcher(start_dt: Optional[str] = None, end_dt: Optional[str] = Non
 
     return df
 
+
 @cache.df_cache()
 def statcast_pitcher_exitvelo_barrels(year: int, minBBE: Union[int, str] = "q") -> pd.DataFrame:
     """
@@ -48,6 +50,7 @@ def statcast_pitcher_exitvelo_barrels(year: int, minBBE: Union[int, str] = "q") 
     data = sanitize_statcast_columns(data)
     return data
 
+
 @cache.df_cache()
 def statcast_pitcher_expected_stats(year: int, minPA: Union[int, str] = "q") -> pd.DataFrame:
     """
@@ -58,11 +61,16 @@ def statcast_pitcher_expected_stats(year: int, minPA: Union[int, str] = "q") -> 
         minPA: The minimum number of plate appearances against for each player. If a player falls below this threshold, 
             they will be excluded from the results. If no value is specified, only qualified pitchers will be returned.
     """
-    url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=pitcher&year={year}&position=&team=&min={minPA}&csv=true"
-    res = requests.get(url, timeout=None).content
-    data = pd.read_csv(io.StringIO(res.decode('utf-8')))
-    data = sanitize_statcast_columns(data)
-    return data
+
+    try:
+        url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=pitcher&year={year}&position=&team=&filterType=pa&min={minPA}&csv=true"
+        res = requests.get(url, timeout=None).content
+        data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+        data = sanitize_statcast_columns(data)
+        return data
+    except Exception as e:
+        raise KeyError(f"URL {e} is unreachable")
+
 
 @cache.df_cache()
 def statcast_pitcher_pitch_arsenal(year: int, minP: int = 250, arsenal_type: str = "avg_speed") -> pd.DataFrame:
@@ -71,10 +79,10 @@ def statcast_pitcher_pitch_arsenal(year: int, minP: int = 250, arsenal_type: str
 
     ARGUMENTS
         year: The year for which you wish to retrieve expected stats data. Format: YYYY.
-        minP: The minimum number of pitches thrown. If a player falls below this threshold, they will be excluded 
+        minP: The minimum number of pitches thrown. If a player falls below this threshold, they will be excluded
             from the results. If no value is specified, only qualified pitchers will be returned.
-        arsenal_type: The type of stat to retrieve for the pitchers' arsenals. Options include ["average_speed", 
-            "n_", "average_spin"], where "n_" corresponds to the percentage share for each pitch. If no value is 
+        arsenal_type: The type of stat to retrieve for the pitchers' arsenals. Options include ["average_speed",
+            "n_", "average_spin"], where "n_" corresponds to the percentage share for each pitch. If no value is
             specified, it will default to average speed.
     """
     arsenals = ["avg_speed", "n_", "avg_spin"]
@@ -86,15 +94,16 @@ def statcast_pitcher_pitch_arsenal(year: int, minP: int = 250, arsenal_type: str
     data = sanitize_statcast_columns(data)
     return data
 
+
 @cache.df_cache()
 def statcast_pitcher_arsenal_stats(year: int, minPA: int = 25) -> pd.DataFrame:
     """
-    Retrieves assorted basic and advanced outcome stats for pitchers' arsenals in a given year. Run value and 
+    Retrieves assorted basic and advanced outcome stats for pitchers' arsenals in a given year. Run value and
         whiff % are defined on a per pitch basis, while all others are on a per PA basis.
-    
+
     ARGUMENTS
         year: The year for which you wish to retrieve expected stats data. Format: YYYY.
-        minPA: The minimum number of plate appearances against. If a player falls below this threshold, they will be 
+        minPA: The minimum number of plate appearances against. If a player falls below this threshold, they will be
             excluded from the results. If no value is specified, it will default to 25 plate appearances against.
     """
     # test to see if pitch types needs to be implemented or if user can subset on their own
@@ -104,6 +113,7 @@ def statcast_pitcher_arsenal_stats(year: int, minPA: int = 25) -> pd.DataFrame:
     data = sanitize_statcast_columns(data)
     return data
 
+
 @cache.df_cache()
 def statcast_pitcher_pitch_movement(year: int, minP: Union[int, str] = "q", pitch_type: str = "FF") -> pd.DataFrame:
     """
@@ -111,9 +121,9 @@ def statcast_pitcher_pitch_movement(year: int, minP: Union[int, str] = "q", pitc
 
     ARGUMENTS
         year: The year for which you wish to retrieve expected stats data. Format: YYYY.
-        minP: The minimum number of pitches thrown. If a player falls below this threshold, they will be excluded 
+        minP: The minimum number of pitches thrown. If a player falls below this threshold, they will be excluded
             from the results. If no value is specified, only qualified pitchers will be returned.
-        pitch_type: The type of pitch to retrieve movement data on. Options include ["FF", "SIFT", "CH", "CUKC", "FC", 
+        pitch_type: The type of pitch to retrieve movement data on. Options include ["FF", "SIFT", "CH", "CUKC", "FC",
             "SL", "FS", "ALL"]. Pitch names also allowed. If no value is specified, it will default to "FF".
     """
     pitch_type = norm_pitch_code(pitch_type)
@@ -123,6 +133,7 @@ def statcast_pitcher_pitch_movement(year: int, minP: Union[int, str] = "q", pitc
     data = sanitize_statcast_columns(data)
     return data
 
+
 @cache.df_cache()
 def statcast_pitcher_active_spin(year: int, minP: int = 250, _type: str = 'spin-based') -> pd.DataFrame:
     """
@@ -130,13 +141,13 @@ def statcast_pitcher_active_spin(year: int, minP: int = 250, _type: str = 'spin-
 
     ARGUMENTS
         year: The year for which you wish to retrieve expected stats data. Format: YYYY.
-        minP: The minimum number of pitches thrown. If a player falls below this threshold, they will be excluded from 
+        minP: The minimum number of pitches thrown. If a player falls below this threshold, they will be excluded from
             the results. If no value is specified, only pitchers who threw 250 or more pitches will be returned.
 
     NOTES
     Statcast supports spin-based for some years, but not others. We'll try to get that first, but if it's empty
-    we'll fall back to the observed. 
-    
+    we'll fall back to the observed.
+
     From Statcast:
       Measured active spin uses the 3D spin vector at release; this is only possible with the 2020 season going
       forward. (Label is "2020 - Spin-based" and can be read as "Active Spin using the Spin-based method".)
@@ -149,9 +160,10 @@ def statcast_pitcher_active_spin(year: int, minP: int = 250, _type: str = 'spin-
     if res and '<html' in res.decode('utf-8'):
         # This did no go as planned. Statcast redirected us back to HTML :(
         if _type == 'spin-based':
-            warnings.warn(f'Could not get active spin results for year {year} that are "spin-based". Trying to get the older "observed" results.')
+            warnings.warn(
+                f'Could not get active spin results for year {year} that are "spin-based". Trying to get the older "observed" results.')
             return statcast_pitcher_active_spin(year, minP, 'observed')
-        
+
         warnings.warn("Statcast did not return any active spin results for the query provided.")
         return pd.DataFrame()
 
@@ -162,12 +174,13 @@ def statcast_pitcher_active_spin(year: int, minP: int = 250, _type: str = 'spin-
     data = sanitize_statcast_columns(data)
     return data
 
+
 @cache.df_cache()
 def statcast_pitcher_percentile_ranks(year: int) -> pd.DataFrame:
     """
-    Retrieves percentile ranks for each player in a given year, including batters with 2.1 PA per team game and 1.25 
+    Retrieves percentile ranks for each player in a given year, including batters with 2.1 PA per team game and 1.25
     for pitchers. It includes percentiles on expected stats, batted ball data, and spin rates, among others.
-    
+
     ARGUMENTS
         year: The year for which you wish to retrieve percentile data. Format: YYYY.
     """
@@ -177,20 +190,22 @@ def statcast_pitcher_percentile_ranks(year: int) -> pd.DataFrame:
     # URL returns a null player with player id 999999, which we want to drop
     return data.loc[data.player_name.notna()].reset_index(drop=True)
 
+
 @cache.df_cache()
-def statcast_pitcher_spin_dir_comp(year: int, pitch_a: str = "FF", pitch_b: str = "CH", minP: int = 100, pitcher_pov: bool = True) -> pd.DataFrame:
+def statcast_pitcher_spin_dir_comp(year: int, pitch_a: str = "FF", pitch_b: str = "CH", minP: int = 100,
+                                   pitcher_pov: bool = True) -> pd.DataFrame:
     """
     Retrieves spin comparisons between two pitches for qualifying pitchers in a given year.
 
     ARGUMENTS
         year: The year for which you wish to retrieve percentile data. Format: YYYY.
-        pitch_a: The first pitch in the comparison. Valid pitches include "4-Seamer", "Sinker", "Changeup", "Curveball", 
+        pitch_a: The first pitch in the comparison. Valid pitches include "4-Seamer", "Sinker", "Changeup", "Curveball",
             "Cutter", "Slider", and "Sinker". Defaults to "4-Seamer". Pitch codes also accepted.
-        pitch_b: The second pitch in the comparison and must be different from pitch_a. Valid pitches include "4-Seamer", 
+        pitch_b: The second pitch in the comparison and must be different from pitch_a. Valid pitches include "4-Seamer",
             "Sinker", "Changeup", "Curveball", "Cutter", "Slider", "Sinker". Defaults to "Changeup". Pitch codes also accepted.
-        minP: The minimum number of pitches of type pitch_a thrown. If a player falls below this threshold, they will be 
+        minP: The minimum number of pitches of type pitch_a thrown. If a player falls below this threshold, they will be
             excluded from the results. If no value is specified, only pitchers who threw 100 or more pitches will be returned.
-        pitcher_pov: Boolean. If True, then direction of movement is from the pitcher's point of view. If False, then 
+        pitcher_pov: Boolean. If True, then direction of movement is from the pitcher's point of view. If False, then
             it is from the batter's point of view.
     """
     pitch_a = norm_pitch_code(pitch_a, to_word=True)
@@ -200,9 +215,11 @@ def statcast_pitcher_spin_dir_comp(year: int, pitch_a: str = "FF", pitch_b: str 
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     data = sanitize_statcast_columns(data)
-    return data    
+    return data
+
+
 @cache.df_cache()
-def statcast_pitcher_bat_tracking(year: int, minSwings: Union[int,str] = "q") -> pd.DataFrame:
+def statcast_pitcher_bat_tracking(year: int, minSwings: Union[int, str] = "q") -> pd.DataFrame:
     """
     Retrieves the bat tracking data against for pitchers.
 
@@ -211,7 +228,7 @@ def statcast_pitcher_bat_tracking(year: int, minSwings: Union[int,str] = "q") ->
         minSwings: The minimum number of swings batters have taken against a pitcher. If a pitcher falls
         below the threshold, they will be excluded from the results. The default value is qualified.
     """
-    url = f"https://baseballsavant.mlb.com/leaderboard/bat-tracking?attackZone=&batSide=&contactType=&count=&dateStart={year}-01-01&dateEnd={year}-12-31&gameType=&isHardHit=&minSwings={minSwings}&minGroupSwings=1&pitchHand=&pitchType=&seasonStart=&seasonEnd=&team=&type=pitcher&csv=true"
+    url = f"https://baseballsavant.mlb.com/leaderboard/bat-tracking/swing-path-attack-angle?dateStart={year}-01-01&dateEnd={year}-12-31&gameType=Regular&minSwings={minSwings}&minGroupSwings=1&seasonStart={year}&seasonEnd={year}&type=pitcher&csv=true"
     res = requests.get(url, timeout=None).content
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     data = sanitize_statcast_columns(data)

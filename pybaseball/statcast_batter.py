@@ -8,7 +8,8 @@ from . import cache
 from .utils import sanitize_input, split_request, sanitize_statcast_columns
 
 
-def statcast_batter(start_dt: Optional[str] = None, end_dt: Optional[str] = None, player_id: Optional[int] = None) -> pd.DataFrame:
+def statcast_batter(start_dt: Optional[str] = None, end_dt: Optional[str] = None,
+                    player_id: Optional[int] = None) -> pd.DataFrame:
     """
     Pulls statcast pitch-level data from Baseball Savant for a given batter.
 
@@ -19,7 +20,7 @@ def statcast_batter(start_dt: Optional[str] = None, end_dt: Optional[str] = None
             finding the correct player, and selecting their key_mlbam.
     """
     start_dt, end_dt, _ = sanitize_input(start_dt, end_dt, player_id)
-    
+
     # sanitize_input will guarantee these are not None
     assert start_dt
     assert end_dt
@@ -29,6 +30,7 @@ def statcast_batter(start_dt: Optional[str] = None, end_dt: Optional[str] = None
     df = split_request(start_dt, end_dt, player_id, url)
     return df
 
+
 @cache.df_cache()
 def statcast_batter_exitvelo_barrels(year: int, minBBE: Union[int, str] = "q") -> pd.DataFrame:
     """
@@ -36,8 +38,8 @@ def statcast_batter_exitvelo_barrels(year: int, minBBE: Union[int, str] = "q") -
 
     ARGUMENTS
         year: The year for which you wish to retrieve batted ball data. Format: YYYY.
-        minBBE: The minimum number of batted ball events for each player. If a player falls 
-            below this threshold, they will be excluded from the results. If no value is specified, 
+        minBBE: The minimum number of batted ball events for each player. If a player falls
+            below this threshold, they will be excluded from the results. If no value is specified,
             only qualified batters will be returned.
     """
     url = f"https://baseballsavant.mlb.com/leaderboard/statcast?type=batter&year={year}&position=&team=&min={minBBE}&csv=true"
@@ -46,6 +48,7 @@ def statcast_batter_exitvelo_barrels(year: int, minBBE: Union[int, str] = "q") -
     data = sanitize_statcast_columns(data)
     return data
 
+
 @cache.df_cache()
 def statcast_batter_expected_stats(year: int, minPA: Union[int, str] = "q") -> pd.DataFrame:
     """
@@ -53,19 +56,23 @@ def statcast_batter_expected_stats(year: int, minPA: Union[int, str] = "q") -> p
 
     ARGUMENTS
         year: The year for which you wish to retrieve expected stats data. Format: YYYY.
-        minPA: The minimum number of plate appearances for each player. If a player falls below this threshold, 
+        minPA: The minimum number of plate appearances for each player. If a player falls below this threshold,
             they will be excluded from the results. If no value is specified, only qualified batters will be returned.
     """
-    url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=batter&year={year}&position=&team=&min={minPA}&csv=true"
-    res = requests.get(url, timeout=None).content
-    data = pd.read_csv(io.StringIO(res.decode('utf-8')))
-    data = sanitize_statcast_columns(data)
-    return data
+    try:
+        url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=batter&year={year}&position=&team=&filterType=pa&min={minPA}&csv=true"
+        res = requests.get(url, timeout=None).content
+        data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+        data = sanitize_statcast_columns(data)
+        return data
+    except Exception as e:
+        raise KeyError(f"URL {e} is unreachable")
+
 
 @cache.df_cache()
 def statcast_batter_percentile_ranks(year: int) -> pd.DataFrame:
     """
-    Retrieves percentile ranks for each player in a given year, including batters with at least 2.1 PA per team 
+    Retrieves percentile ranks for each player in a given year, including batters with at least 2.1 PA per team
     game and 1.25 for pitchers.
 
     ARGUMENTS
@@ -77,6 +84,7 @@ def statcast_batter_percentile_ranks(year: int) -> pd.DataFrame:
     # URL returns a null player with player id 999999, which we want to drop
     return data.loc[data.player_name.notna()].reset_index(drop=True)
 
+
 @cache.df_cache()
 def statcast_batter_pitch_arsenal(year: int, minPA: int = 25) -> pd.DataFrame:
     """
@@ -84,7 +92,7 @@ def statcast_batter_pitch_arsenal(year: int, minPA: int = 25) -> pd.DataFrame:
 
     ARGUMENTS
         year: The year for which you wish to retrieve pitch arsenal data. Format: YYYY.
-        minPA: The minimum number of plate appearances for each player. If a player falls below this threshold, 
+        minPA: The minimum number of plate appearances for each player. If a player falls below this threshold,
             they will be excluded from the results. If no value is specified, the default number of plate appearances is 25.
     """
     url = f"https://baseballsavant.mlb.com/leaderboard/pitch-arsenal-stats?type=batter&pitchType=&year={year}&team=&min={minPA}&csv=true"
@@ -92,8 +100,10 @@ def statcast_batter_pitch_arsenal(year: int, minPA: int = 25) -> pd.DataFrame:
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     data = sanitize_statcast_columns(data)
     return data
+
+
 @cache.df_cache()
-def statcast_batter_bat_tracking(year: int, minSwings: Union[int,str] = "q" ) -> pd.DataFrame:
+def statcast_batter_bat_tracking(year: int, minSwings: Union[int, str] = "q") -> pd.DataFrame:
     """
     Retrieves a player's bat tracking data for a given year.
 
@@ -103,8 +113,11 @@ def statcast_batter_bat_tracking(year: int, minSwings: Union[int,str] = "q" ) ->
             they will be excluded from the results. If no value is specified, the default number of competitive swings
             is qualified.
     """
-    url = f"https://baseballsavant.mlb.com/leaderboard/bat-tracking?attackZone=&batSide=&contactType=&count=&dateStart={year}-01-01&dateEnd={year}-12-31&gameType=&isHardHit=&minSwings={minSwings}&minGroupSwings=1&pitchHand=&pitchType=&seasonStart=&seasonEnd=&team=&type=batter&csv=true"
-    res = requests.get(url, timeout=None).content
-    data = pd.read_csv(io.StringIO(res.decode('utf-8')))
-    data = sanitize_statcast_columns(data)
-    return data
+    try:
+        url = f"https://baseballsavant.mlb.com/leaderboard/bat-tracking/swing-path-attack-angle?dateStart={year}-01-01&dateEnd={year}-12-31&gameType=Regular&minSwings={minSwings}&minGroupSwings=1&seasonStart={year}&seasonEnd={year}&type=batter&csv=true"
+        res = requests.get(url, timeout=None).content
+        data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+        data = sanitize_statcast_columns(data)
+        return data
+    except Exception as e:
+        raise KeyError(f"URL {e} is unreachable")
