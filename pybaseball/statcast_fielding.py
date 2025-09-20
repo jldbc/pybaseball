@@ -54,7 +54,7 @@ def statcast_fielding_run_value(year: int, pos: Union[int, str], min_inn: int = 
 			the given threshold
 	"""
 	pos = norm_positions(pos)
-	url = f"https://baseballsavant.mlb.com/leaderboard/fielding-run-value?year={year}&min={min_inn}&pos={pos}&roles=&viz=show&csv=true"
+	url = f"https://baseballsavant.mlb.com/leaderboard/fielding-run-value?gameType=Regular&seasonStart={year}&seasonEnd={year}&type=fielder&position={pos}&minInnings={min_inn}&minResults=1&csv=true"
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	data = sanitize_statcast_columns(data)
@@ -140,10 +140,11 @@ def statcast_catcher_framing(year: int, min_called_p: Union[int, str] = "q") -> 
 		min_called_p: The minimum number of called pitches for the catcher in the shadow zone. Statcast's default 
 		is players with at least 6 called pitches in the shadow zone per team game.
 	"""
-	url = f"https://baseballsavant.mlb.com/catcher_framing?year={year}&team=&min={min_called_p}&sort=4,1&csv=true"
+	url = f"https://baseballsavant.mlb.com/leaderboard/catcher-framing?type=catcher&seasonStart={year}&seasonEnd={year}&team=&min={min_called_p}&sortColumn=rv_tot&sortDirection=desc&csv=true"
 	res = requests.get(url, timeout=None).content
 	data = pd.read_csv(io.StringIO(res.decode('utf-8')))
 	data = sanitize_statcast_columns(data)
+	print(data)
 	# CSV includes league average player, which we drop from the result
-	return data.loc[data.last_name.notna()].reset_index(drop=True)	
+	return data.loc[data.name.notna()].reset_index(drop=True)
 

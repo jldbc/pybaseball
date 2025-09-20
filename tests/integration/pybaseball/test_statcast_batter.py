@@ -8,7 +8,8 @@ from pybaseball.statcast_batter import (
     statcast_batter_expected_stats,
     statcast_batter_percentile_ranks,
     statcast_batter_pitch_arsenal,
-    statcast_batter_bat_tracking
+    statcast_batter_bat_tracking,
+    statcast_batter_run_value
 )
 
 
@@ -70,3 +71,11 @@ def test_statcast_batter_bat_tracking() -> None:
 
     assert len(result) > 0
     assert len(result[result['competitive_swings'] < min_pa]) == 0
+
+def test_statcast_batter_run_value() -> None:
+    result: pd.DataFrame = statcast_batter_run_value(2024)
+
+    assert result is not None
+    assert not result.empty
+
+    assert len(result) > 0

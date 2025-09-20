@@ -233,3 +233,14 @@ def statcast_pitcher_bat_tracking(year: int, minSwings: Union[int, str] = "q") -
     data = pd.read_csv(io.StringIO(res.decode('utf-8')))
     data = sanitize_statcast_columns(data)
     return data
+
+@cache.df_cache()
+def statcast_pitcher_run_value(year:int) ->pd.DataFrame():
+    try:
+        url = f"https://baseballsavant.mlb.com/leaderboard/swing-take?year={year}&team=&leverage=Neutral&group=Pitcher&type=All&sub_type=null&min=q&csv=True"
+        res = requests.get(url, timeout=None).content
+        data = pd.read_csv(io.StringIO(res.decode('utf-8')))
+        data = sanitize_statcast_columns(data)
+        return data
+    except Exception as e:
+        raise KeyError(f"URL {e} is unreachable")

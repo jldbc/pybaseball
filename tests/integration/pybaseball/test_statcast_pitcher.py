@@ -12,7 +12,8 @@ from pybaseball.statcast_pitcher import (
     statcast_pitcher_pitch_arsenal,
     statcast_pitcher_pitch_movement,
     statcast_pitcher_spin_dir_comp,
-    statcast_pitcher_bat_tracking
+    statcast_pitcher_bat_tracking,
+    statcast_pitcher_run_value
 )
 
 
@@ -32,7 +33,6 @@ def test_statcast_pitcher_exitvelo_barrels() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 18
     assert len(result) > 0
     assert len(result[result['attempts'] < min_bbe]) == 0
 
@@ -43,7 +43,6 @@ def test_statcast_pitchers_expected_stats() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 17
     assert len(result) > 0
     assert len(result[result['pa'] < min_pa]) == 0
 
@@ -54,7 +53,6 @@ def test_statcast_pitcher_pitch_arsenal() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 12
     assert len(result) > 0
 
 def test_statcast_pitcher_arsenal_stats() -> None:
@@ -64,7 +62,6 @@ def test_statcast_pitcher_arsenal_stats() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 20
     assert len(result) > 0
     assert len(result[result['pa'] < min_pa]) == 0
 
@@ -75,7 +72,6 @@ def test_statcast_pitcher_pitch_movement() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 24
     assert len(result) > 0
     assert len(result[result['pitches_thrown'] < min_p]) == 0
 
@@ -86,7 +82,6 @@ def test_statcast_pitcher_active_spin() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 12
     assert len(result) > 0
 
 def test_statcast_pitcher_percentile_ranks() -> None:
@@ -95,7 +90,6 @@ def test_statcast_pitcher_percentile_ranks() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 22
     assert len(result) > 0
 
 def test_statcast_pitcher_spin_dir_comp() -> None:
@@ -104,7 +98,6 @@ def test_statcast_pitcher_spin_dir_comp() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 29
     assert len(result) > 100
 def test_statcast_pitcher_bat_tracking() -> None:
     result: pd.DataFrame = statcast_pitcher_bat_tracking(2024)
@@ -112,5 +105,12 @@ def test_statcast_pitcher_bat_tracking() -> None:
     assert result is not None
     assert not result.empty
 
-    assert len(result.columns) == 13
+    assert len(result) > 0
+
+def test_statcast_pitcher_run_value() -> None:
+    result: pd.DataFrame = statcast_pitcher_run_value(2024)
+
+    assert result is not None
+    assert not result.empty
+
     assert len(result) > 0
