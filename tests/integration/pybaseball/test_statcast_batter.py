@@ -9,7 +9,7 @@ from pybaseball.statcast_batter import (
     statcast_batter_percentile_ranks,
     statcast_batter_pitch_arsenal,
     statcast_batter_bat_tracking,
-    statcast_batter_run_value
+    statcast_batter_run_value,
 )
 
 
@@ -22,17 +22,18 @@ def test_statcast_batter_exitvelo_barrels() -> None:
 
     assert len(result.columns) == 18
     assert len(result) > 0
-    assert len(result[result['attempts'] < min_bbe]) == 0
+    assert len(result[result["attempts"] < min_bbe]) == 0
 
 
 def test_statcast_batter() -> None:
-    result: pd.DataFrame = statcast_batter('2019-01-01', '2019-12-31', 642715)
+    result: pd.DataFrame = statcast_batter("2019-01-01", "2019-12-31", 642715)
 
     assert result is not None
     assert not result.empty
 
     assert len(result.columns) == CURRENT_SC_COLUMNS
     assert len(result) > 0
+
 
 def test_statcast_batter_expected_stats() -> None:
     min_pa = 250
@@ -42,7 +43,8 @@ def test_statcast_batter_expected_stats() -> None:
     assert not result.empty
 
     assert len(result) > 0
-    assert len(result[result['pa'] < min_pa]) == 0
+    assert len(result[result["pa"] < min_pa]) == 0
+
 
 def test_statcast_batter_percentile_ranks() -> None:
     result: pd.DataFrame = statcast_batter_percentile_ranks(2019)
@@ -52,6 +54,7 @@ def test_statcast_batter_percentile_ranks() -> None:
 
     assert len(result) > 0
 
+
 def test_statcast_batter_pitch_arsenal() -> None:
     min_pa = 25
     result: pd.DataFrame = statcast_batter_pitch_arsenal(2019, min_pa)
@@ -60,7 +63,8 @@ def test_statcast_batter_pitch_arsenal() -> None:
     assert not result.empty
 
     assert len(result) > 0
-    assert len(result[result['pa'] < min_pa]) == 0
+    assert len(result[result["pa"] < min_pa]) == 0
+
 
 def test_statcast_batter_bat_tracking() -> None:
     min_pa = 25
@@ -70,7 +74,8 @@ def test_statcast_batter_bat_tracking() -> None:
     assert not result.empty
 
     assert len(result) > 0
-    assert len(result[result['competitive_swings'] < min_pa]) == 0
+    assert len(result[result["competitive_swings"] < min_pa]) == 0
+
 
 def test_statcast_batter_run_value() -> None:
     result: pd.DataFrame = statcast_batter_run_value(2024)
