@@ -273,7 +273,7 @@ def statcast_pitcher_run_value(year: int) -> pd.DataFrame():
 
     ARGUMENTS:
         year(int): year data is retrieved for.
-        Data is can only be retrieved for a single year at a time
+        Data can only be retrieved for a single year at a time
 
     Returns:
         data(pd.DataFrame): clean dataframe from Savant Return

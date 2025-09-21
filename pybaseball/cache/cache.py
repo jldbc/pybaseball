@@ -7,8 +7,8 @@ from typing import Any, Callable, Dict, Optional, TypeVar, cast
 
 import pandas as pd
 
-from pybaseball.cache import cache_record, func_utils
-from pybaseball.cache.cache_config import CacheConfig, autoload_cache
+from .cache import cache_record, func_utils
+from .cache_config import CacheConfig, autoload_cache
 
 # Doing this instead of defining the types in our cache functions allows VS Code to pick up the proper type annotations
 # https://github.com/microsoft/pyright/issues/774
@@ -96,7 +96,6 @@ class df_cache:
     def _safe_load_func_cache(self, func_data: Dict) -> Optional[pd.DataFrame]:
         try:
             glob_path = os.path.join(self.cache_config.cache_directory, f'{func_data["func"]}*.cache_record.json')
-            print(glob_path)
             record_files = glob.glob(glob_path)
 
             records = [cache_record.CacheRecord(filename) for filename in record_files]
