@@ -7,7 +7,7 @@ from typing import Any, Callable, Dict, Optional, TypeVar, cast
 
 import pandas as pd
 
-from .cache import cache_record, func_utils
+from . import cache_record, func_utils
 from .cache_config import CacheConfig, autoload_cache
 
 # Doing this instead of defining the types in our cache functions allows VS Code to pick up the proper type annotations

@@ -67,14 +67,11 @@ def statcast_batter_expected_stats(
         minPA: The minimum number of plate appearances for each player. If a player falls below this threshold,
             they will be excluded from the results. If no value is specified, only qualified batters will be returned.
     """
-    try:
-        url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=batter&year={year}&position=&team=&filterType=pa&min={minPA}&csv=true"
-        res = requests.get(url, timeout=None).content
-        data = pd.read_csv(io.StringIO(res.decode("utf-8")))
-        data = sanitize_statcast_columns(data)
-        return data
-    except Exception as e:
-        raise KeyError(f"URL {e} is unreachable")
+    url = f"https://baseballsavant.mlb.com/leaderboard/expected_statistics?type=batter&year={year}&position=&team=&filterType=pa&min={minPA}&csv=true"
+    res = requests.get(url, timeout=None).content
+    data = pd.read_csv(io.StringIO(res.decode("utf-8")))
+    data = sanitize_statcast_columns(data)
+    return data
 
 
 @cache.df_cache()
@@ -123,14 +120,11 @@ def statcast_batter_bat_tracking(
             they will be excluded from the results. If no value is specified, the default number of competitive swings
             is qualified.
     """
-    try:
-        url = f"https://baseballsavant.mlb.com/leaderboard/bat-tracking/swing-path-attack-angle?dateStart={year}-01-01&dateEnd={year}-12-31&gameType=Regular&minSwings={minSwings}&minGroupSwings=1&seasonStart={year}&seasonEnd={year}&type=batter&csv=true"
-        res = requests.get(url, timeout=None).content
-        data = pd.read_csv(io.StringIO(res.decode("utf-8")))
-        data = sanitize_statcast_columns(data)
-        return data
-    except Exception as e:
-        raise KeyError(f"URL {e} is unreachable")
+    url = f"https://baseballsavant.mlb.com/leaderboard/bat-tracking/swing-path-attack-angle?dateStart={year}-01-01&dateEnd={year}-12-31&gameType=Regular&minSwings={minSwings}&minGroupSwings=1&seasonStart={year}&seasonEnd={year}&type=batter&csv=true"
+    res = requests.get(url, timeout=None).content
+    data = pd.read_csv(io.StringIO(res.decode("utf-8")))
+    data = sanitize_statcast_columns(data)
+    return data
 
 
 @cache.df_cache()
