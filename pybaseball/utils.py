@@ -1,3 +1,4 @@
+import re
 from collections import namedtuple
 from datetime import date, datetime, timedelta
 import functools
@@ -7,6 +8,7 @@ import zipfile
 
 import pandas as pd
 import requests
+from bs4 import Tag
 
 from . import cache
 
@@ -82,6 +84,39 @@ team_equivalents = [
     {'WP' , 'WMP'},
     {'WHS', 'WNA'},
     {'WAS', 'WST'}
+]
+
+ACTIVE_TEAMS = [
+	'ARI',
+	'ATH',
+	'ATL',
+	'BAL',
+	'BOS',
+	'CHC',
+	'CHW',
+	'CIN',
+	'CLE',
+	'COL',
+	'DET',
+	'HOU',
+	'KCR',
+	'LAA',
+	'LAD',
+	'MIA',
+	'MIL',
+	'MIN',
+	'NYM',
+	'NYY',
+	'PHI',
+	'PIT',
+	'SDP',
+	'SEA',
+	'SFG',
+	'STL',
+	'TBR',
+	'TEX',
+	'TOR',
+	'WSN'
 ]
 
 def get_first_season(team: str, include_equivalents: bool = True) -> Optional[int]:
@@ -384,4 +419,9 @@ def norm_positions(pos: Union[int, str], to_word: bool = False, to_number: bool 
 		raise ValueError(f'{pos} is not a valid position!')
 	# lower() ok due to positional numbers being cast as strings when created
 	return normed.lower()
+
+# pull out bref ID from player page link using a regex
+def get_bref_id_from_player_link(player_link: str) -> str:
+
+	return re.search("players/[a-z]/([a-z0-9]+)\\.shtml", player_link).group(1)
 
