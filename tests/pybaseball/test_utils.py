@@ -1,8 +1,9 @@
 from datetime import date, datetime, timedelta
 
 import pytest
+from bs4 import Tag
 
-from pybaseball.utils import DATE_FORMAT, sanitize_date_range
+from pybaseball.utils import DATE_FORMAT, sanitize_date_range, get_bref_id_from_player_link
 
 
 def test_sanitize_date_range_nones() -> None:
@@ -52,3 +53,9 @@ def test_sanitize_date_range_start_dt_gt_end_dt() -> None:
     assert start_dt_date < end_dt_date
     assert str(start_dt_date) == end_dt
     assert str(end_dt_date) == start_dt
+
+
+def test_get_bref_id_from_player_link() -> None:
+    test_link_tag = Tag(name='a', attrs={'href': '/players/s/slapncy01.shtml'})
+
+    assert get_bref_id_from_player_link(test_link_tag) == 'slapncy01'
