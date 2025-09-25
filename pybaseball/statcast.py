@@ -80,15 +80,21 @@ def _handle_request(start_dt: date, end_dt: date, step: int, verbose: bool,
                 dataframe_list.append(_small_request(subq_start, subq_end, team=team))
                 progress.update(1)
 
-    # Concatenate all dataframes into final result set
-    if dataframe_list:
-        final_data = pd.concat(dataframe_list, axis=0).convert_dtypes(convert_string=False)
-        final_data = final_data.sort_values(
-            ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
-            ascending=False
-        )
-    else:
+    # If there's no dataframe_list, return an empty DataFrame
+    if not dataframe_list:
         final_data = pd.DataFrame()
+    else:
+        # If we have non-empty DataFrames, concatenate and sort them
+        if non_empty_dataframes := [df for df in dataframe_list if not df.empty]:
+            final_data = pd.concat(non_empty_dataframes, axis=0)
+            final_data = final_data.convert_dtypes(convert_string=False)
+            final_data = final_data.sort_values(
+                ['game_date', 'game_pk', 'at_bat_number', 'pitch_number'],
+                ascending=False
+            )
+        else:
+            final_data = pd.DataFrame()
+
     return final_data
 
 
