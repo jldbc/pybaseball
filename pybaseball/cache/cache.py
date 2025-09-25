@@ -54,7 +54,6 @@ class df_cache:
         def _cached(*args: Any, **kwargs: Any) -> pd.DataFrame:
             func_data = self._safe_get_func_data(func, args, kwargs)
             result = self._safe_load_func_cache(func_data)
-
             if result is None:
                 result = func(*args, **kwargs)
                 if len(result) > 0:
@@ -97,7 +96,6 @@ class df_cache:
     def _safe_load_func_cache(self, func_data: Dict) -> Optional[pd.DataFrame]:
         try:
             glob_path = os.path.join(self.cache_config.cache_directory, f'{func_data["func"]}*.cache_record.json')
-
             record_files = glob.glob(glob_path)
 
             records = [cache_record.CacheRecord(filename) for filename in record_files]
