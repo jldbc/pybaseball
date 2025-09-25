@@ -2,12 +2,15 @@
 
 `team_pitching(start_season, end_season=None, league='all', ind=1)`
 
-The team_pitching function returns a dataframe of team-level pitching stats. This can be for either a single season or multiple. If multiple seasons are involved, this function can provide either single-season stats (e.g. one row per team per season) or aggregate stats over multiple seasons. 
+The team_pitching function returns a dataframe of team-level pitching stats. This can be for either a single season or multiple. If multiple seasons are involved, this function can provide either single-season stats (e.g. one row per team per season) or aggregate stats over multiple seasons.
+
+FanGraphs provides three filter options: 'All', 'Starters', and 'Relievers'. The `team_pitching` function filters to 'All'; you can instead use `team_pitching_starters` and `team_pitching_relievers` to filter further.
 
 ## Arguments
+
 `start_season:` Integer. The first season for which you want the league's team-level pitching data.
 
-`end_season:` Integer. The last season for which you want the league's team-level pitching data. If not provided, the query will return data for only the start_season.  
+`end_season:` Integer. The last season for which you want the league's team-level pitching data. If not provided, the query will return data for only the start_season.
 
 `league:` String. Either "all" for all data, "nl" for National League, "al" for the American League, or "mnl" for all Negro League data. Defaults to "all", for returning data on all teams. See `FangraphsLeague` definition for all leagues.
 
@@ -26,4 +29,10 @@ data = team_pitching(2010, 2013, ind=0)
 
 # get team pitching stats for only the 1999 season
 data = team_pitching(1999)
+
+# get team pitching stats filtered to starters for only the 1999 season
+data = team_pitching_starters(1999)
+
+# get team pitching stats filtered to relievers for only the 1999 season
+data = team_pitching_relievers(1999)
 ```
