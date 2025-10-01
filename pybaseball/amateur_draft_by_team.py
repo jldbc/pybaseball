@@ -41,7 +41,7 @@ def drop_stats(draft_results: pd.DataFrame) -> pd.DataFrame:
 
 @cache.df_cache()
 def amateur_draft_by_team(
-    team: str, year: int, keep_stats: bool = True
+    team: str, year: int, keep_stats: bool = True, keep_columns: bool = False
 ) -> pd.DataFrame:
     """
     Get amateur draft results by team and year.
@@ -53,7 +53,8 @@ def amateur_draft_by_team(
 
     """
     draft_results = get_draft_results(team, year)
-    draft_results = postprocess(draft_results)
+    if not keep_columns:
+        draft_results = postprocess(draft_results)
     if not keep_stats:
         draft_results = drop_stats(draft_results)
     return draft_results

@@ -130,6 +130,14 @@ def events(season, type='regular', export_dir='.'):
         raise RuntimeError(f"Illegal type argument {type}, "
                            "the valid types are: 'regular', 'post', and 'asg'.")
 
+    match type:
+        case 'regular':
+            file_extension = ('.EVA','.EVN')
+        case 'post':
+            file_extension = ('CS.EVE','D1.EVE','D2.EVE','W1.EVE','W2.EVE','WS.EVE')
+        case 'asg':
+            file_extension = ('AS.EVE')
+
     try:
         g = Github(GH_TOKEN)
         repo = g.get_repo('chadwickbureau/retrosheet')
@@ -217,7 +225,6 @@ def schedules(season):
     repo = g.get_repo('chadwickbureau/retrosheet')
     season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
     file_name = f'{season}schedule.csv'
-    
     if file_name not in season_folder:
         raise ValueError(f'Schedule not available for {season}')
     s = get_text_file(schedule_url.format(season, season))
