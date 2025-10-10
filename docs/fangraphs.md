@@ -1,4 +1,4 @@
-# Fangraphs Data Acquisition Functions
+# Fangraphs Player and Team Performance Data Acquisition Functions
 
 ## Parameters
 
