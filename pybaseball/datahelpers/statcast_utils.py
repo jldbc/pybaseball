@@ -23,3 +23,21 @@ def add_spray_angle(raw_df: pd.DataFrame, adjusted: bool = False) -> pd.DataFram
         )
         df = df.drop(["spray_angle"], axis=1)
     return df
+
+def add_vertical_approach_angle(raw_df: pd.DataFrame) -> pd.DataFrame:
+    """Adds vertical approach angle to a StatCast DataFrame
+    - Vertical approach angle is the angle, in degrees, at which the ball crosses home plate
+    Args:
+        raw_df (pd.DataFrame): StatCast pd.DataFrame (retrieved through statcast, statcast_pitcher, etc)
+    Returns:
+        pd.DataFrame: Input dataframe with vertical approach angle column appended
+    """
+
+    df = raw_df.copy()
+
+    vy_f = -1 * np.sqrt(df['vy0']**2 - (2 * df['ay'] * (50 - (17 / 12))))
+    t = (vy_f - df['vy0']) / df['ay']
+    vz_f = df['vz0'] + (df['az'] * t)
+    df['vaa'] = -1 * np.arctan(vz_f / vy_f) * (180 / np.pi)
+
+    return df
