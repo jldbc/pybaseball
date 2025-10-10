@@ -18,7 +18,7 @@ def get_soup(season: Optional[int], team: str) -> BeautifulSoup:
     # get most recent year's schedule if year not specified
     if season is None:
         season = most_recent_season()
-    url = "http://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml".format(team, season)
+    url = "https://www.baseball-reference.com/teams/{}/{}-schedule-scores.shtml".format(team, season)
     print(url)
     s = session.get(url).content
     return BeautifulSoup(s, "lxml")
