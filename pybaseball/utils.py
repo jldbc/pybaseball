@@ -42,7 +42,7 @@ first_season_map: Dict[str, Optional[int]] = {
     'SYR': 1879, 'SYS': 1890, 'TBD': 1998, 'TBR': 2008, 'TC' : 1940, 'TC2': 1939, 'TEX': 1972, 'TLM': 1890,
     'TOL': 1884, 'TOR': 1977, 'TRO': 1871, 'TRT': 1879, 'TT' : 1923, 'WAP': 1932, 'WAS': 1884, 'WEG': 1936,
     'WES': 1875, 'WHS': 1892, 'WIL': 1884, 'WMP': 1925, 'WNA': 1884, 'WNL': 1886, 'WOR': 1880, 'WP' : 1924,
-    'WSA': 1961, 'WSH': 1901, 'WSN': 2005, 'WST': 1884, 
+    'WSA': 1961, 'WSH': 1901, 'WSN': 2005, 'WST': 1884,
 }
 
 team_equivalents = [
@@ -87,9 +87,9 @@ team_equivalents = [
 def get_first_season(team: str, include_equivalents: bool = True) -> Optional[int]:
     if not include_equivalents:
         return first_season_map[team]
-    
+
     oldest = first_season_map[team] or date.today().year
-    
+
     equivalents = [x for x in team_equivalents if team in x]
 
     if not equivalents:
@@ -99,7 +99,7 @@ def get_first_season(team: str, include_equivalents: bool = True) -> Optional[in
         equivalent_first = first_season_map[equivalent]
         if equivalent_first is not None and equivalent_first < oldest:
             oldest = equivalent_first
-    
+
     return oldest
 
 STATCAST_VALID_DATES = {
@@ -200,7 +200,7 @@ def statcast_date_range(start: date, stop: date, step: int, verbose: bool = True
 	low = start
 
 	while low <= stop:
-		date_span = low.replace(month=3, day=15), low.replace(month=11, day=15)
+		date_span = low.replace(month=2, day=15), low.replace(month=11, day=15)
 		season_start, season_end = STATCAST_VALID_DATES.get(low.year, date_span)
 		if low < season_start:
 			low = season_start
