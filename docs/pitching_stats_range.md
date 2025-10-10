@@ -4,6 +4,8 @@
 
 The pitching_stats_range function returns pitching stats from Baseball Reference, aggregated over a user-defined time range.
 
+To get pitching stats data over a time range from Fangraphs, set the start_date and end_date parameters in [the pitching_stats function](./pitching_stats.md).
+
 ## Arguments
 `start_dt:` String. The beginning of the date range you want data for. Format: "YYYY-MM-DD". 
 
