@@ -41,20 +41,12 @@ def team_fielding_bref(team: str, start_season: int, end_season: Optional[int]=N
         stats_url = "{}/{}-fielding.shtml".format(url, season)
         response = session.get(stats_url)
         soup = BeautifulSoup(response.content, 'html.parser')
-
-        fielding_div = soup.find('div', {'id': 'all_standard_fielding'})
-        comment = fielding_div.find(
-            string=lambda text: isinstance(text, Comment))
-
-        fielding_hidden = BeautifulSoup(comment.extract(), 'html.parser')
-
-        table = fielding_hidden.find('table')
-
-        thead = table.find('thead')
+        table = soup.find_all('table', {'id': 'players_standard_fielding'})[0]
 
         if headings is None:
-            headings = [row.text.strip()
-                        for row in thead.find_all('th')]
+            over_header = [row.text.strip() for row in table.find_all('th', {'class': 'over_header'})[1:]]
+            headings = [row.text.strip() for row in table.find_all('th')[1:36]]
+            headings = [col for col in headings if col not in over_header]
 
         rows = table.find('tbody').find_all('tr')
         for row in rows:
@@ -62,12 +54,10 @@ def team_fielding_bref(team: str, start_season: int, end_season: Optional[int]=N
             cols = [ele.text.strip() for ele in cols]
             # Removes '*' and '#' from some names
             cols = [col.replace('*', '').replace('#', '') for col in cols]
-            # Removes Team Totals and other rows
-            cols = [
-                col for col in cols if 'Team Runs' not in col
-            ]
             cols.insert(2, season)
-            raw_data.append(cols)
+            # Removes Non-Shift Infield Positioning and other rows
+            if 'Non-Shift Infield Positioning' not in cols and 'Infield Shifts' not in cols and 'Outfield Positioning' not in cols:
+                raw_data.append(cols)
 
     assert headings is not None
     headings.insert(2, "Year")
@@ -80,7 +70,7 @@ def team_fielding_bref(team: str, start_season: int, end_season: Optional[int]=N
         data,
         postprocessing.columns_except(
             data,
-            ['Team', 'Name', 'Pos\xa0Summary']
+            ['Awards', 'Player', 'Pos']
         )
     )
 
