@@ -36,6 +36,7 @@ from .statcast_fielding import (
 	statcast_fielding_run_value
 )
 from .league_batting_stats import batting_stats_bref
+from .appearances_bref import appearances_bref
 from .league_batting_stats import batting_stats_range
 from .league_batting_stats import bwar_bat
 from .league_pitching_stats import pitching_stats_bref
