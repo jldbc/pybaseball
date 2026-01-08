@@ -1,5 +1,5 @@
 # Statcast Pitcher Spin
-`statcast_pitcher(start_dt=[yesterday's date], end_dt=None, player_id)`
+`statcast_pitcher_spin(start_dt=[yesterday's date], end_dt=None, player_id)`
 
 The statcast function retrieves pitch-level statcast data for a given date or range or dates and calculates spin related metrics.
 
