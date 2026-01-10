@@ -8,7 +8,7 @@ import requests
 
 from . import cache
 
-url = "https://github.com/chadwickbureau/baseballdatabank/archive/master.zip"
+url = "https://github.com/seanlahman/baseballdatabank/archive/refs/heads/master.zip"
 base_string = "baseballdatabank-master"
 
 _handle = None
@@ -106,7 +106,11 @@ def master() -> pd.DataFrame:
     return people()
 
 def people() -> pd.DataFrame:
-    return _get_file("core/People.csv")
+    # Try new naming first (People.csv), fallback to old naming (Master.csv)
+    try:
+        return _get_file("core/People.csv")
+    except (FileNotFoundError, KeyError):
+        return _get_file("core/Master.csv")
 
 def pitching() -> pd.DataFrame:
     return _get_file("core/Pitching.csv")
