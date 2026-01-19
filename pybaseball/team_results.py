@@ -102,7 +102,7 @@ def make_numeric(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 @cache.df_cache()
-def schedule_and_record(season: int, team: str) -> pd.DataFrame:
+def schedule_and_record(season: int, team: str, validate: bool) -> pd.DataFrame:
     """ 
     Retrieve a team's game-level results for a given season, including win/loss/tie result, score, attendance, 
     and winning/losing/saving pitcher. If the season is incomplete, it will provide scheduling information for 
@@ -111,18 +111,20 @@ def schedule_and_record(season: int, team: str) -> pd.DataFrame:
     ARGUMENTS
         season: Integer. The season for which you want a team's record data.
         team: String. The abbreviation of the team for which you are requesting data (e.g. "PHI", "BOS", "LAD").
+        validate: Boolean. If True, will check that the team exists in the dictionary of team abbreviations and that the season is after the team's first season. If False, will skip these checks.
     """
     # retrieve html from baseball reference
     # sanatize input
     team = team.upper()
-    try:
-        first_season = get_first_season(team)
-        if first_season is None or season < first_season:
-            m = "Season cannot be before first year of a team's existence"
-            raise ValueError(m)
-    # ignore validation if team isn't found in dictionary
-    except KeyError:
-        pass
+    if validate:
+        try:
+            first_season = get_first_season(team)
+            if first_season is None or season < first_season:
+                m = "Season cannot be before first year of a team's existence"
+                raise ValueError(m)
+        # ignore validation if team isn't found in dictionary
+        except KeyError:
+            pass
     if season > datetime.now().year:
         raise ValueError('Season cannot be after current year')
 

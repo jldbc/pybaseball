@@ -6,18 +6,65 @@ from .datasources.bref import BRefSession
 session = BRefSession()
 
 # pylint: disable=line-too-long
-_URL = "https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={draft_round}&draft_type=junreg&query_type=year_round&"
+_URL = "https://www.baseball-reference.com/draft/?year_ID={year}&draft_round={draft_round}&draft_type={draft_type}&query_type=year_round&"
 
 
-def get_draft_results(year: int, draft_round: int) -> pd.DataFrame:
-    url = _URL.format(year=year, draft_round=draft_round)
+def get_draft_results(
+        year: int,
+        draft_round: int,
+        draft_type: str = 'junreg',
+        include_id: bool = False
+) -> pd.DataFrame:
+    if draft_type not in ['junreg', 'junsec', 'janreg', 'jansec', 'augleg', 'junseca', 'junsecd']:
+        draft_type = 'junreg'
+    url = _URL.format(year=year, draft_round=draft_round, draft_type=draft_type)
     res = session.get(url, timeout=None).content
-    draft_results = pd.read_html(res)
+    extract_links = 'body' if include_id else None
+    draft_results = pd.read_html(res, extract_links=extract_links)
+    draft_results = pd.concat(draft_results)
+    if include_id:
+        draft_results = clean_draft_results_with_links(draft_results)
     return draft_results
 
+def clean_draft_results_with_links(draft_results: pd.DataFrame) -> pd.DataFrame:
+    draft_results['link'] = draft_results['Name'].apply(
+        lambda value: value[1] if value[1] != None else 'NA'
+        )
+    draft_results['id_type'] = draft_results['link'].apply(
+        lambda value:
+            'baseball_reference_minor_league_id' if 'register' in value 
+            else 'baseball_reference_id' if 'players' in value
+            else 'NA'
+        )
+    draft_results['player_id'] = draft_results['link'].apply(
+        lambda value:
+            value.split('=')[-1] if 'register' in value 
+            else value.split('/')[-1].split('.')[0] if 'players' in value
+            else 'NA'
+        )
+    draft_results['notes'] = draft_results['Name'].apply(
+        lambda value: value[0].split('(')[1].split(')')[0] if value[1] == None else 'NA'
+        )
+    draft_results['team_id'] = draft_results['Tm'].apply(
+        lambda value: value[1].split('team_ID=')[-1].split('&year_ID=')[0] if value[1] != None else 'NA'
+    )
+    draft_results = draft_results.apply(
+        lambda column: [
+            value[0] if column.name not in ['link', 'id_type', 'player_id', 'notes', 'team_id'] 
+            else value for value in column
+            ]
+        )
+    return draft_results
 
 @cache.df_cache()
-def amateur_draft(year: int, draft_round: int, keep_stats: bool = True) -> pd.DataFrame:
+def amateur_draft(
+        year: int,
+        draft_round: int,
+        draft_type: str,
+        include_id:bool = False,
+        keep_stats: bool = True,
+        keep_columns: bool = False
+) -> pd.DataFrame:
     """
     Retrieves the MLB amateur draft results by year and round.
 
@@ -25,12 +72,16 @@ def amateur_draft(year: int, draft_round: int, keep_stats: bool = True) -> pd.Da
         year: The year for which you wish to retrieve draft results.
         draft_round: The round for which you wish to retrieve draft results. There is no distinction made 
             between the competitive balance, supplementary, and main portions of a round.
+        include_id: A boolean parameter that controls whether the 'player_id' column is included in the
+            returned DataFrame. Default set to false.
         keep_stats: A boolean parameter that controls whether the major league stats of each draftee is 
             displayed. Default set to true.
+        keep_columns: A boolean parameter that controls whether the columns 'Year', 'Rnd', 'RdPck', 'DT',
+            'FrRnd' are returned. Default set to false.
     """
-    draft_results = get_draft_results(year, draft_round)
-    draft_results = pd.concat(draft_results)
-    draft_results = postprocess(draft_results)
+    draft_results = get_draft_results(year, draft_round, draft_type, include_id)
+    if not keep_columns:
+        draft_results = postprocess(draft_results)
     if not keep_stats:
         draft_results = drop_stats(draft_results)
     return draft_results
