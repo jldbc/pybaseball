@@ -15,7 +15,7 @@ The 'team_pitching_bref' function returns a dataframe of team-level pitching sta
 
 ```python
 ~~~~
-from pybaseball import team_pitching
+from pybaseball import team_pitching_bref
 
 # get the Yankees (NYY) seasonal pitching stats from 2010 through 2013
 data = team_pitching_bref('NYY', 2010, 2013)
