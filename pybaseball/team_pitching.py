@@ -27,12 +27,16 @@ def team_pitching_bref(team: str, start_season: int, end_season: Optional[int]=N
     """
     if start_season is None:
         raise ValueError(
-            "You need to provide at least one season to collect data for. Try team_pitching_bref(season) or team_pitching_bref(start_season, end_season)."
+            "You need to provide at least one season to collect data for. Try team_pitching_bref(team, season) or team_pitching_bref(team, start_season, end_season)."
         )
     if end_season is None:
         end_season = start_season
+    if end_season < start_season:
+        raise ValueError(
+            "The end_season cannot be before the start_season."
+        )
 
-    url = "https://www.baseball-reference.com/teams/{}".format(team)
+    url = "https://www.baseball-reference.com/teams/{}".format(team.upper())
 
     raw_data = []
     headings: Optional[List[str]] = None
