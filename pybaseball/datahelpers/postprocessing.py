@@ -30,11 +30,12 @@ def try_parse_dataframe(
 
     if parse_numerics:
         data_copy = coalesce_nulls(data_copy, null_replacement)
-        data_copy = data_copy.apply(
-            pd.to_numeric,
-            errors='ignore',
-            downcast='signed'
-        ).convert_dtypes(convert_string=False)
+        for col in data_copy.columns:
+            try:
+                data_copy[col] = pd.to_numeric(data_copy[col], downcast='signed')
+            except (ValueError, TypeError):
+                pass
+        data_copy = data_copy.convert_dtypes(convert_string=False)
 
     string_columns = [
         dtype_tuple[0] for dtype_tuple in data_copy.dtypes.items() if str(dtype_tuple[1]) in ["object", "string"]
