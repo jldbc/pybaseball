@@ -24,6 +24,16 @@ def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
 
     fg_team_data = pd.read_csv(_DATA_FILENAME, index_col=0)
 
+    max_year = int(fg_team_data['yearID'].max())
+
+    # If the requested season is beyond the data, extrapolate from the last known year.
+    # MLB team composition hasn't changed since 2021 (when the bundled data ends),
+    # so it's safe to reuse the last year's data for recent seasons.
+    if season is not None and season > max_year:
+        last_year_data = fg_team_data[fg_team_data['yearID'] == max_year].copy()
+        last_year_data['yearID'] = season
+        fg_team_data = pd.concat([fg_team_data, last_year_data], ignore_index=True)
+
     if season is not None:
         fg_team_data = fg_team_data.query(f"yearID == {season}")
 
