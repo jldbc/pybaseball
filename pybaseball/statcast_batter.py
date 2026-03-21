@@ -134,10 +134,10 @@ def statcast_batter_run_value(year: int) -> pd.DataFrame():
 
     ARGUMENTS:
         year(int): year data is retrieved for.
-        Data can only be retrieved for a single year at a time
+        Data is can only be retrieved for a single year at a time
 
     Returns:
-        data(pd.DataFrame): clean dataframe from Savant Return
+        data(pd.DataFrame): dataframe from Savant Return
 
     """
     try:
@@ -148,5 +148,30 @@ def statcast_batter_run_value(year: int) -> pd.DataFrame():
         return data
     except HTTPException as error:
         raise ConnectionError(f"URL {error} is unreachable")
-    finally:
-        raise KeyError(f"An Error Occurred in Acquiring the Data")
+
+
+@cache.df_cache()
+def statcast_abs(
+    challengeType: str, level: str, gameType: str, year: int
+) -> pd.DataFrame():
+    """
+    Retrieves Automated Ball-Strike Challenge (ABS) leaderboard
+    ARGUMENTS:
+        challengeType (enum): batter, batting-team, catcher, pitcher, etc
+        level (enum): mlb, aaa
+        gameType (enum): spring, regular, playoff
+        year: year of request
+    Returns:
+        data(pd.DataFrame): dataframe from Savant ABS Return
+
+    """
+    try:
+        url = f"https://baseballsavant.mlb.com/leaderboard/abs-challenges?challengeType={challengeType}&level={level}&gameType={gameType}&year={year}&csv=True"
+        res = requests.get(url, timeout=None).content
+        data = pd.read_csv(io.StringIO(res.decode("utf-8")))
+        data = sanitize_statcast_columns(data)
+        return data
+    except HTTPException as error:
+        raise ConnectionError(f"URL {error} is unreachable")
+
+

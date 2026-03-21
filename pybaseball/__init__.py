@@ -23,7 +23,8 @@ from .statcast_batter import (
 	statcast_batter_percentile_ranks,
 	statcast_batter_pitch_arsenal,
     statcast_batter_bat_tracking,
-	statcast_batter_run_value
+	statcast_batter_run_value,
+	statcast_abs
 )
 from .statcast_running import statcast_sprint_speed, statcast_running_splits
 from .statcast_fielding import (

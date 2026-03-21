@@ -10,6 +10,7 @@ from pybaseball.statcast_batter import (
     statcast_batter_pitch_arsenal,
     statcast_batter_bat_tracking,
     statcast_batter_run_value,
+    statcast_abs,
 )
 
 
@@ -79,6 +80,15 @@ def test_statcast_batter_bat_tracking() -> None:
 
 def test_statcast_batter_run_value() -> None:
     result: pd.DataFrame = statcast_batter_run_value(2024)
+
+    assert result is not None
+    assert not result.empty
+
+    assert len(result) > 0
+
+
+def test_statcast_abs() -> None:
+    result: pd.DataFrame = statcast_abs("batting-team", "mlb", "spring", 2026)
 
     assert result is not None
     assert not result.empty
