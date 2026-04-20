@@ -25,7 +25,7 @@ from .statcast_batter import (
     statcast_batter_bat_tracking,
 	statcast_batter_run_value
 )
-from .statcast_running import statcast_sprint_speed, statcast_running_splits
+from .statcast_running import statcast_sprint_speed, statcast_running_splits, statcast_baserunning_run_value
 from .statcast_fielding import (
 	statcast_outs_above_average,
 	statcast_outfield_directional_oaa,

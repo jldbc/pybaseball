@@ -45,3 +45,19 @@ def statcast_running_splits(year: int, min_opp: int = 5, raw_splits: bool = True
 	data = sanitize_statcast_columns(data)
 	return data
 
+@cache.df_cache()
+def statcast_baserunning_run_value(start_year: int, end_year: int, min_att: int = 5) -> pd.DataFrame:
+	"""
+	Returns each player's baserunning run value for the given year span and filters based on minimum number of attempts
+
+	ARGUMENTS
+		start_year: first year to gather data from
+		end_year: last year to gather data from
+		min_att: The minimum number of advancement attempts. Statcast counts attempted steals and attempted extra bases together to find this
+	"""
+	url = f"https://baseballsavant.mlb.com/leaderboard/baserunning-run-value?game_type=All&season_start={start_year}&season_end={end_year}&split=no&n={min_att}&team=&type=Run&with_team_only=1&csv=true"
+	res = requests.get(url, timeout=None).content
+	data = pd.read_csv(io.StringIO(res.decode("utf-8")))
+	data = sanitize_statcast_columns(data)
+	return data
+
