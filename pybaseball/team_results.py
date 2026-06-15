@@ -72,7 +72,7 @@ def get_table(soup: BeautifulSoup, team: str) -> pd.DataFrame:
     df = df.rename(columns=df.iloc[0])
     df = df.reindex(df.index.drop(0))
     df = df.drop('', axis=1) #not a useful column
-    df['Attendance'].replace(r'^Unknown$', np.nan, regex=True, inplace = True) # make this a NaN so the column can benumeric
+    df['Attendance'] = df['Attendance'].replace(r'^Unknown$', np.nan, regex=True) # make this a NaN so the column can be numeric
     return df
 
 def process_win_streak(data: pd.DataFrame) -> pd.DataFrame:
