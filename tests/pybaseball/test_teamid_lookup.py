@@ -141,3 +141,21 @@ def test_get_close_team_matches() -> None:
 
     for _, row in lahman_teams.iterrows():
         assert _get_close_team_matches(row, fg_teams) == row.expected
+
+
+def test_team_id_lookup_recent_season() -> None:
+    # Regression test for #486: seasons after the bundled data's final year
+    # previously returned an empty DataFrame. team_ids should now extrapolate
+    # from the most recent known year, since MLB team composition is unchanged.
+    from pybaseball.teamid_lookup import _DATA_FILENAME
+
+    max_year = int(pd.read_csv(_DATA_FILENAME, index_col=0)['yearID'].max())
+    recent_season = max_year + 2
+
+    result = team_ids(recent_season)
+
+    assert result is not None
+    assert not result.empty
+    assert len(result.columns) == 7
+    assert len(result) == 30
+    assert (result['yearID'] == recent_season).all()
