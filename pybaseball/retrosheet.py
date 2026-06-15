@@ -24,7 +24,7 @@ import pandas as pd
 from pybaseball.utils import get_text_file
 from datetime import datetime
 from io import StringIO
-from github import Github
+from github import Auth, Github
 import os
 from getpass import getuser, getpass
 from github.GithubException import RateLimitExceededException
@@ -131,7 +131,7 @@ def events(season, type='regular', export_dir='.'):
                            "the valid types are: 'regular', 'post', and 'asg'.")
 
     try:
-        g = Github(GH_TOKEN)
+        g = Github(auth=Auth.Token(GH_TOKEN)) if GH_TOKEN else Github()
         repo = g.get_repo('chadwickbureau/retrosheet')
         season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
         season_events = [t for t in season_folder if t.endswith(file_extension)]
@@ -156,7 +156,7 @@ def rosters(season):
     GH_TOKEN=os.getenv('GH_TOKEN', '')
 
     try:
-        g = Github(GH_TOKEN)
+        g = Github(auth=Auth.Token(GH_TOKEN)) if GH_TOKEN else Github()
         repo = g.get_repo('chadwickbureau/retrosheet')
         season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
         rosters = [t for t in season_folder if t.endswith('.ROS')]
@@ -179,7 +179,7 @@ def _roster(team, season, checked = False):
     GH_TOKEN=os.getenv('GH_TOKEN', '')
 
     if not checked:
-        g = Github(GH_TOKEN)
+        g = Github(auth=Auth.Token(GH_TOKEN)) if GH_TOKEN else Github()
         try:
             repo = g.get_repo('chadwickbureau/retrosheet')
             season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
@@ -213,7 +213,7 @@ def schedules(season):
     """
     GH_TOKEN=os.getenv('GH_TOKEN', '')
     # validate input
-    g = Github(GH_TOKEN)
+    g = Github(auth=Auth.Token(GH_TOKEN)) if GH_TOKEN else Github()
     repo = g.get_repo('chadwickbureau/retrosheet')
     season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
     file_name = f'{season}schedule.csv'
@@ -231,7 +231,7 @@ def season_game_logs(season):
     """
     GH_TOKEN=os.getenv('GH_TOKEN', '')
     # validate input
-    g = Github(GH_TOKEN)
+    g = Github(auth=Auth.Token(GH_TOKEN)) if GH_TOKEN else Github()
     repo = g.get_repo('chadwickbureau/retrosheet')
     season_folder = [f.path[f.path.rfind('/')+1:] for f in repo.get_contents(f'seasons/{season}')]
     gamelog_file_name = f'GL{season}.TXT'
