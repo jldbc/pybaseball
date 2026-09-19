@@ -14,7 +14,9 @@ from .statcast_pitcher import (
 	statcast_pitcher_arsenal_stats,
 	statcast_pitcher_percentile_ranks,
 	statcast_pitcher_spin_dir_comp,
-	statcast_pitcher_run_value
+	statcast_pitcher_run_value,
+	statcast_pitcher_active_spin,
+	statcast_pitcher_pitch_movement
 )
 from .statcast_batter import (
 	statcast_batter,
