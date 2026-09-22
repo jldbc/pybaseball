@@ -2,6 +2,7 @@ from difflib import get_close_matches
 import io
 import os
 import re
+import time
 import zipfile
 
 from typing import List, Tuple, Iterable
@@ -40,12 +41,19 @@ def _extract_people_table(zip_archive: zipfile.ZipFile) -> pd.DataFrame:
     return pd.concat(dfs, axis=0)
 
 
+def _is_register_stale(path):
+    age = time.time() - os.path.getmtime(path)
+    max_age = cache.config.default_expiration * 86400  # days -> seconds
+    return age > max_age
+
+
 @cache.df_cache()
 def chadwick_register(save: bool = False) -> pd.DataFrame:
     ''' Get the Chadwick register Database '''
 
-    if os.path.exists(get_register_file()):
-        table = pd.read_csv(get_register_file())
+    path = get_register_file()
+    if os.path.exists(path) and not _is_register_stale(path):
+        table = pd.read_csv(path)
         return table
 
     print('Gathering player lookup table. This may take a moment.')
@@ -67,7 +75,7 @@ def chadwick_register(save: bool = False) -> pd.DataFrame:
     table = table[cols_to_keep]
 
     if save:
-        table.to_csv(get_register_file(), index=False)
+        table.to_csv(path, index=False)
 
     return table
 
@@ -136,10 +144,9 @@ class _PlayerSearchClient:
         # If no matches, return 5 closest names
         if len(results) == 0 and fuzzy:
             print("No identically matched names found! Returning the 5 most similar names.")
-            results=get_closest_names(last=last, first=first, player_table=self.table)
-            
-        return results
+            results = get_closest_names(last=last, first=first, player_table=self.table)
 
+        return results
 
     def search_list(self, player_list: List[Tuple[str, str]]) -> pd.DataFrame:
         '''
@@ -150,14 +157,13 @@ class _PlayerSearchClient:
 
         Returns:
             pd.DataFrame: DataFrame of playerIDs, name, years played
-        ''' 
+        '''
         results = pd.DataFrame()
 
         for last, first in player_list:
             results = results.append(self.search(last, first), ignore_index=True)
-        
-        return results
 
+        return results
 
     def reverse_lookup(self, player_ids: List[str], key_type: str = 'mlbam') -> pd.DataFrame:
         """Retrieve a table of player information given a list of player ids
@@ -193,6 +199,7 @@ def _get_client() -> _PlayerSearchClient:
         _client = _PlayerSearchClient()
     return _client
 
+
 def playerid_lookup(last: str, first: str = None, fuzzy: bool = False, ignore_accents: bool = False) -> pd.DataFrame:
     """Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a given player
 
@@ -208,6 +215,7 @@ def playerid_lookup(last: str, first: str = None, fuzzy: bool = False, ignore_ac
     client = _get_client()
     return client.search(last, first, fuzzy, ignore_accents)
 
+
 def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
     '''
     Lookup playerIDs (MLB AM, bbref, retrosheet, FG) for a list of players.
@@ -217,9 +225,10 @@ def player_search_list(player_list: List[Tuple[str, str]]) -> pd.DataFrame:
 
     Returns:
         pd.DataFrame: DataFrame of playerIDs, name, years played
-    ''' 
+    '''
     client = _get_client()
     return client.search_list(player_list)
+
 
 def playerid_reverse_lookup(player_ids: List[str], key_type: str = 'mlbam') -> pd.DataFrame:
     """Retrieve a table of player information given a list of player ids
@@ -233,6 +242,7 @@ def playerid_reverse_lookup(player_ids: List[str], key_type: str = 'mlbam') -> p
     """
     client = _get_client()
     return client.reverse_lookup(player_ids, key_type)
+
 
 def normalize_accents(s: str) -> str:
     """Removes accented letters from a string
