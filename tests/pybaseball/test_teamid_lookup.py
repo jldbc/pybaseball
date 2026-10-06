@@ -141,3 +141,40 @@ def test_get_close_team_matches() -> None:
 
     for _, row in lahman_teams.iterrows():
         assert _get_close_team_matches(row, fg_teams) == row.expected
+
+
+def test_team_id_lookup_recent_season() -> None:
+    # Regression test for #486: seasons after the bundled data's final year
+    # previously returned an empty DataFrame. team_ids should now extrapolate
+    # from the most recent known year (the 30 franchises are unchanged).
+    from pybaseball.teamid_lookup import _DATA_FILENAME
+
+    max_year = int(pd.read_csv(_DATA_FILENAME, index_col=0)['yearID'].max())
+    recent_season = max_year + 2
+
+    result = team_ids(recent_season)
+
+    assert result is not None
+    assert not result.empty
+    assert len(result.columns) == 7
+    assert len(result) == 30
+    assert (result['yearID'] == recent_season).all()
+
+
+def test_team_id_lookup_athletics_abbreviation_after_move() -> None:
+    # The Athletics are OAK through 2024 and ATH on Baseball Reference and
+    # Retrosheet from 2025, when they moved to Sacramento.
+    from pybaseball.teamid_lookup import _DATA_FILENAME
+
+    max_year = int(pd.read_csv(_DATA_FILENAME, index_col=0)['yearID'].max())
+    if max_year >= 2024:
+        pytest.skip('bundled data now covers 2024; extrapolation is not used')
+
+    before = team_ids(2024).set_index('franchID').loc['OAK']
+    assert before['teamIDBR'] == 'OAK'
+    assert before['teamIDretro'] == 'OAK'
+
+    after = team_ids(2025).set_index('franchID').loc['OAK']
+    assert after['teamIDBR'] == 'ATH'
+    assert after['teamIDretro'] == 'ATH'
+    assert after['teamIDfg'] == before['teamIDfg']

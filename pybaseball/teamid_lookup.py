@@ -24,6 +24,20 @@ def team_ids(season: Optional[int] = None, league: str = 'ALL') -> pd.DataFrame:
 
     fg_team_data = pd.read_csv(_DATA_FILENAME, index_col=0)
 
+    max_year = int(fg_team_data['yearID'].max())
+
+    # If the requested season is beyond the data, extrapolate from the last known year.
+    # The 30 franchises are unchanged since 2021 (when the bundled data ends), but the
+    # Athletics moved to Sacramento in 2025 and Baseball Reference and Retrosheet
+    # list them as ATH from that season on.
+    if season is not None and season > max_year:
+        last_year_data = fg_team_data[fg_team_data['yearID'] == max_year].copy()
+        last_year_data['yearID'] = season
+        if season >= 2025:
+            athletics = last_year_data['franchID'] == 'OAK'
+            last_year_data.loc[athletics, ['teamIDBR', 'teamIDretro']] = 'ATH'
+        fg_team_data = pd.concat([fg_team_data, last_year_data], ignore_index=True)
+
     if season is not None:
         fg_team_data = fg_team_data.query(f"yearID == {season}")
 

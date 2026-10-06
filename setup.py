@@ -87,7 +87,7 @@ setup(
                       'requests>=2.18.1',
                       'lxml>=4.2.1',
                       'pyarrow>=1.0.1',
-                      'pygithub>=1.51',
+                      'pygithub>=1.59',
                       'scipy>=1.4.0',
                       'matplotlib>=2.0.0',
                       'tqdm>=4.50.0',

@@ -22,6 +22,14 @@ def get_table(season: int, team: str, log_type: str) -> pd.DataFrame:
     return data
 
 
+def _to_numeric_or_keep(column: pd.Series) -> pd.Series:
+    # pandas 3 removed errors="ignore" from pd.to_numeric
+    try:
+        return pd.to_numeric(column)
+    except (ValueError, TypeError):
+        return column
+
+
 def postprocess(data: pd.DataFrame) -> pd.DataFrame:
     #print(data.columns)
     data.drop([('Unnamed: 0_level_0', 'Rk')], axis=1, inplace=True)  # drop index column
@@ -36,7 +44,7 @@ def postprocess(data: pd.DataFrame) -> pd.DataFrame:
     data = data.rename(columns= repl_dict).copy()
     data[('Unnamed: 3_level_0','Home')] = data[('Unnamed: 3_level_0','Home')].isnull()  # '@' if away, empty if home
     data = data[data[('Unnamed: 1_level_0','Game')] != 'Gtm'].copy()  # drop empty month rows
-    data = data.apply(pd.to_numeric, errors="ignore")
+    data = data.apply(_to_numeric_or_keep)
     data[('Unnamed: 1_level_0','Game')] = data[('Unnamed: 1_level_0','Game')].astype(int)
     return data.reset_index(drop=True)
 

@@ -18,7 +18,10 @@ def _single_game_raw(get_data_file_contents: Callable[[str], str]) -> str:
 @pytest.fixture(name="single_game")
 def _single_game(get_data_file_dataframe: GetDataFrameCallable) -> pd.DataFrame:
     data = get_data_file_dataframe('single_game_request.csv', parse_dates=[2])
-    data[data.columns[2]].apply(pd.to_datetime, errors='ignore', format=DATE_FORMAT)
+    try:
+        data[data.columns[2]] = pd.to_datetime(data[data.columns[2]], format=DATE_FORMAT)
+    except (ValueError, TypeError):
+        pass
     return data
 
 

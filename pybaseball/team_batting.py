@@ -40,10 +40,15 @@ def team_batting_bref(team: str, start_season: int, end_season: Optional[int]=No
         response = session.get(stats_url)
         soup = BeautifulSoup(response.content, 'html.parser')
 
-        table = soup.find_all('table', {'class': 'sortable stats_table'})[0]
+        table = soup.find('table', {'id': 'players_standard_batting'})
+        thead = table.find('thead') if table is not None else None
+        if table is None or thead is None:
+            raise ValueError(
+                "Could not find batting data for {} {}. The page structure may have changed.".format(team, season)
+            )
 
         if headings is None:
-            headings = [row.text.strip() for row in table.find_all('th')[1:28]]
+            headings = [th.text.strip() for th in thead.find_all('th')[1:]]
 
         rows = table.find_all('tr')
         for row in rows:

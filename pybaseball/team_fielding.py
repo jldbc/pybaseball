@@ -32,7 +32,12 @@ def team_fielding_bref(team: str, start_season: int, end_season: Optional[int]=N
         )
     if end_season is None:
         end_season = start_season
+    if end_season < start_season:
+        raise ValueError(
+            "end_season must be greater than or equal to start_season."
+        )
 
+    team = team.upper()
     url = "https://www.baseball-reference.com/teams/{}".format(team)
 
     raw_data = []
